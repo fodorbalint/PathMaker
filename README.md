@@ -6,4 +6,6 @@ Generate a line that goes through an n x n grid (where n is a natural number), p
 Output the image in svg format.
  
 It does so applying the observed rules and by calculating lines to move along in the future depending on the current line. In many cases, the line cannot be completed, and I aim to discover them.
-See example pictures under the References folder.
+Here is an example, but see more under the References folder.
+
+![alt text](https://github.com/fodorbalint/PathMaker/blob/main/References/0701_1.svg)
