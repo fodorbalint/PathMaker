@@ -1,6 +1,6 @@
 # PathMaker
 
-This program aims to solve the following challenge:
+This program aims to solve the following riddle:
 
 Generate a line that goes through an n x n grid (where n is a natural number), passing through each field once. The line has to start from the field at the upper left corner (1 x 1) and end at n x n. At any time it is allowed to move left, right, up or down, and it has to randomly choose between the available fields.
 Output the image in svg format.
