@@ -357,15 +357,16 @@ namespace SvgApp
 						}
 					}
 				}
-				else if (!InTaken(x + lx + dx, y + ly + dy)) //if not upside down C
+				/*else if (!InTaken(x + lx + dx, y + ly + dy)) //if not upside down C
 				{
 					//lower left corner
 					if (!(x == 1 && (y + ly) == size))
 					{
 						forbidden.Add(leftField);
 					}
-				}
+				}*/
 			}
+
 			if ((InTaken(x + 2 * rx, y + 2 * ry) || InBorder(x + 2 * rx, y + 2 * ry)) && !InTakenF(rightField)) //2 to right
 			{
 				if (InTaken(x + rx - dx, y + ry - dy))
@@ -382,13 +383,26 @@ namespace SvgApp
 						}
 					}
 				}
-				else if (!InTaken(x + rx + dx, y + ry + dy))
+				/*else if (!InTaken(x + rx + dx, y + ry + dy))
 				{
 					//upper right corner
 					if (!(y == 1 && (x + rx) == size))
 					{
+						T("forbidden.Count " + y);
 						forbidden.Add(rightField);
 					}
+				}*/
+			}
+
+			//Even future line can make this C shape, see 0727_1
+			if (InTaken(x + 2 * dx, y + 2 * dy) && !InTakenF(straightField) && (InTaken(x + dx + lx, y + dy + ly) || InTaken(x + dx + rx, y + dy + ry))) //C shape straight
+			{
+				if (!(liveEndX == straightField[0] && Math.Abs(liveEndY - straightField[1]) == 1 || liveEndY == straightField[1] && Math.Abs(liveEndX - straightField[0]) == 1))
+				{
+					T("C shape straight");
+					forbidden.Add(leftField);
+					forbidden.Add(rightField);
+					CShape = true;
 				}
 			}
 		}
@@ -442,19 +456,8 @@ namespace SvgApp
 				T("CheckNearField forbidden " + field[0] + " " + field[1]);
 			}
 
-			if (InTaken(x + 2 * dx, y + 2 * dy) && !InTakenF(straightField) && (InTaken(x + dx + lx, y + dy + ly) || InTaken(x + dx + rx, y + dy + ry))) //C shape straight
+			if (!CShape)
 			{
-				if (!(liveEndX == straightField[0] && Math.Abs(liveEndY - straightField[1]) == 1 || liveEndY == straightField[1] && Math.Abs(liveEndX - straightField[0]) == 1))
-				{
-					T("C shape straight");
-					forbidden.Add(leftField);
-					forbidden.Add(rightField);
-				}
-			}
-			else
-			{
-				if (CShape) return;
-
 				int directionIndex = Math.Abs(selectedDirection[0]); //0 for vertical, 1 for horizontal
 
 				if (InTaken(x + lx + 2 * dx, y + ly + 2 * dy) &&
