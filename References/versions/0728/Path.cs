@@ -369,7 +369,6 @@ namespace SvgApp
 
 			if ((InTaken(x + 2 * rx, y + 2 * ry) || InBorder(x + 2 * rx, y + 2 * ry)) && !InTakenF(rightField)) //2 to right
 			{
-				T("2 to right");
 				if (InTaken(x + rx - dx, y + ry - dy))
 				{
 					//if the right field is not next to the other live end of the future path
@@ -906,9 +905,7 @@ namespace SvgApp
 						}
 						// In case the across field is the start of a section, we can still go in all directions, it is possible to connect to it.
 					}
-					// we entered the stair from the start, as in 0305. The across field is going forward.
-					// But in 0729, we cannot disable the straight field, because the left field is not free.
-					else if (!CShape)
+					else //we entered the stair from the start, as in 0305. The across field is going forward.
 					{
 						T("CheckNearFutureSide across right, entered at start");
 						forbidden.Add(rightField);
@@ -945,7 +942,7 @@ namespace SvgApp
 							}
 						}
 					}
-					else if (!CShape)
+					else
 					{
 						T("CheckNearFutureSide across left, entered at start");
 						forbidden.Add(leftField);
@@ -1054,9 +1051,9 @@ namespace SvgApp
 			}
 		}
 
-		public bool InBorder(int x, int y) // allowing negative values could cause an error in AddFutureLines 2x2 checking
+		public bool InBorder(int x, int y)
 		{
-			if (x == 0 || x == size + 1 || y == 0 || y == size + 1) return true;
+			if (x < 1 || x > size || y < 1 || y > size) return true;
 			return false;
 		}
 

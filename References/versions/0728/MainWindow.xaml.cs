@@ -36,11 +36,12 @@ using SkiaSharp.Views.Desktop;
 //		Right now, forbidden fields only apply on the main line when the across field goes up. Are all across checks invalid for future line?
 //		0521: Future line start can be extended now. Taken is connecting to future, but since the left and right fields are not simultaneously empty, future line cannot be extended. In this case, the end of the selected future line cannot fill the empty space next to the main line, unlike it would be the case when connecting to the future section on the top.
 
-// In 5x5, future line at the border is not drawn.
-// Controlled moving back doesn't work now.
+// 0708: This shape cannot be completed. Draw 2x2 future line. 
+// 0714_2: If we step on the left, there will be no possibilities to move, which is an error.
+// 0721: Future line far end can be extended.
+// In 5x5, future line at the border is not drawn
+// Stepped on future: //look through merged paths
 
-// Countarea not needed in 0729_1
-// 0729_2: Future end will not be able to go further
 // Examine commented sections in CheckNearFieldCommon, are they needed?
 // When we step on a future line which is merged, this has to be taken into account, because the far end will be extended if it i close to the near end. Is such situation possible? See 0727
 // Are there any cases where the returnCode in Move() is 1 an DrawPath calling is needed?
@@ -1517,45 +1518,32 @@ namespace SvgApp
 						futureActive[foundIndex] = false;
 						//we do not add future lines while completing one
 
+						//when extending the other end, the starting end is now not live anymore
+						future.liveEndX = -1;
+						future.liveEndY = -1;
+
 						taken.path2 = future.path;
 
-						int farEndIndex = futureSections[selectedSection][1];
-						int lastMerged = selectedSection;
+						int endIndex = futureSections[selectedSection][1];
 
-						for (int i = 0; i < futureSectionMerges.Count; i++)
+						//look through merged paths
+
+						int endX = future.path[endIndex][0];
+						int endY = future.path[endIndex][1];
+						
+						future.path2 = taken.path;
+
+						if (!ExtendFutureLine(false, foundIndex, endIndex, selectedSection, selectedSection, true))
 						{
-							int[] merge = futureSectionMerges[i];
-							if (merge[merge.Length - 1] == selectedSection)
-							{
-								lastMerged = merge[1];
-								farEndIndex = futureSections[lastMerged][1];
-							}
-						}
-
-						int endX = future.path[farEndIndex][0];
-						int endY = future.path[farEndIndex][1];
-
-						// if the near and far end are 2 apart, the field between will be now taken by the far end and can be extended further.
-						if (x == endX && Math.Abs(y - endY) == 2 || y == endY && Math.Abs(x - endX) == 2)
-						{
-							future.path2 = taken.path;
-
-							//when extending the other end, the starting end is now not live anymore
-							future.liveEndX = -1;
-							future.liveEndY = -1;
-
-							if (!ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true))
-							{
-								//is it possible to form another future line in this step?
-								possibleDirections.Add(new int[] { });
-								DrawPath();
-								possibleDirections.RemoveAt(possibleDirections.Count - 1);
-								T("Stepped on future, other end cannot be completed");
-								M("Stepped on future, other end cannot be completed", 1);
-								//the new possible directions is not set yet.
-
-								return false; //to prevent NextStepPossibilities from running
-							}
+							//is it possible to form another future line in this step?
+							possibleDirections.Add(new int[] { });
+							DrawPath();
+							possibleDirections.RemoveAt(possibleDirections.Count - 1);
+							T("Stepped on future, other end cannot be completed");
+							M("Stepped on future, other end cannot be completed", 1);
+							//the new possible directions is not set yet.
+								
+							return false; //to prevent NextStepPossibilities from running
 						}
 					}
 					//not stepped on a future field
@@ -1615,8 +1603,8 @@ namespace SvgApp
 			{
 				for (int j = 0; j < 2; j++)
 				{
-					if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTaken(x - dx + lx, y - dy + ly) || taken.InBorder(x - dx + lx, y - dy + ly)) && (taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) || taken.InBorder(x - dx + 2 * lx, y - dy + 2 * ly)) && (taken.InTaken(x + 3 * lx, y + 3 * ly) || taken.InBorder(x + 3 * lx, y + 3 * ly))
-					&& !taken.InTaken(x + lx, y + ly) && !taken.InTaken(x + 2 * lx, y + 2 * ly) && !future.InTakenAll(x + lx, y + ly))
+					if (!(taken.x == x + lx && taken.y == y + ly) && taken.InTaken(x - dx + lx, y - dy + ly) && taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) && (taken.InTaken(x + 3 * lx, y + 3 * ly) || taken.InBorder(x + 3 * lx, y + 3 * ly))
+					&& !taken.InTaken(x + lx, y + ly) && !taken.InTaken(x + 2 * lx, y + 2 * ly))
 					{
 						x2found = true;
 						T("1x2 future valid at x " + x + " y " + y + " i " + i + " j " + j + " dx " + dx + " dy " + dy + " lx " + lx + " ly " + ly);
@@ -1647,7 +1635,6 @@ namespace SvgApp
 							DrawPath();
 							possibleDirections.RemoveAt(possibleDirections.Count - 1);
 
-							T("Error: future line cannot be completed. " + taken.path.Count + " " + taken.path[taken.path.Count - 1][0] + " " + taken.path[taken.path.Count - 1][1]);
 							M("Error: future line cannot be completed.", 2);							
 							return false;														
 						}
@@ -1715,7 +1702,6 @@ namespace SvgApp
 								DrawPath();
 								possibleDirections.RemoveAt(possibleDirections.Count - 1);
 
-								T("Error: future line cannot be completed.");
 								M("Error: future line cannot be completed.", 2);
 								return false;
 
@@ -2120,6 +2106,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 					// if the only possibility is to connect to the main line, we continue the extension at the far end. example: 0618_2
 					if (newField[0] == taken.path[taken.path.Count - 1][0] && newField[1] == taken.path[taken.path.Count - 1][1])
 					{
+						stepCount = -1;
 						nearExtDone = true;
 						break;
 					}
@@ -2204,20 +2191,16 @@ In the second case, the near end being the same as above, the far end can be 11x
 			}
 
 			// return only when both ends have multiple choice or the near end can only connect to the main line
-			// if steps were taken, we cannot return, because the other end could now advance
-			if (stepCount == 0)
+			if (directionReverse)
 			{
-				if (directionReverse)
-				{
-					nearExtDone = true;
-					if (farExtDone) return true;
-				}
-				else
-				{
-					farExtDone = true;
-					if (nearExtDone) return true;
-				}
-			}			
+				nearExtDone = true;
+				if (farExtDone) return true;
+			}
+			else
+			{
+				farExtDone = true;
+				if (nearExtDone) return true;
+			}
 
 			if (!once)
 			{
