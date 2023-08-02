@@ -36,7 +36,7 @@ using SkiaSharp.Views.Desktop;
 //		Right now, forbidden fields only apply on the main line when the across field goes up. Are all across checks invalid for future line?
 //		0521: Future line start can be extended now. Taken is connecting to future, but since the left and right fields are not simultaneously empty, future line cannot be extended. In this case, the end of the selected future line cannot fill the empty space next to the main line, unlike it would be the case when connecting to the future section on the top.
 
-// 0802: There is no option to move, which is an error 
+// In 5x5, 0730_1, future lines do not connect properly
 
 // Countarea not needed in 0729_1
 // 0729_2: Future end will not be able to go further
@@ -1524,9 +1524,9 @@ namespace SvgApp
 						for (int i = 0; i < futureSectionMerges.Count; i++)
 						{
 							int[] merge = futureSectionMerges[i];
-							if (merge[1] == selectedSection)
+							if (merge[merge.Length - 1] == selectedSection)
 							{
-								lastMerged = merge[merge.Length - 1];
+								lastMerged = merge[1];
 								farEndIndex = futureSections[lastMerged][1];
 							}
 						}
@@ -1861,9 +1861,10 @@ namespace SvgApp
 						for (int k = 0; k < futureSectionMerges.Count; k++)
 						{
 							int[] merge = futureSectionMerges[k];
-							if (merge[1] == selectedSection)
+							T("Checking merge " + merge[merge.Length - 1] + " " + selectedSection);
+							if (merge[merge.Length - 1] == selectedSection)
 							{
-								lastMerged = merge[merge.Length - 1];
+								lastMerged = merge[1];
 								farEndIndex = futureSections[lastMerged][1];
 							}
 						}
@@ -2143,7 +2144,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 							{
 								if (!directionReverse && futureSections[j][0] == i)
 								{
-									futureSectionMerges.Add(new int[] { taken.path.Count - 1, selectedSection, j });									
+									futureSectionMerges.Add(new int[] { taken.path.Count - 1, 0, j, selectedSection });									
 									future.liveEndX = future.path[futureSections[selectedSection][0]][0];
 									future.liveEndY = future.path[futureSections[selectedSection][0]][1];
 
@@ -2155,12 +2156,12 @@ In the second case, the near end being the same as above, the far end can be 11x
 								}
 								else if (directionReverse && futureSections[j][1] == i)
 								{
-									futureSectionMerges.Add(new int[] { taken.path.Count - 1, j, selectedSection });
+									futureSectionMerges.Add(new int[] { taken.path.Count - 1, 1, j, selectedSection, 1 });
 
 									future.liveEndX = future.path[futureSections[selectedSection][1]][0];
 									future.liveEndY = future.path[futureSections[selectedSection][1]][1];
 
-									T("Start from near end after merging future.liveEndX " + future.liveEndX + " future.liveEndY " + future.liveEndY + " old section " + j + " new section " + selectedSection);
+									T("Start from near end after merging future.liveEndX " + future.liveEndX + " future.liveEndY " + future.liveEndY);
 
 									nearEndIndex = futureSections[j][0];
 									
@@ -2436,7 +2437,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 			}
 			foreach (int[] section in futureSectionMerges)
 			{
-				T("--- Section merge: at " + section[0] + " old " + section[1] + " new " + section[2] + " lrngth " + section.Length);
+				T("--- Section merge: at " + section[0] + " old " + section[2] + " new " + section[3]);
 			}
 
 			bool prevStartItem = false;
@@ -2470,7 +2471,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 						for (int k = 0; k < futureSectionMerges.Count; k++)
 						{
 							int[] merge = futureSectionMerges[k];
-							for (int h = 1; h < merge.Length; h++)
+							for (int h = 2; h < merge.Length; h++)
 							{
 								//T(merge[h] + " " + currentSection);
 								if (merge[h] == currentSection)
@@ -2600,7 +2601,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 					for (int i = futureSectionMerges.Count - 1; i >= 0; i--)
 					{
 						int[] merge = futureSectionMerges[i];
-						for (int j = 1; j < merge.Length; j++)
+						for (int j = merge.Length - 1; j >= 2; j--)
 						{
 							int startIndex = futureSections[merge[j]][0];
 							int endIndex = futureSections[merge[j]][1];
@@ -2610,11 +2611,11 @@ In the second case, the near end being the same as above, the far end can be 11x
 								bool startItem = false;
 								bool endItem = false;
 
-								if (j == 1 && k == startIndex)
+								if (j == merge.Length - 1 && k == startIndex)
 								{
 									startItem = true;
 								}
-								if (j == merge.Length - 1 && k == endIndex)
+								if (j == 2 && k == endIndex)
 								{
 									endItem = true;
 								}
