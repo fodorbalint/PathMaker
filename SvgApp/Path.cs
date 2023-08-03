@@ -170,15 +170,17 @@ namespace SvgApp
 								T("possible straight 2");
 								possible.Add(straightField);
 							}
-							//Are there cases where there is a future line start on the left or the right? Unless I find one, adding these may connect the current future line back to its own start.
-							/*if (InFutureOwnStartF(leftField))
+							// See 0803
+							if (!searchReverse && InFutureOwnStartF(rightField) || searchReverse && InFutureOwnEndF(rightField))
 							{
+								T("possible right 2");
+								possible.Add(rightField);
+							}
+							if (!searchReverse && InFutureOwnStartF(leftField) || searchReverse && InFutureOwnEndF(leftField))
+							{
+								T("possible left 2");
 								possible.Add(leftField);
 							}
-							if (InFutureOwnStartF(rightField))
-							{
-								possible.Add(rightField);
-							}*/
 						} 
 
 						//check for an empty cell next to the position, and a taken one further. In case of a C shape, we need to fill the middle. The shape was formed by the previous 5 steps.
@@ -909,7 +911,7 @@ namespace SvgApp
 					}
 					// we entered the stair from the start, as in 0305. The across field is going forward.
 					// But in 0729, we cannot disable the straight field, because the left field is not free.
-					else if (!CShape)
+					else if (!(InTakenF(leftField) || InFutureF(leftField) || InBorderF(leftField)))
 					{
 						T("CheckNearFutureSide across right, entered at start");
 						forbidden.Add(rightField);
@@ -946,7 +948,7 @@ namespace SvgApp
 							}
 						}
 					}
-					else if (!CShape)
+					else if (!(InTakenF(rightField) || InFutureF(rightField) || InBorderF(rightField)))
 					{
 						T("CheckNearFutureSide across left, entered at start");
 						forbidden.Add(leftField);

@@ -36,7 +36,7 @@ using SkiaSharp.Views.Desktop;
 //		Right now, forbidden fields only apply on the main line when the across field goes up. Are all across checks invalid for future line?
 //		0521: Future line start can be extended now. Taken is connecting to future, but since the left and right fields are not simultaneously empty, future line cannot be extended. In this case, the end of the selected future line cannot fill the empty space next to the main line, unlike it would be the case when connecting to the future section on the top.
 
-// 0802: There is no option to move, which is an error 
+// if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field. 
 
 // Countarea not needed in 0729_1
 // 0729_2: Future end will not be able to go further
@@ -1556,6 +1556,9 @@ namespace SvgApp
 								return false; //to prevent NextStepPossibilities from running
 							}
 						}
+						// if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field.
+						//else if (endX)
+
 					}
 					//not stepped on a future field
 					else
@@ -1621,16 +1624,24 @@ namespace SvgApp
 					{
 						x2found = true;
 						T("1x2 future valid at x " + x + " y " + y + " i " + i + " j " + j + " dx " + dx + " dy " + dy + " lx " + lx + " ly " + ly);
-						future.path.Add(new int[] { x + 2 * lx + dx, y + 2 * ly + dy });
+
+						int startCount = 3;
+						
+						//This is not added in 0803:						
+						if (!future.InTakenAll(x + 2 * lx + dx, y + 2 * ly + dy))
+						{
+							future.path.Add(new int[] { x + 2 * lx + dx, y + 2 * ly + dy });
+							startCount = 4;
+						}						
 						future.path.Add(new int[] { x + 2 * lx, y + 2 * ly });
 						future.path.Add(new int[] { x + lx, y + ly });
 						future.path.Add(new int[] { x + lx + dx, y + ly + dy });
-						for (int k = 0; k < 4; k++)
+						for (int k = 0; k < startCount; k++)
 						{
 							futureIndex.Add(count - 1);
 							futureActive.Add(true);
 						}
-						futureSections.Add(new int[] { future.path.Count - 1, future.path.Count - 4});
+						futureSections.Add(new int[] { future.path.Count - 1, future.path.Count - startCount});
 						selectedSection = futureSections.Count - 1;
 
 						future.path2 = taken.path;
@@ -1641,7 +1652,7 @@ namespace SvgApp
 						nearExtDone = false;
 						farExtDone = false;
 
-						if (!ExtendFutureLine(false, future.path.Count - 1, future.path.Count - 4, selectedSection, selectedSection, false))
+						if (!ExtendFutureLine(false, future.path.Count - 1, future.path.Count - startCount, selectedSection, selectedSection, false))
 						{
 							//when making a c shape 3 distance across from the border in the corner, it cannot be completed
 							possibleDirections.Add(new int[] { });
