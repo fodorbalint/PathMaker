@@ -36,8 +36,9 @@ using SkiaSharp.Views.Desktop;
 //		Right now, forbidden fields only apply on the main line when the across field goes up. Are all across checks invalid for future line?
 //		0521: Future line start can be extended now. Taken is connecting to future, but since the left and right fields are not simultaneously empty, future line cannot be extended. In this case, the end of the selected future line cannot fill the empty space next to the main line, unlike it would be the case when connecting to the future section on the top.
 
-// if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field. 
+// 0804_2: Step to left, other end cannot be completed (displays wrong), press OK, step back and program crashes
 
+// Review CheckNearFutureEnd
 // Countarea not needed in 0729_1
 // 0729_2: Future end will not be able to go further
 // Examine commented sections in CheckNearFieldCommon, are they needed?
@@ -1556,9 +1557,17 @@ namespace SvgApp
 								return false; //to prevent NextStepPossibilities from running
 							}
 						}
-						// if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field.
-						//else if (endX)
+						// if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field
+						else if (endX == size && endY == size - 1 || endY == size && endX == size - 1)
+						{
+							future.path2 = taken.path;
 
+							//when extending the other end, the starting end is now not live anymore
+							future.liveEndX = -1;
+							future.liveEndY = -1;
+
+							ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true);
+						}	
 					}
 					//not stepped on a future field
 					else
@@ -1693,7 +1702,7 @@ namespace SvgApp
 					for (int j = 0; j < 2; j++)
 					{
 						//first clause is for quick exclusion. Last clause is to prevent a duplicate line as in 0711
-						if (!(taken.x == x + lx && taken.y == y + ly) && taken.InTaken(x - dx + lx, y - dy + ly) && taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) && taken.InTaken(x - dx + 3 * lx, y - dy + 3 * ly)
+						if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTaken(x - dx + lx, y - dy + ly) || taken.InBorder(x - dx + lx, y - dy + ly)) && (taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) || taken.InBorder(x - dx + 2 * lx, y - dy + 2 * ly)) && (taken.InTaken(x - dx + 3 * lx, y - dy + 3 * ly) || taken.InBorder(x - dx + 3 * lx, y - dy + 3 * ly))
 						&& (taken.InTaken(x + 4 * lx, y + 4 * ly) || taken.InBorder(x + 4 * lx, y + 4 * ly))
 						&& !taken.InTaken(x + lx, y + ly) && !taken.InTaken(x + 2 * lx, y + 2 * ly) && !taken.InTaken(x + 3 * lx, y + 3 * ly) && !future.InTakenAll(x + 2 * lx, y + 2 * ly))
 						{

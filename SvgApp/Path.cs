@@ -182,6 +182,29 @@ namespace SvgApp
 								possible.Add(leftField);
 							}
 						} 
+						//See 0804
+						else
+						{
+							if (InFutureStartF(straightField))
+							{
+								T("possible straight 2 main");
+								possible.Add(straightField);
+							}
+							if (InFutureStartF(rightField))
+							{
+								T("possible right 2 main");
+								possible.Add(rightField);
+							}
+							if (InFutureStartF(leftField))
+							{
+								T("possible left 2 main");
+								possible.Add(leftField);
+							}
+						}
+
+						//if the only possible field is a future field, we don't need to check more. This will prevent unnecessary exits, as in 0804.
+
+						if (isMain && possible.Count == 1 && InFutureStartF(possible[0])) break;
 
 						//check for an empty cell next to the position, and a taken one further. In case of a C shape, we need to fill the middle. The shape was formed by the previous 5 steps.
 						T("possible.Count " + possible.Count);							
@@ -1008,13 +1031,12 @@ namespace SvgApp
 			{
 				T("CheckNearFutureEnd to left");
 				forbidden.Add(rightField);
-				forbidden.Add(straightField);
+				//0804_1 makes this untrue: forbidden.Add(straightField);
 			}
 			else if (InFutureEnd(x + rx + dx, y + ry + dy))
 			{
 				T("CheckNearFutureEnd to right");
 				forbidden.Add(leftField);
-				forbidden.Add(straightField);
 			}
 		}
 
@@ -1175,6 +1197,56 @@ namespace SvgApp
 					{
 						return true;
 					}
+				}
+
+				if (path2 != null)
+				{
+					c1 = path2.Count;
+
+					for (int i = 0; i < c1; i++)
+					{
+						int[] field = path2[i];
+						if (x == field[0] && y == field[1])
+						{
+							return true;
+						}
+					}
+				}				
+			}
+
+			return false;
+		}
+
+		public bool InFutureStartF(int[] f)
+		{
+			int c = path2.Count;
+			if (c == 0) return false;
+
+			int x = f[0];
+			int y = f[1];
+
+			int foundIndex = -1;
+
+			int i;
+			for (i = c - 1; i >= 0; i--)
+			{
+				int[] field = path2[i];
+
+				if (field[0] == x && field[1] == y && MainWindow.futureActive[i])
+				{
+					foundIndex = i;
+				}
+			}
+
+			if (foundIndex == -1) return false;
+
+			i = -1;
+			foreach (int[] section in MainWindow.futureSections)
+			{
+				i++;
+				if (section[0] == foundIndex)
+				{
+					return true;
 				}
 			}
 
