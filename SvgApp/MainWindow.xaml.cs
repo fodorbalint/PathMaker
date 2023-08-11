@@ -41,6 +41,7 @@ using SkiaSharp.Views.Desktop;
 // 0811_1: Future lines do not connect to each other
 // 0811_2: C shape straight is not right, but it is true that right step will lead to non-completion
 // 0811_3: No option to move, and on load, blue fields are shown on the left
+// 0811_4: Step forward, future line cannot be completed
 // test AddNextStep if count area impair, drawpath will now not be called.
 
 // Review CheckNearFutureEnd
