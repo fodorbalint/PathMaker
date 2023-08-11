@@ -36,8 +36,11 @@ using SkiaSharp.Views.Desktop;
 //		Right now, forbidden fields only apply on the main line when the across field goes up. Are all across checks invalid for future line?
 //		0521: Future line start can be extended now. Taken is connecting to future, but since the left and right fields are not simultaneously empty, future line cannot be extended. In this case, the end of the selected future line cannot fill the empty space next to the main line, unlike it would be the case when connecting to the future section on the top.
 
-// step back from 0806, step right, future line cannot be completed, which is an error.
-// 0808: step down, future line goes up into main line.
+// 0811: Future line should be added on top
+//		OK, but taken.x == x + lx condition should be added to other future line formations
+// 0811_1: Future lines do not connect to each other
+// 0811_2: C shape straight is not right, but it is true that right step will lead to non-completion
+// 0811_3: No option to move, and on load, blue fields are shown on the left
 // test AddNextStep if count area impair, drawpath will now not be called.
 
 // Review CheckNearFutureEnd
@@ -589,7 +592,7 @@ namespace SvgApp
 			if (inFuture)
 			{
 				int[] futureField = future.path[inFutureIndex];
-				//T("Possible: " + futureField[0] + " " + futureField[1]);
+				T("Possible: " + futureField[0] + " " + futureField[1]);
 				taken.possible = new List<int[]> { new int[] { futureField[0], futureField[1] } };
 				taken.nearField = false;
 			}
@@ -610,7 +613,7 @@ namespace SvgApp
 
 				if (inFuture)
 				{
-					//T("NextStepPossibilities InFuture fx " + fx + " fy " + fy + " count: " + future.path.Count);
+					T("NextStepPossibilities InFuture fx " + fx + " fy " + fy + " count: " + future.path.Count);
 					PossibleCoords.Text += fx + " " + fy + "\n";
 					newPossible.Add(field);
 
@@ -1496,7 +1499,7 @@ namespace SvgApp
 
 						if (!isConnected)
 						{
-							//T("--- Exiting future " + x + " " + y + " at " + endIndex);
+							T("--- Exiting future " + x + " " + y + " at " + endIndex);
 							futureActive[endIndex] = false;
 							inFuture = false;
 							selectedSection = -1;
@@ -1533,12 +1536,18 @@ namespace SvgApp
 
 					if (foundIndex != -1)
 					{
-						T("Stepped on future " + x + " " + y + " at " + foundIndex);
+						T("Stepped on future " + x + " " + y + " at " + foundIndex + " selectedSection " + selectedSection);
+
+						int tempSelectedSection = selectedSection;
+						if (!AddFutureLines()) return false;
+						selectedSection = tempSelectedSection;
 
 						inFuture = true;
 						inFutureIndex = foundIndex - 1;
 						futureActive[foundIndex] = false;
 						//we do not add future lines while completing one
+
+						T("inFutureIndex " + inFutureIndex);
 
 						taken.path2 = future.path;
 
@@ -1728,7 +1737,7 @@ namespace SvgApp
 						//first clause is for quick exclusion. Last clause is to prevent a duplicate line as in 0711
 						if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTaken(x - dx + lx, y - dy + ly) || taken.InBorder(x - dx + lx, y - dy + ly)) && (taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) || taken.InBorder(x - dx + 2 * lx, y - dy + 2 * ly)) && (taken.InTaken(x - dx + 3 * lx, y - dy + 3 * ly) || taken.InBorder(x - dx + 3 * lx, y - dy + 3 * ly))
 						&& (taken.InTaken(x + 4 * lx, y + 4 * ly) || taken.InBorder(x + 4 * lx, y + 4 * ly))
-						&& !taken.InTaken(x + lx, y + ly) && !taken.InTaken(x + 2 * lx, y + 2 * ly) && !taken.InTaken(x + 3 * lx, y + 3 * ly) && !future.InTakenAll(x + 2 * lx, y + 2 * ly))
+						&& !taken.InTaken(x + lx, y + ly) && !taken.InTaken(x + 2 * lx, y + 2 * ly) && !taken.InTaken(x + 3 * lx, y + 3 * ly) && !future.InTakenAll(x + 2 * lx, y + 2 * ly) && !(x + 3 * lx == size && y + 3 * ly == size))
 						{
 							//if the x + 4 * lx field was in border, we can extend the future lines after this.
 							T("1x3 future valid at x " + x + " y " + y + " i " + i + " j " + j + " dx " + dx + " dy " + dy + " lx " + lx + " ly " + ly);
@@ -1880,9 +1889,9 @@ namespace SvgApp
 			{
 				for (int j = 0; j < 2; j++)
 				{
-					if (InFutureStart(x + lx, y + ly) && future.InTakenAll(x + 2 * lx, y + 2 * ly))
+					if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStart(x + lx, y + ly) && future.InTakenAll(x + 2 * lx, y + 2 * ly) && (future.InTakenAll(x + lx - dx, y + ly - dy) || taken.InTaken(x + lx - dx, y + ly - dy)))
 					{
-						T("Left/right future start valid at x " + x + " y " + y);
+						T("Left/right future start valid at x " + x + " y " + y + ", start " + (x + lx) + " " + (y + ly) + " " + taken.x + " " + taken.y);
 
 						int addIndex = futureSections[selectedSection][0] + 1;
 						future.path.Insert(addIndex, new int[] { x + lx + dx, y + ly + dy });
@@ -2197,7 +2206,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 
 									if (!(future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size))
 									{
-										return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, selectedSection, j, false);
+										return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, selectedSection, j, once);
 									}
 								}
 								else if (directionReverse && futureSections[j][1] == i)
@@ -2211,25 +2220,27 @@ In the second case, the near end being the same as above, the far end can be 11x
 
 									nearEndIndex = futureSections[j][0];
 									
-									return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, selectedSection, j, false);
+									return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, selectedSection, j, once);
 								}
 							}
 							return true;
 						}
-					}	
+					}
 
-					nearEndIndex++;
-					//increase further future line sections (we have stepped on them already or, in case of connecting to a loop, they are still active)
 					
-
+					
 					T("Adding future: " + future.x + " " + future.y + " start of section " + futureSections[selectedSection][0]);
 					/*foreach (int[] section in futureSections)
 					{
 						T("--- Section: " + section[0] + " " + section[1]);
 					}*/
 
+					// increase further future line sections (we have stepped on them already or, in case of connecting to a loop, they are still active)
+					// if the far end of merged sections is extended, nearEndIndex will only increase if the starting section is newer.
+
 					if (directionReverse)
 					{
+						nearEndIndex++;
 						futureSections[nearSection][0]++;
 						IncreaseFurtherSections(nearSection);
 
@@ -2240,15 +2251,20 @@ In the second case, the near end being the same as above, the far end can be 11x
 					}
 					else
 					{
+						if (nearSection >= farSection)
+						{
+							nearEndIndex++;
+							// for use when stepping on a future line and extending the other end. When a far end of a merged section is extended, this will only increase if the near section is newer.
+							inFutureIndex++;
+						}
+
 						futureSections[farSection][0]++;
 						IncreaseFurtherSections(farSection);
 
 						//T("Inserting farEndIndex: " + farEndIndex);
 						future.path.Insert(farEndIndex, new int[] { future.x, future.y });
 						futureIndex.Insert(farEndIndex, taken.path.Count - 1);
-						futureActive.Insert(farEndIndex,true);	
-						// for use when stepping on a future line and extending the other end.
-						inFutureIndex++;
+						futureActive.Insert(farEndIndex,true);
 					}
 					T("nearEndIndex: " + nearEndIndex);
 					stepCount++;

@@ -94,8 +94,9 @@ namespace SvgApp
 						y = path[startIndex][1];
 						x0 = path[startIndex - 1][0];
 						y0 = path[startIndex - 1][1];
+						T(x + " " + y + " " + x0 + " " + y0);
 					}
-					
+
 					searchStartIndex = startIndex;
 				}
 				else
@@ -104,7 +105,7 @@ namespace SvgApp
 					searchStartIndex = count - 1;
 					x0 = path[count - 2][0];
 					y0 = path[count - 2][1];
-				}				
+				}
 
 				int i;
 				for (i = 0; i < 4; i++)
@@ -144,7 +145,7 @@ namespace SvgApp
 						rightField = new int[] { x + rx, y + ry };
 
 						T("x " + x + " y " + y + " InTakenF(straightField) " + InTakenF(straightField) + " InTakenF(rightField) " + InTakenF(rightField) + " InTakenF(leftField) " + InTakenF(leftField));
-						
+
 						if (!InTakenAllF(straightField) && !InBorderF(straightField))
 						{
 							T("possible straight");
@@ -169,7 +170,7 @@ namespace SvgApp
 							if (!searchReverse && InFutureOwnStartF(straightField, nearSection) || searchReverse && InFutureOwnEndF(straightField, farSection))
 							{
 								T("possible straight 2");
-								possible.Add(straightField);								
+								possible.Add(straightField);
 							}
 							// See 0803
 							if (!searchReverse && InFutureOwnStartF(rightField, nearSection) || searchReverse && InFutureOwnEndF(rightField, farSection))
@@ -182,7 +183,7 @@ namespace SvgApp
 								T("possible left 2");
 								possible.Add(leftField);
 							}
-						} 
+						}
 						//See 0804
 						else
 						{
@@ -208,7 +209,7 @@ namespace SvgApp
 						if (isMain && possible.Count == 1 && InFutureStartF(possible[0])) break;
 
 						//check for an empty cell next to the position, and a taken one further. In case of a C shape, we need to fill the middle. The shape was formed by the previous 5 steps.
-						T("possible.Count " + possible.Count);							
+						T("possible.Count " + possible.Count);
 						Check1x3();
 						Check3x3();
 						CShape = false;
@@ -217,7 +218,7 @@ namespace SvgApp
 						if (isMain)
 						{
 							CheckNearBorder(); // Future line shouldn't be checked for border. See 0714
-							//T("forbidden.Count before CheckNearField " + forbidden.Count);
+											   //T("forbidden.Count before CheckNearField " + forbidden.Count);
 							CheckNearField();
 							//T("forbidden.Count after CheckNearField " + forbidden.Count);
 							CheckNearFutureStartEnd();
@@ -243,7 +244,7 @@ namespace SvgApp
 				}
 			}
 
-			possible = newPossible;			
+			possible = newPossible;
 		}
 
 		public void CheckNearBorder()
@@ -367,7 +368,6 @@ namespace SvgApp
 		{
 			if ((InTaken(x + 2 * lx, y + 2 * ly) || InBorder(x + 2 * lx, y + 2 * ly)) && !InTakenF(leftField)) //2 to left
 			{
-				T("2 to left");
 				if (InTaken(x + lx - dx, y + ly - dy)) //C shape that needs to be filled, unless there is a live end nearby that can fill it
 				{
 					T("C shape liveEndX " + liveEndX + " " + liveEndY);
@@ -396,7 +396,6 @@ namespace SvgApp
 
 			if ((InTaken(x + 2 * rx, y + 2 * ry) || InBorder(x + 2 * rx, y + 2 * ry)) && !InTakenF(rightField)) //2 to right
 			{
-				T("2 to right");
 				if (InTaken(x + rx - dx, y + ry - dy))
 				{
 					//if the right field is not next to the other live end of the future path
@@ -422,16 +421,23 @@ namespace SvgApp
 				}*/
 			}
 
-			//Even future line can make this C shape, see 0727_1
-
-			T("2 dx " + InTaken(x + 2 * dx, y + 2 * dy) + " dx rx " + InTaken(x + dx + lx, y + dy + ly) + " searchStartIndex " + searchStartIndex);
-			if (InTaken(x + 2 * dx, y + 2 * dy) && !InTakenF(straightField) && (InTaken(x + dx + lx, y + dy + ly) || InTaken(x + dx + rx, y + dy + ry))) //C shape straight
+			// C shape straight
+			// Even future line can make this C shape, see 0727_1
+			if (!inPossible(leftField) && (InTakenAll(x + dx + lx, y + dy + ly) || InBorder(x + dx + lx, y + dy + ly)) && (InTakenAll(x + 2 * dx, y + 2 * dy) || InBorder(x + 2 * dx, y + 2 * dy)) && !InTakenAllF(straightField) && !(straightField[0] == size && straightField[1] == size)) 
 			{
-				if (!(liveEndX == straightField[0] && Math.Abs(liveEndY - straightField[1]) == 1 || liveEndY == straightField[1] && Math.Abs(liveEndX - straightField[0]) == 1))
+				if (isMain || !isMain && !InFutureOwnStart(x + dx + lx, y + dy + ly) && !InFutureOwnEnd(x + dx + lx, y + dy + ly) && !InFutureOwnStart(x + 2 * dx, y + 2 * dy) && !InFutureOwnEnd(x + 2 * dx, y + 2 * dy))
+				{
+					T("C shape straight");
+					forbidden.Add(rightField);
+					CShape = true;
+				}
+			}
+			else if (!inPossible(rightField) && (InTakenAll(x + dx + rx, y + dy + ry) || InBorder(x + dx + rx, y + dy + ry)) && (InTakenAll(x + 2 * dx, y + 2 * dy) || InBorder(x + 2 * dx, y + 2 * dy)) && !InTakenAllF(straightField) && !(straightField[0] == size && straightField[1] == size))
+			{
+				if (isMain || !isMain && !InFutureOwnStart(x + dx + rx, y + dy + ry) && !InFutureOwnEnd(x + dx + rx, y + dy + ry) && !InFutureOwnStart(x + 2 * dx, y + 2 * dy) && !InFutureOwnEnd(x + 2 * dx, y + 2 * dy))
 				{
 					T("C shape straight");
 					forbidden.Add(leftField);
-					forbidden.Add(rightField);
 					CShape = true;
 				}
 			}
@@ -1082,6 +1088,15 @@ namespace SvgApp
 			}
 		}
 
+		public bool inPossible(int[] field)
+		{
+			foreach (int[] f in possible)
+			{
+				if (f[0] == field[0] && f[1] == field[1]) return true;
+			}
+			return false;
+		}
+
 		public bool InBorder(int x, int y) // allowing negative values could cause an error in AddFutureLines 2x2 checking
 		{
 			if (x == 0 || x == size + 1 || y == 0 || y == size + 1) return true;
@@ -1220,9 +1235,14 @@ namespace SvgApp
 			return false;
 		}
 
-		public bool InFutureStartF(int[] f)
+		public bool InFutureOwnStart(int x, int y)
 		{
-			return InFutureStart(f[0], f[1]);
+			return InFutureOwnStartF(new int[] { x, y }, -1);
+		}
+
+		public bool InFutureOwnEnd(int x, int y)
+		{
+			return InFutureOwnEndF(new int[] { x, y }, -1);
 		}
 
 		public bool InFutureOwnStartF(int[] f, int nearSection)
@@ -1294,6 +1314,11 @@ namespace SvgApp
 			}
 
 			return false;
+		}
+
+		public bool InFutureStartF(int[] f)
+		{
+			return InFutureStart(f[0], f[1]);
 		}
 
 		public bool InFutureStart(int x, int y)
