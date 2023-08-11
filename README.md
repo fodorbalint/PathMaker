@@ -6,6 +6,7 @@ This program aims to solve the following riddle:
 Output the image in svg format."
  
 From the simple rules of movement and lines to complete in the future, complicated patterns can result. In certain cases when you have drawn a path, it can be revealed that the enclosed or surrounding area cannot be filled.
+
 Here is an example:.
 
 ![alt text](https://github.com/fodorbalint/PathMaker/blob/main/References/0701_1.svg)
@@ -13,6 +14,7 @@ Here is an example:.
 The program calculated the blue lines for you. Do you see why this situation is impossible?
 
 In the beginning of the project I let the program run on a 21x21 field, and whenever I noticed a trouble, I coded the solution into it. While you can discover many patterns this way, a gradual approach may be more effective.
+
 A 3x3 field can only be filled in two ways, this and its mirrored version:
 
 ![alt text](https://github.com/fodorbalint/PathMaker/blob/main/References/project/3x3.svg)
