@@ -17,7 +17,8 @@ In the beginning of the project I let the program run on a 21x21 field, and when
 
 A 3x3 field can only be filled in two ways, this and its mirrored version:
 
-<img src="https://github.com/fodorbalint/PathMaker/blob/main/References/project/3x3.svg" width="50"/>
+<img src="https://github.com/fodorbalint/PathMaker/blob/main/References/project/3x3.svg" width="50%"/>
+
 ![alt text](https://github.com/fodorbalint/PathMaker/blob/main/References/project/3x3.svg)
 
 The 5x5 requires much more consideration. Whenever it is possible to draw future lines, the program has to be able to do it. The future lines can not only extend at each step but connect too.
