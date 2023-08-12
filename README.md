@@ -17,9 +17,9 @@ In the beginning of the project I let the program run on a 21x21 field, and when
 
 A 3x3 field can only be filled in two ways, this and its mirrored version:
 
-<img src="blob/main/References/project/3x3.svg" width="14.3%"/>
+<img src="main/References/project/3x3.svg" width="14.3%"/>
 
 The 5x5 requires much more consideration. Whenever it is possible to draw future lines, the program has to be able to do it. The future lines can not only extend at each step but connect too.
 
-<img src="blob/main/References/0806.svg" width="23.8%"/>
+<img src="main/References/0806.svg" width="23.8%"/>
 
