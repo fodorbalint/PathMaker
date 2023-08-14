@@ -222,9 +222,11 @@ namespace SvgApp
 							//T("forbidden.Count after CheckNearFutureStartEnd " + forbidden.Count);
 							CheckNearFutureSide();
 							//T("forbidden.Count after CheckNearFutureSide " + forbidden.Count);
-							CheckLeftRightFuture();
-							//0630
+							//CheckLeftRightFuture();
+							// 0630
 							CheckNearFutureEnd();
+							// 0811_2
+							CheckNearCorner();
 						}
 						break;
 					}
@@ -420,7 +422,7 @@ namespace SvgApp
 			// Even future line can make this C shape, see 0727_1
 			if (!inPossible(leftField) && (InTakenAll(x + lx + dx, y + ly + dy) || InBorder(x + lx + dx, y + ly + dy)) && (InTakenAll(x + 2 * dx, y + 2 * dy) || InBorder(x + 2 * dx, y + 2 * dy)) && !InTakenAllF(straightField) && !(straightField[0] == size && straightField[1] == size)) 
 			{
-				if (isMain || !isMain && !InFutureOwnStart(x + lx + dx, y + ly + dy) && !InFutureOwnEnd(x + lx + dx, y + ly + dy) && !InFutureOwnStart(x + 2 * dx, y + 2 * dy) && !InFutureOwnEnd(x + 2 * dx, y + 2 * dy))
+				if (isMain && !InFutureStart(x + lx + dx, y + ly + dy) && !InFutureStart(x + 2 * dx, y + 2 * dy) || !isMain && !InFutureOwnStart(x + lx + dx, y + ly + dy) && !InFutureOwnEnd(x + lx + dx, y + ly + dy) && !InFutureOwnStart(x + 2 * dx, y + 2 * dy) && !InFutureOwnEnd(x + 2 * dx, y + 2 * dy))
 				{
 					T("C shape straight");
 					forbidden.Add(rightField);
@@ -429,7 +431,7 @@ namespace SvgApp
 			}
 			else if (!inPossible(rightField) && (InTakenAll(x + rx + dx, y + ry + dy) || InBorder(x + rx + dx, y + ry + dy)) && (InTakenAll(x + 2 * dx, y + 2 * dy) || InBorder(x + 2 * dx, y + 2 * dy)) && !InTakenAllF(straightField) && !(straightField[0] == size && straightField[1] == size))
 			{
-				if (isMain || !isMain && !InFutureOwnStart(x + rx + dx, y + ry + dy) && !InFutureOwnEnd(x + rx + dx, y + ry + dy) && !InFutureOwnStart(x + 2 * dx, y + 2 * dy) && !InFutureOwnEnd(x + 2 * dx, y + 2 * dy))
+				if (isMain && !InFutureStart(x + rx + dx, y + ry + dy) && !InFutureStart(x + 2 * dx, y + 2 * dy) || !isMain && !InFutureOwnStart(x + rx + dx, y + ry + dy) && !InFutureOwnEnd(x + rx + dx, y + ry + dy) && !InFutureOwnStart(x + 2 * dx, y + 2 * dy) && !InFutureOwnEnd(x + 2 * dx, y + 2 * dy))
 				{
 					T("C shape straight");
 					forbidden.Add(leftField);
@@ -884,7 +886,7 @@ namespace SvgApp
 			}
 		}
 
-		//Example: savePath0305.txt
+		//Example: 0305
 		public void CheckNearFutureSide() //suppose the side is of stair form
 		{
 			//mid cases are used when approaching an end, example: 0415_2
@@ -905,10 +907,8 @@ namespace SvgApp
 			else //check possible across fields. 2 across is in future, 1 across is free, plug 1 forward (0316 can otherwise go wrong). 1 to the side is also free, but we don't need to check it. Both sides can be true simultaneously, example: 0413
 			//Condition has to hold right even in situations like 0425_1
 			{
-				//right across
-				int i = InFutureIndex(x + 2 * rx + 2 * dx, y + 2 * ry + 2 * dy);
-
-				if (i != -1 && !InFuture(x + rx + dx, y + ry + dy) && !InFuture(x + dx, y + dy) && !InTaken(x + rx + dx, y + ry + dy) && !InTaken(x + dx, y + dy) && !InFutureF(rightField))
+				/*if (InFutureStart(x + 2 * rx + 2 * dx, y + 2 * ry + 2 * dy) && !InFuture(x + rx + dx, y + ry + dy) && !InFuture(x + dx, y + dy) && !InFutureF(rightField)
+					&& !InTaken(x + rx + dx, y + ry + dy) && !InTaken(x + dx, y + dy) )
 				{
 					//2 to right and 1 forward, plus 1 to right and 2 forward is also free
 					if (!InFuture(x + 2 * rx + dx, y + 2 * ry + dy) && !InFuture(x + rx + 2 * dx, y + ry + 2 * dy))
@@ -947,9 +947,7 @@ namespace SvgApp
 				}
 
 				//left across
-				i = InFutureIndex(x + 2 * lx + 2 * dx, y + 2 * ly + 2 * dy);
-
-				if (i != -1 && !InFuture(x + lx + dx, y + ly + dy) && !InFuture(x + dx, y + dy) && !InTaken(x + lx + dx, y + ly + dy) && !InTaken(x + dx, y + dy) && !InFutureF(leftField))
+				if (InFutureStart(x + 2 * lx + 2 * dx, y + 2 * ly + 2 * dy) && !InFuture(x + lx + dx, y + ly + dy) && !InFuture(x + dx, y + dy) && !InTaken(x + lx + dx, y + ly + dy) && !InTaken(x + dx, y + dy) && !InFutureF(leftField))
 				{
 					if (!InFuture(x + 2 * lx + dx, y + 2 * ly + dy) && !InFuture(x + lx + 2 * dx, y + ly + 2 * dy))
 					{
@@ -981,7 +979,7 @@ namespace SvgApp
 						forbidden.Add(leftField);
 						forbidden.Add(straightField);
 					}
-				}
+				}*/
 			}			
 		}
 
@@ -1041,6 +1039,21 @@ namespace SvgApp
 			{
 				T("CheckNearFutureEnd to right");
 				forbidden.Add(leftField);
+			}
+		}
+
+		private void CheckNearCorner()
+		{
+			//First condition is needed for when we are at 4,5 and the left field is 4,4 on a 5x5 field
+			if (y != size && leftField[0] == size - 1 && leftField[1] == size - 1)
+			{
+				T("Left field near corner");
+				forbidden.Add(leftField);
+			}
+			else if (x != size && rightField[0] == size - 1 && rightField[1] == size - 1)
+			{
+				T("Right field near corner");
+				forbidden.Add(rightField);
 			}
 		}
 

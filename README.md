@@ -23,3 +23,6 @@ The 5x5 requires much more consideration. Whenever it is possible to draw future
 
 <img src="References/0806.svg" width="23.8%"/>
 
+As of August 14, 2023 probably all 5x5 scenarios are successfully handled. Not once the line has to step back because of an impossible situation.
+The number of walkthroughs can be interesting to find out. I estimate it to be in the order of 30.
+

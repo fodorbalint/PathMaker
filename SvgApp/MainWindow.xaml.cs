@@ -26,39 +26,55 @@ using OpenTK.Graphics.ES11;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 
-// Ability to reload old standard files (without possibilities) and convert them to current standard
-// CountArea needs to be implemented upon closed loop with future
+/*
 
-// 0227: Unreproducible error previously.
-// 0327_2: Draw future line when entering a circle with 1 line to come out from and 3 spaces at the exit (impossible)
-// 0413: Path.CheckFutureSide: check case when both sides are true simultaneously, draw future line on left side to start with. See 0430_2
-// (in progress) 0415_1: Future line start can be extended, but there is mistakenly no possibilities because of right across check
-//		Right now, forbidden fields only apply on the main line when the across field goes up. Are all across checks invalid for future line?
-//		0521: Future line start can be extended now. Taken is connecting to future, but since the left and right fields are not simultaneously empty, future line cannot be extended. In this case, the end of the selected future line cannot fill the empty space next to the main line, unlike it would be the case when connecting to the future section on the top.
+----- FIX SCENARIOS, 7x7 -----
 
-// 0811_1: Future lines do not connect to each other
-//		Insert condition: when the far end of a future line has reached the corner, the near end, when presented with at least 2 choices, cannot connect to the main line
-// 0811_2: C shape straight is not right, but it is true that right step will lead to non-completion
-// 0811_3: No option to move, and on load, blue fields are shown on the left
-// test AddNextStep if count area impair, drawpath will now not be called.
+----- FIX SCENARIOS, OTHER -----
 
-// In CheckFutureLine we adjust inFutureIndex when we connect to a new section of a merged line. SelectedSection will not change. Therefore, 3 merged lines will not be walkthroughable. Find an example, correct and test.
-// Review CheckNearFutureEnd
-// Countarea not needed in 0729_1
-// 0729_2: Future end will not be able to go further
-// Examine commented sections in CheckNearFieldCommon, are they needed?
-// When we step on a future line which is merged, this has to be taken into account, because the far end will be extended if it i close to the near end. Is such situation possible? See 0727
-// Are there any cases where the returnCode in Move() is 1 an DrawPath calling is needed?
-// 0714_!: When we step up, count area will be impair, so 19,11 is removed. But if we stepped up from 19,11 instead of right, count area impairity would be avoided. Shouldn't we remove the corner (20,11) instead of the side upon count area impairity? 
-// 1x3 reverse future: Examine case where the main line does not go straight between the two future sections
-// Left/right to 2 future: Is it necessary to try to extend the far end first instead of the near end?
-// Are all 4 directions necessary in Left/right 2 future line start checking? Find an example.
-// Path.CheckLeftRightFuture: is it possible that this field is the end of a future section?
-// 0430: When we step on the right field, future line cannot be completed. It is right, but not because of C shape left and straight. The straight C shape is not right, because the field 2 ahead is a section start. We should also consider that the actual end to the right cannot go anywhere else.
-// Simplify ExtendFutureLine: If selectedSection is known, there is no need for start and end parameter.
-// implement right side of connecting to a loop
+test AddNextStep if count area impair, drawpath will now not be called.
+0327_2: Draw future line when entering a circle with 1 line to come out from and 3 spaces at the exit (impossible)
+0413: Path.CheckFutureSide: check case when both sides are true simultaneously, draw future line on left side to start with. See 0430_2
+0415_1: Future line start can be extended, but there is mistakenly no possibilities because of right across check.
+	Right now, forbidden fields only apply on the main line when the across field goes up. Are all across checks invalid for future line?
+0521: Future line start can be extended now. Taken is connecting to future, but since the left and right fields are not simultaneously empty, future line cannot be extended. In this case, the end of the selected future line cannot fill the empty space next to the main line, unlike it would be the case when connecting to the future section on the top.
+Review commented section of CheckNearFutureSide, it caused trouble on 5x5
+Does CheckLeftRightFuture() make sense?
 
-// 0425: Challenge to complete
+----- SITUATIONS TO CONSIDER -----
+
+CountArea needs to be implemented upon closed loop with future ?
+0811_1 could have been solved with the condition "When the far end of a future line has reached the corner, the near end, when presented with at least 2 choices, cannot connect to the main line", but instead I used "When the near end of a future line can only connect to the main line, the far end, when presented with the possibility of entering the corner and another field, it has to choose the other field". Is the first condition needed in another example?
+In CheckFutureLine we adjust inFutureIndex when we connect to a new section of a merged line. SelectedSection will not change. Therefore, 3 merged lines will not be walkthroughable. Find an example, correct and test
+Review CheckNearFutureEnd
+Countarea not needed in 0729_1
+0729_2: Future end will not be able to go further
+Examine commented sections in CheckNearFieldCommon, are they needed?
+When we step on a future line which is merged, this has to be taken into account, because the far end will be extended if it i close to the near end. Is such situation possible? See 0727
+Are there any cases where the returnCode in Move() is 1 an DrawPath calling is needed?
+0714_!: When we step up, count area will be impair, so 19,11 is removed. But if we stepped up from 19,11 instead of right, count area impairity would be avoided. Shouldn't we remove the corner (20,11) instead of the side upon count area impairity? 
+1x3 reverse future: Examine case where the main line does not go straight between the two future sections
+Left/right to 2 future: Is it necessary to try to extend the far end first instead of the near end?
+Are all 4 directions necessary in Left/right 2 future line start checking? Find an example.
+Path.CheckLeftRightFuture: is it possible that this field is the end of a future section?
+0430: When we step on the right field, future line cannot be completed. It is right, but not because of C shape left and straight. The straight C shape is not right, because the field 2 ahead is a section start. We should also consider that the actual end to the right cannot go anywhere else.
+Simplify ExtendFutureLine: If selectedSection is known, there is no need for start and end parameter.
+implement right side of connecting to a loop
+Exit is not readded when stepping back (0811_3 walkthrough)
+
+----- INCREASE EFFECTIVENESS -----
+
+When connecting to another future line in ExtendFutureLine, we cycle through all future fields. It may not be necessary. Just taking the starts or ends.
+
+----- UI IMPROVEMENTS -----
+
+Ability to reload old standard files (without possibilities) and convert them to current standard
+
+----- CHALLENGES TO COMPLETE -----
+
+0425
+
+*/
 
 namespace SvgApp
 {
@@ -99,7 +115,8 @@ namespace SvgApp
 		int[] selectedDirection = new int[] { };
 		private DispatcherTimer timer;
 		private int messageCode = -1;
-		private bool nearExtDone, farExtDone;
+		private bool nearExtDone, farExtDone, nearEndDone;
+		private bool displayOutline = false; //used for CountArea
 
 		public MainWindow()
 		{
@@ -344,7 +361,7 @@ namespace SvgApp
 
 			exits = new List<int[]>();
 			exitIndex = new List<int>();
-			areaBackground = "";
+			areaBackground = "";			
 
 			if (FromFileCheck.IsChecked == true && File.Exists("p.txt"))
 			{
@@ -908,8 +925,12 @@ namespace SvgApp
 			T("CountArea nextX " + nextX + " nextY " + nextY);
 
 			List<int[]> areaLine = new List<int[]> { new int[] { nextX, nextY } };
-			areaBackground = "\t<rect width=\"1\" height=\"1\" x=\"" + (nextX - 1) + "\" y=\"" + (nextY - 1) + "\" fill=\"#0000ff\" fill-opacity=\"0.15\" />\r\n";
 
+			if (displayOutline)
+			{
+				areaBackground = "\t<rect width=\"1\" height=\"1\" x=\"" + (nextX - 1) + "\" y=\"" + (nextY - 1) + "\" fill=\"#0000ff\" fill-opacity=\"0.15\" />\r\n";
+			}
+			
 			T("Count area: " + taken.circleDirectionLeft + " eX " + exitX + " eY " + exitY + " nX " + nextX + " nY " + nextY + " limitX " + limitX + " minY " + minY);
 
 			//return true;
@@ -1023,7 +1044,11 @@ namespace SvgApp
 					
 				}
 
-				areaBackground += "\t<rect width=\"1\" height=\"1\" x=\"" + (nextX - 1) + "\" y=\"" + (nextY - 1) + "\" fill=\"#0000ff\" fill-opacity=\"0.15\" />\r\n";
+				if (displayOutline)
+				{
+					areaBackground += "\t<rect width=\"1\" height=\"1\" x=\"" + (nextX - 1) + "\" y=\"" + (nextY - 1) + "\" fill=\"#0000ff\" fill-opacity=\"0.15\" />\r\n";
+				}
+				
 			}
 
 			T("Arealine drawn " + areaLine.Count);
@@ -1336,18 +1361,21 @@ namespace SvgApp
 				}
 			}			
 
-			foreach (int[] f in startSquares)
+			if (displayOutline)
 			{
-				//T("startSquares " + f[0] + " " + f[1]);
-				areaBackground += "\t<path d=\"M " + (f[0] - 1) + " " + (f[1] - 1) + " h 1 l -1 1 v -1\" fill=\"#ff0000\" fill-opacity=\"0.3\" />\r\n";
-				//areaBackground += "\t<rect width=\"1\" height=\"1\" x=\"" + (f[0] - 1) + "\" y=\"" + (f[1] - 1) + "\" fill=\"#ff0000\" fill-opacity=\"0.25\" />\r\n";
-			}
-			foreach (int[] f in endSquares)
-			{
-				//T("endSquares " + f[0] + " " + f[1]);
-				areaBackground += "\t<path d=\"M " + f[0] + " " + f[1] + " h -1 l 1 -1 v 1\" fill=\"#0000ff\" fill-opacity=\"0.3\" />\r\n";
-				//areaBackground += "\t<rect width=\"1\" height=\"1\" x=\"" + (f[0] - 1) + "\" y=\"" + (f[1] - 1) + "\" fill=\"#00ff00\" fill-opacity=\"0.25\" />\r\n";
-			}
+				foreach (int[] f in startSquares)
+				{
+					//T("startSquares " + f[0] + " " + f[1]);
+					areaBackground += "\t<path d=\"M " + (f[0] - 1) + " " + (f[1] - 1) + " h 1 l -1 1 v -1\" fill=\"#ff0000\" fill-opacity=\"0.3\" />\r\n";
+					//areaBackground += "\t<rect width=\"1\" height=\"1\" x=\"" + (f[0] - 1) + "\" y=\"" + (f[1] - 1) + "\" fill=\"#ff0000\" fill-opacity=\"0.25\" />\r\n";
+				}
+				foreach (int[] f in endSquares)
+				{
+					//T("endSquares " + f[0] + " " + f[1]);
+					areaBackground += "\t<path d=\"M " + f[0] + " " + f[1] + " h -1 l 1 -1 v 1\" fill=\"#0000ff\" fill-opacity=\"0.3\" />\r\n";
+					//areaBackground += "\t<rect width=\"1\" height=\"1\" x=\"" + (f[0] - 1) + "\" y=\"" + (f[1] - 1) + "\" fill=\"#00ff00\" fill-opacity=\"0.25\" />\r\n";
+				}
+			}			
 
 			count = endSquares.Count;			
 			int area = 0;
@@ -1355,7 +1383,7 @@ namespace SvgApp
 			T("CountArea start: " + startSquares.Count + " end: " + count);
 			if (startSquares.Count != count)
 			{
-				File.WriteAllText("savePath_error.txt", savePath);
+				File.WriteAllText("p_error.txt", savePath);
 				StopTimer();				
 				M("Count of start and end squares are inequal: " + startSquares.Count + " " + count, 0); 
 				return true;
@@ -1689,6 +1717,7 @@ namespace SvgApp
 
 						nearExtDone = false;
 						farExtDone = false;
+						nearEndDone = false;
 
 						if (!ExtendFutureLine(false, future.path.Count - 1, future.path.Count - startCount, selectedSection, selectedSection, false))
 						{
@@ -1754,6 +1783,7 @@ namespace SvgApp
 
 							nearExtDone = false;
 							farExtDone = false;
+							nearEndDone = false;
 
 							if (!ExtendFutureLine(false, future.path.Count - 1, future.path.Count - 5, selectedSection, selectedSection, false))
 							{
@@ -1833,6 +1863,7 @@ namespace SvgApp
 
 					nearExtDone = false;
 					farExtDone = false;
+					nearEndDone = false;
 
 					if (!ExtendFutureLine(false, futureSections[selectedSection][0], futureSections[selectedSection][1], selectedSection, selectedSection, false))
 					{
@@ -1910,6 +1941,7 @@ namespace SvgApp
 
 						nearExtDone = false;
 						farExtDone = false;
+						nearEndDone = false;
 
 						//start extension from near end, since the far end already has multiple choice
 						if (!ExtendFutureLine(true, futureSections[selectedSection][0], farEndIndex, selectedSection, lastMerged, false))
@@ -1989,6 +2021,7 @@ namespace SvgApp
 
 						nearExtDone = false;
 						farExtDone = false;
+						nearEndDone = false;
 
 						if (!ExtendFutureLine(false, addIndex + 1, insertIndex, selectedSection, selectedSection, false))
 						{
@@ -2142,10 +2175,35 @@ In the second case, the near end being the same as above, the far end can be 11x
 			{
 				int index = (directionReverse) ? nearEndIndex : farEndIndex;
 				T("ExtendFuture directionReverse " + directionReverse + " index " + index + " nearEndIndex " + nearEndIndex + " farEndIndex " + farEndIndex + " nearSection " + nearSection + " farSection " + farSection);
+
+				// In 0814, future line is already extended to the end
+				if (!directionReverse && future.path[index][0] == size && future.path[index][1] == size)
+				{
+					farExtDone = true;
+					if (nearExtDone) return true;
+					break;
+				}
+
 				future.NextStepPossibilities(directionReverse, index, nearSection, farSection);
 
 				T("ExtendFutureLine, future.possible.Count " + future.possible.Count);
-				
+
+				// 0811_1: When the near end of a future line can only connect to the main line, the far end, when presented with the possibility of entering the corner and another field, it has to choose the other field.
+				// A future line on the edge cannot have 3 possibilities
+				if (nearEndDone && future.possible.Count == 2)
+				{
+					for (int i = 0; i < future.possible.Count; i++)
+					{
+						int[] field = future.possible[i];
+						if (field[0] == size && field[1] == size)
+						{
+							T("Near end connected to main line, removing corner from possibilities");
+							future.possible.RemoveAt(i);
+							break;
+						}
+					}
+				}
+
 				if (future.possible.Count == 1)
 				{
 					int[] newField = future.possible[0];
@@ -2154,6 +2212,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 					if (newField[0] == taken.path[taken.path.Count - 1][0] && newField[1] == taken.path[taken.path.Count - 1][1])
 					{
 						nearExtDone = true;
+						nearEndDone = true;
 						break;
 					}
 
@@ -2252,9 +2311,9 @@ In the second case, the near end being the same as above, the far end can be 11x
 				}
 			} while (future.possible.Count == 1);
 			
-			if (future.possible.Count == 0) T("Possible count: 0");
 			if (future.possible.Count == 0)
 			{
+				T("Possible count: 0");
 				// in 0811_4 it can happen that after stepping on the future line, the other line gets extended and merges into the line being stepped on.
 				if (directionReverse && future.path[nearEndIndex][0] == taken.x && future.path[nearEndIndex][1] == taken.y)
 				{
