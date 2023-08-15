@@ -13,7 +13,7 @@
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 1 h 3" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 3" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 2 h 3" />
-	<path d="M 0 0.5
+	<path d="M 0.5 0.5
 L 1 0.5
 L 2 0.5
 A 0.5 0.5 0 0 1 2.5 1
@@ -21,5 +21,6 @@ A 0.5 0.5 0 0 1 2 1.5
 L 1 1.5
 A 0.5 0.5 0 0 0 0.5 2
 A 0.5 0.5 0 0 0 1 2.5
-L 2 2.5" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" />
+L 2 2.5
+L 2.5 2.5" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" />
 </svg>

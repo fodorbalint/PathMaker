@@ -223,8 +223,8 @@ namespace SvgApp
 							CheckNearFutureSide();
 							//T("forbidden.Count after CheckNearFutureSide " + forbidden.Count);
 							//CheckLeftRightFuture();
-							// 0630
-							CheckNearFutureEnd();
+							// (Will be actual only on 21x21) 0630, but needs to work with 0804_1 too
+							// CheckNearFutureEnd();
 							// 0811_2
 							CheckNearCorner();
 						}

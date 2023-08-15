@@ -40,6 +40,8 @@ test AddNextStep if count area impair, drawpath will now not be called.
 0521: Future line start can be extended now. Taken is connecting to future, but since the left and right fields are not simultaneously empty, future line cannot be extended. In this case, the end of the selected future line cannot fill the empty space next to the main line, unlike it would be the case when connecting to the future section on the top.
 Review commented section of CheckNearFutureSide, it caused trouble on 5x5
 Does CheckLeftRightFuture() make sense?
+Implement right side of connecting to a loop
+Implement CheckNearFutureEnd on 21x21
 
 ----- SITUATIONS TO CONSIDER -----
 
@@ -59,8 +61,6 @@ Are all 4 directions necessary in Left/right 2 future line start checking? Find 
 Path.CheckLeftRightFuture: is it possible that this field is the end of a future section?
 0430: When we step on the right field, future line cannot be completed. It is right, but not because of C shape left and straight. The straight C shape is not right, because the field 2 ahead is a section start. We should also consider that the actual end to the right cannot go anywhere else.
 Simplify ExtendFutureLine: If selectedSection is known, there is no need for start and end parameter.
-implement right side of connecting to a loop
-Exit is not readded when stepping back (0811_3 walkthrough)
 
 ----- INCREASE EFFECTIVENESS -----
 
@@ -104,6 +104,8 @@ namespace SvgApp
 		int inFutureIndex = -1;
 		int insertIndex = -1;
 
+		string loadFile = "";
+		string svgName;
 		string savePath = "";
 		int size = 0;		
 		string areaBackground = "";
@@ -116,7 +118,8 @@ namespace SvgApp
 		private DispatcherTimer timer;
 		private int messageCode = -1;
 		private bool nearExtDone, farExtDone, nearEndDone;
-		private bool displayOutline = false; //used for CountArea
+		private bool displayArea = false; //used for CountArea
+		private bool displayExits = true;
 
 		public MainWindow()
 		{
@@ -133,23 +136,31 @@ namespace SvgApp
 			else
 			{
 				size = int.Parse(Size.Text);
-			}			
-
-			DrawGrid();
+			}
 			
 			exits = new List<int[]>();
 			exitIndex = new List<int>();
 			taken = new Path(this, size, new List<int[]>(), null, true);
 			future = new Path(this, size, new List<int[]>(), null, false);
 
-			if (File.Exists("p.txt"))
+			ReadDir();
+
+			if (loadFile != "")
 			{
 				LoadFromFile();
 			}
 			else
-			{
+			{				
 				InitializeList();
 			}
+
+			if (File.Exists("size.txt") && size.ToString() != Size.Text || !File.Exists("size.txt"))
+			{
+				Size.Text = size.ToString();
+				File.WriteAllText("size.txt", size.ToString());
+			}
+
+			DrawGrid();
 
 			if (taken != null && possibleDirections.Count == taken.path.Count) //null checking is only needed for removing warning
 			{
@@ -214,13 +225,41 @@ namespace SvgApp
 			}
 		}
 
-		private void LoadFromFile()
+		private void ReadDir()
 		{
-			string content = File.ReadAllText("p.txt");
+			loadFile = "";
+			string[] files = Directory.GetFiles("./", "*.txt");
+			foreach (string file in files)
+			{
+				string fileName = file.Substring(2);
+				if (fileName != "size.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
+				{
+					T(fileName);
+					loadFile = fileName;
+					return;
+				}
+			}
+		}
+
+		private void LoadFromFile()
+		{		
+			string content = File.ReadAllText(loadFile);
 			string[] loadPath;
 			bool circleDirectionLeft = true;
 			inFuture = false;
 			selectedSection = -1;
+
+			if (content.IndexOf("|") != -1)
+			{
+				string[] arr = content.Split("|");
+				size = int.Parse(arr[0]);
+				if (size > 100)
+				{
+					M("Size is limited to 100.", 0);
+					size = 100;
+				}
+				content = arr[1];
+			}
 
 			if (content.IndexOf(":") != -1)
 			{
@@ -349,21 +388,17 @@ namespace SvgApp
 		private void Reload_Click(object sender, RoutedEventArgs e)
 		{
 			HideMessage();
-			messageCode = -1;
-
-			if (File.Exists("size.txt") && Size.Text != File.ReadAllText("size.txt") || !File.Exists("size.txt"))
-			{
-				File.WriteAllText("size.txt", Size.Text);
-			}
-			size = int.Parse(Size.Text);
-
-			DrawGrid();
+			messageCode = -1;				
 
 			exits = new List<int[]>();
 			exitIndex = new List<int>();
-			areaBackground = "";			
+			areaBackground = "";
 
-			if (FromFileCheck.IsChecked == true && File.Exists("p.txt"))
+			size = int.Parse(Size.Text);
+
+			ReadDir();
+
+			if (FromFileCheck.IsChecked == true && loadFile != "")
 			{
 				LoadFromFile();
 			}
@@ -371,6 +406,14 @@ namespace SvgApp
 			{
 				InitializeList();
 			}
+
+			if (size.ToString() != Size.Text)
+			{
+				Size.Text = size.ToString();
+				File.WriteAllText("size.txt", size.ToString());
+			}
+
+			DrawGrid();
 
 			if (possibleDirections.Count == taken.path.Count)
 			{
@@ -387,7 +430,14 @@ namespace SvgApp
 
 		private void Save_Click(object sender, RoutedEventArgs e)
 		{
-			File.WriteAllText("p.txt", savePath);
+			ReadDir();
+
+			string saveName = loadFile;
+			if (saveName == "")
+			{
+				saveName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
+			}
+			File.WriteAllText(saveName, savePath);
 		}
 
 		private void Previous_Click(object sender, RoutedEventArgs e)
@@ -755,16 +805,6 @@ namespace SvgApp
 
 			CurrentCoords.Content = x + " " + y;
 
-			if (exits.Count > 0)
-			{
-				int lastExit = exits.Count - 1;
-				if (x == exits[lastExit][0] && y == exits[lastExit][1])
-				{
-					exits.RemoveAt(lastExit);
-					exitIndex.RemoveAt(lastExit);
-				}
-			}
-
 			return CheckFutureLine(x, y);
 		}		
 
@@ -926,7 +966,7 @@ namespace SvgApp
 
 			List<int[]> areaLine = new List<int[]> { new int[] { nextX, nextY } };
 
-			if (displayOutline)
+			if (displayArea)
 			{
 				areaBackground = "\t<rect width=\"1\" height=\"1\" x=\"" + (nextX - 1) + "\" y=\"" + (nextY - 1) + "\" fill=\"#0000ff\" fill-opacity=\"0.15\" />\r\n";
 			}
@@ -1044,7 +1084,7 @@ namespace SvgApp
 					
 				}
 
-				if (displayOutline)
+				if (displayArea)
 				{
 					areaBackground += "\t<rect width=\"1\" height=\"1\" x=\"" + (nextX - 1) + "\" y=\"" + (nextY - 1) + "\" fill=\"#0000ff\" fill-opacity=\"0.15\" />\r\n";
 				}
@@ -1361,7 +1401,7 @@ namespace SvgApp
 				}
 			}			
 
-			if (displayOutline)
+			if (displayArea)
 			{
 				foreach (int[] f in startSquares)
 				{
@@ -2464,31 +2504,49 @@ In the second case, the near end being the same as above, the far end can be 11x
 
 		private void DrawPath()
 		{
-			string startPos = 0 + " " + 0.5;
+			string startPos = 0.5 + " " + 0.5;
 			string startPosFuture = "";
 			string path = "";
 			string pathFuture = "";
 
-			float posX = 0;
+			float posX = 0.5f;
 			float posY = 0.5f;
 			int startX = 1;
 			int startY = 1;
 			string backgrounds = "\t<rect width=\"1\" height=\"1\" x=\"" + (startX - 1) + "\" y=\"" + (startY - 1) + "\" fill=\"#ff0000\" fill-opacity=\"0.15\" />\r\n";
-			savePath = "1-" + startX + "," + startY + ";";
+			savePath = size + "|1-" + startX + "," + startY + ";";
+
+			int newX = 0;
+			int newY = 0;
+
+			bool inLoop = false;
+			if (exits.Count > 0)
+			{
+				int[] lastExit = exits[exits.Count - 1];
+				int x = lastExit[0];
+				int y = lastExit[1];
+
+				if (!taken.InTaken(x, y))
+				{
+					inLoop = true;
+				}
+			}
 
 			for (int i = 1; i < taken.path.Count; i++)
 			{
 				int[] field = taken.path[i];
-				int newX = field[0];
-				int newY = field[1];
+				newX = field[0];
+				newY = field[1];
 
 				string color = "#ff0000";
 				string opacity = "0.15";
-				if (exitIndex.Count > 0 && i > exitIndex[exitIndex.Count - 1])
+
+				if (displayExits && inLoop && i > exitIndex[exitIndex.Count - 1])
 				{
-					color = "#cc3300";
+					color = "#996600";
 					opacity = "0.25";
 				}
+
 				backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
 
 				foreach (int direction in possibleDirections[i])
@@ -2499,7 +2557,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 				savePath += "-" + newX + "," + newY + ";";
 
 				float prevX = posX;
-				float prevY = posY;
+				float prevY = posY;				
 
 				if (startY == newY)
 				{
@@ -2510,7 +2568,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 				{
 					posY = (float)(startY + newY) / 2 - 0.5f;
 					posX = newX - 0.5f;
-				}
+				}			
 
 				if (prevX == posX || prevY == posY)
 				{
@@ -2554,6 +2612,8 @@ In the second case, the near end being the same as above, the far end can be 11x
 				startX = newX;
 				startY = newY;
 			}
+
+			if (taken.path.Count > 1) path += "L " + (newX - 0.5f) + " " + (newY - 0.5f) + "\r\n";
 
 			string futureBackgrounds = "";
 			string futurePath = "";
@@ -2613,8 +2673,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 
 						if (i == section[0])
 						{
-							startItem = true;
-						}
+							startItem = true;						}
 						if (i == section[1])
 						{
 							endItem = true;
@@ -2641,8 +2700,8 @@ In the second case, the near end being the same as above, the far end can be 11x
 					}					
 
 					int[] field = future.path[i];
-					int newX = field[0];
-					int newY = field[1];
+					newX = field[0];
+					newY = field[1];
 
 					string color = "#0000ff";
 					string opacity = "0.15";
@@ -2673,7 +2732,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 					{
 						posY = (float)(startY + newY) / 2 - 0.5f;
 						posX = newX - 0.5f;
-					}
+					}			
 
 					if (prevX == posX || prevY == posY)
 					{
@@ -2719,6 +2778,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 
 					if (endItem)
 					{
+						pathFuture += "L " + (newX - 0.5f) + " " + (newY - 0.5f) + "\r\n";
 						futurePath += "\t<path d=\"M " + startPosFuture + "\r\n" + pathFuture + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" />\r\n";
 					}
 				}
@@ -2767,8 +2827,8 @@ In the second case, the near end being the same as above, the far end can be 11x
 								}
 
 								int[] field = future.path[k];
-								int newX = field[0];
-								int newY = field[1];
+								newX = field[0];
+								newY = field[1];
 
 								string color = "#0000ff";
 								string opacity = "0.15";
@@ -2845,6 +2905,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 
 								if (endItem)
 								{
+									pathFuture += "L " + (newX - 0.5f) + " " + (newY - 0.5f) + "\r\n";
 									futurePath += "\t<path d=\"M " + startPosFuture + "\r\n" + pathFuture + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" />\r\n";
 								}
 							}
@@ -2879,7 +2940,12 @@ In the second case, the near end being the same as above, the far end can be 11x
 					int[] field = exits[i];
 					int x = field[0];
 					int y = field[1];
-					backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (x - 1) + "\" y=\"" + (y - 1) + "\" fill=\"#00ff00\" fill-opacity=\"0.4\" />\r\n";
+					
+					if (displayExits && !taken.InTaken(x, y))
+					{
+						backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (x - 1) + "\" y=\"" + (y - 1) + "\" fill=\"#00ff00\" fill-opacity=\"0.4\" />\r\n";
+					}
+					
 					savePath += x + "," + y + "," + exitIndex[i] + ";";
 					ExitCoords.Text += field[0] + " " + field[1] + "\n";
 				}
@@ -2897,7 +2963,13 @@ In the second case, the near end being the same as above, the far end can be 11x
 				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" />\r\n" +
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
-			File.WriteAllText("p.svg", content);
+
+			svgName = loadFile.Replace("txt", "svg");
+			if (svgName == "")
+			{
+				svgName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".svg";
+			}
+			File.WriteAllText(svgName, content);
 			File.WriteAllText("p_temp.txt", savePath);
 			Canvas.InvalidateVisual();
 		}
@@ -2908,7 +2980,7 @@ In the second case, the near end being the same as above, the far end can be 11x
 			canvas.Clear(SKColors.White);
 
 			var svg = new SkiaSharp.Extended.Svg.SKSvg();
-			var picture = svg.Load("p.svg");
+			var picture = svg.Load(svgName);
 
 			var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
 			e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
