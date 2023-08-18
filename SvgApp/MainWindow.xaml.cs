@@ -34,7 +34,6 @@ System is made to discover all possible walkthroughs: When we reach the end, we 
 
 ----- FIX SCENARIOS, OTHER -----
 
-test AddNextStep if count area impair, drawpath will now not be called.
 0327_2: Draw future line when entering a circle with 1 line to come out from and 3 spaces at the exit (impossible)
 0413: Path.CheckFutureSide: check case when both sides are true simultaneously, draw future line on left side to start with. See 0430_2
 0415_1: Future line start can be extended, but there is mistakenly no possibilities because of right across check.
@@ -356,6 +355,8 @@ namespace SvgApp
 					new int[] {1, 1}
 				}, null, true);			
 			possibleDirections = new List<int[]> { new int[] { 1 }, new int[] { 0, 1 } };
+			nextDirection = -2;
+			lastDirection = 0;
 			InitializeFuture();
 
 			CurrentCoords.Content = taken.x + " " + taken.y;
@@ -792,6 +793,8 @@ namespace SvgApp
 			possibleDirections.Add(possibleFields.ToArray()); //array containing possible fields for all steps
 		}
 
+		int lastDirection = -1;
+
 		private bool NextStep()
 		{
 			T("NextStep taken.possible.Count: " + taken.possible.Count);
@@ -804,19 +807,71 @@ namespace SvgApp
 
 			if (nextDirection != -1)
 			{
-				int[] newField;
+				int lastDirectionTemp = -1;
+
+				int[] newField = new int[] { };
 				if (nextDirection == -2)
 				{
-					newField = taken.possible[rand.Next(0, taken.possible.Count)];
+					if (SaveAndContinue.IsChecked != true)
+					{
+						newField = taken.possible[rand.Next(0, taken.possible.Count)];
+					}
+					else
+					{						
+						// Find the most left field. It is possible to have the left and right field but not straight when the program steps back from an impair count area situation.
+						int[] newDirections = possibleDirections[possibleDirections.Count - 1];
+
+						bool foundLeft = false;
+						bool foundStraight = false;
+						int i = 0;
+						for (i = 0; i < newDirections.Length; i++)
+						{
+							int leftDirection = lastDirection == 3 ? 0 : lastDirection + 1;
+							if (newDirections[i] == leftDirection)
+							{
+								foundLeft = true;
+								break;
+							}
+							else if (newDirections[i] == lastDirection)
+							{
+								foundStraight = true;
+								//no break, left may be found later
+							}
+						}
+						if (foundLeft)
+						{
+							lastDirectionTemp = newDirections[i];
+							newField = new int[] { taken.x + directions[lastDirectionTemp][0], taken.y + directions[lastDirectionTemp][1] };				
+						}
+						else if (foundStraight)
+						{
+							lastDirectionTemp = lastDirection;
+							newField = new int[] { taken.x + directions[lastDirectionTemp][0], taken.y + directions[lastDirectionTemp][1] };
+						}
+						else //only right is possible
+						{
+							lastDirectionTemp = newDirections[0];
+							newField = new int[] { taken.x + directions[lastDirectionTemp][0], taken.y + directions[lastDirectionTemp][1] };
+						}
+					}					
 				}
 				else
 				{
 					T("Determined next direction");
 					newField = new int[] { taken.x + directions[nextDirection][0], taken.y + directions[nextDirection][1] };
+					lastDirection = nextDirection;
 					nextDirection = -2;
 				}
 
-				return AddNextStep(newField[0], newField[1]);
+				if (!AddNextStep(newField[0], newField[1]))
+				{
+					return false;
+				}
+				else
+				{
+					lastDirection = lastDirectionTemp;
+					return true;
+				}
 			}
 			else return true;
 			
@@ -831,11 +886,13 @@ namespace SvgApp
 			{
 				if (AddNextStep(taken.x + directions[directionIndex][0], taken.y + directions[directionIndex][1]))
 				{
+					// draw and next step possibilities
 					return 2;
 				}
 				else
 				{
-					return 0;
+					// draw only
+					return 1;
 				}
 			}
 			else
@@ -846,10 +903,10 @@ namespace SvgApp
 				if (prevField[0] == newX && prevField[1] == newY)
 				{
 					PreviousStep(false);
-					return 1; //back step
+					return 1; //back step, draw only, future possibilities already calculated
 				}
 			}
-			return 0; //the chosen direction was no option to move
+			return 0; //the chosen direction was no option to move, no draw
 		}
 
 		private bool AddNextStep(int x, int y)

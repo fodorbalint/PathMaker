@@ -365,23 +365,22 @@ namespace SvgApp
 
 		public void CheckNearFieldCommon()
 		{
-			if ((InTakenAll(x + 2 * lx, y + 2 * ly) || InBorder(x + 2 * lx, y + 2 * ly)) && !InTakenAllF(leftField)) //2 to left
+			if ((InTakenAll(x + 2 * lx, y + 2 * ly) || InBorder(x + 2 * lx, y + 2 * ly)) && InTakenAll(x + lx - dx, y + ly - dy) && !InTakenAllF(leftField)) //2 to left
 			{
-				if (InTakenAll(x + lx - dx, y + ly - dy)) //C shape that needs to be filled, unless there is a live end nearby that can fill it
-				{
-					if (isMain || !isMain && !InFutureOwnStart(x + lx - dx, y + ly - dy) && !InFutureOwnEnd(x + lx - dx, y + ly - dy) && !InFutureOwnStart(x + 2 * lx, y + 2 * ly) && !InFutureOwnEnd(x + 2 * lx, y + 2 * ly))
-					{	
-						// The future line does not create a C shape if the end of the main line is the empty field to the left. 
-						// 0620_2, one step forward, the near end extends. 
-						if (!(path2.Count != 0 && leftField[0] == path2[path2.Count - 1][0] && leftField[1] == path2[path2.Count - 1][1]))
-						{
-							T("C shape left");
-							forbidden.Add(straightField);
-							forbidden.Add(rightField);
-							CShape = true; // left/right across checking will be disabled, no exits needed
-						}
+				//C shape that needs to be filled, unless there is a live end nearby that can fill it				
+				if (isMain && !InFutureStart(x + lx - dx, y + ly - dy) && !InFutureStart(x + 2 * lx, y + 2 * ly) || !isMain && !InFutureOwnStart(x + lx - dx, y + ly - dy) && !InFutureOwnEnd(x + lx - dx, y + ly - dy) && !InFutureOwnStart(x + 2 * lx, y + 2 * ly) && !InFutureOwnEnd(x + 2 * lx, y + 2 * ly))
+				{	
+					// The future line does not create a C shape if the end of the main line is the empty field to the left. 
+					// 0620_2, one step forward, the near end extends. 
+					if (!(path2.Count != 0 && leftField[0] == path2[path2.Count - 1][0] && leftField[1] == path2[path2.Count - 1][1]))
+					{
+						T("C shape left");
+						forbidden.Add(straightField);
+						forbidden.Add(rightField);
+						CShape = true; // left/right across checking will be disabled, no exits needed
 					}
 				}
+				
 				/*else if (!InTaken(x + lx + dx, y + ly + dy)) //if not upside down C
 				{
 					//lower left corner
@@ -392,19 +391,16 @@ namespace SvgApp
 				}*/
 			}
 
-			if ((InTakenAll(x + 2 * rx, y + 2 * ry) || InBorder(x + 2 * rx, y + 2 * ry)) && !InTakenAllF(rightField)) //2 to right
+			if ((InTakenAll(x + 2 * rx, y + 2 * ry) || InBorder(x + 2 * rx, y + 2 * ry)) && InTakenAll(x + rx - dx, y + ry - dy) && !InTakenAllF(rightField)) //2 to right
 			{
-				if (InTakenAll(x + rx - dx, y + ry - dy))
+				if (isMain && !InFutureStart(x + rx - dx, y + ry - dy) && !InFutureStart(x + 2 * rx, y + 2 * ry) || !isMain && !InFutureOwnStart(x + rx - dx, y + ry - dy) && !InFutureOwnEnd(x + rx - dx, y + ry - dy) && !InFutureOwnStart(x + 2 * rx, y + 2 * ry) && !InFutureOwnEnd(x + 2 * rx, y + 2 * ry))
 				{
-					if (isMain || !isMain && !InFutureOwnStart(x + rx - dx, y + ry - dy) && !InFutureOwnEnd(x + rx - dx, y + ry - dy) && !InFutureOwnStart(x + 2 * rx, y + 2 * ry) && !InFutureOwnEnd(x + 2 * rx, y + 2 * ry))
+					if (!(path2.Count != 0 && rightField[0] == path2[path2.Count - 1][0] && rightField[1] == path2[path2.Count - 1][1]))
 					{
-						if (!(path2.Count != 0 && rightField[0] == path2[path2.Count - 1][0] && rightField[1] == path2[path2.Count - 1][1]))
-						{
-							T("C shape right");
-							forbidden.Add(straightField);
-							forbidden.Add(leftField);
-							CShape = true;
-						}
+						T("C shape right");
+						forbidden.Add(straightField);
+						forbidden.Add(leftField);
+						CShape = true;
 					}
 				}
 				/*else if (!InTaken(x + rx + dx, y + ry + dy))
@@ -424,7 +420,7 @@ namespace SvgApp
 			{
 				if (isMain && !InFutureStart(x + lx + dx, y + ly + dy) && !InFutureStart(x + 2 * dx, y + 2 * dy) || !isMain && !InFutureOwnStart(x + lx + dx, y + ly + dy) && !InFutureOwnEnd(x + lx + dx, y + ly + dy) && !InFutureOwnStart(x + 2 * dx, y + 2 * dy) && !InFutureOwnEnd(x + 2 * dx, y + 2 * dy))
 				{
-					T("C shape straight");
+					T("C shape straight left");
 					forbidden.Add(rightField);
 					CShape = true;
 				}
@@ -433,7 +429,7 @@ namespace SvgApp
 			{
 				if (isMain && !InFutureStart(x + rx + dx, y + ry + dy) && !InFutureStart(x + 2 * dx, y + 2 * dy) || !isMain && !InFutureOwnStart(x + rx + dx, y + ry + dy) && !InFutureOwnEnd(x + rx + dx, y + ry + dy) && !InFutureOwnStart(x + 2 * dx, y + 2 * dy) && !InFutureOwnEnd(x + 2 * dx, y + 2 * dy))
 				{
-					T("C shape straight");
+					T("C shape straight right");
 					forbidden.Add(leftField);
 					CShape = true;
 				}
