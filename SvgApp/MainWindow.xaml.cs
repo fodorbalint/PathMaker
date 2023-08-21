@@ -30,6 +30,9 @@ using SkiaSharp.Views.Desktop;
 
 ----- FIX SCENARIOS, 7x7 -----
 
+0821: Step right, Left/right future line cannot be completed. This is not an error, because countarea is impair. But exit and countarea should be established before extending a nearby future line to avoid unnecessary computation.
+If size = 5, many of the future checks are not needed. Exits and countarea not needed, future lines immediately show the way. Every size has its own set of rules, extending from the previous size.
+
 ----- FIX SCENARIOS, OTHER -----
 
 0327_2: Draw future line when entering a circle with 1 line to come out from and 3 spaces at the exit (impossible)

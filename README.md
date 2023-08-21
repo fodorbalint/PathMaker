@@ -1,4 +1,4 @@
-# PathMaker
+# One Way Labyrinth
 
 This program aims to solve the following riddle:
 
@@ -25,4 +25,20 @@ The 5x5 requires much more consideration. Whenever it is possible to draw future
 
 As of August 21, 2023 all 5x5 scenarios are successfully handled. Not once the line has to step back because of an impossible situation.
 The number of walkthroughs are 104.
+Improvements can be made to reduce computation time as many of the rules are not applicable at this size. With every aize, new rules will be added.
 
+To summarize, here are the things to consider on 5x5:
+
+<img src="References/0821_1.svg" width="23.8%"/>
+
+- A single field next to the live end that is walled from two other sides (either by the border or the line) needs to be filled in the next step.
+- A 2x3 empty area next to the live end that is walled by three sides (2-3-2) will have a future line going through along the walls. At the wall next to the main line, its direction is the opposite of the main line, meaning it will go from (3,2) upwards whereas the main line just took a step downwards. How the middle field will be filled is not yet known. Either the near end (the one the main line will go through first) or the far end can fill it.
+
+<img src="References/0821_2.svg" width="23.8%"/>
+
+- A 2x2 empty area next to the live end that is walled by three sides (2-2-2) will have a future line going through along the walls. In the example above, the far end is already extended by one step as it had only one option to move.
+
+<img src="References/0821_3.svg" width="23.8%"/><img src="References/spacer.svg" width="8%"/><img src="References/0821_4.svg" width="23.8%"/>
+
+Taking a step further, another future line is created an extended on the left side. Any step we take now will further extend and connect the two future lines, giving a complete walkthrough. Future lines are first extended when we step on them. Then, if there are other lines that started from the position next to where the live end was in the previous step, they get extended too.
+Note that the line being stepped on has its end at (5,4). The nearby empty fields are (4,4) and the corner, (5,5). It cannot choose the corner, because then nothing would fill (4,4). Then, the line on the left gets extended until it connects to the other. As the near end cannot be extended more, the far end gets extended until it reaches the corner. 
