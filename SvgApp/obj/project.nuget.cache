@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "CZqM9CFf0K/PaRb9kTVI4yZ4WkrDurbasf+Ufl3v09N8x3wSDx3rzsI25k4G4SlwbRlsxWb4b4YwOUFlhircSg==",
+  "dgSpecHash": "OENT2jlAky7Mx4CwUYRsxsAFK8A/uFJXnFEcYxyo6Wak4143LRv8iAe4bOCikQjk2lBCGWaoxdUO1+YKGc6mtQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\fodor\\source\\repos\\PathMaker\\SvgApp\\SvgApp.csproj",
+  "projectFilePath": "C:\\Users\\fodor\\source\\repos\\OneWayLabyrinth\\SvgApp\\SvgApp.csproj",
   "expectedPackageFiles": [
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.netcore.platforms\\2.0.0\\microsoft.netcore.platforms.2.0.0.nupkg.sha512",
     "C:\\Users\\fodor\\.nuget\\packages\\microsoft.win32.systemevents\\4.5.0\\microsoft.win32.systemevents.4.5.0.nupkg.sha512",

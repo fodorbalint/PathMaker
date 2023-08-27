@@ -23,8 +23,7 @@ The 5x5 requires much more consideration. Whenever it is possible to draw future
 
 <img src="References/0806.svg" width="23.8%"/>
 
-As of August 21, 2023 all 5x5 scenarios are successfully handled. Not once the line has to step back because of an impossible situation.
-The number of walkthroughs are 104.
+As of August 21, 2023 all 5x5 scenarios are successfully handled. The number of walkthroughs are 104.
 Improvements can be made to reduce computation time as many of the rules are not applicable at this size. With every aize, new rules will be added.
 
 To summarize, here are the things to consider on 5x5:
@@ -42,3 +41,15 @@ To summarize, here are the things to consider on 5x5:
 
 Taking a step further, another future line is created an extended on the left side. Any step we take now will further extend and connect the two future lines, giving a complete walkthrough. Future lines are first extended when we step on them. Then, if there are other lines that started from the position next to where the live end was in the previous step, they get extended too.
 Note that the line being stepped on has its end at (5,4). The nearby empty fields are (4,4) and the corner, (5,5). It cannot choose the corner, because then nothing would fill (4,4). Then, the line on the left gets extended until it connects to the other. As the near end cannot be extended more, the far end gets extended until it reaches the corner. 
+
+There have not been found any case where the future line cannot extend, and the main line has to step back. This will change on 7x7. See these examples:
+
+<img src="References/0821.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0827.svg" width="33.3%"/>
+
+In the first, the upper right future line fails when we step right. In the second, the future line on the left. The results are:
+
+<img src="References/0821_fail.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0827_fail.svg" width="33.3%"/>
+
+The number of 7x7 may be tens or hundreds of thousands. Right now, I let the program run randomly to find errors to correct, but it may be possible in the future to run the program through all possibilities, detecting errors on its way. If the line reaches the corner, and the number of steps taken have been less than 49, there has been something wrong.
+
+<img src="References/0827_1.svg" width="33.3%"/>
