@@ -28,12 +28,18 @@ using SkiaSharp.Views.Desktop;
 
 /*
 
------ FIX SCENARIOS, 7x7 -----
+----- COMMENTS -----
 
 If size = 5, many of the future checks are not needed. Exits and countarea not needed, future lines immediately show the way. Left/right to 2 future extension not needed. Every size has its own set of rules, extending from the previous size.
-If size = 7, we can rely on future lines, countarea is not yet needed. Left/right to 2 future extension needed as in 0821. Future lines do not always extend. Program does not top when left/right or left/right to 2 future lines cannot extend. So far I have only found examples of the left/right to 2 extension failing (0821, 0827)
+If size = 7, we can rely on future lines, countarea is not yet needed. Left/right to 2 future extension needed as in 0821. Future lines do not always extend. Program does not stop when left/right or left/right to 2 future lines cannot extend. So far I have only found examples of the left/right to 2 extension failing (0821, 0827)
+Observed pattern in 0827: near end 2 left of the main end, far end 2 left, 2 bottom. If we do not step left, that future line will not complete, because the near end will step right and down, which block the far end that is stepping up.
 
-0827_1: The fuutre line on the bottom has its near end only being capable to connect to the main line. But the main line has still 3 possibilities.
+----- 7 x 7 -----
+
+----- 21 x 21 -----
+
+0829: it is right that we cannot step straight or right, but the C-shape condition is not correct, because it only takes into consideration to the field 2 left. The previous step is already impossible. The near end should be extended, and then the main line has no choice.
+0829_1: Stepping left will make a loop in the future line to the left. The situation is still impossible, but it is not clear when it became impossible.
 
 ----- FIX SCENARIOS, OTHER -----
 
@@ -522,9 +528,10 @@ namespace SvgApp
 
 					if (!rightFound)
 					{
-						PreviousStep(false); //c = 2. We reached the end, step back to the start position
-											 // Reset nextDirection, so that we can start again
+						PreviousStep(false); // c = 2. We reached the end, step back to the start position
+											 // Reset nextDirection, so that we can start again, but we stop the timer.
 						nextDirection = -2;
+						StopTimer();
 					}
 
 					DrawPath();
@@ -610,8 +617,8 @@ namespace SvgApp
 
 					if (!rightFound)
 					{
-						PreviousStep(false); //c = 2. We reached the end, step back to the start position
-						// Reset nextDirection, so that we can start again
+						PreviousStep(false); // c = 2. We reached the end, step back to the start position
+											// Reset nextDirection, so that we can start again
 						nextDirection = -2;
 					}					
 
@@ -1771,6 +1778,7 @@ namespace SvgApp
 
 		private bool CheckFutureLine(int x, int y)
 		{
+			//if (inFutureIndex == -1) DrawPath();
 			T("CheckFutureLine inFuture: " + inFuture + " x " + x + " y " + y + " selectedSection " + selectedSection + " inFutureIndex: " + inFutureIndex);
 			if (future.path.Count > 0) 
 			{

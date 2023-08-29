@@ -50,6 +50,4 @@ In the first, the upper right future line fails when we step right. In the secon
 
 <img src="References/0821_fail.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0827_fail.svg" width="33.3%"/>
 
-The number of 7x7 may be tens or hundreds of thousands. Right now, I let the program run randomly to find errors to correct, but it may be possible in the future to run the program through all possibilities, detecting errors on its way. If the line reaches the corner, and the number of steps taken have been less than 49, there has been something wrong.
-
-<img src="References/0827_1.svg" width="33.3%"/>
+The number of 7x7 walkthroughs may be tens or hundreds of thousands. Right now, I let the program run randomly to find errors to correct, but it may be possible in the future to run the program through all possibilities, detecting errors on its way. If the line reaches the corner, and the number of steps taken have been less than 49, there has been something wrong.

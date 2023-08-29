@@ -212,10 +212,15 @@ namespace SvgApp
 						CShape = false;
 						CheckNearFieldCommon();
 						T("forbidden.Count after CheckNearFieldCommon " + forbidden.Count);
-						if (isMain)
+						if (!isMain && !searchReverse) // when the far end of the future line extends, it should be checked for border just like the main line. Near end shouldn't be checked, see 0714
 						{
-							CheckNearBorder(); // Future line shouldn't be checked for border. See 0714
-											   //T("forbidden.Count before CheckNearField " + forbidden.Count);
+							CheckNearBorder();
+							T("forbidden.Count after CheckNearBorder " + forbidden.Count);
+						}
+						else if (isMain)
+						{
+							CheckNearBorder();
+							//T("forbidden.Count before CheckNearField " + forbidden.Count);
 							CheckNearField();
 							//T("forbidden.Count after CheckNearField " + forbidden.Count);
 							CheckNearFutureStartEnd();
@@ -302,49 +307,53 @@ namespace SvgApp
 				}
 			}
 
-			if (x + 2 * dx == 0)
+			//going towards an edge, only applies to main line, future line far end may face incompleted fields, see 0829_2
+			if (isMain)
 			{
-				forbidden.Add(leftField);
-				if (!InTaken(x - 1, y - 1))
+				if (x + 2 * dx == 0)
 				{
-					forbidden.Add(straightField);
+					forbidden.Add(leftField);
+					if (!InTaken(x - 1, y - 1))
+					{
+						forbidden.Add(straightField);
 
-					AddExit(x - 1, y - 1);
-					circleDirectionLeft = false;
+						AddExit(x - 1, y - 1);
+						circleDirectionLeft = false;
 
+					}
 				}
-			}
-			else if (x + 2 * dx == size + 1)
-			{
-				forbidden.Add(rightField);
-				if (!InTaken(x + 1, y - 1) && y != 1)
+				else if (x + 2 * dx == size + 1)
 				{
-					forbidden.Add(straightField);
+					forbidden.Add(rightField);
+					if (!InTaken(x + 1, y - 1) && y != 1)
+					{
+						forbidden.Add(straightField);
 
-					AddExit(x + 1, y - 1);
-					circleDirectionLeft = true;
+						AddExit(x + 1, y - 1);
+						circleDirectionLeft = true;
+					}
 				}
-			}
-			else if (y + 2 * dy == 0)
-			{
-				forbidden.Add(rightField);
-				if (!InTaken(x - 1, y - 1))
+				else if (y + 2 * dy == 0)
 				{
-					forbidden.Add(straightField);
+					forbidden.Add(rightField);
+					if (!InTaken(x - 1, y - 1))
+					{
+						forbidden.Add(straightField);
 
-					AddExit(x - 1, y - 1);
-					circleDirectionLeft = true;
+						AddExit(x - 1, y - 1);
+						circleDirectionLeft = true;
+					}
 				}
-			}
-			else if (y + 2 * dy == size + 1)
-			{
-				forbidden.Add(leftField);
-				if (!InTaken(x - 1, y + 1) && x != 1)
+				else if (y + 2 * dy == size + 1)
 				{
-					forbidden.Add(straightField);
+					forbidden.Add(leftField);
+					if (!InTaken(x - 1, y + 1) && x != 1)
+					{
+						forbidden.Add(straightField);
 
-					AddExit(x - 1, y + 1);
-					circleDirectionLeft = false;
+						AddExit(x - 1, y + 1);
+						circleDirectionLeft = false;
+					}
 				}
 			}
 		}
@@ -1295,6 +1304,8 @@ namespace SvgApp
 			int x = f[0];
 			int y = f[1];
 
+			if (x == size && y == size) return false; // a far end that reached the corner is not considered live.
+
 			int foundIndex = -1;
 
 			int i;
@@ -1388,6 +1399,8 @@ namespace SvgApp
 		{
 			int c = path2.Count;
 			if (c == 0) return false;
+
+			if (x == size && y == size) return false; // a far end that reached the corner is not considered live.
 
 			int foundIndex = -1;
 
