@@ -24,13 +24,12 @@ The 5x5 requires much more consideration. Whenever it is possible to draw future
 <img src="References/0806.svg" width="23.8%"/>
 
 As of August 21, 2023 all 5x5 scenarios are successfully handled. The number of walkthroughs are 104.
-Improvements can be made to reduce computation time as many of the rules are not applicable at this size. With every aize, new rules will be added.
 
-To summarize, here are the things to consider on 5x5:
+Here are the things to consider on 5x5:
 
 <img src="References/0821_1.svg" width="23.8%"/>
 
-- A single field next to the live end that is walled from two other sides (either by the border or the line) needs to be filled in the next step.
+- A single field next to the live end that is walled from two other sides (either by the border or the line) needs to be filled in the next step. I call it C-shape.
 - A 2x3 empty area next to the live end that is walled by three sides (2-3-2) will have a future line going through along the walls. At the wall next to the main line, its direction is the opposite of the main line, meaning it will go from (3,2) upwards whereas the main line just took a step downwards. How the middle field will be filled is not yet known. Either the near end (the one the main line will go through first) or the far end can fill it.
 
 <img src="References/0821_2.svg" width="23.8%"/>
@@ -39,7 +38,7 @@ To summarize, here are the things to consider on 5x5:
 
 <img src="References/0821_3.svg" width="23.8%"/><img src="References/spacer.svg" width="8%"/><img src="References/0821_4.svg" width="23.8%"/>
 
-Taking a step further, another future line is created an extended on the left side. Any step we take now will further extend and connect the two future lines, giving a complete walkthrough. Future lines are first extended when we step on them. Then, if there are other lines that started from the position next to where the live end was in the previous step, they get extended too.
+Taking a step further, another future line is created and extended on the left side. Any step we take now will further extend and connect the two future lines, giving a complete walkthrough. Future lines are first extended when we step on them. Then, if there are other lines that started from the position next to where the live end was in the previous step, they get extended too.
 Note that the line being stepped on has its end at (5,4). The nearby empty fields are (4,4) and the corner, (5,5). It cannot choose the corner, because then nothing would fill (4,4). Then, the line on the left gets extended until it connects to the other. As the near end cannot be extended more, the far end gets extended until it reaches the corner. 
 
 There have not been found any case where the future line cannot extend, and the main line has to step back. This will change on 7x7. See these examples:
@@ -50,4 +49,7 @@ In the first, the upper right future line fails when we step right. In the secon
 
 <img src="References/0821_fail.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0827_fail.svg" width="33.3%"/>
 
-The number of 7x7 walkthroughs may be tens or hundreds of thousands. Right now, I let the program run randomly to find errors to correct, but it may be possible in the future to run the program through all possibilities, detecting errors on its way. If the line reaches the corner, and the number of steps taken have been less than 49, there has been something wrong.
+With every size, new rules are added. Here, we have to consider a future line that starts 2 to left or right to the place the main line was in the previous step. Since the main line didn't fill the single empty space, the future line has to do it and extend to the direction of the main line.
+
+In the program, there are rules applicable for 9x9 and 11x11 grids as well, but the 7x7 research is not completed yet.
+The number walkthroughs may be tens or hundreds of thousands. Right now, I let the program run randomly to find errors to correct, but it may be possible in the future to run the program through all possibilities, detecting errors on its way. If the line reaches the corner, and the number of steps taken have been less than 49, there has been something wrong.

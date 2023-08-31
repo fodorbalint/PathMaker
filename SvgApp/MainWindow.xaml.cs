@@ -30,8 +30,6 @@ using SkiaSharp.Views.Desktop;
 
 ----- COMMENTS -----
 
-If size = 5, many of the future checks are not needed. Exits and countarea not needed, future lines immediately show the way. Left/right to 2 future extension not needed. Every size has its own set of rules, extending from the previous size.
-If size = 7, we can rely on future lines, countarea is not yet needed. Left/right to 2 future extension needed as in 0821. Future lines do not always extend. Program does not stop when left/right or left/right to 2 future lines cannot extend. So far I have only found examples of the left/right to 2 extension failing (0821, 0827)
 Observed pattern in 0827: near end 2 left of the main end, far end 2 left, 2 bottom. If we do not step left, that future line will not complete, because the near end will step right and down, which block the far end that is stepping up.
 
 ----- 7 x 7 -----
@@ -135,14 +133,25 @@ namespace SvgApp
 			timer = new DispatcherTimer();
 			timer.Tick += Timer_Tick;
 
-			if (File.Exists("size.txt"))
+			if (File.Exists("settings.txt"))
 			{
-				size = int.Parse(File.ReadAllText("size.txt"));
+				string[] lines = File.ReadAllLines("settings.txt");
+				string[] arr = lines[0].Split(": ");
+				size = int.Parse(arr[1]);				
+				arr = lines[1].Split(": ");
+				FromFileCheck.IsChecked = bool.Parse(arr[1]);
+				arr = lines[2].Split(": ");
+				SaveAndContinue.IsChecked = bool.Parse(arr[1]);
+
+				CheckSize();
 				Size.Text = size.ToString();
 			}
 			else
 			{
-				size = int.Parse(Size.Text);
+				size = 7;
+				Size.Text = size.ToString();
+				FromFileCheck.IsChecked = false;
+				SaveAndContinue.IsChecked = false;
 			}
 			
 			exits = new List<int[]>();
@@ -161,10 +170,9 @@ namespace SvgApp
 				InitializeList();
 			}
 
-			if (File.Exists("size.txt") && size.ToString() != Size.Text || !File.Exists("size.txt"))
+			if (File.Exists("settings.txt") && size.ToString() != Size.Text || !File.Exists("settings.txt"))
 			{
-				Size.Text = size.ToString();
-				File.WriteAllText("size.txt", size.ToString());
+				SaveSettings();
 			}
 
 			DrawGrid();
@@ -215,7 +223,7 @@ namespace SvgApp
 			foreach (string file in files)
 			{
 				string fileName = file.Substring(2);
-				if (fileName != "size.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
+				if (fileName != "settings.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
 				{
 					T(fileName);
 					loadFile = fileName;
@@ -236,11 +244,7 @@ namespace SvgApp
 			{
 				string[] arr = content.Split("|");
 				size = int.Parse(arr[0]);
-				if (size > 100)
-				{
-					M("Size is limited to 100.", 0);
-					size = 100;
-				}
+				CheckSize();
 				content = arr[1];
 			}
 
@@ -400,6 +404,25 @@ namespace SvgApp
 			}			
 		}
 
+		private void CheckSize()
+		{
+			if (size > 99)
+			{
+				M("Size should be between 3 and 99.", 0);
+				size = 99;
+			}
+			else if (size < 3)
+			{
+				M("Size should be between 3 and 99.", 0);
+				size = 3;
+			}
+			else if (size % 2 == 0)
+			{
+				M("Size cannot be pair.", 0);
+				size = size - 1;
+			}
+		}
+
 		private void Reload_Click(object sender, RoutedEventArgs e)
 		{
 			HideMessage();
@@ -409,7 +432,13 @@ namespace SvgApp
 			exitIndex = new List<int>();
 			areaBackground = "";
 
-			size = int.Parse(Size.Text);
+			int oldSize = size;
+			size = int.Parse(Size.Text);			
+			CheckSize();
+			if (oldSize != size)
+			{
+				SaveSettings();
+			}
 
 			ReadDir();
 
@@ -425,7 +454,7 @@ namespace SvgApp
 			if (size.ToString() != Size.Text)
 			{
 				Size.Text = size.ToString();
-				File.WriteAllText("size.txt", size.ToString());
+				SaveSettings();
 			}
 
 			DrawGrid();
@@ -441,6 +470,13 @@ namespace SvgApp
 			}
 
 			DrawPath();
+		}
+
+		private void SaveSettings()
+		{
+			string[] lines = new string[] { "size: " + size, "loadFromFile: " + FromFileCheck.IsChecked, "saveAndContinue: " + SaveAndContinue.IsChecked};
+			
+			File.WriteAllLines("settings.txt", lines);
 		}
 
 		private void Save_Click(object sender, RoutedEventArgs e)
@@ -2090,70 +2126,9 @@ namespace SvgApp
 
 			if (future.path.Count == 0) return true;
 
-			// When there is a future start 2 to the left or right (due to the extension of the originally created C shape), and the live end goes straight or the other way (example: 0430_1), the start end can be extended. It will in some cases act as 1x3 C shape checking 
-			// The future line is not necessarily the newest. Example: 0427, 0427_1
-
-			//necessary?
-			//future.searchReverse = true;
-			//future.searchStartIndex = future.path.Count + 1; // 2 will be subtracted
-
-			x = taken.path[count - 2][0];
-			y = taken.path[count - 2][1];
-			dx = x - taken.path[count - 3][0];
-			dy = y - taken.path[count - 3][1];
-
-			for (int i = 0; i < 4; i++)
-			{
-				if (directions[i][0] == dx && directions[i][1] == dy)
-				{
-					int newIndex = (i == 3) ? 0 : i + 1;
-					lx = directions[newIndex][0];
-					ly = directions[newIndex][1];
-				}
-			}
-
-			taken.path2 = future.path;
-
-			for (int i = 0; i < 2; i++)
-			{
-				if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStart(x + 2 * lx, y + 2 * ly) && !taken.InTaken(x + lx, y + ly) && (taken.InTaken(x + lx - dx, y + ly - dy) || future.InTakenAll(x + lx - dx, y + ly - dy)))
-				{
-					T("Left/right to 2 future start valid at x " + x + " y " + y);
-
-					int addIndex = futureSections[selectedSection][0] + 1;
-					future.path.Insert(addIndex, new int[] { x + lx, y + ly });
-					future.path.Insert(addIndex + 1, new int[] { x + lx + dx, y + ly + dy });
-					futureIndex.Insert(addIndex, count - 1);
-					futureIndex.Insert(addIndex + 1, count - 1);
-					futureActive.Insert(addIndex, true);
-					futureActive.Insert(addIndex + 1, true);
-					futureSections[selectedSection][0] += 2;
-					IncreaseFurtherSections(selectedSection);
-					IncreaseFurtherSections(selectedSection);
-
-					future.path2 = taken.path;
-
-					nearExtDone = false;
-					farExtDone = false;
-					nearEndDone = false;
-
-					if (!ExtendFutureLine(false, futureSections[selectedSection][0], futureSections[selectedSection][1], selectedSection, selectedSection, false))
-					{
-						possibleDirections.Add(new int[] { });
-						messageCode = 2;
-						T("Left/right to 2 future start line cannot be completed.");
-						//M("Left/right to 2 future start line cannot be completed.", 2);
-						return false;
-					}
-				}
-
-				//mirror directions
-				lx = -lx; //equal to rx and ry
-				ly = -ly;
-			}
-
 			// If there was a future start left or right to the head of the line in the previous step, that future line may be extended now if it has no other options to move.
-			// Example: 0430_2. All 4 directions needs to be examined, so that O618 works too.
+			// Example: 0430_2. All 4 directions of needs to be examined, so that O618 works too.
+			// minimum size: 5
 
 			x = taken.path[count - 2][0];
 			y = taken.path[count - 2][1];
@@ -2241,48 +2216,44 @@ namespace SvgApp
 				ly = -thisLy;
 			}
 
-			//check 3x1 for the original C shape created. If the live end went beyond, a field needs to be added to future
+			// When there is a future start 2 to the left or right (due to the extension of the originally created C shape), and the live end goes straight or the other way (example: 0430_1), the start end can be extended. It will in some cases act as 1x3 C shape checking 
+			// The future line is not necessarily the newest. Example: 0427, 0427_1
 
-			future.searchReverse = true;
-			future.searchStartIndex = future.path.Count + 1; // 2 will be subtracted
-
-			x = taken.path[count - 2][0];
-			y = taken.path[count - 2][1];
-			dx = x - taken.path[count - 3][0];
-			dy = y - taken.path[count - 3][1];
-
-			for (int i = 0; i < 4; i++)
+			//necessary?
+			//future.searchReverse = true;
+			//future.searchStartIndex = future.path.Count + 1; // 2 will be subtracted
+			if (size >= 7)
 			{
-				if (directions[i][0] == dx && directions[i][1] == dy)
+				x = taken.path[count - 2][0];
+				y = taken.path[count - 2][1];
+				dx = x - taken.path[count - 3][0];
+				dy = y - taken.path[count - 3][1];
+
+				for (int i = 0; i < 4; i++)
 				{
-					int newIndex = (i == 3) ? 0 : i + 1;
-					lx = directions[newIndex][0];
-					ly = directions[newIndex][1];
-				}
-			}
-
-			thisDx = dx;
-			thisDy = dy;
-			thisLx = lx;
-			thisLy = ly;
-
-			for (int i = 0; i < 2; i++)
-			{
-				for (int j = 0; j < 2; j++)
-				{					
-					if (!(taken.x == x + lx && taken.y == y + ly) && taken.InTaken(x - dx + lx, y - dy + ly) && taken.InTaken(x - 2 * dx + 2 * lx, y - 2 * dy + 2 * ly) && taken.InTaken(x - 2 * dx + 3 * lx, y - 2 * dy + 3 * ly) && taken.InTaken(x - 2 * dx + 4 * lx, y - 2 * dy + 4 * ly) && InFutureStart(x - dx + 5 * lx, y - dy + 5 * ly)
-						&& !taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) && !taken.InTaken(x - dx + 3 * lx, y - dy + 3 * ly) && !taken.InTaken(x - dx + 4 * lx, y - dy + 4 * ly))
+					if (directions[i][0] == dx && directions[i][1] == dy)
 					{
-						T("1x3 reverse future valid at x " + x + " y " + y + " selectedSection " + selectedSection);
+						int newIndex = (i == 3) ? 0 : i + 1;
+						lx = directions[newIndex][0];
+						ly = directions[newIndex][1];
+					}
+				}
+
+				taken.path2 = future.path;
+
+				for (int i = 0; i < 2; i++)
+				{
+					if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStart(x + 2 * lx, y + 2 * ly) && !taken.InTaken(x + lx, y + ly) && (taken.InTaken(x + lx - dx, y + ly - dy) || future.InTakenAll(x + lx - dx, y + ly - dy)))
+					{
+						T("Left/right to 2 future start valid at x " + x + " y " + y);
 
 						int addIndex = futureSections[selectedSection][0] + 1;
-						insertIndex = futureSections[selectedSection][1];						
-						future.path.Insert(addIndex, new int[] { x - dx + 4 * lx, y - dy + 4 * ly });
-						future.path.Insert(insertIndex, new int[] { x - dx + 6 * lx, y - dy + 6 * ly });
+						future.path.Insert(addIndex, new int[] { x + lx, y + ly });
+						future.path.Insert(addIndex + 1, new int[] { x + lx + dx, y + ly + dy });
 						futureIndex.Insert(addIndex, count - 1);
+						futureIndex.Insert(addIndex + 1, count - 1);
 						futureActive.Insert(addIndex, true);
-						futureIndex.Insert(insertIndex, count - 1);
-						futureActive.Insert(insertIndex, true);
+						futureActive.Insert(addIndex + 1, true);
 						futureSections[selectedSection][0] += 2;
 						IncreaseFurtherSections(selectedSection);
 						IncreaseFurtherSections(selectedSection);
@@ -2293,135 +2264,208 @@ namespace SvgApp
 						farExtDone = false;
 						nearEndDone = false;
 
-						if (!ExtendFutureLine(false, addIndex + 1, insertIndex, selectedSection, selectedSection, false))
+						if (!ExtendFutureLine(false, futureSections[selectedSection][0], futureSections[selectedSection][1], selectedSection, selectedSection, false))
 						{
 							possibleDirections.Add(new int[] { });
-							M("1x3 reverse future line cannot be completed.", 2);
+							messageCode = 2;
+							T("Left/right to 2 future start line cannot be completed.");
+							//M("Left/right to 2 future start line cannot be completed.", 2);
 							return false;
 						}
+					}
 
-						/* See 0701_1:
-This situation is not possible. When the start of the left future section and the end of the right future section gets connected, it will go through the field in the middle, 11x11, because it is next to the main line. From there we can extend this mid section to either both sides or one side and up.
-In the first case, the near end will be 12x11, 12x10 and 13x10, the far end the same mirrored. There will be a C shape, 11x10 cannot be filled.
-In the second case, the near end being the same as above, the far end can be 11x10. The start of the left future line will extend to 10x11 and 10x10. 9x10 cannot be filled. The second case can be mirrored, so that 13x10 is the field that cannot be filled.*/
+					//mirror directions
+					lx = -lx; //equal to rx and ry
+					ly = -ly;
+				}
+			}			
 
-						if (selectedSection > 0)
+			//check 3x1 for the original C shape created. If the live end went beyond, a field needs to be added to future
+			if (size >= 11)
+			{
+
+				future.searchReverse = true;
+				future.searchStartIndex = future.path.Count + 1; // 2 will be subtracted
+
+				x = taken.path[count - 2][0];
+				y = taken.path[count - 2][1];
+				dx = x - taken.path[count - 3][0];
+				dy = y - taken.path[count - 3][1];
+
+				for (int i = 0; i < 4; i++)
+				{
+					if (directions[i][0] == dx && directions[i][1] == dy)
+					{
+						int newIndex = (i == 3) ? 0 : i + 1;
+						lx = directions[newIndex][0];
+						ly = directions[newIndex][1];
+					}
+				}
+
+				thisDx = dx;
+				thisDy = dy;
+				thisLx = lx;
+				thisLy = ly;
+
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if (!(taken.x == x + lx && taken.y == y + ly) && taken.InTaken(x - dx + lx, y - dy + ly) && taken.InTaken(x - 2 * dx + 2 * lx, y - 2 * dy + 2 * ly) && taken.InTaken(x - 2 * dx + 3 * lx, y - 2 * dy + 3 * ly) && taken.InTaken(x - 2 * dx + 4 * lx, y - 2 * dy + 4 * ly) && InFutureStart(x - dx + 5 * lx, y - dy + 5 * ly)
+							&& !taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) && !taken.InTaken(x - dx + 3 * lx, y - dy + 3 * ly) && !taken.InTaken(x - dx + 4 * lx, y - dy + 4 * ly))
 						{
-							int[] section1Start = future.path[futureSections[selectedSection][0]];
-							int[] section1End = future.path[futureSections[selectedSection][1]];
-							int[] section0Start = future.path[futureSections[selectedSection - 1][0]];
-							int[] section0End = future.path[futureSections[selectedSection - 1][1]];
+							T("1x3 reverse future valid at x " + x + " y " + y + " selectedSection " + selectedSection);
 
-							T(section1Start[0] + " " + section1Start[1]);
+							int addIndex = futureSections[selectedSection][0] + 1;
+							insertIndex = futureSections[selectedSection][1];
+							future.path.Insert(addIndex, new int[] { x - dx + 4 * lx, y - dy + 4 * ly });
+							future.path.Insert(insertIndex, new int[] { x - dx + 6 * lx, y - dy + 6 * ly });
+							futureIndex.Insert(addIndex, count - 1);
+							futureActive.Insert(addIndex, true);
+							futureIndex.Insert(insertIndex, count - 1);
+							futureActive.Insert(insertIndex, true);
+							futureSections[selectedSection][0] += 2;
+							IncreaseFurtherSections(selectedSection);
+							IncreaseFurtherSections(selectedSection);
 
-							// When the ends of the future lines make up a 4x2 rectangle
-							// Examine case where the main line does not go straight between the two future sections!
-							if ((section1Start[0] == section1End[0] && section0Start[0] == section0End[0] && section1Start[1] == section0End[1] && section1End[1] == section0Start[1] &&
-								Math.Abs(section1Start[1] - section1End[1]) == 2 && Math.Abs(section1End[0] - section0Start[0]) == 4) ||
-								(section1Start[1] == section1End[1] && section0Start[1] == section0End[1] && section1Start[0] == section0End[0] && section1End[0] == section0Start[0] &&
-								Math.Abs(section1Start[0] - section1End[0]) == 2 && Math.Abs(section1End[1] - section0Start[1]) == 4))
+							future.path2 = taken.path;
+
+							nearExtDone = false;
+							farExtDone = false;
+							nearEndDone = false;
+
+							if (!ExtendFutureLine(false, addIndex + 1, insertIndex, selectedSection, selectedSection, false))
 							{
 								possibleDirections.Add(new int[] { });
-								M("1x3 reverse future line makes a 4x2 rectangle", 2);
+								M("1x3 reverse future line cannot be completed.", 2);
 								return false;
 							}
+
+							/* See 0701_1:
+	This situation is not possible. When the start of the left future section and the end of the right future section gets connected, it will go through the field in the middle, 11x11, because it is next to the main line. From there we can extend this mid section to either both sides or one side and up.
+	In the first case, the near end will be 12x11, 12x10 and 13x10, the far end the same mirrored. There will be a C shape, 11x10 cannot be filled.
+	In the second case, the near end being the same as above, the far end can be 11x10. The start of the left future line will extend to 10x11 and 10x10. 9x10 cannot be filled. The second case can be mirrored, so that 13x10 is the field that cannot be filled.*/
+
+							if (selectedSection > 0)
+							{
+								int[] section1Start = future.path[futureSections[selectedSection][0]];
+								int[] section1End = future.path[futureSections[selectedSection][1]];
+								int[] section0Start = future.path[futureSections[selectedSection - 1][0]];
+								int[] section0End = future.path[futureSections[selectedSection - 1][1]];
+
+								T(section1Start[0] + " " + section1Start[1]);
+
+								// When the ends of the future lines make up a 4x2 rectangle
+								// Examine case where the main line does not go straight between the two future sections!
+								if ((section1Start[0] == section1End[0] && section0Start[0] == section0End[0] && section1Start[1] == section0End[1] && section1End[1] == section0Start[1] &&
+									Math.Abs(section1Start[1] - section1End[1]) == 2 && Math.Abs(section1End[0] - section0Start[0]) == 4) ||
+									(section1Start[1] == section1End[1] && section0Start[1] == section0End[1] && section1Start[0] == section0End[0] && section1End[0] == section0Start[0] &&
+									Math.Abs(section1Start[0] - section1End[0]) == 2 && Math.Abs(section1End[1] - section0Start[1]) == 4))
+								{
+									possibleDirections.Add(new int[] { });
+									M("1x3 reverse future line makes a 4x2 rectangle", 2);
+									return false;
+								}
+							}
 						}
+
+						//turn right, pattern goes upwards
+						int tempdx = dx;
+						int tempdy = dy;
+						dx = -lx;
+						dy = -ly;
+						lx = tempdx;
+						ly = tempdy;
 					}
 
-					//turn right, pattern goes upwards
-					int tempdx = dx;
-					int tempdy = dy;
-					dx = -lx;
-					dy = -ly;
-					lx = tempdx;
-					ly = tempdy;
+					//mirror directions
+					dx = thisDx;
+					dy = thisDy;
+					lx = -thisLx; //equal to rx and ry
+					ly = -thisLy;
 				}
 
-				//mirror directions
+				// what is the minimum size for this?
+
+				taken.path2 = future.path;
+
 				dx = thisDx;
 				dy = thisDy;
-				lx = -thisLx; //equal to rx and ry
-				ly = -thisLy;
-			}
+				lx = thisLx;
+				ly = thisLy;
+				int rx = -lx;
+				int ry = -ly;
 
-			taken.path2 = future.path;
-
-			dx = thisDx;
-			dy = thisDy;
-			lx = thisLx;
-			ly = thisLy;
-			int rx = -lx;
-			int ry = -ly;
-
-			int index = futureLoop.IndexOf(count - 2);
-			if (index != -1)
-			{
-				int loopSelectedSection = futureLoopSelectedSection[index];
-				int startIndex = futureSections[loopSelectedSection][0]; 
-				int futureStartX = future.path[startIndex][0];
-				int futureStartY = future.path[startIndex][1];
-
-				T("Closed loop, loopSelectedSection: " + loopSelectedSection + " " + x + " " + y + " " + futureStartX + " " + futureStartY);
-				
-				if (x == futureStartX && Math.Abs(y - futureStartY) == 1 || y == futureStartY && Math.Abs(x - futureStartX) == 1)
+				int index = futureLoop.IndexOf(count - 2);
+				if (index != -1)
 				{
-					futureLoop.Add(count - 1);
-					futureLoopSelectedSection.Add(loopSelectedSection);
-					// extend near end once if near end is next to the live end
-					future.path2 = taken.path;
-					selectedSection = loopSelectedSection;
+					int loopSelectedSection = futureLoopSelectedSection[index];
+					int startIndex = futureSections[loopSelectedSection][0];
+					int futureStartX = future.path[startIndex][0];
+					int futureStartY = future.path[startIndex][1];
 
-					ExtendFutureLine(true, startIndex, -1, selectedSection, selectedSection, true);					
-				}
-				else
-				{
-					T("Turning off closed loop");
-				}	
-			}
-			else if (InFutureStart(x + dx, y + dy)) //selectedSection is set here
-			{
-				//how to decide when we are entering a loop?
-				//implement right side
+					T("Closed loop, loopSelectedSection: " + loopSelectedSection + " " + x + " " + y + " " + futureStartX + " " + futureStartY);
 
-				int startIndex = futureSections[selectedSection][0];
-				int endIndex = futureSections[selectedSection][1];
-
-				T("");
-				T("Taken connecting to future, selectedSection " + selectedSection);
-
-				//in order to have a loop, left and right fields should be empty, also at 1 step forward. Suppose the latter is true, since we are connecting to the start of a future line. Counter-example?
-				if (!taken.InTaken(x + lx, y + ly) && !future.InTakenAll(x + lx, y + ly) && !taken.InTaken(x + rx, y + ry) && !future.InTakenAll(x + rx, y + ry))
-				{
-					startIndex++;
-
-					//Suppose the end of the future line is 2 to the left or right of the start end, as in 0415
-					if (future.path[endIndex][0] == x + 2 * rx + dx && future.path[endIndex][1] == y + 2 * ry + dy)
+					if (x == futureStartX && Math.Abs(y - futureStartY) == 1 || y == futureStartY && Math.Abs(x - futureStartX) == 1)
 					{
-						future.path.Insert(startIndex, new int[] { x + dx + lx, y + dy + ly });
-					} 
-					else
-					{
-						future.path.Insert(startIndex, new int[] { x + lx + dx, y + ly + dy});						
-					}
-					futureIndex.Insert(startIndex, count - 1);
-					futureActive.Insert(startIndex, true);
-					futureSections[selectedSection][0] += 1;
-					IncreaseFurtherSections(selectedSection);
-
-					future.path2 = taken.path;
-
-					//only extend the far end. The near end has to be extended simultaneously with the live end.
-					if (!ExtendFutureLine(false, -1, endIndex, selectedSection, selectedSection, true))
-					{
-						possibleDirections.Add(new int[] { });
-						M("Closing loop, future line cannot be completed.", 2);
-						return false;
-					}
-					else
-					{
-						T("--- Creating loop");
 						futureLoop.Add(count - 1);
-						futureLoopSelectedSection.Add(selectedSection);
+						futureLoopSelectedSection.Add(loopSelectedSection);
+						// extend near end once if near end is next to the live end
+						future.path2 = taken.path;
+						selectedSection = loopSelectedSection;
+
+						ExtendFutureLine(true, startIndex, -1, selectedSection, selectedSection, true);
+					}
+					else
+					{
+						T("Turning off closed loop");
+					}
+				}
+				else if (InFutureStart(x + dx, y + dy)) //selectedSection is set here
+				{
+					//how to decide when we are entering a loop?
+					//implement right side
+
+					int startIndex = futureSections[selectedSection][0];
+					int endIndex = futureSections[selectedSection][1];
+
+					T("");
+					T("Taken connecting to future, selectedSection " + selectedSection);
+
+					//in order to have a loop, left and right fields should be empty, also at 1 step forward. Suppose the latter is true, since we are connecting to the start of a future line. Counter-example?
+					if (!taken.InTaken(x + lx, y + ly) && !future.InTakenAll(x + lx, y + ly) && !taken.InTaken(x + rx, y + ry) && !future.InTakenAll(x + rx, y + ry))
+					{
+						startIndex++;
+
+						//Suppose the end of the future line is 2 to the left or right of the start end, as in 0415
+						if (future.path[endIndex][0] == x + 2 * rx + dx && future.path[endIndex][1] == y + 2 * ry + dy)
+						{
+							future.path.Insert(startIndex, new int[] { x + dx + lx, y + dy + ly });
+						}
+						else
+						{
+							future.path.Insert(startIndex, new int[] { x + lx + dx, y + ly + dy });
+						}
+						futureIndex.Insert(startIndex, count - 1);
+						futureActive.Insert(startIndex, true);
+						futureSections[selectedSection][0] += 1;
+						IncreaseFurtherSections(selectedSection);
+
+						future.path2 = taken.path;
+
+						//only extend the far end. The near end has to be extended simultaneously with the live end.
+						if (!ExtendFutureLine(false, -1, endIndex, selectedSection, selectedSection, true))
+						{
+							possibleDirections.Add(new int[] { });
+							M("Closing loop, future line cannot be completed.", 2);
+							return false;
+						}
+						else
+						{
+							T("--- Creating loop");
+							futureLoop.Add(count - 1);
+							futureLoopSelectedSection.Add(selectedSection);
+						}
 					}
 				}
 			}
@@ -3258,8 +3302,10 @@ In the second case, the near end being the same as above, the far end can be 11x
 		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
 		public static extern short GetKeyState(int keyCode);
 
-		private void Window_KeyDown(object sender, KeyEventArgs e)
-		{
+		private void MWindow_PreviewKeyDown(object sender, KeyEventArgs e) // with normal KeyDown, event does not fire after calling FocusButton.Focus();
+		{			
+			if (Size.IsFocused && e.Key != Key.Enter) return;
+
 			if (messageCode != -1 && OKButton.Visibility == Visibility.Visible)
 			{
 				if (e.Key == Key.Enter)
@@ -3274,7 +3320,10 @@ In the second case, the near end being the same as above, the far end can be 11x
 			if (e.Key == Key.Enter)
 			{
 				Reload_Click(new object(), new RoutedEventArgs());
+				FocusButton.Focus();
+				//Keyboard.ClearFocus(); removes the focus from the textbox, but the window becomes unresponsive. Calling MWindow.Focus(); will put the focus on the textbox again.
 			}
+
 			else if (e.Key == Key.Space)
 			{
 				StartStop_Click(new object(), new RoutedEventArgs());
@@ -3349,6 +3398,16 @@ In the second case, the near end being the same as above, the far end can be 11x
 		private void T(object o)
 		{
 			Trace.WriteLine(o.ToString());
+		}
+
+		private void FromFileCheck_Click(object sender, RoutedEventArgs e)
+		{
+			SaveSettings();
+		}
+
+		private void SaveAndContinue_Click(object sender, RoutedEventArgs e)
+		{
+			SaveSettings();
 		}
 
 		private void OK_Click(object sender, RoutedEventArgs e)

@@ -207,8 +207,11 @@ namespace SvgApp
 
 						//check for an empty cell next to the position, and a taken one further. In case of a C shape, we need to fill the middle. The shape was formed by the previous 5 steps.
 						T("possible.Count " + possible.Count);
-						Check1x3();
-						Check3x3();
+						if (size >= 11)
+						{
+							Check1x3();
+							Check3x3();
+						}						
 						CShape = false;
 						CheckNearFieldCommon();
 						T("forbidden.Count after CheckNearFieldCommon " + forbidden.Count);
@@ -317,9 +320,11 @@ namespace SvgApp
 					{
 						forbidden.Add(straightField);
 
-						AddExit(x - 1, y - 1);
-						circleDirectionLeft = false;
-
+						if (size >= 9)
+						{
+							AddExit(x - 1, y - 1);
+							circleDirectionLeft = false;
+						}	
 					}
 				}
 				else if (x + 2 * dx == size + 1)
@@ -329,8 +334,11 @@ namespace SvgApp
 					{
 						forbidden.Add(straightField);
 
-						AddExit(x + 1, y - 1);
-						circleDirectionLeft = true;
+						if (size >= 9)
+						{
+							AddExit(x + 1, y - 1);
+							circleDirectionLeft = true;
+						}						
 					}
 				}
 				else if (y + 2 * dy == 0)
@@ -340,8 +348,11 @@ namespace SvgApp
 					{
 						forbidden.Add(straightField);
 
-						AddExit(x - 1, y - 1);
-						circleDirectionLeft = true;
+						if (size >= 9)
+						{
+							AddExit(x - 1, y - 1);
+							circleDirectionLeft = true;
+						}						
 					}
 				}
 				else if (y + 2 * dy == size + 1)
@@ -351,8 +362,11 @@ namespace SvgApp
 					{
 						forbidden.Add(straightField);
 
-						AddExit(x - 1, y + 1);
-						circleDirectionLeft = false;
+						if (size >= 9)
+						{
+							AddExit(x - 1, y + 1);
+							circleDirectionLeft = false;
+						}						
 					}
 				}
 			}
@@ -481,7 +495,7 @@ namespace SvgApp
 				T("CheckNearField forbidden " + field[0] + " " + field[1]);
 			}
 
-			if (!CShape)
+			if (!CShape && size > 7)
 			{
 				int directionIndex = Math.Abs(selectedDirection[0]); //0 for vertical, 1 for horizontal
 
@@ -589,6 +603,7 @@ namespace SvgApp
 					forbidden.Add(straightField);
 
 					AddExit(x + rx + dx, y + ry + dy);
+
 					int firstConditionValue, secondConditionValue;
 					if (directionIndex == 0)
 					{
@@ -673,13 +688,10 @@ namespace SvgApp
 							prevField = foundPath[index - 1];
 						}
 
-						T("Adding exit at " + (x + lx + dx) + " " + (y + ly + dy));
-						T("nextfield " + nextField[0] + " " + nextField[1]);
 						AddExit(x + lx + dx, y + ly + dy);
 
 						if (nextField != null && nextField[1 - directionIndex] == firstConditionValue) //up
 						{
-							T("up");
 							if (isMain)
 							{
 								forbidden.Add(leftField);
@@ -688,18 +700,15 @@ namespace SvgApp
 						}
 						else //right
 						{
-							T("right");
 							if (index != 0) //not the start field
 							{
 								if (prevField[1 - directionIndex] == secondConditionValue) // from down
 								{
-									T("forbid left");
 									forbidden.Add(leftField);
 									circleDirectionLeft = false;
 								}
 								else
 								{
-									T("forbid straight and right");
 									forbidden.Add(straightField);
 									forbidden.Add(rightField);
 									circleDirectionLeft = true;
@@ -707,7 +716,6 @@ namespace SvgApp
 							}
 							else
 							{
-								T("forbid straight and right2");
 								forbidden.Add(straightField);
 								forbidden.Add(rightField);
 								circleDirectionLeft = true;

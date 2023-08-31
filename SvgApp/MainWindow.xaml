@@ -5,18 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
         mc:Ignorable="d"
-        Title="Svg App" Height="831" Width="688" Left="835" Top="0" KeyDown="Window_KeyDown">
+        x:Name="MWindow" Title="Svg App" Height="831" Width="688" Left="835" Top="0" Focusable="True" PreviewKeyDown="MWindow_PreviewKeyDown">
     <Grid x:Name="MainGrid">
+        <Button x:Name="FocusButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Width="0" Height="0"/>
+        
         <skia:SKElement x:Name="Canvas" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Margin="0,120,0,0" MouseMove="Canvas_MouseMove" MouseEnter="Canvas_MouseEnter" MouseLeave="Canvas_MouseLeave" />
         <Label Content="Size: " HorizontalAlignment="Left" Margin="20,30,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="Size" IsTabStop="False" HorizontalAlignment="Left" Margin="60,34,0,0" TextWrapping="Wrap" Text="7" VerticalAlignment="Top" Width="38" MaxLines="1"/>
-        <CheckBox x:Name="FromFileCheck" Content="From file" HorizontalAlignment="Left" Margin="110,36,0,0" VerticalAlignment="Top" IsChecked="True"/>
-        <CheckBox x:Name="SaveAndContinue" Content="Save and continue" HorizontalAlignment="Left" Margin="188,36,0,0" VerticalAlignment="Top" IsChecked="True"/>
-        <Button x:Name="StartStopButton" Background="LightGreen" Content="Start" HorizontalAlignment="Left" Margin="20,65,0,0" VerticalAlignment="Top" Width="52" Click="StartStop_Click" Height="21"/>
-        <Button x:Name="ReloadButton" Content="Reload" HorizontalAlignment="Left" Margin="86,65,0,0" VerticalAlignment="Top" Width="52" Click="Reload_Click" Height="21"/>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="152,65,0,0" VerticalAlignment="Top" Width="52" Click="Save_Click" Height="21"/>
-        <Button Content="Previous" HorizontalAlignment="Left" Margin="218,65,0,0" VerticalAlignment="Top" Width="62" Click="Previous_Click" Height="21"/>
-        <Button Content="Next" HorizontalAlignment="Left" Margin="294,65,0,0" VerticalAlignment="Top" Width="52" Click="Next_Click" Height="21"/>            
+        <TextBox x:Name="Size" IsTabStop="False" HorizontalAlignment="Left" Margin="60,34,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="38" MaxLines="1"/>
+        <CheckBox x:Name="FromFileCheck" Content="From file" HorizontalAlignment="Left" Margin="110,36,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="FromFileCheck_Click"/>
+        <CheckBox x:Name="SaveAndContinue" Content="Save and continue" HorizontalAlignment="Left" Margin="188,36,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveAndContinue_Click"/>
+        <Button x:Name="StartStopButton" Background="LightGreen" Content="Start" HorizontalAlignment="Left" Margin="20,65,0,0" VerticalAlignment="Top" Width="52" Click="StartStop_Click" Height="21" Focusable="False"/>
+        <Button x:Name="ReloadButton" Content="Reload" HorizontalAlignment="Left" Margin="86,65,0,0" VerticalAlignment="Top" Width="52" Click="Reload_Click" Height="21" Focusable="False"/>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="152,65,0,0" VerticalAlignment="Top" Width="52" Click="Save_Click" Height="21" Focusable="False"/>
+        <Button Content="Previous" HorizontalAlignment="Left" Margin="218,65,0,0" VerticalAlignment="Top" Width="62" Click="Previous_Click" Height="21" Focusable="False"/>
+        <Button Content="Next" HorizontalAlignment="Left" Margin="294,65,0,0" VerticalAlignment="Top" Width="52" Click="Next_Click" Height="21"  Focusable="False"/>            
         <Label Content="Current: " HorizontalAlignment="Left" Margin="315,30,0,0" VerticalAlignment="Top"/>
         <Label x:Name="CurrentCoords" Content="1, 1" HorizontalAlignment="Left" Margin="371,30,0,0" VerticalAlignment="Top"/>
         <Label Content="Possible: " HorizontalAlignment="Left" Margin="415,30,0,0" VerticalAlignment="Top"/>
