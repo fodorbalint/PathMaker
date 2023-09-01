@@ -9,7 +9,7 @@ From the simple rules of movement and lines to complete in the future, complicat
 
 Here is an example:.
 
-![alt text](https://github.com/fodorbalint/PathMaker/blob/main/References/0701_1.svg)
+<img src="References/0701_1.svg"/>
 
 The program calculated the blue lines for you. Do you see why this situation is impossible?
 
@@ -17,7 +17,7 @@ In the beginning of the project I let the program run on a 21x21 field, and when
 
 A 3x3 field can only be filled in two ways, this and its mirrored version:
 
-<img src="References/project/3x3.svg" width="14.3%"/>
+<img src="References/3x3.svg" width="14.3%"/>
 
 The 5x5 requires much more consideration. Whenever it is possible to draw future lines, the program has to be able to do it. The future lines can not only extend at each step but connect too.
 
@@ -41,6 +41,10 @@ Here are the things to consider on 5x5:
 Taking a step further, another future line is created and extended on the left side. Any step we take now will further extend and connect the two future lines, giving a complete walkthrough. Future lines are first extended when we step on them. Then, if there are other lines that started from the position next to where the live end was in the previous step, they get extended too.
 Note that the line being stepped on has its end at (5,4). The nearby empty fields are (4,4) and the corner, (5,5). It cannot choose the corner, because then nothing would fill (4,4). Then, the line on the left gets extended until it connects to the other. As the near end cannot be extended more, the far end gets extended until it reaches the corner. 
 
+- When the left or the right field is (n-1, n-1), we cannot step there unless we are on the edge.
+
+<img src="References/0831_2.svg" width="23.8%"/>
+
 There have not been found any case where the future line cannot extend, and the main line has to step back. This will change on 7x7. See these examples:
 
 <img src="References/0821.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0827.svg" width="33.3%"/>
@@ -51,5 +55,23 @@ In the first, the upper right future line fails when we step right. In the secon
 
 With every size, new rules are added. Here, we have to consider a future line that starts 2 to left or right to the place the main line was in the previous step. Since the main line didn't fill the single empty space, the future line has to do it and extend to the direction of the main line.
 
-In the program, there are rules applicable for 9x9 and 11x11 grids as well, but the 7x7 research is not completed yet.
-The number walkthroughs may be tens or hundreds of thousands. Right now, I let the program run randomly to find errors to correct, but it may be possible in the future to run the program through all possibilities, detecting errors on its way. If the line reaches the corner, and the number of steps taken have been less than 49, there has been something wrong.
+Other rules define the possibilities when approaching or moving near an edge.
+
+<img src="References/0831_3.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0831_4.svg" width="33.3%"/>
+
+These were not necessary on 5x5, because future lines filled the spaces nearby. In a larger area, future lines are not constrained to only one option.
+
+C-shapes on the right and bottom edge also come into play. From this, it is not possible to continue:
+
+<img src="References/0831_1.svg" width="33.3%"/>
+
+So we need to define a rule already at the previous step to prevent stepping here.
+And on 9x9, the same rule will apply on the left and upper edge.
+
+<img src="References/0901_1.svg" width="42.86%"/>
+
+But let's return to the 7x7. If the line approaches itself, it needs to behave as on the edge. In the following situation, the left and straight option has to be disabled.
+
+<img src="References/0901.svg" width="33.3%"/>
+
+The number 7x7 walkthroughs may be tens or hundreds of thousands. Right now, I let the program run randomly to find errors to correct, but it may be possible in the future to run the program through all possibilities, detecting errors on its way. If the line reaches the corner, and the number of steps taken have been less than 49, there has been something wrong.
