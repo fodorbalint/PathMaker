@@ -1,17 +1,17 @@
 # One Way Labyrinth
 
-This program aims to solve the following riddle:
+This program aims to solve the following challenge:
 
-"Generate a line that goes through an n x n grid (where n is a natural number), passing through each field once. The line has to start from the field at the upper left corner (1 x 1) and end at n x n. At any time it is allowed to move left, right, up or down, and it has to randomly choose between the available fields.
-Output the image in svg format."
- 
-From the simple rules of movement and lines to complete in the future, complicated patterns can result. In certain cases when you have drawn a path, it can be revealed that the enclosed or surrounding area cannot be filled.
+"Generate a line that goes through an n x n grid (where n is a natural number), passing through each field once. The line has to start from the field at the upper left corner (1 x 1) and end at n x n. At any time it is allowed to move left, right, up or down, and it has to randomly choose between the available fields."
 
-Here is an example:.
+At first sight it may not look like a big challenge. But look at the following example:
 
 <img src="References/0701_1.svg"/>
 
-The program calculated the blue lines for you. Do you see why this situation is impossible?
+The program calculated the blue lines, these are necessary to go through in the future based on how the black line was drawn.
+Do you see why the board is impossible to fill from now on?
+
+The question is, is there a single rule or a set of rules that will guarantee you can draw a labyrinth of any size? Or do the rules get infinitely complex?
 
 In the beginning of the project I let the program run on a 21x21 field, and whenever I noticed a trouble, I coded the solution into it. While you can discover many patterns this way, a gradual approach may be more effective.
 
@@ -52,6 +52,10 @@ There have not been found any case where the future line cannot extend, and the 
 In the first, the upper right future line fails when we step right. In the second, the future line on the left. The results are:
 
 <img src="References/0821_fail.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0827_fail.svg" width="33.3%"/>
+
+Do you see the pattern? To avoid the situation, we need to check if there is a future line that starts 2 to left and ends 2 to left and 2 to straight. (Same with the right side) And that's not all. The pattern can be rotated as well, so that the future line starts 2 to straight:
+
+<img src="References/0902_1.svg" width="33.3%"/>
 
 With every size, new rules are added. Here, we have to consider a future line that starts 2 to left or right to the place the main line was in the previous step. Since the main line didn't fill the single empty space, the future line has to do it and extend to the direction of the main line.
 

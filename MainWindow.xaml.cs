@@ -32,11 +32,9 @@ using SkiaSharp.Views.Desktop;
 
 ----- COMMENTS -----
 
-Observed pattern in 0827: near end 2 left of the main end, far end 2 left, 2 bottom. If we do not step left, that future line will not complete, because the near end will step right and down, which block the far end that is stepping up.
+----- 7 x 7 -----
 
 ----- 9 x 9 -----
-
-0901_2: Future line can be extended.
 
 ----- 21 x 21 -----
 
@@ -57,6 +55,8 @@ Implement CheckNearFutureEnd on 21x21
 
 ----- SITUATIONS TO CONSIDER -----
 
+CheckFutureL: find a case when both sides are true
+Find out the minimum size for Check1x3 when far end of a future line extends
 CountArea needs to be implemented upon closed loop with future ?
 0811_1 could have been solved with the condition "When the far end of a future line has reached the corner, the near end, when presented with at least 2 choices, cannot connect to the main line", but instead I used "When the near end of a future line can only connect to the main line, the far end, when presented with the possibility of entering the corner and another field, it has to choose the other field". Is the first condition needed in another example?
 In CheckFutureLine we adjust inFutureIndex when we connect to a new section of a merged line. SelectedSection will not change. Therefore, 3 merged lines will not be walkthroughable. Find an example, correct and test
@@ -68,7 +68,6 @@ When we step on a future line which is merged, this has to be taken into account
 Are there any cases where the returnCode in Move() is 1 an DrawPath calling is needed?
 0714_!: When we step up, count area will be impair, so 19,11 is removed. But if we stepped up from 19,11 instead of right, count area impairity would be avoided. Shouldn't we remove the corner (20,11) instead of the side upon count area impairity? 
 1x3 reverse future: Examine case where the main line does not go straight between the two future sections
-Are all 4 directions necessary in Left/right 2 future line start checking? Find an example.
 Path.CheckLeftRightFuture: is it possible that this field is the end of a future section?
 0430: When we step on the right field, future line cannot be completed. It is right, but not because of C shape left and straight. The straight C shape is not right, because the field 2 ahead is a section start. We should also consider that the actual end to the right cannot go anywhere else.
 Simplify ExtendFutureLine: If selectedSection is known, there is no need for start and end parameter.
@@ -79,6 +78,7 @@ When connecting to another future line in ExtendFutureLine, we cycle through all
 
 ----- UI IMPROVEMENTS -----nextst
 
+User interface: Add selector: "keep left" or "random steps"
 Ability to reload old standard files (without possibilities) and convert them to current standard
 
 ----- CHALLENGES TO COMPLETE -----
@@ -1983,51 +1983,53 @@ namespace OneWayLabyrinth
 			bool x2found = false;
 
 			int x = taken.path[count - 2][0];
-			int y = taken.path[count - 2][1];
-			int dx = x - taken.path[count - 3][0];
-			int dy = y - taken.path[count - 3][1];
-
-			int lx = 0;
-			int ly = 0;
+            int y = taken.path[count - 2][1];
+			taken.x2 = x;
+			taken.y2 = y;
+			taken.s = new int[] { taken.x2 - taken.path[count - 3][0], taken.y2 - taken.path[count - 3][1] };
 
 			for (int i = 0; i < 4; i++)
 			{
-				if (directions[i][0] == dx && directions[i][1] == dy)
+				if (directions[i][0] == taken.s[0] && directions[i][1] == taken.s[1])
 				{
 					int newIndex = (i == 3) ? 0 : i + 1;
-					lx = directions[newIndex][0];
-					ly = directions[newIndex][1];
+                    taken.l = new int[] { directions[newIndex][0], directions[newIndex][1] };
 				}
 			}
 
-			int thisDx = dx;
-			int thisDy = dy;
-			int thisLx = lx;
-			int thisLy = ly;
-			
-			for (int i = 0; i < 2; i++)
+			int thisS0 = taken.s[0];
+            int thisS1 = taken.s[1];
+            int thisL0 = taken.l[0];
+            int thisL1 = taken.l[1];
+
+            for (int i = 0; i < 2; i++)
 			{
 				for (int j = 0; j < 2; j++)
 				{
+                    int sx = taken.s[0];
+                    int sy = taken.s[1];
+                    int lx = taken.l[0];
+					int ly = taken.l[1];
+
 					// at the lower right corner future line shouldn't be drawn
 
-					if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTaken(x - dx + lx, y - dy + ly) || taken.InBorder(x - dx + lx, y - dy + ly)) && (taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) || taken.InBorder(x - dx + 2 * lx, y - dy + 2 * ly)) && (taken.InTaken(x + 3 * lx, y + 3 * ly) || taken.InBorder(x + 3 * lx, y + 3 * ly))
-					&& !taken.InTaken(x + lx, y + ly) && !taken.InTaken(x + 2 * lx, y + 2 * ly) && !future.InTakenAll(x + lx, y + ly) && !(x + 2 * lx == size && y + 2 * ly == size))
+                    if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTakenRel2(1, -1) || taken.InBorderRel2(1, -1)) && (taken.InTakenRel2(2, -1) || taken.InBorderRel2(2, -1)) && (taken.InTakenRel2(3, 0) || taken.InBorderRel2(3, 0))
+					&& !taken.InTakenRel2(1, 0) && !taken.InTakenRel2(2, 0) && !InFuture(1, 0) && !(x + 2 * lx == size && y + 2 * ly == size))
 					{
 						x2found = true;
-						T("1x2 future valid at x " + x + " y " + y + " i " + i + " j " + j + " dx " + dx + " dy " + dy + " lx " + lx + " ly " + ly);
+						T("1x2 future valid at x " + x + " y " + y);
 
 						int startCount = 3;
 						
 						//This is not added in 0803:						
-						if (!future.InTakenAll(x + 2 * lx + dx, y + 2 * ly + dy))
+						if (!InFuture(2, 1))
 						{
-							future.path.Add(new int[] { x + 2 * lx + dx, y + 2 * ly + dy });
+							future.path.Add(new int[] { x + 2 * lx + sx, y + 2 * ly + sy });
 							startCount = 4;
 						}						
 						future.path.Add(new int[] { x + 2 * lx, y + 2 * ly });
 						future.path.Add(new int[] { x + lx, y + ly });
-						future.path.Add(new int[] { x + lx + dx, y + ly + dy });
+						future.path.Add(new int[] { x + lx + sx, y + ly + sy });
 						for (int k = 0; k < startCount; k++)
 						{
 							futureIndex.Add(count - 1);
@@ -2052,25 +2054,25 @@ namespace OneWayLabyrinth
 					}
 
 					//turn right, pattern goes upwards
-					int tempdx = dx;
-					int tempdy = dy;
-					dx = -lx;
-					dy = -ly;
-					lx = tempdx;
-					ly = tempdy;
-				}
+					int temps0 = taken.s[0];
+                    int temps1 = taken.s[1];
+                    taken.s[0] = -lx;
+                    taken.s[1] = -ly;
+					taken.l[0] = temps0;
+                    taken.l[1] = temps1;
+                }
 
 				//mirror directions
-				dx = thisDx;
-				dy = thisDy;
-				lx = -thisLx; //equal to rx and ry
-				ly = -thisLy;
-			}
+				taken.s[0] = thisS0;
+				taken.s[1] = thisS1;
+                taken.l[0] = -thisL0;
+                taken.l[1] = -thisL1;
+            }
 
-			dx = thisDx;
-			dy = thisDy;
-			lx = thisLx;
-			ly = thisLy;
+			taken.s[0] = thisS0;
+            taken.s[1] = thisS1;
+            taken.l[0] = thisL0;
+            taken.l[1] = thisL1;
 
 			if (!x2found)
 			{
@@ -2078,18 +2080,23 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						//first clause is for quick exclusion. Last clause is to prevent a duplicate line as in 0711
-						if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTaken(x - dx + lx, y - dy + ly) || taken.InBorder(x - dx + lx, y - dy + ly)) && (taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) || taken.InBorder(x - dx + 2 * lx, y - dy + 2 * ly)) && (taken.InTaken(x - dx + 3 * lx, y - dy + 3 * ly) || taken.InBorder(x - dx + 3 * lx, y - dy + 3 * ly))
-						&& (taken.InTaken(x + 4 * lx, y + 4 * ly) || taken.InBorder(x + 4 * lx, y + 4 * ly))
-						&& !taken.InTaken(x + lx, y + ly) && !taken.InTaken(x + 2 * lx, y + 2 * ly) && !taken.InTaken(x + 3 * lx, y + 3 * ly) && !future.InTakenAll(x + 2 * lx, y + 2 * ly) && !(x + 3 * lx == size && y + 3 * ly == size))
+                        int sx = taken.s[0];
+                        int sy = taken.s[1];
+                        int lx = taken.l[0];
+                        int ly = taken.l[1];
+
+                        //first clause is for quick exclusion. Last clause is to prevent a duplicate line as in 0711
+                        if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTakenRel2(1, -1) || taken.InBorderRel2(1, -1)) && (taken.InTakenRel2(2, -1) || taken.InBorderRel2(2, -1)) && (taken.InTakenRel2(3, -1) || taken.InBorderRel2(3, -1))
+						&& (taken.InTakenRel2(4, 0) || taken.InBorderRel2(4, 0))
+						&& !taken.InTakenRel2(1, 0) && !taken.InTakenRel2(2, 0) && !taken.InTakenRel2(3, 0) && !InFuture(2, 0) && !(x + 3 * lx == size && y + 3 * ly == size))
 						{
 							//if the x + 4 * lx field was in border, we can extend the future lines after this.
-							T("1x3 future valid at x " + x + " y " + y + " i " + i + " j " + j + " dx " + dx + " dy " + dy + " lx " + lx + " ly " + ly);
-							future.path.Add(new int[] { x + 3 * lx + dx, y + 3 * ly + dy });
+							T("1x3 future valid at x " + x + " y " + y);
+							future.path.Add(new int[] { x + 3 * lx + sx, y + 3 * ly + sy });
 							future.path.Add(new int[] { x + 3 * lx, y + 3 * ly });
 							future.path.Add(new int[] { x + 2 * lx, y + 2 * ly });
 							future.path.Add(new int[] { x + lx, y + ly });
-							future.path.Add(new int[] { x + lx + dx, y + ly + dy });
+							future.path.Add(new int[] { x + lx + sx, y + ly + sy });
 							for (int k = 0; k < 5; k++)
 							{
 								futureIndex.Add(count - 1);
@@ -2114,68 +2121,62 @@ namespace OneWayLabyrinth
 							}
 						}
 
-						//turn right, pattern goes upwards
-						int tempdx = dx;
-						int tempdy = dy;
-						dx = -lx;
-						dy = -ly;
-						lx = tempdx;
-						ly = tempdy;
-					}
+                        //turn right, pattern goes upwards
+                        int temps0 = taken.s[0];
+                        int temps1 = taken.s[1];
+                        taken.s[0] = -lx;
+                        taken.s[1] = -ly;
+                        taken.l[0] = temps0;
+                        taken.l[1] = temps1;
+                    }
 
-					//mirror directions
-					dx = thisDx;
-					dy = thisDy;
-					lx = -thisLx; //equal to rx and ry
-					ly = -thisLy;
-				}
-			}
+                    //mirror directions
+                    taken.s[0] = thisS0;
+                    taken.s[1] = thisS1;
+                    taken.l[0] = -thisL0;
+                    taken.l[1] = -thisL1;
+                }
+            }
 
 			if (future.path.Count == 0) return true;
 
-			// If there was a future start left or right to the head of the line in the previous step, that future line may be extended now if it has no other options to move.
-			// Example: 0430_2. All 4 directions of needs to be examined, so that O618 works too.
-			// minimum size: 5
+            // If there was a future start left or right to the head of the line in the previous step, that future line may be extended now if it has no other options to move.
+            // Example: 0430_2. All 4 directions of needs to be examined, so that O618 works too.
+            // minimum size: 5
 
-			x = taken.path[count - 2][0];
-			y = taken.path[count - 2][1];
-			dx = x - taken.path[count - 3][0];
-			dy = y - taken.path[count - 3][1];
+            taken.s[0] = thisS0;
+            taken.s[1] = thisS1;
+            taken.l[0] = thisL0;
+            taken.l[1] = thisL1;
 
-			for (int i = 0; i < 4; i++)
-			{
-				if (directions[i][0] == dx && directions[i][1] == dy)
-				{
-					int newIndex = (i == 3) ? 0 : i + 1;
-					lx = directions[newIndex][0];
-					ly = directions[newIndex][1];
-				}
-			}
-
-			thisDx = dx;
-			thisDy = dy;
-			thisLx = lx;
-			thisLy = ly;
-
-			taken.path2 = future.path;
+            taken.path2 = future.path;
 
 			for (int i = 0; i < 2; i++)
 			{
 				for (int j = 0; j < 2; j++)
 				{
-					if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStart(x + lx, y + ly) && future.InTakenAll(x + 2 * lx, y + 2 * ly) && (future.InTakenAll(x + lx - dx, y + ly - dy) || taken.InTaken(x + lx - dx, y + ly - dy)))
+                    int sx = taken.s[0];
+                    int sy = taken.s[1];
+                    int lx = taken.l[0];
+                    int ly = taken.l[1];
+
+					// Future lines does not always extend from a 2x2 shape. 0901_2 has a one-wide line.
+                    if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel(1, 0) && (InFuture(2, 0) || taken.InTakenRel2(2, 0)) && (InFuture(1, -1) || taken.InTakenRel2(1, -1)))
 					{
 						T("Left/right future start valid at x " + x + " y " + y + ", start x " + (x + lx) + " y " + (y + ly));
 
-						int addIndex = futureSections[selectedSection][0] + 1;
-						future.path.Insert(addIndex, new int[] { x + lx + dx, y + ly + dy });
-						futureIndex.Insert(addIndex, count - 1);
-						futureActive.Insert(addIndex, true);
-						futureSections[selectedSection][0] += 1;
-						IncreaseFurtherSections(selectedSection);
+						if (!InFuture(1, 1)) // Example: 0902_2
+                        {
+                            int addIndex = futureSections[selectedSection][0] + 1;
+                            future.path.Insert(addIndex, new int[] { x + lx + sx, y + ly + sy });
+                            futureIndex.Insert(addIndex, count - 1);
+                            futureActive.Insert(addIndex, true);
+                            futureSections[selectedSection][0] += 1;
+                            IncreaseFurtherSections(selectedSection);
+                        }
 
-						future.path2 = taken.path;
-						T("Extend near end");
+                        future.path2 = taken.path;
+                        T("Extend near end");
 
 						int farEndIndex = futureSections[selectedSection][1];
 						int lastMerged = selectedSection;
@@ -2207,126 +2208,126 @@ namespace OneWayLabyrinth
 						}
 					}
 
-					//turn right, pattern goes upwards
-					int tempdx = dx;
-					int tempdy = dy;
-					dx = -lx;
-					dy = -ly;
-					lx = tempdx;
-					ly = tempdy;
-				}
+                    //turn right, pattern goes upwards
+                    int temps0 = taken.s[0];
+                    int temps1 = taken.s[1];
+                    taken.s[0] = -lx;
+                    taken.s[1] = -ly;
+                    taken.l[0] = temps0;
+                    taken.l[1] = temps1;
+                }
 
-				//mirror directions
-				dx = thisDx;
-				dy = thisDy;
-				lx = -thisLx; //equal to rx and ry
-				ly = -thisLy;
-			}
+                //mirror directions
+                taken.s[0] = thisS0;
+                taken.s[1] = thisS1;
+                taken.l[0] = -thisL0;
+                taken.l[1] = -thisL1;
+            }
 
-			// When there is a future start 2 to the left or right (due to the extension of the originally created C shape), and the live end goes straight or the other way (example: 0430_1), the start end can be extended. It will in some cases act as 1x3 C shape checking 
-			// The future line is not necessarily the newest. Example: 0427, 0427_1
+            // When there is a future start 2 to the left or right (due to the extension of the originally created C shape), and the live end goes straight or the other way (example: 0430_1), the start end can be extended. It will in some cases act as 1x3 C shape checking 
+            // The future line is not necessarily the newest. Example: 0427, 0427_1
 
-			//necessary?
-			//future.searchReverse = true;
-			//future.searchStartIndex = future.path.Count + 1; // 2 will be subtracted
-			if (size >= 7)
+            if (size >= 7)
 			{
-				x = taken.path[count - 2][0];
-				y = taken.path[count - 2][1];
-				dx = x - taken.path[count - 3][0];
-				dy = y - taken.path[count - 3][1];
+                taken.s[0] = thisS0;
+                taken.s[1] = thisS1;
+                taken.l[0] = thisL0;
+                taken.l[1] = thisL1;
 
-				for (int i = 0; i < 4; i++)
-				{
-					if (directions[i][0] == dx && directions[i][1] == dy)
-					{
-						int newIndex = (i == 3) ? 0 : i + 1;
-						lx = directions[newIndex][0];
-						ly = directions[newIndex][1];
-					}
-				}
-
-				taken.path2 = future.path;
-
-				for (int i = 0; i < 2; i++)
-				{
-					if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStart(x + 2 * lx, y + 2 * ly) && !taken.InTaken(x + lx, y + ly) && (taken.InTaken(x + lx - dx, y + ly - dy) || future.InTakenAll(x + lx - dx, y + ly - dy)))
-					{
-						T("Left/right to 2 future start valid at x " + x + " y " + y);
-
-						int addIndex = futureSections[selectedSection][0] + 1;
-						future.path.Insert(addIndex, new int[] { x + lx, y + ly });
-						future.path.Insert(addIndex + 1, new int[] { x + lx + dx, y + ly + dy });
-						futureIndex.Insert(addIndex, count - 1);
-						futureIndex.Insert(addIndex + 1, count - 1);
-						futureActive.Insert(addIndex, true);
-						futureActive.Insert(addIndex + 1, true);
-						futureSections[selectedSection][0] += 2;
-						IncreaseFurtherSections(selectedSection);
-						IncreaseFurtherSections(selectedSection);
-
-						future.path2 = taken.path;
-
-						nearExtDone = false;
-						farExtDone = false;
-						nearEndDone = false;
-
-						if (!ExtendFutureLine(false, futureSections[selectedSection][0], futureSections[selectedSection][1], selectedSection, selectedSection, false))
-						{
-							possibleDirections.Add(new int[] { });
-							messageCode = 2;
-							T("Left/right to 2 future start line cannot be completed.");
-							//M("Left/right to 2 future start line cannot be completed.", 2);
-							return false;
-						}
-					}
-
-					//mirror directions
-					lx = -lx; //equal to rx and ry
-					ly = -ly;
-				}
-			}			
-
-			//check 3x1 for the original C shape created. If the live end went beyond, a field needs to be added to future
-			if (size >= 11)
-			{
-
-				future.searchReverse = true;
-				future.searchStartIndex = future.path.Count + 1; // 2 will be subtracted
-
-				x = taken.path[count - 2][0];
-				y = taken.path[count - 2][1];
-				dx = x - taken.path[count - 3][0];
-				dy = y - taken.path[count - 3][1];
-
-				for (int i = 0; i < 4; i++)
-				{
-					if (directions[i][0] == dx && directions[i][1] == dy)
-					{
-						int newIndex = (i == 3) ? 0 : i + 1;
-						lx = directions[newIndex][0];
-						ly = directions[newIndex][1];
-					}
-				}
-
-				thisDx = dx;
-				thisDy = dy;
-				thisLx = lx;
-				thisLy = ly;
+                taken.path2 = future.path;
 
 				for (int i = 0; i < 2; i++)
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if (!(taken.x == x + lx && taken.y == y + ly) && taken.InTaken(x - dx + lx, y - dy + ly) && taken.InTaken(x - 2 * dx + 2 * lx, y - 2 * dy + 2 * ly) && taken.InTaken(x - 2 * dx + 3 * lx, y - 2 * dy + 3 * ly) && taken.InTaken(x - 2 * dx + 4 * lx, y - 2 * dy + 4 * ly) && InFutureStart(x - dx + 5 * lx, y - dy + 5 * ly)
-							&& !taken.InTaken(x - dx + 2 * lx, y - dy + 2 * ly) && !taken.InTaken(x - dx + 3 * lx, y - dy + 3 * ly) && !taken.InTaken(x - dx + 4 * lx, y - dy + 4 * ly))
+                        int sx = taken.s[0];
+						int sy = taken.s[1];
+						int lx = taken.l[0];
+						int ly = taken.l[1];
+
+						if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel(2, 0) && !taken.InTakenRel2(1, 0) && (taken.InTakenRel2(1, -1) || InFuture(1, -1)))
+						{
+                            // Similar to the Left/right future start, here is an example where the two connect: 0903_3
+                            // But the previous function extends and connect to the section on the right side befure this function is called. Condition of !InFuture(1, 1) is not needed in this example.
+                            T("Left/right to 2 future start valid at x " + x + " y " + y);
+
+							int addIndex = futureSections[selectedSection][0] + 1;
+							future.path.Insert(addIndex, new int[] { x + lx, y + ly });
+							future.path.Insert(addIndex + 1, new int[] { x + lx + sx, y + ly + sy });
+							futureIndex.Insert(addIndex, count - 1);
+							futureIndex.Insert(addIndex + 1, count - 1);
+							futureActive.Insert(addIndex, true);
+							futureActive.Insert(addIndex + 1, true);
+							futureSections[selectedSection][0] += 2;
+							IncreaseFurtherSections(selectedSection);
+							IncreaseFurtherSections(selectedSection);
+
+							future.path2 = taken.path;
+
+							nearExtDone = false;
+							farExtDone = false;
+							nearEndDone = false;
+
+							if (!ExtendFutureLine(false, futureSections[selectedSection][0], futureSections[selectedSection][1], selectedSection, selectedSection, false))
+							{
+								possibleDirections.Add(new int[] { });
+								messageCode = 2;
+								T("Left/right to 2 future start line cannot be completed.");
+								//M("Left/right to 2 future start line cannot be completed.", 2);
+								return false;
+							}
+                        }
+
+                        //turn right, pattern goes upwards
+                        int temps0 = taken.s[0];
+                        int temps1 = taken.s[1];
+                        taken.s[0] = -lx;
+                        taken.s[1] = -ly;
+                        taken.l[0] = temps0;
+                        taken.l[1] = temps1;
+                    }
+
+                    //mirror directions
+                    taken.s[0] = thisS0;
+                    taken.s[1] = thisS1;
+                    taken.l[0] = -thisL0;
+                    taken.l[1] = -thisL1;
+                }
+            }			
+
+			//check 3x1 for the original C shape created. If the live end went beyond, a field needs to be added to future
+			if (size >= 11)
+			{
+				int sx, sy, lx, ly, rx, ry;
+				
+				future.searchReverse = true;
+				future.searchStartIndex = future.path.Count + 1; // 2 will be subtracted
+
+                taken.s[0] = thisS0;
+                taken.s[1] = thisS1;
+                taken.l[0] = thisL0;
+                taken.l[1] = thisL1;
+
+                taken.path2 = future.path;
+
+                for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+                        sx = taken.s[0];
+                        sy = taken.s[1];
+                        lx = taken.l[0];
+                        ly = taken.l[1];
+
+                        if (!(taken.x == x + lx && taken.y == y + ly) && taken.InTakenRel2(1, -1) && taken.InTakenRel2(2, -2) && taken.InTakenRel2(3, -2) && taken.InTakenRel2(4, -2) && InFutureStartRel(5, -1)
+							&& !taken.InTakenRel2(2, -1) && !taken.InTakenRel2(3, -1) && !taken.InTakenRel2(4, -1))
 						{
 							T("1x3 reverse future valid at x " + x + " y " + y + " selectedSection " + selectedSection);
 
 							int addIndex = futureSections[selectedSection][0] + 1;
 							insertIndex = futureSections[selectedSection][1];
-							future.path.Insert(addIndex, new int[] { x - dx + 4 * lx, y - dy + 4 * ly });
-							future.path.Insert(insertIndex, new int[] { x - dx + 6 * lx, y - dy + 6 * ly });
+							future.path.Insert(addIndex, new int[] { x - sx + 4 * lx, y - sy + 4 * ly });
+							future.path.Insert(insertIndex, new int[] { x - sx + 6 * lx, y - sy + 6 * ly });
 							futureIndex.Insert(addIndex, count - 1);
 							futureActive.Insert(addIndex, true);
 							futureIndex.Insert(insertIndex, count - 1);
@@ -2376,32 +2377,32 @@ namespace OneWayLabyrinth
 							}
 						}
 
-						//turn right, pattern goes upwards
-						int tempdx = dx;
-						int tempdy = dy;
-						dx = -lx;
-						dy = -ly;
-						lx = tempdx;
-						ly = tempdy;
-					}
+                        //turn right, pattern goes upwards
+                        int temps0 = taken.s[0];
+                        int temps1 = taken.s[1];
+                        taken.s[0] = -lx;
+                        taken.s[1] = -ly;
+                        taken.l[0] = temps0;
+                        taken.l[1] = temps1;
+                    }
 
-					//mirror directions
-					dx = thisDx;
-					dy = thisDy;
-					lx = -thisLx; //equal to rx and ry
-					ly = -thisLy;
-				}
+                    //mirror directions
+                    taken.s[0] = thisS0;
+                    taken.s[1] = thisS1;
+                    taken.l[0] = -thisL0;
+                    taken.l[1] = -thisL1;
+                }
 
-				// what is the minimum size for this?
+                // what is the minimum size for this?
 
-				taken.path2 = future.path;
+                taken.path2 = future.path;
 
-				dx = thisDx;
-				dy = thisDy;
-				lx = thisLx;
-				ly = thisLy;
-				int rx = -lx;
-				int ry = -ly;
+				sx = thisS0;
+				sy = thisS1;
+				lx = thisL0;
+				ly = thisL1;
+				rx = -lx;
+				ry = -ly;
 
 				int index = futureLoop.IndexOf(count - 2);
 				if (index != -1)
@@ -2428,7 +2429,7 @@ namespace OneWayLabyrinth
 						T("Turning off closed loop");
 					}
 				}
-				else if (InFutureStart(x + dx, y + dy)) //selectedSection is set here
+				else if (InFutureStart(x + sx, y + sy)) //selectedSection is set here
 				{
 					//how to decide when we are entering a loop?
 					//implement right side
@@ -2445,13 +2446,13 @@ namespace OneWayLabyrinth
 						startIndex++;
 
 						//Suppose the end of the future line is 2 to the left or right of the start end, as in 0415
-						if (future.path[endIndex][0] == x + 2 * rx + dx && future.path[endIndex][1] == y + 2 * ry + dy)
+						if (future.path[endIndex][0] == x + 2 * rx + sx && future.path[endIndex][1] == y + 2 * ry + sy)
 						{
-							future.path.Insert(startIndex, new int[] { x + dx + lx, y + dy + ly });
+							future.path.Insert(startIndex, new int[] { x + sx + lx, y + sy + ly });
 						}
 						else
 						{
-							future.path.Insert(startIndex, new int[] { x + lx + dx, y + ly + dy });
+							future.path.Insert(startIndex, new int[] { x + lx + sx, y + ly + sy });
 						}
 						futureIndex.Insert(startIndex, count - 1);
 						futureActive.Insert(startIndex, true);
@@ -2474,7 +2475,7 @@ namespace OneWayLabyrinth
 							futureLoopSelectedSection.Add(selectedSection);
 						}
 					}
-				}
+                }
 			}
 			return true;
 		}
@@ -2689,9 +2690,36 @@ namespace OneWayLabyrinth
 			if (inFutureIndex > futureSections[section][1]) inFutureIndex++;
 		}
 
-		public bool InFutureStart(int x, int y)
+		public bool InFuture(int left, int straight)
 		{
-			int c = future.path.Count;
+            int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
+            int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+
+            int c = future.path.Count;
+            if (c == 0) return false;
+
+            for (int i = c - 1; i >= 0; i--)
+            {
+                int[] field = future.path[i];
+                if (x == field[0] && y == field[1])
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+		public bool InFutureStartRel(int left, int straight)
+		{
+			int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
+			int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+
+			return InFutureStart(x, y);
+		}
+
+        public bool InFutureStart(int x, int y)
+        {
+            int c = future.path.Count;
 			if (c == 0) return false;
 
 			int foundIndex = -1;
@@ -2732,8 +2760,8 @@ namespace OneWayLabyrinth
 			return false;
 		}
 
-		public bool InFutureEnd(int x, int y)
-		{
+        public bool InFutureEnd(int x, int y)
+        {
 			int c = future.path.Count;
 			if (c == 0) return false;
 
