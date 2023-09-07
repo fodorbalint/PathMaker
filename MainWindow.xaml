@@ -4,31 +4,33 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
-        mc:Ignorable="d" Title="Svg App" Height="831" Width="688" Left="835" Top="0" Focusable="True" PreviewKeyDown="MWindow_PreviewKeyDown">
+        mc:Ignorable="d" Title="One-way labyrinth" Height="851" Width="688" Left="835" Top="0" Focusable="True" PreviewKeyDown="MWindow_PreviewKeyDown">
     <Grid x:Name="MainGrid">
         <Button x:Name="FocusButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Width="0" Height="0"/>
-        
-        <skia:SKElement x:Name="Canvas" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Margin="0,120,0,0" MouseMove="Canvas_MouseMove" MouseEnter="Canvas_MouseEnter" MouseLeave="Canvas_MouseLeave" />
+
+        <skia:SKElement x:Name="Canvas" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Margin="0,140,0,0" MouseMove="Canvas_MouseMove" MouseEnter="Canvas_MouseEnter" MouseLeave="Canvas_MouseLeave" />
         <Label Content="Size: " HorizontalAlignment="Left" Margin="20,30,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="Size" IsTabStop="False" HorizontalAlignment="Left" Margin="60,34,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="38" MaxLines="1"/>
-        <CheckBox x:Name="FromFileCheck" Content="From file" HorizontalAlignment="Left" Margin="110,36,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="FromFileCheck_Click"/>
-        <CheckBox x:Name="SaveAndContinue" Content="Save and continue" HorizontalAlignment="Left" Margin="188,36,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveAndContinue_Click"/>
-        <Button x:Name="StartStopButton" Background="LightGreen" Content="Start" HorizontalAlignment="Left" Margin="20,65,0,0" VerticalAlignment="Top" Width="52" Click="StartStop_Click" Height="21" Focusable="False"/>
-        <Button x:Name="ReloadButton" Content="Reload" HorizontalAlignment="Left" Margin="86,65,0,0" VerticalAlignment="Top" Width="52" Click="Reload_Click" Height="21" Focusable="False"/>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="152,65,0,0" VerticalAlignment="Top" Width="52" Click="Save_Click" Height="21" Focusable="False"/>
-        <Button Content="Previous" HorizontalAlignment="Left" Margin="218,65,0,0" VerticalAlignment="Top" Width="62" Click="Previous_Click" Height="21" Focusable="False"/>
-        <Button Content="Next" HorizontalAlignment="Left" Margin="294,65,0,0" VerticalAlignment="Top" Width="52" Click="Next_Click" Height="21"  Focusable="False"/>            
-        <Label Content="Current: " HorizontalAlignment="Left" Margin="315,30,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="CurrentCoords" Content="1, 1" HorizontalAlignment="Left" Margin="371,30,0,0" VerticalAlignment="Top"/>
-        <Label Content="Possible: " HorizontalAlignment="Left" Margin="415,30,0,0" VerticalAlignment="Top"/>
-        <TextBlock x:Name="PossibleCoords" TextWrapping="NoWrap" HorizontalAlignment="Left" Margin="474,35,0,0" VerticalAlignment="Top">
+        <CheckBox x:Name="LoadCheck" Content="Load from file" HorizontalAlignment="Left" Margin="130,36,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveSettings"/>
+        <CheckBox x:Name="SaveCheck" Content="Save on completion" HorizontalAlignment="Left" Margin="238,36,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveSettings"/>
+        <CheckBox x:Name="ContinueCheck" Content="Continue on completion" HorizontalAlignment="Left" Margin="130,56,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveSettings"/>
+        <CheckBox x:Name="KeepLeftCheck" Content="Keep left" HorizontalAlignment="Left" Margin="293,56,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveSettings"/>
+        <Button x:Name="StartStopButton" Background="LightGreen" Content="Start" HorizontalAlignment="Left" Margin="20,85,0,0" VerticalAlignment="Top" Width="52" Click="StartStop_Click" Height="21" Focusable="False"/>
+        <Button x:Name="ReloadButton" Content="Reload" HorizontalAlignment="Left" Margin="86,85,0,0" VerticalAlignment="Top" Width="52" Click="Reload_Click" Height="21" Focusable="False"/>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="152,85,0,0" VerticalAlignment="Top" Width="52" Click="Save_Click" Height="21" Focusable="False"/>
+        <Button Content="Previous" HorizontalAlignment="Left" Margin="218,85,0,0" VerticalAlignment="Top" Width="62" Click="Previous_Click" Height="21" Focusable="False"/>
+        <Button Content="Next" HorizontalAlignment="Left" Margin="294,85,0,0" VerticalAlignment="Top" Width="50" Click="Next_Click" Height="21"  Focusable="False"/>
+        <Label Content="Current: " HorizontalAlignment="Left" Margin="375,30,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="CurrentCoords" Content="1, 1" HorizontalAlignment="Left" Margin="426,30,0,0" VerticalAlignment="Top"/>
+        <Label Content="Possible: " HorizontalAlignment="Left" Margin="465,30,0,0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="PossibleCoords" TextWrapping="NoWrap" HorizontalAlignment="Left" Margin="524,35,0,0" VerticalAlignment="Top">
         1, 2<LineBreak />
         2, 1
         </TextBlock>
-        <Label Content="Exits: " HorizontalAlignment="Left" Margin="510,30,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="ExitCoords" IsTabStop="False" HorizontalAlignment="Left" Margin="550,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="63" Height="50"/>
+        <Label Content="Exits: " HorizontalAlignment="Left" Margin="560,30,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="ExitCoords" IsTabStop="False" HorizontalAlignment="Left" Margin="600,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="63" Height="50"/>
         <Label x:Name="CoordinateLabel" Content="" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black" Background="White" Visibility="Hidden" IsHitTestVisible="False" ClipToBounds="False" />
-        <Label x:Name="MessageLine" Content="Message line" HorizontalAlignment="Left" Margin="20,89,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
-        <Button x:Name="OKButton" Background="LightPink" Content="OK" HorizontalAlignment="Left" Margin="304,94,0,0" VerticalAlignment="Top" Width="52" Click="OK_Click" Height="21" Visibility="Hidden"/>        
+        <Label x:Name="MessageLine" Content="Message line" HorizontalAlignment="Left" Margin="20,109,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <Button x:Name="OKButton" Background="LightPink" Content="OK" HorizontalAlignment="Left" Margin="304,114,0,0" VerticalAlignment="Top" Width="52" Click="OK_Click" Height="21" Visibility="Hidden"/>
     </Grid>
 </Window>

@@ -208,7 +208,7 @@ namespace OneWayLabyrinth
 							}
 						}
 
-						//if the onl[1] possible field is a future field, we don't need to check more. This will prevent unnecessar[1] exits, as in 0804.
+						//if the only possible field is a future field, we don't need to check more. This will prevent unnecessar[1] exits, as in 0804.
 
 						if (isMain && possible.Count == 1 && InFutureStartAbs(possible[0])) break;
 
@@ -228,18 +228,14 @@ namespace OneWayLabyrinth
                             }
                         }
 						else if (isMain)
-						{
-							if (size >= 7)
-							{
-								CheckNearBorder();
-                                CheckNearField(); //First case 0901 
-                            }
-
-							// 0811_2
-							CheckNearCorner();
-							if (size >= 7)
-							{
+						{							
+                            CheckNearBorder();                            
+                            CheckNearCorner(); // 0811_2
+                            if (size >= 7)
+							{								
+                                CheckNearField(); //First case 0901
                                 CheckCOnFarBorder();
+                                CheckFutureL();
                             }
                             if (size >= 9)
                             {
@@ -250,19 +246,14 @@ namespace OneWayLabyrinth
                                 Check1x3();
                                 Check3x3();
                             }
-
-							// Checking future line constellations
-                            if (size >= 7)
+                            if (size >= 21)
                             {
-                                CheckFutureL();
-                            }
-
-                            // found on 21x21, may recreate the situation on smaller boards.
-                            CheckNearFutureStartEnd();
-                            CheckNearFutureSide();
-                            // (Will be actual onl[1] on 21x21) 0630, but needs to work with 0804_1 too
-                            // CheckNearFutureEnd();
-
+                                // found on 21x21, may recreate the situation on smaller boards.
+                                CheckNearFutureStartEnd();
+                                CheckNearFutureSide();
+                                // (Will be actual only on 21x21) 0630, but needs to work with 0804_1 too
+                                // CheckNearFutureEnd();
+                            }    
                         }
                         break;
 					}
@@ -310,7 +301,7 @@ namespace OneWayLabyrinth
 					{
 						forbidden.Add(leftField);
 					}
-					else if (!InTaken(x, y + 1)) //bottom may be alreas[1] filled, and we had an u-turn longer right
+					else if (!InTaken(x, y + 1)) //bottom may be already filled, and we had an u-turn longer right
 					{
 						forbidden.Add(straightField);
 						forbidden.Add(rightField);
@@ -325,7 +316,7 @@ namespace OneWayLabyrinth
 					{
 						forbidden.Add(rightField);
 					}
-					else if (!InTaken(x + 1, y)) //side may be alreas[1] filled, and we had an u-turn longer down
+					else if (!InTaken(x + 1, y)) //side may be already filled, and we had an u-turn longer down
 					{
 						forbidden.Add(straightField);
 						forbidden.Add(leftField);
@@ -338,7 +329,7 @@ namespace OneWayLabyrinth
 				}
 			}
 
-			//going towards an edge, onl[1] applies to main line, future line far end may face incompleted fields, see 0829_2
+			//going towards an edge, only applies to main line, future line far end may face incompleted fields, see 0829_2
 			if (isMain)
 			{
 				if (x + 2 * s[0] == 0)
@@ -464,7 +455,7 @@ namespace OneWayLabyrinth
 			}
 			else if (!inPossible(rightField) && (InTakenAll(x + r[0] + s[0], y + r[1] + s[1]) || InBorder(x + r[0] + s[0], y + r[1] + s[1])) && (InTakenAll(x + 2 * s[0], y + 2 * s[1]) || InBorder(x + 2 * s[0], y + 2 * s[1])) && !InTakenAllF(straightField) && !(straightField[0] == size && straightField[1] == size))
 			{
-				if (isMain && !InFutureStartRel(-1, 1) && !InFutureStartRel(0, 2) || !isMain && !InFutureOwnStartRel(-1, 1) && !InFutureOwnEndRel(-1, 1) && !InFutureOwnStartRel(2, 0) && !InFutureOwnEndRel(2, 0))
+				if (isMain && !InFutureStartRel(-1, 1) && !InFutureStartRel(0, 2) || !isMain && !InFutureOwnStartRel(-1, 1) && !InFutureOwnEndRel(-1, 1) && !InFutureOwnStartRel(0, 2) && !InFutureOwnEndRel(0, 2))
 				{
 					T("C shape straight right");
 					forbidden.Add(leftField);
@@ -787,7 +778,7 @@ namespace OneWayLabyrinth
 
 						if (nextField != null && nextField[1 - directionIndex] == firstConditionValue) //up
 						{
-							if (isMain) //Restriction onl[1] valid for real line, because it has to come out of the enclosed area. Future line is the line coming out. See 0415_1.
+							if (isMain) //Restriction only valid for real line, because it has to come out of the enclosed area. Future line is the line coming out. See 0415_1.
 							{
 								forbidden.Add(rightField);
 								circleDirectionLeft = true;
@@ -927,7 +918,7 @@ namespace OneWayLabyrinth
 
 		public void CheckFutureL()
 		{
-            // conditions are true alreas[1] on 5x5 at 0831_2, but it is handled in CheckNearCorner
+            // conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
             if (InFutureStart(x + 2 * l[0], y + 2 * l[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]))
 			{
                 T("CheckFutureL left");

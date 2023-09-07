@@ -32,7 +32,11 @@ using SkiaSharp.Views.Desktop;
 
 ----- COMMENTS -----
 
+CheckNearBorder is already actual on 5x5 (for example, at the first path of a complete walkthrough), write in documentation
+
 ----- 7 x 7 -----
+
+0907 cannot continue. Draw either future line for a 1-wide empty path or count an area that starts or ends with a 1-narrow field.
 
 ----- 9 x 9 -----
 
@@ -145,20 +149,26 @@ namespace OneWayLabyrinth
 				string[] arr = lines[0].Split(": ");
 				size = int.Parse(arr[1]);				
 				arr = lines[1].Split(": ");
-				FromFileCheck.IsChecked = bool.Parse(arr[1]);
+				LoadCheck.IsChecked = bool.Parse(arr[1]);
 				arr = lines[2].Split(": ");
-				SaveAndContinue.IsChecked = bool.Parse(arr[1]);
+				SaveCheck.IsChecked = bool.Parse(arr[1]);
+                arr = lines[3].Split(": ");
+                ContinueCheck.IsChecked = bool.Parse(arr[1]);
+                arr = lines[4].Split(": ");
+                KeepLeftCheck.IsChecked = bool.Parse(arr[1]);
 
-				CheckSize();
+                CheckSize();
 				Size.Text = size.ToString();
 			}
 			else
 			{
 				size = 7;
 				Size.Text = size.ToString();
-				FromFileCheck.IsChecked = false;
-				SaveAndContinue.IsChecked = false;
-			}
+				LoadCheck.IsChecked = false;
+				SaveCheck.IsChecked = false;
+                ContinueCheck.IsChecked = false;
+                KeepLeftCheck.IsChecked = false;
+            }
 			
 			exits = new List<int[]>();
 			exitIndex = new List<int>();
@@ -167,7 +177,7 @@ namespace OneWayLabyrinth
 
 			ReadDir();
 
-			if ((bool)FromFileCheck.IsChecked && loadFile != "")
+			if ((bool)LoadCheck.IsChecked && loadFile != "")
 			{
 				LoadFromFile();
 			}
@@ -449,7 +459,7 @@ namespace OneWayLabyrinth
 
 			ReadDir();
 
-			if (FromFileCheck.IsChecked == true && loadFile != "")
+			if (LoadCheck.IsChecked == true && loadFile != "")
 			{
 				LoadFromFile();
 			}
@@ -479,9 +489,9 @@ namespace OneWayLabyrinth
 			DrawPath();
 		}
 
-		private void SaveSettings()
-		{
-			string[] lines = new string[] { "size: " + size, "loadFromFile: " + FromFileCheck.IsChecked, "saveAndContinue: " + SaveAndContinue.IsChecked};
+		private void SaveSettings(object sender = null, RoutedEventArgs e = null)
+        {
+			string[] lines = new string[] { "size: " + size, "loadFromFile: " + LoadCheck.IsChecked, "saveOnCompletion: " + SaveCheck.IsChecked, "continueOnCompletion: " + ContinueCheck.IsChecked, "keepLeft: " + KeepLeftCheck.IsChecked };
 			
 			File.WriteAllLines("settings.txt", lines);
 		}
@@ -529,7 +539,7 @@ namespace OneWayLabyrinth
 			if (taken.x == size && taken.y == size)
 			{
 				// step back until there is an option to move right of the step that had been taken.
-				if (SaveAndContinue.IsChecked == true)
+				if (ContinueCheck.IsChecked == true && KeepLeftCheck.IsChecked == true)
 				{
 					bool rightFound = false;
 					nextDirection = -1;
@@ -579,14 +589,21 @@ namespace OneWayLabyrinth
 
 					DrawPath();
 				}
+				else if (ContinueCheck.IsChecked == true)
+				{
+                    exits = new List<int[]>();
+                    exitIndex = new List<int>();
+                    areaBackground = "";
+
+                    InitializeList();
+                    DrawPath();
+                }
 				else
 				{
 					StopTimer();
 				}
 				return;
 			}
-
-			T("Timer_tick: " + taken.x + " " + taken.y);
 
 			if (NextStep())
 			{
@@ -617,9 +634,9 @@ namespace OneWayLabyrinth
 
 			if (taken.x == size && taken.y == size)
 			{
-				// step back until there is an option to move right of the step that had been taken.
-				if (SaveAndContinue.IsChecked == true)
-				{
+                // step back until there is an option to move right of the step that had been taken.
+                if (ContinueCheck.IsChecked == true && KeepLeftCheck.IsChecked == true)
+                {
 					bool rightFound = false;
 					nextDirection = -1;
 					int c = taken.path.Count;
@@ -667,7 +684,16 @@ namespace OneWayLabyrinth
 
 					DrawPath();
 				}
-				return;
+                else if (ContinueCheck.IsChecked == true)
+                {
+                    exits = new List<int[]>();
+                    exitIndex = new List<int>();
+                    areaBackground = "";
+
+                    InitializeList();
+                    DrawPath();
+                }
+                return;
 			}
 
 			if (NextStep())
@@ -970,7 +996,7 @@ namespace OneWayLabyrinth
 				int[] newField = new int[] { };
 				if (nextDirection == -2)
 				{
-					if (SaveAndContinue.IsChecked != true)
+					if (KeepLeftCheck.IsChecked != true)
 					{
 						newField = taken.possible[rand.Next(0, taken.possible.Count)];
 					}
@@ -2859,7 +2885,7 @@ namespace OneWayLabyrinth
 				savePath = savePath.Substring(0, savePath.Length - 1);
 				savePath += "-" + newX + "," + newY + ";";
 
-				if (SaveAndContinue.IsChecked == true && lineFinished)
+				if (SaveCheck.IsChecked == true && lineFinished)
 				{
 					for (int j = 0; j < 4; j++)
 					{
@@ -3313,10 +3339,10 @@ namespace OneWayLabyrinth
 				svgName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".svg";
 			}
 			File.WriteAllText(svgName, content);
-			File.WriteAllText("p_temp.txt", savePath);
+			//File.WriteAllText("p_temp.txt", savePath);
 			if (completedPathCode != "")
 			{
-				File.WriteAllText(completedPathCode + ".txt", savePath);
+				if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedPathCode + ".txt", savePath);
 			}
 			Canvas.InvalidateVisual();
 		}
@@ -3433,16 +3459,6 @@ namespace OneWayLabyrinth
 		private void T(object o)
 		{
 			Trace.WriteLine(o.ToString());
-		}
-
-		private void FromFileCheck_Click(object sender, RoutedEventArgs e)
-		{
-			SaveSettings();
-		}
-
-		private void SaveAndContinue_Click(object sender, RoutedEventArgs e)
-		{
-			SaveSettings();
 		}
 
 		private void OK_Click(object sender, RoutedEventArgs e)
