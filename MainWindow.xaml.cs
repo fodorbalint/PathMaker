@@ -36,7 +36,7 @@ CheckNearBorder is already actual on 5x5 (for example, at the first path of a co
 
 ----- 7 x 7 -----
 
-0907 cannot continue. Draw either future line for a 1-wide empty path or count an area that starts or ends with a 1-narrow field.
+0909_1: 1x2 future line cannot be completed
 
 ----- 9 x 9 -----
 
@@ -3454,7 +3454,8 @@ namespace OneWayLabyrinth
 			MessageLine.Visibility = Visibility.Visible;
 			OKButton.Visibility = Visibility.Visible;
 			messageCode = code;
-		}
+			StopTimer();
+        }
 
 		private void T(object o)
 		{

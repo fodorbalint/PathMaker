@@ -235,7 +235,9 @@ namespace OneWayLabyrinth
 							{								
                                 CheckNearField(); //First case 0901
                                 CheckCOnFarBorder();
-                                CheckFutureL();
+                                CheckFutureL(); // Live end, future line near end and far end make an L, with one space between.
+								CheckMiddleCorner2x2(); // 0909. A 2x2 area would created with one way to go in and out
+
                             }
                             if (size >= 9)
                             {
@@ -943,6 +945,19 @@ namespace OneWayLabyrinth
             }
         }
 
+		public void CheckMiddleCorner2x2()
+		{
+			if (x == 3 && y == size - 2 && leftField[0] == 2)
+			{
+                T("CheckMiddleCorner2x2 to left");
+                forbidden.Add(leftField);
+            }
+			else if (y == 3 && x == size - 2 && rightField[1] == 2)
+			{
+                T("CheckMiddleCorner2x2 to right");
+                forbidden.Add(rightField);
+            }
+		}
         //Example: 0305
         public void CheckNearFutureSide() //suppose the side is of stair form
 		{
