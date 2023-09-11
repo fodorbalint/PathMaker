@@ -5,6 +5,43 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
         mc:Ignorable="d" Title="One-way labyrinth" Height="851" Width="688" Left="835" Top="0" Focusable="True" PreviewKeyDown="MWindow_PreviewKeyDown">
+    <Window.Resources>
+    <Style x:Key="GreenButton" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="LightGreen" />
+        <!-- LightGreen: #90EE90, LightPink: #FFB6C1 -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{TemplateBinding Background}" BorderThickness="1" BorderBrush="Black" Padding="10,0,10,0">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#83D883" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="RedButton" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="LightPink" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{TemplateBinding Background}" BorderThickness="1" BorderBrush="Black" Padding="10,0,10,0">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#E5A5AF" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    </Window.Resources>
     <Grid x:Name="MainGrid">
         <Button x:Name="FocusButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Width="0" Height="0"/>
 
@@ -15,7 +52,7 @@
         <CheckBox x:Name="SaveCheck" Content="Save on completion" HorizontalAlignment="Left" Margin="238,36,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveSettings"/>
         <CheckBox x:Name="ContinueCheck" Content="Continue on completion" HorizontalAlignment="Left" Margin="130,56,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveSettings"/>
         <CheckBox x:Name="KeepLeftCheck" Content="Keep left" HorizontalAlignment="Left" Margin="293,56,0,0" VerticalAlignment="Top" IsChecked="False" Focusable="False" Click="SaveSettings"/>
-        <Button x:Name="StartStopButton" Background="LightGreen" Content="Start" HorizontalAlignment="Left" Margin="20,85,0,0" VerticalAlignment="Top" Width="52" Click="StartStop_Click" Height="21" Focusable="False"/>
+        <Button x:Name="StartStopButton" Content="Start" HorizontalAlignment="Left" Margin="20,85,0,0" VerticalAlignment="Top" Width="52" Click="StartStop_Click" Height="21" Style="{StaticResource GreenButton}" Focusable="False"/>
         <Button x:Name="ReloadButton" Content="Reload" HorizontalAlignment="Left" Margin="86,85,0,0" VerticalAlignment="Top" Width="52" Click="Reload_Click" Height="21" Focusable="False"/>
         <Button Content="Save" HorizontalAlignment="Left" Margin="152,85,0,0" VerticalAlignment="Top" Width="52" Click="Save_Click" Height="21" Focusable="False"/>
         <Button Content="Previous" HorizontalAlignment="Left" Margin="218,85,0,0" VerticalAlignment="Top" Width="62" Click="Previous_Click" Height="21" Focusable="False"/>

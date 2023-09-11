@@ -38,6 +38,7 @@ namespace OneWayLabyrinth
 		List<int[]> directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } }; //down, right, up, left
 		int[] selectedDirection = new int[] { };
 		bool CShape;
+		int nearSection, farSection;
 
 		public Path(MainWindow window, int size, List<int[]> path, List<int[]>? path2, bool isMain)
 		{
@@ -61,7 +62,10 @@ namespace OneWayLabyrinth
 
 		public void NextStepPossibilities(bool searchReverse, int startIndex, int nearSection, int farSection)
 		{
-			nearField = false;
+			this.nearSection = nearSection;
+            this.farSection = farSection;
+
+            nearField = false;
 
 			possible = new List<int[]>();
 			forbidden = new List<int[]>();
@@ -222,6 +226,12 @@ namespace OneWayLabyrinth
 						{
 							CheckNearBorder();
 							T("forbidden.Count after CheckNearBorder " + forbidden.Count);
+
+							foreach (int[] f in forbidden)
+							{
+								T(f[0] + " " + f[1]);
+							}
+
 							if (size >= 21) // 0430_2. Find out the minimum size
 							{
                                 Check1x3();
@@ -314,6 +324,8 @@ namespace OneWayLabyrinth
 			{
 				if (directionIndex == 0) //going up on right side
 				{
+					T("In checknearborder: InTaken(x + 1, y - 1) " + InTaken(x + 1, y - 1));
+
 					if (!InTaken(x + 1, y - 1) && !InBorder(x + 1, y - 1))
 					{
 						forbidden.Add(rightField);
@@ -1264,28 +1276,41 @@ namespace OneWayLabyrinth
 
 				int c1 = path.Count;
 
-				if (!searchReverse)
+				// only check the current section or section merge. Other future lines may preceed or come after the current one, irrespective of the creation order. Example: 0910
+				if (nearSection == farSection)
 				{
-					for (int i = searchStartIndex + 2; i < c1; i++) // In 0618_2 when the far end of the upper line extends, it encounters the side of the previous future section, which is not checked in this funtion.					
+					int[] section = MainWindow.futureSections[nearSection];
+
+                    for (int i = section[1]; i <= section[0]; i++)
 					{
-						int[] field = path[i];
-						if (x == field[0] && y == field[1])
-						{
-							return true;
-						}
-					}
-				}
+                        int[] field = path[i];
+                        if (x == field[0] && y == field[1])
+                        {
+                            return true;
+                        }
+                    }
+                }
 				else
 				{
-					for (int i = searchStartIndex - 2; i >= 0; i--) //the first area that is checked (in checknearfield) is one back and one to left/right side, 2 steps from the current
-					{
-						int[] field = path[i];
-						if (x == field[0] && y == field[1])
+                    foreach (int[] merge in MainWindow.futureSectionMerges)
+                    {
+                        if (merge[1] == nearSection)
 						{
-							return true;
-						}
-					}					
-				}				
+                            for (int i = 1; i < merge.Length; i++)
+                            {
+                                int[] section = MainWindow.futureSections[merge[i]];
+                                for (int j = section[1]; j <= section[0]; j++)
+                                {
+                                    int[] field = path[j];
+                                    if (x == field[0] && y == field[1])
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }                            
+                    }
+                }			
 			}
 			else
 			{				

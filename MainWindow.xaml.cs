@@ -34,6 +34,10 @@ using SkiaSharp.Views.Desktop;
 
 CheckNearBorder is already actual on 5x5 (for example, at the first path of a complete walkthrough), write in documentation
 
+Revert concatenated merges in PreviousStep; keep a record for every step in order to do so.
+Make separate button for fastRun
+Write about 1-thin future line extension rule and that when the far end is at the corner, the near end cannot connect to the main line if it has other options. Write about merging procedure.
+
 ----- 7 x 7 -----
 
 0909_1: 1x2 future line cannot be completed
@@ -110,6 +114,7 @@ namespace OneWayLabyrinth
 		public static List<int[]> futureSections = new List<int[]>();
 		public static List<int[]> futureSectionMerges = new List<int[]>();
 		int selectedSection = -1;
+		int foundIndex = -1;
 		int foundEndIndex = -1;
 
 		List<int[]> possibleDirections = new List<int[]>(); //directions
@@ -133,8 +138,17 @@ namespace OneWayLabyrinth
 		bool lineFinished = false;
 		int nextDirection = -2;
 		int lastDirection = -1;
+		bool fastRun = false;
+		//bool saveOnlyDirecions = true;
+		bool keepLeftCheck, continueCheck;
+        int completedCount;
+		bool completedWalkthrough = false;
+        bool errorInWalkthrough = false;
+        CancellationTokenSource source;
+        bool isTaskRunning = false;
 
-		public MainWindow()
+
+        public MainWindow()
 		{
 			Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             
@@ -154,8 +168,10 @@ namespace OneWayLabyrinth
 				SaveCheck.IsChecked = bool.Parse(arr[1]);
                 arr = lines[3].Split(": ");
                 ContinueCheck.IsChecked = bool.Parse(arr[1]);
+                continueCheck = (bool)ContinueCheck.IsChecked;                
                 arr = lines[4].Split(": ");
                 KeepLeftCheck.IsChecked = bool.Parse(arr[1]);
+                keepLeftCheck = (bool)KeepLeftCheck.IsChecked;
 
                 CheckSize();
 				Size.Text = size.ToString();
@@ -167,7 +183,9 @@ namespace OneWayLabyrinth
 				LoadCheck.IsChecked = false;
 				SaveCheck.IsChecked = false;
                 ContinueCheck.IsChecked = false;
+				continueCheck = false;
                 KeepLeftCheck.IsChecked = false;
+				keepLeftCheck = false;
             }
 			
 			exits = new List<int[]>();
@@ -188,38 +206,93 @@ namespace OneWayLabyrinth
 
 			if (File.Exists("settings.txt") && size.ToString() != Size.Text || !File.Exists("settings.txt"))
 			{
-				Size.Text = size.ToString();
-                SaveSettings();
+                Size.Text = size.ToString();
+                SaveSettings(null, null);
 			}
+            DrawGrid();
 
-			DrawGrid();
-
-			if (taken != null && possibleDirections.Count == taken.path.Count) //null checking is only needed for removing warning
+            if (taken != null && possibleDirections.Count == taken.path.Count) //null checking is only needed for removing warning
 			{
-				NextStepPossibilities();
-			}
+                NextStepPossibilities();
+            }
 			else if (taken != null && possibleDirections.Count != taken.path.Count + 1)
 			{
-				M("Error in file", 0);
-				return;
+                M("Error in file", 0);
+                T("init 8");
+                return;
 			}
+            DrawPath();
+        }
 
-			DrawPath();
-		}
+        private void StartStop_Click(object sender, RoutedEventArgs e)
+        {
+			T("StartStop_Click isTaskRunning: " + isTaskRunning);
+            if (fastRun && isTaskRunning)
+            {
+				source.Cancel();
+				return;
+            }
+            else if (timer.IsEnabled)
+            {
+                StopTimer();
+                return;
+            }
 
-		private void StartTimer()
+            if (taken.path.Count >= 1)
+            {
+                StartTimer();
+            }
+        }
+
+        private void StartTimer()
 		{
 			StartStopButton.Content = "Stop";
-			StartStopButton.Background = Brushes.LightPink;
-			timer.Interval = TimeSpan.FromMilliseconds(100);
-			timer.Start();
+            StartStopButton.Style = Resources["RedButton"] as Style;
+            if (!fastRun)
+			{
+                timer.Interval = TimeSpan.FromMilliseconds(100);
+                timer.Start();
+            }
+			else
+			{
+				completedWalkthrough = false;
+				errorInWalkthrough = false;
+                source = new CancellationTokenSource();
+                CancellationToken token = source.Token;
+                Task task = new Task(() => DoThread(), token);
+                task.Start();
+				isTaskRunning = true;
+                T("StartTimer task started");
+            }
 		}
+
+		private void DoThread()
+		{			
+            completedCount = 0;
+
+            do
+            {				
+                Timer_Tick(null, null);                
+				if (source.IsCancellationRequested) break;
+            }
+            while (!completedWalkthrough && !errorInWalkthrough && completedCount < 1000);
+
+            this.Dispatcher.Invoke(() =>
+            {
+                StopTimer(); //in case of errors, it is already called.
+                DrawPath();
+				if (completedWalkthrough) M("The number of walkthroughs are " + completedCount + ".", 0);
+				else if (!errorInWalkthrough) M(completedCount + " walkthroughs are completed.", 0);
+				else MessageLine.Content = MessageLine.Content.ToString().Replace("Error", "Error at " + completedCount);
+            });
+			isTaskRunning = false;
+        }
 
 		private void StopTimer()
 		{
 			StartStopButton.Content = "Start";
-			StartStopButton.Background = Brushes.LightGreen;
-			timer.Stop();
+            StartStopButton.Style = Resources["GreenButton"] as Style;
+            if (!fastRun) timer.Stop();
 		}
 
 		private void DrawGrid()
@@ -302,9 +375,10 @@ namespace OneWayLabyrinth
 				{
 					int[] field = Array.ConvertAll(sections[1].Split(","), s => int.Parse(s));					
 					taken.path.Add(field);
-
-					int x = field[0];
-					int y = field[1];
+                    int x = field[0];
+                    int y = field[1];
+					taken.x = x;
+					taken.y = y;
 
 					CheckFutureLine(x, y);					
 				}
@@ -312,8 +386,6 @@ namespace OneWayLabyrinth
 
 			T("LoadFromFile " + taken.path.Count + " " + possibleDirections.Count);
 
-			taken.x = taken.path[taken.path.Count - 1][0];
-			taken.y = taken.path[taken.path.Count - 1][1];
 			nextDirection = -2;
 
 			if (taken.path.Count > 1)
@@ -407,20 +479,6 @@ namespace OneWayLabyrinth
 			futureSectionMerges = new List<int[]>();
 		}
 
-		private void StartStop_Click(object sender, RoutedEventArgs e)
-		{
-			if (timer.IsEnabled)
-			{
-				StopTimer();
-				return;
-			}
-			
-			if (taken.path.Count >= 1)
-			{
-				StartTimer();				
-			}			
-		}
-
 		private void CheckSize()
 		{
 			if (size > 99)
@@ -454,7 +512,7 @@ namespace OneWayLabyrinth
 			CheckSize();
 			if (oldSize != size)
 			{
-				SaveSettings();
+				SaveSettings(null, null);
 			}
 
 			ReadDir();
@@ -471,7 +529,7 @@ namespace OneWayLabyrinth
 			if (size.ToString() != Size.Text)
 			{
 				Size.Text = size.ToString();
-				SaveSettings();
+				SaveSettings(null, null);
 			}
 
 			DrawGrid();
@@ -489,9 +547,12 @@ namespace OneWayLabyrinth
 			DrawPath();
 		}
 
-		private void SaveSettings(object sender = null, RoutedEventArgs e = null)
+		private void SaveSettings(object sender, RoutedEventArgs e)
         {
-			string[] lines = new string[] { "size: " + size, "loadFromFile: " + LoadCheck.IsChecked, "saveOnCompletion: " + SaveCheck.IsChecked, "continueOnCompletion: " + ContinueCheck.IsChecked, "keepLeft: " + KeepLeftCheck.IsChecked };
+			continueCheck = (bool)ContinueCheck.IsChecked;
+			keepLeftCheck = (bool)KeepLeftCheck.IsChecked;
+
+            string[] lines = new string[] { "size: " + size, "loadFromFile: " + LoadCheck.IsChecked, "saveOnCompletion: " + SaveCheck.IsChecked, "continueOnCompletion: " + ContinueCheck.IsChecked, "keepLeft: " + KeepLeftCheck.IsChecked };
 			
 			File.WriteAllLines("settings.txt", lines);
 		}
@@ -524,104 +585,24 @@ namespace OneWayLabyrinth
 			DrawPath();
 		}
 
-		private void Timer_Tick(object? sender, EventArgs e)
-		{
-			if (messageCode == 2)
-			{
-				possibleDirections.RemoveAt(possibleDirections.Count - 1);
-				PreviousStepWithFuture();
-				messageCode = -1;
-				DrawPath();
-				return;
-			}
-			else if (messageCode != -1) return;
-
-			if (taken.x == size && taken.y == size)
-			{
-				// step back until there is an option to move right of the step that had been taken.
-				if (ContinueCheck.IsChecked == true && KeepLeftCheck.IsChecked == true)
-				{
-					bool rightFound = false;
-					nextDirection = -1;
-					int c = taken.path.Count;
-
-					do
-					{
-						PreviousStep(false);
-						c = taken.path.Count;
-
-						int[] startField = taken.path[c - 2];
-						int[] newField = taken.path[c - 1];
-						int startX = startField[0];
-						int startY = startField[1];
-						int newX = newField[0];
-						int newY = newField[1];
-
-						for (int i = 0; i < 4; i++)
-						{
-							if (directions[i][0] == newX - startX && directions[i][1] == newY - startY)
-							{
-								foreach (int direction in possibleDirections[c - 1])
-								{
-									if (direction == i - 1 || i == 0 && direction == 3)
-									{
-										rightFound = true;
-										break;
-									}
-								}
-								if (rightFound)
-								{
-									nextDirection = i == 0 ? 3 : i - 1;
-									PreviousStep(false);
-								}
-							}
-						}
-
-					} while (!rightFound && c > 2);
-
-					if (!rightFound)
-					{
-						PreviousStep(false); // c = 2. We reached the end, step back to the start position
-											 // Reset nextDirection, so that we can start again, but we stop the timer.
-						nextDirection = -2;
-						StopTimer();
-					}
-
-					DrawPath();
-				}
-				else if (ContinueCheck.IsChecked == true)
-				{
-                    exits = new List<int[]>();
-                    exitIndex = new List<int>();
-                    areaBackground = "";
-
-                    InitializeList();
-                    DrawPath();
-                }
-				else
-				{
-					StopTimer();
-				}
-				return;
-			}
-
-			if (NextStep())
-			{
-				if (taken.x == size && taken.y == size)
-				{
-					possibleDirections.Add(new int[] { });
-					lineFinished = true;
-					DrawPath();
-					return;
-				}
-
-				NextStepPossibilities();
-			}
-			DrawPath();
-		}
-
 		private void Next_Click(object sender, RoutedEventArgs e)
 		{
+			NextClick(false);
+		}
+
+        private void Timer_Tick(object? sender, EventArgs e)
+		{
+			NextClick(true);           
+		}
+
+		private void NextClick(bool isTimer)
+		{
+			if (isTimer && fastRun && messageCode != -1)
+			{
+				errorInWalkthrough = true;
+                return;
+            }
+
 			if (messageCode == 2)
 			{
 				possibleDirections.RemoveAt(possibleDirections.Count - 1);
@@ -635,11 +616,11 @@ namespace OneWayLabyrinth
 			if (taken.x == size && taken.y == size)
 			{
                 // step back until there is an option to move right of the step that had been taken.
-                if (ContinueCheck.IsChecked == true && KeepLeftCheck.IsChecked == true)
+                if ((continueCheck == true || isTimer && fastRun) && keepLeftCheck == true)
                 {
 					bool rightFound = false;
 					nextDirection = -1;
-					int c = taken.path.Count;
+					int c;
 
 					do
 					{
@@ -678,21 +659,31 @@ namespace OneWayLabyrinth
 					if (!rightFound)
 					{
 						PreviousStep(false); // c = 2. We reached the end, step back to the start position
-											// Reset nextDirection, so that we can start again
+											 // Reset nextDirection, so that we can start again
+						completedWalkthrough = true;
 						nextDirection = -2;
-					}					
 
-					DrawPath();
-				}
-                else if (ContinueCheck.IsChecked == true)
+                        if (isTimer)
+                        {
+                            StopTimer();
+                        }
+                    }
+
+                    if (!(isTimer && fastRun)) DrawPath();
+                }
+                else if (continueCheck == true || isTimer && fastRun)
                 {
                     exits = new List<int[]>();
                     exitIndex = new List<int>();
                     areaBackground = "";
 
                     InitializeList();
-                    DrawPath();
+                    if (!(isTimer && fastRun)) DrawPath();
                 }
+				else if (isTimer)
+				{
+					StopTimer();
+				} 
                 return;
 			}
 
@@ -702,13 +693,19 @@ namespace OneWayLabyrinth
 				{
 					possibleDirections.Add(new int[] { });
 					lineFinished = true;
-					DrawPath();
+                    if (isTimer && fastRun)
+                    {
+                        completedCount++;
+                        //SavePath();
+                        //this.Dispatcher.Invoke(() => { DrawPath(); }); //frequent error in SKCanvas: Attempt to read or write protected memory
+                    }
+                    else DrawPath();
 					return;
 				}
 
 				NextStepPossibilities();
 			}
-			DrawPath();
+            if (!(isTimer && fastRun)) DrawPath();
 		}
 
 		private void PreviousStep(bool isForbidden)
@@ -769,7 +766,7 @@ namespace OneWayLabyrinth
 				}
 
 				taken.possible = new List<int[]>();
-				PossibleCoords.Text = "";
+                if (!isTaskRunning) PossibleCoords.Text = "";
 				List<int> dirs = possibleDirections[possibleDirections.Count - 1].ToList<int>();
 
 				foreach(int dir in dirs)
@@ -778,17 +775,17 @@ namespace OneWayLabyrinth
 					int newY = taken.y + directions[dir][1];
 
 					taken.possible.Add(new int[] { newX, newY });
-					PossibleCoords.Text += newX + " " + newY + "\n";
+                    if (!isTaskRunning) PossibleCoords.Text += newX + " " + newY + "\n";
 				}
 
-				CurrentCoords.Content = taken.x + " " + taken.y;				
+                if (!isTaskRunning) CurrentCoords.Content = taken.x + " " + taken.y;				
 			}
 			else //The step that would cause the error is not added yet, but x and y is set. We remove that possibility. Next step possibilities will not run.				
 			{
 				int lastX = taken.path[taken.path.Count - 1][0];
 				int lastY = taken.path[taken.path.Count - 1][1];
 
-				PossibleCoords.Text = "";
+                if (!isTaskRunning) PossibleCoords.Text = "";
 				List<int> dirs = possibleDirections[possibleDirections.Count - 1].ToList<int>();
 
 				if (dirs.Count > 0) //count area is impair
@@ -810,7 +807,7 @@ namespace OneWayLabyrinth
 						else
 						{
 							newPossible.Add(new int[] { newX, newY });
-							PossibleCoords.Text += newX + " " + newY + "\n";
+                            if (!isTaskRunning) PossibleCoords.Text += newX + " " + newY + "\n";
 						}
 					}
 
@@ -911,8 +908,9 @@ namespace OneWayLabyrinth
 				taken.NextStepPossibilities(true, -1, -1, -1);
 			}
 
-			PossibleCoords.Text = "";
-			List<int> possibleFields = new List<int>();
+			if (!isTaskRunning) PossibleCoords.Text = "";
+
+            List<int> possibleFields = new List<int>();
 			List<int[]> newPossible = new List<int[]>();
 
 			foreach (int[] field in taken.possible)
@@ -923,7 +921,7 @@ namespace OneWayLabyrinth
 				if (inFuture)
 				{
 					T("NextStepPossibilities InFuture fx " + fx + " fy " + fy + " count: " + future.path.Count);
-					PossibleCoords.Text += fx + " " + fy + "\n";
+                    if (!isTaskRunning) PossibleCoords.Text += fx + " " + fy + "\n";
 					newPossible.Add(field);
 
 					for (int i = 0; i < 4; i++)
@@ -956,7 +954,7 @@ namespace OneWayLabyrinth
 
 					if (futureFieldIndex == -1 || found == true)
 					{
-						PossibleCoords.Text += fx + " " + fy + "\n";
+                        if (!isTaskRunning) PossibleCoords.Text += fx + " " + fy + "\n";
 						newPossible.Add(field);
 
 						for (int i = 0; i < 4; i++)
@@ -990,20 +988,20 @@ namespace OneWayLabyrinth
 
 			if (nextDirection != -1)
 			{
-				bool determined = false;
+                bool determined = false;
 				int lastDirectionTemp = -1;
 
 				int[] newField = new int[] { };
 				if (nextDirection == -2)
-				{
-					if (KeepLeftCheck.IsChecked != true)
+				{					
+                    if (keepLeftCheck != true)
 					{
-						newField = taken.possible[rand.Next(0, taken.possible.Count)];
+                        newField = taken.possible[rand.Next(0, taken.possible.Count)];
 					}
 					else
-					{						
-						// Find the most left field. It is possible to have the left and right field but not straight when the program steps back from an impair count area situation.
-						int[] newDirections = possibleDirections[possibleDirections.Count - 1];
+					{
+                        // Find the most left field. It is possible to have the left and right field but not straight when the program steps back from an impair count area situation.
+                        int[] newDirections = possibleDirections[possibleDirections.Count - 1];
 
 						bool foundLeft = false;
 						bool foundStraight = false;
@@ -1049,7 +1047,7 @@ namespace OneWayLabyrinth
 					nextDirection = -2;
 				}
 
-				if (!AddNextStep(newField[0], newField[1]))
+                if (!AddNextStep(newField[0], newField[1]))
 				{
 					return false;
 				}
@@ -1114,7 +1112,7 @@ namespace OneWayLabyrinth
 
 			taken.path.Add(new int[] { x, y });
 
-			CurrentCoords.Content = x + " " + y;
+			if (!isTaskRunning) CurrentCoords.Content = x + " " + y;
 
 			return CheckFutureLine(x, y);
 		}		
@@ -1821,9 +1819,12 @@ namespace OneWayLabyrinth
 			int[] currentField = taken.path[i - 1];
 			taken.x = currentField[0];
 			taken.y = currentField[1];
-			
-			CurrentCoords.Content = taken.x + " " + taken.y;
-			PossibleCoords.Text = "";			
+
+			if (!isTaskRunning)
+			{
+				CurrentCoords.Content = taken.x + " " + taken.y;
+				PossibleCoords.Text = "";
+			}
 
 			List<int> possibleFields = possibleDirections[i].ToList();
 			possibleFields.Remove(j);
@@ -1839,7 +1840,7 @@ namespace OneWayLabyrinth
 				taken.possible = new List<int[]>();
 				foreach (int dir in possibleFields)
 				{
-					PossibleCoords.Text += taken.x + directions[dir][0] + " " + (taken.y + directions[dir][1]) + "\n";
+                    if (!isTaskRunning) PossibleCoords.Text += taken.x + directions[dir][0] + " " + (taken.y + directions[dir][1]) + "\n";
 					taken.possible.Add(new int[] { taken.x + directions[dir][0], taken.y + directions[dir][1] });
 				}
 			}
@@ -1951,7 +1952,11 @@ namespace OneWayLabyrinth
 						{
 							future.path2 = taken.path;
 
-							if (!ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true))
+                            nearExtDone = true;
+                            farExtDone = false;
+                            nearEndDone = true;
+
+                            if (!ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true))
 							{
 								//is it possible to form another future line in this step?
 								possibleDirections.Add(new int[] { });
@@ -1966,7 +1971,11 @@ namespace OneWayLabyrinth
 						{
 							future.path2 = taken.path;
 
-							ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true);
+                            nearExtDone = true;
+                            farExtDone = false;
+                            nearEndDone = true;
+
+                            ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true);
 						}
 
 						int tempSelectedSection = selectedSection;
@@ -2004,6 +2013,65 @@ namespace OneWayLabyrinth
 			taken.path2 = null;
 			future.path2 = null;
 
+            int thisS0;
+            int thisS1;
+            int thisL0;
+            int thisL1;
+
+            // 0911: Future line on the right can be extended
+            if (future.path.Count != 0)
+			{
+                taken.s = new int[] { taken.x - taken.path[count - 2][0], taken.y - taken.path[count - 2][1] };
+
+                for (int i = 0; i < 4; i++)
+                {
+                    if (directions[i][0] == taken.s[0] && directions[i][1] == taken.s[1])
+                    {
+                        int newIndex = (i == 3) ? 0 : i + 1;
+                        taken.l = new int[] { directions[newIndex][0], directions[newIndex][1] };
+                    }
+                }
+
+                thisS0 = taken.s[0];
+                thisS1 = taken.s[1];
+                thisL0 = taken.l[0];
+                thisL1 = taken.l[1];
+
+				for (int i = 0; i < 2; i++)
+				{
+                    if (InFuture(1, 0) && (taken.InTakenRel(2, 0) || taken.InBorderRel(2, 0) || InFuture(2,0)) && !InFuture(1, 1))
+					{
+						T("1 thin future line valid at " + taken.x + " " + taken.y);
+                        nearExtDone = false;
+                        farExtDone = false;
+                        nearEndDone = false;
+
+						InFuture(1, 0);
+						int[] sections = FindFutureSections(foundIndex);
+
+						int nearSection = sections[0];
+                        int farSection = sections[1];
+                        int nearEndIndex = futureSections[nearSection][0];
+                        int farEndIndex = futureSections[farSection][1];
+
+						if (future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size)
+						{
+                            if (!ExtendFutureLine(true, nearEndIndex, farEndIndex, nearSection, farSection, false))
+                            {
+                                possibleDirections.Add(new int[] { });
+                                M("Error: 1 thin future line cannot be completed.", 2);
+                                return false;
+                            }
+                        }
+                    }
+                    //mirror directions
+                    taken.s[0] = thisS0;
+                    taken.s[1] = thisS1;
+                    taken.l[0] = -thisL0;
+                    taken.l[1] = -thisL1;
+                }
+			}
+
 			// First future line, C shape
 
 			bool x2found = false;
@@ -2023,10 +2091,10 @@ namespace OneWayLabyrinth
 				}
 			}
 
-			int thisS0 = taken.s[0];
-            int thisS1 = taken.s[1];
-            int thisL0 = taken.l[0];
-            int thisL1 = taken.l[1];
+			thisS0 = taken.s[0];
+            thisS1 = taken.s[1];
+            thisL0 = taken.l[0];
+            thisL1 = taken.l[1];
 
             for (int i = 0; i < 2; i++)
 			{
@@ -2040,7 +2108,7 @@ namespace OneWayLabyrinth
 					// at the lower right corner future line shouldn't be drawn
 
                     if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTakenRel2(1, -1) || taken.InBorderRel2(1, -1)) && (taken.InTakenRel2(2, -1) || taken.InBorderRel2(2, -1)) && (taken.InTakenRel2(3, 0) || taken.InBorderRel2(3, 0))
-					&& !taken.InTakenRel2(1, 0) && !taken.InTakenRel2(2, 0) && !InFuture(1, 0) && !(x + 2 * lx == size && y + 2 * ly == size))
+					&& !taken.InTakenRel2(1, 0) && !taken.InTakenRel2(2, 0) && !InFuture2(1, 0) && !(x + 2 * lx == size && y + 2 * ly == size))
 					{
 						x2found = true;
 						T("1x2 future valid at x " + x + " y " + y);
@@ -2048,7 +2116,7 @@ namespace OneWayLabyrinth
 						int startCount = 3;
 						
 						//This is not added in 0803:						
-						if (!InFuture(2, 1))
+						if (!InFuture2(2, 1))
 						{
 							future.path.Add(new int[] { x + 2 * lx + sx, y + 2 * ly + sy });
 							startCount = 4;
@@ -2114,7 +2182,7 @@ namespace OneWayLabyrinth
                         //first clause is for quick exclusion. Last clause is to prevent a duplicate line as in 0711
                         if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTakenRel2(1, -1) || taken.InBorderRel2(1, -1)) && (taken.InTakenRel2(2, -1) || taken.InBorderRel2(2, -1)) && (taken.InTakenRel2(3, -1) || taken.InBorderRel2(3, -1))
 						&& (taken.InTakenRel2(4, 0) || taken.InBorderRel2(4, 0))
-						&& !taken.InTakenRel2(1, 0) && !taken.InTakenRel2(2, 0) && !taken.InTakenRel2(3, 0) && !InFuture(2, 0) && !(x + 3 * lx == size && y + 3 * ly == size))
+						&& !taken.InTakenRel2(1, 0) && !taken.InTakenRel2(2, 0) && !taken.InTakenRel2(3, 0) && !InFuture2(2, 0) && !(x + 3 * lx == size && y + 3 * ly == size))
 						{
 							//if the x + 4 * lx field was in border, we can extend the future lines after this.
 							T("1x3 future valid at x " + x + " y " + y);
@@ -2187,11 +2255,11 @@ namespace OneWayLabyrinth
                     int ly = taken.l[1];
 
 					// Future lines does not always extend from a 2x2 shape. 0901_2 has a one-wide line.
-                    if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel(1, 0) && (InFuture(2, 0) || taken.InTakenRel2(2, 0)) && (InFuture(1, -1) || taken.InTakenRel2(1, -1)))
+                    if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel(1, 0) && (InFuture2(2, 0) || taken.InTakenRel2(2, 0) || taken.InBorderRel2(2, 0)) && (InFuture2(1, -1) || taken.InTakenRel2(1, -1)))
 					{
 						T("Left/right future start valid at x " + x + " y " + y + ", start x " + (x + lx) + " y " + (y + ly));
 
-						if (!InFuture(1, 1)) // Example: 0902_2
+						if (!InFuture2(1, 1)) // Example: 0902_2
                         {
                             int addIndex = futureSections[selectedSection][0] + 1;
                             future.path.Insert(addIndex, new int[] { x + lx + sx, y + ly + sy });
@@ -2271,10 +2339,10 @@ namespace OneWayLabyrinth
 						int lx = taken.l[0];
 						int ly = taken.l[1];
 
-						if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel(2, 0) && !taken.InTakenRel2(1, 0) && (taken.InTakenRel2(1, -1) || InFuture(1, -1)))
+						if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel(2, 0) && !taken.InTakenRel2(1, 0) && (taken.InTakenRel2(1, -1) || InFuture2(1, -1)))
 						{
                             // Similar to the Left/right future start, here is an example where the two connect: 0903_3
-                            // But the previous function extends and connect to the section on the right side befure this function is called. Condition of !InFuture(1, 1) is not needed in this example.
+                            // But the previous function extends and connect to the section on the right side befure this function is called. Condition of !InFuture2(1, 1) is not needed in this example.
                             T("Left/right to 2 future start valid at x " + x + " y " + y);
 
 							int addIndex = futureSections[selectedSection][0] + 1;
@@ -2448,7 +2516,11 @@ namespace OneWayLabyrinth
 						future.path2 = taken.path;
 						selectedSection = loopSelectedSection;
 
-						ExtendFutureLine(true, startIndex, -1, selectedSection, selectedSection, true);
+                        nearExtDone = false;
+                        farExtDone = false;
+                        nearEndDone = false;
+
+                        ExtendFutureLine(true, startIndex, -1, selectedSection, selectedSection, true);
 					}
 					else
 					{
@@ -2487,8 +2559,12 @@ namespace OneWayLabyrinth
 
 						future.path2 = taken.path;
 
-						//only extend the far end. The near end has to be extended simultaneously with the live end.
-						if (!ExtendFutureLine(false, -1, endIndex, selectedSection, selectedSection, true))
+                        nearExtDone = false;
+                        farExtDone = false;
+                        nearEndDone = false;
+
+                        //only extend the far end. The near end has to be extended simultaneously with the live end.
+                        if (!ExtendFutureLine(false, -1, endIndex, selectedSection, selectedSection, true))
 						{
 							possibleDirections.Add(new int[] { });
 							M("Closing loop, future line cannot be completed.", 2);
@@ -2543,12 +2619,27 @@ namespace OneWayLabyrinth
 					}
 				}
 
+				// 0911: If the far end has reached the corner, the near end has to choose the other option besides connecting to the live end.
+				if (future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size && future.possible.Count == 2)
+				{
+                    for (int i = 0; i < future.possible.Count; i++)
+                    {
+                        int[] field = future.possible[i];
+                        if (field[0] == taken.x && field[1] == taken.y)
+                        {
+                            T("Far end reached the corner, removing live end from possibilities");
+                            future.possible.RemoveAt(i);
+                            break;
+                        }
+                    }
+                }
+
 				if (future.possible.Count == 1)
 				{
 					int[] newField = future.possible[0];
 
 					// if the only possibility is to connect to the main line, we continue the extension at the far end. example: 0618_2
-					if (newField[0] == taken.path[taken.path.Count - 1][0] && newField[1] == taken.path[taken.path.Count - 1][1])
+					if (newField[0] == taken.x && newField[1] == taken.y)
 					{
 						nearExtDone = true;
 						nearEndDone = true;
@@ -2558,51 +2649,239 @@ namespace OneWayLabyrinth
 					future.x = newField[0];
 					future.y = newField[1];
 
-					//is counting area needed?					
+                    //is counting area needed?					
 
-					//the far end might be connecting to an older section now, but we cannot merge the sections, because there might be a future line in between, like in 0714_2. Instead, we mark the connection.
-					for (int i = 0; i < future.path.Count; i++)
+                    // The far end might be connecting to an older section now, but we cannot merge the sections, because there might be a future line in between, like in 0714_2. Instead, we mark the connection.                      
+                    // Not only far end can connect to the near end of an older section, but also near end to the far end of the older section, as i n 0730_1 
+                    
+					// If, after a merge, the line connected to extends, but it ends already in the corner, is it okay to just return, or should we try to extend the near end? Find an example.
+                    for (int i = 0; i < future.path.Count; i++)
 					{
 						int[] field = future.path[i];
 						int fx = field[0];
 						int fy = field[1];
 						if (future.x == fx && future.y == fy)
 						{
-							T("Connecting to other section at " + i);
-							// Not only far end can connect to the near end of an older section, but also near end to the far end of the older section, as i n 0730_1 
-							for (int j = 0; j < futureSections.Count; j++)								
+                            T("Connecting to other section at " + i);
+
+							if (directionReverse) // extend near end. Example: 0911_2. A 2x2 line is created on the right side, the far end extends to the corner, and then the near end extends and want to connect.
 							{
-								if (!directionReverse && futureSections[j][0] == i)
-								{
-									futureSectionMerges.Add(new int[] { taken.path.Count - 1, selectedSection, j });
+                                if (nearSection == farSection) // single line connects to a merged or another single line
+                                {
+                                    bool foundInMerge = false;
+                                    for (int j = 0; j < futureSectionMerges.Count; j++)
+                                    {
+                                        int[] merge = futureSectionMerges[j];
+                                        int[] farthestSection = futureSections[merge[merge.Length - 1]];
+                                        if (i == farthestSection[1])
+                                        {
+                                            T("Near end: single line connects to merged");
+                                            List<int> listMerge = merge.ToList();
+                                            listMerge.Add(nearSection);
+                                            futureSectionMerges[j] = listMerge.ToArray();
+                                            foundInMerge = true;
 
-									T("Start from far end after merging, old section " + selectedSection + " new section " + j);
+                                            nearSection = listMerge[1];
+                                            nearEndIndex = futureSections[nearSection][0];
+                                            if (!(future.path[nearEndIndex][0] == taken.x && future.path[nearEndIndex][1] == taken.y))
+                                            {
+                                                return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, nearSection, farSection, once);
+                                            }
+                                            return true;
+                                        }
+                                    }
 
-									farEndIndex = futureSections[j][1];
+                                    if (!foundInMerge)
+                                    {
+                                        for (int j = 0; j < futureSections.Count; j++)
+                                        {
+                                            int[] section = futureSections[j];
+                                            if (i == section[1])
+                                            {
+                                                T("Near end: single line connects to single");
+                                                futureSectionMerges.Add(new int[] { taken.path.Count - 1, j, nearSection });
 
-									if (!(future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size))
+                                                nearSection = j;
+                                                nearEndIndex = futureSections[j][0];
+                                                if (!(future.path[nearEndIndex][0] == taken.x && future.path[farEndIndex][1] == taken.y))
+                                                {
+                                                    return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, nearSection, farSection, once);
+                                                }
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                                else // merged line connects to a merged or a single line
+                                {
+                                    for (int j = 0; j < futureSectionMerges.Count; j++)
+                                    {
+                                        int[] origMerge = futureSectionMerges[j];
+                                        List<int> origListMerge = origMerge.ToList();
+
+                                        if (origMerge[1] == nearSection)
+                                        {
+                                            bool foundInMerge = false;
+                                            for (int k = 0; k < futureSectionMerges.Count; k++)
+                                            {
+                                                int[] merge = futureSectionMerges[k];
+                                                int[] farthestSection = futureSections[merge[merge.Length - 1]];
+                                                if (i == farthestSection[1])
+                                                {
+                                                    T("Near end: merged line connects to merged");
+                                                    List<int> listMerge = merge.ToList();
+                                                    origListMerge.RemoveAt(0); //removes the path index
+                                                    listMerge.AddRange(origListMerge);
+                                                    futureSectionMerges[k] = listMerge.ToArray();
+                                                    futureSectionMerges.RemoveAt(j);
+                                                    foundInMerge = true;
+
+                                                    nearSection = listMerge[1];
+                                                    nearEndIndex = futureSections[nearSection][0];
+                                                    if (!(future.path[nearEndIndex][0] == taken.x && future.path[nearEndIndex][1] == taken.y))
+                                                    {
+                                                        return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, nearSection, farSection, once);
+                                                    }
+                                                    return true;
+                                                }
+                                            }
+
+                                            if (!foundInMerge)
+                                            {
+                                                for (int k = 0; k < futureSections.Count; k++)
+                                                {
+                                                    int[] section = futureSections[k];
+                                                    if (i == section[1])
+                                                    {
+                                                        T("Near end: merged line connects to single");
+                                                        origListMerge.Insert(1, k);
+                                                        futureSectionMerges[j] = origListMerge.ToArray();
+
+                                                        nearSection = k;
+                                                        nearEndIndex = futureSections[k][0];
+                                                        if (!(future.path[nearEndIndex][0] == taken.x && future.path[nearEndIndex][1] == taken.y))
+                                                        {
+                                                            return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, nearSection, farSection, once);
+                                                        }
+                                                        return true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+							else // extend far end
+							{
+                                if (nearSection == farSection) // single line connects to a merged or another single line
+                                {
+									bool foundInMerge = false;
+                                    for (int j = 0; j < futureSectionMerges.Count; j++)
+                                    {
+                                        int[] merge = futureSectionMerges[j];
+                                        int[] nearestSection = futureSections[merge[1]];
+                                        if (i == nearestSection[0])
+                                        {
+											T("Far end: single line connects to merged");
+											List<int> listMerge = merge.ToList();
+                                            listMerge.Insert(1, farSection);
+                                            futureSectionMerges[j] = listMerge.ToArray();
+											foundInMerge = true;
+
+											farSection = listMerge[listMerge.Count - 1];
+                                            farEndIndex = futureSections[farSection][1];
+                                            if (!(future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size))
+                                            {
+                                                return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, nearSection, farSection, once);
+                                            }
+                                            return true;
+                                        }
+                                    }
+
+									if (!foundInMerge)
 									{
-										return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, selectedSection, j, once);
-									}
-								}
-								else if (directionReverse && futureSections[j][1] == i)
-								{
-									futureSectionMerges.Add(new int[] { taken.path.Count - 1, j, selectedSection });
+                                        for (int j = 0; j < futureSections.Count; j++)
+                                        {
+                                            int[] section = futureSections[j];
+                                            if (i == section[0])
+                                            {
+                                                T("Far end: single line connects to single");
+                                                futureSectionMerges.Add(new int[] { taken.path.Count - 1, farSection, j });
 
-									T("Start from near end after merging, old section " + selectedSection + " new section " + j);
+                                                farSection = j;
+                                                farEndIndex = futureSections[j][1];
+                                                if (!(future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size))
+                                                {
+                                                    return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, nearSection, farSection, once);
+                                                }
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                                else // merged line connects to a merged or a single line
+                                {
+                                    for (int j = 0; j < futureSectionMerges.Count; j++)
+                                    {
+                                        int[] origMerge = futureSectionMerges[j];
+                                        List<int> origListMerge = origMerge.ToList();
 
-									nearEndIndex = futureSections[j][0];
-									
-									return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, j, selectedSection, once);
-								}
-							}
-							return true;
+                                        if (origMerge[origMerge.Length - 1] == farSection)
+										{
+                                            bool foundInMerge = false;
+                                            for (int k = 0; k < futureSectionMerges.Count; k++)
+                                            {
+                                                int[] merge = futureSectionMerges[k];
+                                                int[] nearestSection = futureSections[merge[1]];
+                                                if (i == nearestSection[0])
+                                                {
+                                                    T("Far end: merged line connects to merged");
+                                                    List<int> listMerge = merge.ToList();
+                                                    listMerge.RemoveAt(0); //removes the path index
+													origListMerge.AddRange(listMerge);
+													futureSectionMerges[j] = origListMerge.ToArray();
+													futureSectionMerges.RemoveAt(k);
+                                                    foundInMerge = true;
+
+                                                    farSection = origListMerge[origListMerge.Count - 1];
+                                                    farEndIndex = futureSections[farSection][1];
+                                                    if (!(future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size))
+                                                    {
+                                                        return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, nearSection, farSection, once);
+                                                    }
+                                                    return true;
+                                                }
+                                            }
+
+                                            if (!foundInMerge)
+                                            {
+                                                for (int k = 0; k < futureSections.Count; k++)
+                                                {
+                                                    int[] section = futureSections[k];
+                                                    if (i == section[0])
+                                                    {
+                                                        T("Far end: merged line connects to single");
+                                                        origListMerge.Add(k);
+                                                        futureSectionMerges[j] = origListMerge.ToArray();
+
+                                                        farSection = k;
+                                                        farEndIndex = futureSections[k][1];
+                                                        if (!(future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size))
+                                                        {
+                                                            return ExtendFutureLine(directionReverse, nearEndIndex, farEndIndex, nearSection, farSection, once);
+                                                        }
+														return true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }   							
 						}
-					}
-
+					}					
 					
-					
-					T("Adding future: " + future.x + " " + future.y + " start of section " + futureSections[selectedSection][0]);
+					T("Adding future: " + future.x + " " + future.y);
 					/*foreach (int[] section in futureSections)
 					{
 						T("--- Section: " + section[0] + " " + section[1]);
@@ -2614,6 +2893,7 @@ namespace OneWayLabyrinth
 					if (directionReverse)
 					{
 						nearEndIndex++;
+						if (farSection > nearSection) farEndIndex++;
 						futureSections[nearSection][0]++;
 						IncreaseFurtherSections(nearSection);						
 
@@ -2624,10 +2904,7 @@ namespace OneWayLabyrinth
 					}
 					else
 					{
-						if (nearSection >= farSection)
-						{
-							nearEndIndex++;							
-						}
+						if (nearSection >= farSection) nearEndIndex++;							
 						futureSections[farSection][0]++;
 						IncreaseFurtherSections(farSection);
 
@@ -2716,7 +2993,53 @@ namespace OneWayLabyrinth
 			if (inFutureIndex > futureSections[section][1]) inFutureIndex++;
 		}
 
-		public bool InFuture(int left, int straight)
+        public bool InFuture(int left, int straight)
+        {
+            int x = taken.x + left * taken.l[0] + straight * taken.s[0];
+            int y = taken.y + left * taken.l[1] + straight * taken.s[1];
+
+            int c = future.path.Count;
+            if (c == 0) return false;
+
+            for (int i = c - 1; i >= 0; i--)
+            {
+                int[] field = future.path[i];
+                if (x == field[0] && y == field[1] && futureActive[i])
+                {
+					foundIndex = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+		public int[] FindFutureSections(int index)
+		{
+            int i = -1;
+            foreach (int[] section in futureSections)
+            {
+                i++;
+                if (index <= section[0] && index >= section[1])
+                {
+                    foreach (int[] merge in futureSectionMerges)
+                    {
+                        // examine all but the first merged section
+                        for (int j = 1; j < merge.Length; j++)
+                        {
+							if (merge[j] == i)
+							{
+								return new int[] { merge[1], merge[merge.Length - 1] };
+							}
+                        }
+                    }
+
+                    return new int[] { i, i };
+                }
+            }
+            return new int[] { -1, -1 };
+        }
+
+        public bool InFuture2(int left, int straight)
 		{
             int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
             int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
@@ -2727,7 +3050,7 @@ namespace OneWayLabyrinth
             for (int i = c - 1; i >= 0; i--)
             {
                 int[] field = future.path[i];
-                if (x == field[0] && y == field[1])
+                if (x == field[0] && y == field[1] && futureActive[i])
                 {
                     return true;
                 }
@@ -2828,6 +3151,96 @@ namespace OneWayLabyrinth
 			return false;
 		}
 
+		private void SavePath() // used in fast run mode
+		{
+            int startX = 1;
+            int startY = 1;
+            string completedPathCode = "";
+            int lastDrawnDirection = 0;
+            savePath = size + "|1-" + startX + "," + startY + ";";
+
+
+            for (int i = 1; i < taken.path.Count; i++)
+			{
+                int[] field = taken.path[i];
+                int newX = field[0];
+                int newY = field[1];
+
+                foreach (int direction in possibleDirections[i])
+                {
+                    savePath += direction + ",";
+                }
+                savePath = savePath.Substring(0, savePath.Length - 1);
+                savePath += "-" + newX + "," + newY + ";";
+
+                for (int j = 0; j < 4; j++)
+                {
+                    if (directions[j][0] == newX - startX && directions[j][1] == newY - startY)
+                    {
+                        if (possibleDirections[i].Length > 1)
+                        {
+                            if (j == lastDrawnDirection) //stepped straight. We need to check if there is a left or right field in the possibilities
+                            {
+                                bool leftFound = false;
+                                bool rightFound = false;
+                                foreach (int direction in possibleDirections[i])
+                                {
+                                    if (direction == j + 1 || j == 3 && direction == 0) leftFound = true;
+                                    if (direction == j - 1 || j == 0 && direction == 3) rightFound = true;
+                                }
+
+                                if (leftFound && rightFound) // straight
+                                {
+                                    completedPathCode += "b";
+                                }
+                                else if (leftFound) // right
+                                {
+                                    completedPathCode += "c";
+                                }
+                                else // left
+                                {
+                                    completedPathCode += "a";
+                                }
+                            }
+                            else if (j == lastDrawnDirection + 1 || lastDrawnDirection == 3 && j == 0) completedPathCode += "a"; // left
+                            else completedPathCode += "c"; // right
+                        }
+
+                        lastDrawnDirection = j;
+                    }
+                }
+
+                startX = newX;
+                startY = newY;
+            }
+
+            if (possibleDirections.Count > 1)
+            {
+                foreach (int direction in possibleDirections[possibleDirections.Count - 1])
+                {
+                    savePath += direction + ",";
+                }
+            }
+            savePath = savePath.Substring(0, savePath.Length - 1);
+
+            if (exits.Count > 0)
+            {
+                savePath += ":";
+
+                for (int i = 0; i < exits.Count; i++)
+                {
+                    int[] field = exits[i];
+                    int x = field[0];
+                    int y = field[1];
+
+                    savePath += x + "," + y + "," + exitIndex[i] + ";";
+                }
+                savePath = savePath.Substring(0, savePath.Length - 1) + "," + taken.circleDirectionLeft;
+            }
+
+            if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedPathCode + ".txt", savePath);
+        }
+
 		private void DrawPath()
 		{
 			string startPos = 0.5 + " " + 0.5;
@@ -2885,7 +3298,7 @@ namespace OneWayLabyrinth
 				savePath = savePath.Substring(0, savePath.Length - 1);
 				savePath += "-" + newX + "," + newY + ";";
 
-				if (SaveCheck.IsChecked == true && lineFinished)
+				if ((SaveCheck.IsChecked == true || fastRun) && lineFinished)
 				{
 					for (int j = 0; j < 4; j++)
 					{
@@ -2995,7 +3408,7 @@ namespace OneWayLabyrinth
 			}
 			foreach (int[] section in futureSectionMerges)
 			{
-				T("--- Section merge: at " + section[0] + " old " + section[1] + " new " + section[2] + " length " + section.Length);
+				T("--- Section merge: at " + section[0] + " near section " + section[1] + " far section " + section[2] + " length " + (section.Length - 1));
 			}
 
 			bool prevStartItem = false;
@@ -3290,14 +3703,10 @@ namespace OneWayLabyrinth
 				{
 					savePath += direction + ",";
 
-					possibles += "\t<rect width=\"1\" height=\"1\" x=\"" + (taken.path[taken.path.Count - 1][0] - 1 + directions[direction][0]) + "\" y=\"" + (taken.path[taken.path.Count - 1][1] - 1 + directions[direction][1]) + "\" fill=\"#000000\" fill-opacity=\"0.1\" />\r\n";
+					possibles += "\t<rect width=\"1\" height=\"1\" x=\"" + (taken.x - 1 + directions[direction][0]) + "\" y=\"" + (taken.y - 1 + directions[direction][1]) + "\" fill=\"#000000\" fill-opacity=\"0.1\" />\r\n";
 				}
-				savePath = savePath.Substring(0, savePath.Length - 1);
 			}
-			else
-			{
-				savePath = savePath.Substring(0, savePath.Length - 1);
-			}
+			savePath = savePath.Substring(0, savePath.Length - 1);
 
 			ExitCoords.Text = "";
 			if (exits.Count > 0)
@@ -3339,7 +3748,6 @@ namespace OneWayLabyrinth
 				svgName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".svg";
 			}
 			File.WriteAllText(svgName, content);
-			//File.WriteAllText("p_temp.txt", savePath);
 			if (completedPathCode != "")
 			{
 				if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedPathCode + ".txt", savePath);
@@ -3450,11 +3858,14 @@ namespace OneWayLabyrinth
 
 		private void M(object o, int code)
 		{
-			MessageLine.Content = o.ToString();
-			MessageLine.Visibility = Visibility.Visible;
-			OKButton.Visibility = Visibility.Visible;
-			messageCode = code;
-			StopTimer();
+			this.Dispatcher.Invoke(() =>
+			{
+                MessageLine.Content = o.ToString();
+                MessageLine.Visibility = Visibility.Visible;
+                OKButton.Visibility = Visibility.Visible;
+                messageCode = code;
+                StopTimer();
+            });
         }
 
 		private void T(object o)

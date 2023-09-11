@@ -1,0 +1,5 @@
+size: 7
+loadFromFile: False
+saveOnCompletion: False
+continueOnCompletion: True
+keepLeft: False
