@@ -33,14 +33,13 @@ using SkiaSharp.Views.Desktop;
 ----- COMMENTS -----
 
 CheckNearBorder is already actual on 5x5 (for example, at the first path of a complete walkthrough), write in documentation
-
-Revert concatenated merges in PreviousStep; keep a record for every step in order to do so.
 Make separate button for fastRun
 Write about 1-thin future line extension rule and that when the far end is at the corner, the near end cannot connect to the main line if it has other options. Write about merging procedure.
 
 ----- 7 x 7 -----
 
 0909_1: 1x2 future line cannot be completed
+CheckMiddleCorner2x2 is not enough, countarea needs to be introduced in light of 0913_2
 
 ----- 9 x 9 -----
 
@@ -113,7 +112,8 @@ namespace OneWayLabyrinth
 		List<int> futureLoopSelectedSection = new List<int>();
 		public static List<int[]> futureSections = new List<int[]>();
 		public static List<int[]> futureSectionMerges = new List<int[]>();
-		int selectedSection = -1;
+        public static List<List<object>> futureSectionMergesHistory = new List<List<object>>();
+        int selectedSection = -1;
 		int foundIndex = -1;
 		int foundEndIndex = -1;
 
@@ -477,7 +477,8 @@ namespace OneWayLabyrinth
 			futureLoopSelectedSection = new List<int>();
 			futureSections = new List<int[]>();
 			futureSectionMerges = new List<int[]>();
-		}
+            futureSectionMergesHistory = new List<List<object>>();
+        }
 
 		private void CheckSize()
 		{
@@ -751,8 +752,7 @@ namespace OneWayLabyrinth
 
 				if (futureIndex.Count > 0) //the last element of futureIndex is not the highest if not the most recent future path was extended last time.
 				{
-					RemoveFutureAt(count - 1);
-					ActivateFutureAt(removeX, removeY);
+                    RemoveAndActivateFutureAt(count - 1, removeX, removeY);
 				}
 
 				lastExit = exitIndex.Count - 1;
@@ -844,8 +844,7 @@ namespace OneWayLabyrinth
 
 					if (futureIndex.Count > 0)
 					{
-						RemoveFutureAt(count - 1);
-						ActivateFutureAt(removeX, removeY);
+                        RemoveAndActivateFutureAt(count - 1, removeX, removeY);
 					}
 
 					lastExit = exitIndex.Count - 1;
@@ -875,8 +874,7 @@ namespace OneWayLabyrinth
 			int removeY = taken.path[count - 1][1];
 
 			taken.path.RemoveAt(count - 1);
-			RemoveFutureAt(count - 1);
-			ActivateFutureAt(removeX, removeY);
+            RemoveAndActivateFutureAt(count - 1, removeX, removeY);
 			
 			//necessary when loading from file
 			taken.x = removeX;
@@ -1117,17 +1115,29 @@ namespace OneWayLabyrinth
 			return CheckFutureLine(x, y);
 		}		
 
-		public void RemoveFutureAt(int index)
+		public void RemoveAndActivateFutureAt(int index, int removeX, int removeY)
 		{
-			for (int i = 0; i < futureSectionMerges.Count; i++)
+			if (futureSectionMergesHistory.Count > 0)
 			{
-				if (futureSectionMerges[i][0] == index)
+				// There can be more than one future line merges in one step, like in 0913_1. Removing only the last one is not correct.
+				for(int i = futureSectionMergesHistory.Count -1; i >= 0; i--)
 				{
-					futureSectionMerges.RemoveAt(i);
+					if ((int)futureSectionMergesHistory[i][0] == index)
+					{
+                        futureSectionMergesHistory.RemoveAt(i);
+                        if (i > 0)
+                        {
+                            futureSectionMerges = Copy((List<int[]>)futureSectionMergesHistory[i - 1][1]);
+                        }
+                        else
+                        {
+                            futureSectionMerges = new List<int[]>();
+                        }
+                    }
 				}
-			}
+            }                    
 
-			for (int i = future.path.Count - 1; i >= 0 ; i--)
+            for (int i = future.path.Count - 1; i >= 0 ; i--)
 			{
 				if (futureIndex[i] == index)
 				{
@@ -1158,10 +1168,7 @@ namespace OneWayLabyrinth
 					}
 				}
 			}
-		}
 
-		public void ActivateFutureAt (int removeX, int removeY)
-		{
 			for (int i = futureIndex.Count - 1; i >= 0; i--)
 			{
 				int[] field = future.path[i];
@@ -1172,7 +1179,7 @@ namespace OneWayLabyrinth
 				{
 					T("Activate at " + i + " " + removeX + " " + removeY + " inend " + InFutureEnd(removeX, removeY));
 					futureActive[i] = true;
-					// checking section merges is not needed here
+					
 					if (InFutureStart(removeX, removeY))
 					{
 						inFuture = false;
@@ -1770,8 +1777,7 @@ namespace OneWayLabyrinth
 
 					if (futureIndex.Count > 0)
 					{
-						RemoveFutureAt(i);
-						ActivateFutureAt(field[0], field[1]);
+						RemoveAndActivateFutureAt(i, field[0], field[1]);
 					}
 				}
 				else
@@ -1784,8 +1790,7 @@ namespace OneWayLabyrinth
 			possibleDirections.RemoveAt(i + 1);
 			if (futureIndex.Count > 0) //the last element of futureIndex is not the highest if not the most recent future path was extended last time.
 			{
-				RemoveFutureAt(i);
-				ActivateFutureAt(endX, endY);
+                RemoveAndActivateFutureAt(i, endX, endY);
 			}
 
 			int[] prevField = taken.path[i - 1];
@@ -1867,7 +1872,7 @@ namespace OneWayLabyrinth
 						for (int i = 0; i < futureSectionMerges.Count; i++)
 						{
 							int[] merge = futureSectionMerges[i];
-							for (int j = 1; j < merge.Length - 1; j++)
+							for (int j = 0; j < merge.Length - 1; j++)
 							{
 								if (merge[j] == selectedSection)
 								{									
@@ -1937,7 +1942,7 @@ namespace OneWayLabyrinth
 						for (int i = 0; i < futureSectionMerges.Count; i++)
 						{
 							int[] merge = futureSectionMerges[i];
-							if (merge[1] == selectedSection)
+							if (merge[0] == selectedSection)
 							{
 								lastMerged = merge[merge.Length - 1];
 								farEndIndex = futureSections[lastMerged][1];
@@ -2037,11 +2042,15 @@ namespace OneWayLabyrinth
                 thisL0 = taken.l[0];
                 thisL1 = taken.l[1];
 
-				for (int i = 0; i < 2; i++)
+                
+
+
+                for (int i = 0; i < 2; i++)
 				{
                     if (InFuture(1, 0) && (taken.InTakenRel(2, 0) || taken.InBorderRel(2, 0) || InFuture(2,0)) && !InFuture(1, 1))
 					{
 						T("1 thin future line valid at " + taken.x + " " + taken.y);
+
                         nearExtDone = false;
                         farExtDone = false;
                         nearEndDone = false;
@@ -2280,7 +2289,7 @@ namespace OneWayLabyrinth
 						for (int k = 0; k < futureSectionMerges.Count; k++)
 						{
 							int[] merge = futureSectionMerges[k];
-							if (merge[1] == selectedSection)
+							if (merge[0] == selectedSection)
 							{
 								lastMerged = merge[merge.Length - 1];
 								farEndIndex = futureSections[lastMerged][1];
@@ -2581,6 +2590,15 @@ namespace OneWayLabyrinth
 			}
 			return true;
 		}
+		private List<int[]> Copy(List<int[]> obj)
+		{
+			List<int[]> newObj = new();
+			foreach (int[] element in obj)
+			{
+				newObj.Add(element);
+			}
+			return newObj;
+		}
 
 		private bool ExtendFutureLine(bool directionReverse, int nearEndIndex, int farEndIndex, int nearSection, int farSection, bool once)
 		{
@@ -2679,9 +2697,10 @@ namespace OneWayLabyrinth
                                             List<int> listMerge = merge.ToList();
                                             listMerge.Add(nearSection);
                                             futureSectionMerges[j] = listMerge.ToArray();
+											futureSectionMergesHistory.Add(new List<object>() { taken.path.Count - 1, Copy(futureSectionMerges) });
                                             foundInMerge = true;
 
-                                            nearSection = listMerge[1];
+                                            nearSection = listMerge[0];
                                             nearEndIndex = futureSections[nearSection][0];
                                             if (!(future.path[nearEndIndex][0] == taken.x && future.path[nearEndIndex][1] == taken.y))
                                             {
@@ -2699,7 +2718,8 @@ namespace OneWayLabyrinth
                                             if (i == section[1])
                                             {
                                                 T("Near end: single line connects to single");
-                                                futureSectionMerges.Add(new int[] { taken.path.Count - 1, j, nearSection });
+                                                futureSectionMerges.Add(new int[] { j, nearSection });
+                                                futureSectionMergesHistory.Add(new List<object>() { taken.path.Count - 1, Copy(futureSectionMerges) });
 
                                                 nearSection = j;
                                                 nearEndIndex = futureSections[j][0];
@@ -2719,7 +2739,7 @@ namespace OneWayLabyrinth
                                         int[] origMerge = futureSectionMerges[j];
                                         List<int> origListMerge = origMerge.ToList();
 
-                                        if (origMerge[1] == nearSection)
+                                        if (origMerge[0] == nearSection)
                                         {
                                             bool foundInMerge = false;
                                             for (int k = 0; k < futureSectionMerges.Count; k++)
@@ -2734,9 +2754,10 @@ namespace OneWayLabyrinth
                                                     listMerge.AddRange(origListMerge);
                                                     futureSectionMerges[k] = listMerge.ToArray();
                                                     futureSectionMerges.RemoveAt(j);
+                                                    futureSectionMergesHistory.Add(new List<object>() { taken.path.Count - 1, Copy(futureSectionMerges) });
                                                     foundInMerge = true;
 
-                                                    nearSection = listMerge[1];
+                                                    nearSection = listMerge[0];
                                                     nearEndIndex = futureSections[nearSection][0];
                                                     if (!(future.path[nearEndIndex][0] == taken.x && future.path[nearEndIndex][1] == taken.y))
                                                     {
@@ -2754,8 +2775,9 @@ namespace OneWayLabyrinth
                                                     if (i == section[1])
                                                     {
                                                         T("Near end: merged line connects to single");
-                                                        origListMerge.Insert(1, k);
+                                                        origListMerge.Insert(0, k);
                                                         futureSectionMerges[j] = origListMerge.ToArray();
+                                                        futureSectionMergesHistory.Add(new List<object>() { taken.path.Count - 1, Copy(futureSectionMerges) });
 
                                                         nearSection = k;
                                                         nearEndIndex = futureSections[k][0];
@@ -2779,14 +2801,15 @@ namespace OneWayLabyrinth
                                     for (int j = 0; j < futureSectionMerges.Count; j++)
                                     {
                                         int[] merge = futureSectionMerges[j];
-                                        int[] nearestSection = futureSections[merge[1]];
+                                        int[] nearestSection = futureSections[merge[0]];
                                         if (i == nearestSection[0])
                                         {
 											T("Far end: single line connects to merged");
-											List<int> listMerge = merge.ToList();
-                                            listMerge.Insert(1, farSection);
-                                            futureSectionMerges[j] = listMerge.ToArray();
-											foundInMerge = true;
+                                            List<int> listMerge = merge.ToList();
+                                            listMerge.Insert(0, farSection);
+											futureSectionMerges[j] = listMerge.ToArray();
+                                            futureSectionMergesHistory.Add(new List<object>() { taken.path.Count - 1, Copy(futureSectionMerges) });
+                                            foundInMerge = true;
 
 											farSection = listMerge[listMerge.Count - 1];
                                             farEndIndex = futureSections[farSection][1];
@@ -2806,7 +2829,8 @@ namespace OneWayLabyrinth
                                             if (i == section[0])
                                             {
                                                 T("Far end: single line connects to single");
-                                                futureSectionMerges.Add(new int[] { taken.path.Count - 1, farSection, j });
+                                                futureSectionMerges.Add(new int[] { farSection, j });
+                                                futureSectionMergesHistory.Add(new List<object>() { taken.path.Count - 1, Copy(futureSectionMerges) });
 
                                                 farSection = j;
                                                 farEndIndex = futureSections[j][1];
@@ -2832,7 +2856,7 @@ namespace OneWayLabyrinth
                                             for (int k = 0; k < futureSectionMerges.Count; k++)
                                             {
                                                 int[] merge = futureSectionMerges[k];
-                                                int[] nearestSection = futureSections[merge[1]];
+                                                int[] nearestSection = futureSections[merge[0]];
                                                 if (i == nearestSection[0])
                                                 {
                                                     T("Far end: merged line connects to merged");
@@ -2841,6 +2865,7 @@ namespace OneWayLabyrinth
 													origListMerge.AddRange(listMerge);
 													futureSectionMerges[j] = origListMerge.ToArray();
 													futureSectionMerges.RemoveAt(k);
+                                                    futureSectionMergesHistory.Add(new List<object>() { taken.path.Count - 1, Copy(futureSectionMerges) });
                                                     foundInMerge = true;
 
                                                     farSection = origListMerge[origListMerge.Count - 1];
@@ -2863,6 +2888,7 @@ namespace OneWayLabyrinth
                                                         T("Far end: merged line connects to single");
                                                         origListMerge.Add(k);
                                                         futureSectionMerges[j] = origListMerge.ToArray();
+                                                        futureSectionMergesHistory.Add(new List<object>() { taken.path.Count - 1, Copy(futureSectionMerges) });
 
                                                         farSection = k;
                                                         farEndIndex = futureSections[k][1];
@@ -2998,6 +3024,9 @@ namespace OneWayLabyrinth
             int x = taken.x + left * taken.l[0] + straight * taken.s[0];
             int y = taken.y + left * taken.l[1] + straight * taken.s[1];
 
+			//In 0913_3 it csan happen that after stepping on the future line, the 1-thin rule is true if we don't check that the coordinates are within size.
+			if (x > size || y > size) return true;
+
             int c = future.path.Count;
             if (c == 0) return false;
 
@@ -3023,12 +3052,11 @@ namespace OneWayLabyrinth
                 {
                     foreach (int[] merge in futureSectionMerges)
                     {
-                        // examine all but the first merged section
-                        for (int j = 1; j < merge.Length; j++)
+                        for (int j = 0; j < merge.Length; j++)
                         {
 							if (merge[j] == i)
 							{
-								return new int[] { merge[1], merge[merge.Length - 1] };
+								return new int[] { merge[0], merge[merge.Length - 1] };
 							}
                         }
                     }
@@ -3095,7 +3123,7 @@ namespace OneWayLabyrinth
 					foreach (int[] merge in futureSectionMerges)
 					{
 						// examine all but the first merged section
-						for (int j = 2; j < merge.Length; j++)
+						for (int j = 1; j < merge.Length; j++)
 						{
 							if (merge[j] == i) return false;
 						}
@@ -3137,7 +3165,7 @@ namespace OneWayLabyrinth
 					foreach (int[] merge in futureSectionMerges)
 					{
 						// examine all but the last merged section
-						for (int j = 1; j < merge.Length - 1; j++)
+						for (int j = 0; j < merge.Length - 1; j++)
 						{
 							if (merge[j] == i) return false;
 						}
@@ -3402,16 +3430,41 @@ namespace OneWayLabyrinth
 			startX = -1;
 			startY = -1;
 
-			foreach (int[] section in futureSections)
+			string t = "";
+
+            foreach (int[] section in futureSections)
 			{
-				T("--- Section: " + section[0] + " " + section[1]);
+				t += "--- Section: " + section[0] + " " + section[1] + "\n";
 			}
+			t += "\n";
 			foreach (int[] section in futureSectionMerges)
 			{
-				T("--- Section merge: at " + section[0] + " near section " + section[1] + " far section " + section[2] + " length " + (section.Length - 1));
+				t += "--- Section merge: ";
+                foreach (int s in section)
+				{
+					t += s + ", ";
+				}
+				t = t.Substring(0, t.Length - 2) + "\n";
+				T(t);
 			}
+            t += "\n";
+            foreach (List<object> obj in futureSectionMergesHistory)
+            {
+                t += "--- Section merge history: " + obj[0] + "\n";
 
-			bool prevStartItem = false;
+                foreach (int[] section in (List<int[]>)obj[1])
+                {
+                    t += "--- Section merge: ";
+                    foreach (int s in section)
+                    {
+                        t += s + ", ";
+                    }
+                    t = t.Substring(0, t.Length - 2) + "\n";
+                }                
+            }
+			T(t);
+
+            bool prevStartItem = false;
 
 			if (future.path.Count != 0)
 			{
@@ -3442,7 +3495,7 @@ namespace OneWayLabyrinth
 						for (int k = 0; k < futureSectionMerges.Count; k++)
 						{
 							int[] merge = futureSectionMerges[k];
-							for (int h = 1; h < merge.Length; h++)
+							for (int h = 0; h < merge.Length; h++)
 							{
 								//T(merge[h] + " " + currentSection);
 								if (merge[h] == currentSection)
@@ -3455,7 +3508,8 @@ namespace OneWayLabyrinth
 
 						if (i == section[0])
 						{
-							startItem = true;						}
+							startItem = true;
+						}
 						if (i == section[1])
 						{
 							endItem = true;
@@ -3572,7 +3626,7 @@ namespace OneWayLabyrinth
 					for (int i = futureSectionMerges.Count - 1; i >= 0; i--)
 					{
 						int[] merge = futureSectionMerges[i];
-						for (int j = 1; j < merge.Length; j++)
+						for (int j = 0; j < merge.Length; j++)
 						{
 							int startIndex = futureSections[merge[j]][0];
 							int endIndex = futureSections[merge[j]][1];
@@ -3584,7 +3638,7 @@ namespace OneWayLabyrinth
 								bool startItem = false;
 								bool endItem = false;
 
-								if (j == 1 && k == startIndex)
+								if (j == 0 && k == startIndex)
 								{
 									startItem = true;
 								}

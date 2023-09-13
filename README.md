@@ -86,7 +86,7 @@ The number of 7 x 7 walkthroughs may be tens or hundreds of thousands. Right now
 
 ---
 
-The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Release/net6.0-windows".
+The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".
 
 ---
 

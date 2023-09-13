@@ -39,6 +39,7 @@ namespace OneWayLabyrinth
 		int[] selectedDirection = new int[] { };
 		bool CShape;
 		int nearSection, farSection;
+		int foundSectionStart, foundSectionEnd;
 
 		public Path(MainWindow window, int size, List<int[]> path, List<int[]>? path2, bool isMain)
 		{
@@ -932,25 +933,28 @@ namespace OneWayLabyrinth
 
 		public void CheckFutureL()
 		{
+			// 0821, 0827
+			// the start and end fields have to be in the same section, otherwise they can connect, like in 0913
             // conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
-            if (InFutureStart(x + 2 * l[0], y + 2 * l[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]))
+
+            if (InFutureStart(x + 2 * l[0], y + 2 * l[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
 			{
                 T("CheckFutureL left");
                 forbidden.Add(rightField);
                 forbidden.Add(straightField);
             }
-            if (InFutureStart(x + 2 * r[0], y + 2 * r[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]))
+            if (InFutureStart(x + 2 * r[0], y + 2 * r[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
             {
                 T("CheckFutureL right");
                 forbidden.Add(leftField);
                 forbidden.Add(straightField);
             }
-            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]))
+            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
             {
                 T("CheckFutureL straight left");
                 forbidden.Add(leftField);
             }
-            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]))
+            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
             {
                 T("CheckFutureL straight right");
                 forbidden.Add(rightField);
@@ -1296,7 +1300,7 @@ namespace OneWayLabyrinth
                     {
                         if (merge[1] == nearSection)
 						{
-                            for (int i = 1; i < merge.Length; i++)
+                            for (int i = 0; i < merge.Length; i++)
                             {
                                 int[] section = MainWindow.futureSections[merge[i]];
                                 for (int j = section[1]; j <= section[0]; j++)
@@ -1454,7 +1458,7 @@ namespace OneWayLabyrinth
 						// We examine all mearges. The start of them can be stepped on, but all the others cannot.
 						foreach (int[] merge in MainWindow.futureSectionMerges)
 						{
-							for (int j = 2; j < merge.Length; j++)
+							for (int j = 1; j < merge.Length; j++)
 							{
 								if (merge[j] == i) return false;
 							}
@@ -1506,7 +1510,7 @@ namespace OneWayLabyrinth
 						// We examine all mearges. The end of them can be stepped on, but all the others cannot.
 						foreach (int[] merge in MainWindow.futureSectionMerges)
 						{
-							for (int j = 1; j < merge.Length - 1; j++)
+							for (int j = 0; j < merge.Length - 1; j++)
 							{
 								if (merge[j] == i) return false;
 							}
@@ -1564,11 +1568,12 @@ namespace OneWayLabyrinth
 					foreach (int[] merge in MainWindow.futureSectionMerges)
 					{
 						// examine all but the first merged section
-						for (int j = 2; j < merge.Length; j++)
+						for (int j = 1; j < merge.Length; j++)
 						{
 							if (merge[j] == i) return false;
 						}
 					}
+					foundSectionStart = i;
 					return true;
 				}
 			}
@@ -1608,12 +1613,13 @@ namespace OneWayLabyrinth
 					foreach (int[] merge in MainWindow.futureSectionMerges)
 					{
 						// examine all but the last merged section
-						for (int j = 1; j < merge.Length - 1; j++)
+						for (int j = 0; j < merge.Length - 1; j++)
 						{
 							if (merge[j] == i) return false;
 						}
 					}
-					return true;
+                    foundSectionEnd = i;
+                    return true;
 				}
 			}
 
