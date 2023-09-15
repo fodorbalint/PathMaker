@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Diagnostics.Metrics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Policy;
@@ -155,17 +157,17 @@ namespace OneWayLabyrinth
 
 						T("x " + x + " y " + y + " InTakenAbs(straightField) " + InTakenAbs(straightField) + " InTakenAbs(rightField) " + InTakenAbs(rightField) + " InTakenAbs(leftField) " + InTakenAbs(leftField));
 
-						if (!InTakenAllF(straightField) && !InBorderF(straightField))
+						if (!InTakenAllF(straightField) && !InBorderAbs(straightField))
 						{
 							T("possible straight");
 							possible.Add(straightField);
 						}
-						if (!InTakenAllF(rightField) && !InBorderF(rightField))
+						if (!InTakenAllF(rightField) && !InBorderAbs(rightField))
 						{
 							T("possible right");
 							possible.Add(rightField);
 						}
-						if (!InTakenAllF(leftField) && !InBorderF(leftField))
+						if (!InTakenAllF(leftField) && !InBorderAbs(leftField))
 						{
 							T("possible left");
 							possible.Add(leftField);
@@ -247,8 +249,8 @@ namespace OneWayLabyrinth
                                 CheckNearField(); //First case 0901
                                 CheckCOnFarBorder();
                                 CheckFutureL(); // Live end, future line near end and far end make an L, with one space between.
-								CheckMiddleCorner2x2(); // 0909. A 2x2 area would created with one way to go in and out
-
+								CheckArea(); // 0909. A 2x2 area would created with one way to go in and out
+								Check2x2AndFutureStartEnd(); // 0909_1, 0909_1_2
                             }
                             if (size >= 9)
                             {
@@ -286,125 +288,7 @@ namespace OneWayLabyrinth
 			possible = newPossible;
 		}
 
-		public void CheckNearBorder()
-		{
-			int directionIndex = Math.Abs(selectedDirection[0]); //0 for vertical, 1 for horizontal
-
-			// going up on left side
-			if (x == 2 && x + l[0] == 1 && !InTakenAbs(leftField) && !InTaken(x - 1, y - 1))
-			{
-				forbidden.Add(leftField);				
-			}
-			// going left on up side
-			else if (y == 2 && y + r[1] == 1 && !InTakenAbs(rightField) && !InTaken(x - 1, y - 1))
-			{
-				forbidden.Add(rightField);
-			}
-
-			if (leftField[directionIndex] == size && !InTakenAbs(leftField))
-			{
-				if (directionIndex == 0) //going down on right side
-				{
-					forbidden.Add(straightField);
-					forbidden.Add(rightField);
-				}
-				else //going left on down side
-				{
-					if (!InTaken(x - 1, y + 1) && !InBorder(x - 1, y + 1)) //InBorder checking is necessar[1] when x=1
-					{
-						forbidden.Add(leftField);
-					}
-					else if (!InTaken(x, y + 1)) //bottom may be already filled, and we had an u-turn longer right
-					{
-						forbidden.Add(straightField);
-						forbidden.Add(rightField);
-					}
-				}
-			}
-			else if (rightField[directionIndex] == size && !InTakenAbs(rightField))
-			{
-				if (directionIndex == 0) //going up on right side
-				{
-					T("In checknearborder: InTaken(x + 1, y - 1) " + InTaken(x + 1, y - 1));
-
-					if (!InTaken(x + 1, y - 1) && !InBorder(x + 1, y - 1))
-					{
-						forbidden.Add(rightField);
-					}
-					else if (!InTaken(x + 1, y)) //side may be already filled, and we had an u-turn longer down
-					{
-						forbidden.Add(straightField);
-						forbidden.Add(leftField);
-					}
-				}
-				else //going right on down side
-				{
-					forbidden.Add(straightField);
-					forbidden.Add(leftField);
-				}
-			}
-
-			//going towards an edge, only applies to main line, future line far end may face incompleted fields, see 0829_2
-			if (isMain)
-			{
-				if (x + 2 * s[0] == 0)
-				{
-					forbidden.Add(leftField);
-					if (!InTaken(x - 1, y - 1))
-					{
-						forbidden.Add(straightField);
-
-						if (size >= 9) // count area is always pair on 7x7. Situations where is would get impair are avoided with CheckFutureL, see 0902
-                        {
-							AddExit(x - 1, y - 1);
-							circleDirectionLeft = false;
-						}	
-					}
-				}
-				else if (x + 2 * s[0] == size + 1)
-				{
-					forbidden.Add(rightField);
-					if (!InTaken(x + 1, y - 1) && y != 1)
-					{
-						forbidden.Add(straightField);
-
-						if (size >= 9)
-						{
-							AddExit(x + 1, y - 1);
-							circleDirectionLeft = true;
-						}						
-					}
-				}
-				else if (y + 2 * s[1] == 0)
-				{
-					forbidden.Add(rightField);
-					if (!InTaken(x - 1, y - 1))
-					{
-						forbidden.Add(straightField);
-
-						if (size >= 9)
-						{
-							AddExit(x - 1, y - 1);
-							circleDirectionLeft = true;
-						}						
-					}
-				}
-				else if (y + 2 * s[1] == size + 1)
-				{
-					forbidden.Add(leftField);
-					if (!InTaken(x - 1, y + 1) && x != 1)
-					{
-						forbidden.Add(straightField);
-
-						if (size >= 9)
-						{
-							AddExit(x - 1, y + 1);
-							circleDirectionLeft = false;
-						}						
-					}
-				}
-			}
-		}
+		
 
 		public void CheckNearFieldCommon()
 		{
@@ -479,7 +363,144 @@ namespace OneWayLabyrinth
 			}
 		}
 
-		public void CheckNearField()
+        public void CheckNearBorder()
+        {
+            int directionIndex = Math.Abs(selectedDirection[0]); //0 for vertical, 1 for horizontal
+
+            // going up on left side
+            if (x == 2 && x + l[0] == 1 && !InTakenAbs(leftField) && !InTaken(x - 1, y - 1))
+            {
+                forbidden.Add(leftField);
+            }
+            // going left on up side
+            else if (y == 2 && y + r[1] == 1 && !InTakenAbs(rightField) && !InTaken(x - 1, y - 1))
+            {
+                forbidden.Add(rightField);
+            }
+
+            if (leftField[directionIndex] == size && !InTakenAbs(leftField))
+            {
+                if (directionIndex == 0) //going down on right side
+                {
+                    forbidden.Add(straightField);
+                    forbidden.Add(rightField);
+                }
+                else //going left on down side
+                {
+                    if (!InTaken(x - 1, y + 1) && !InBorder(x - 1, y + 1)) //InBorder checking is necessar[1] when x=1
+                    {
+                        forbidden.Add(leftField);
+                    }
+                    else if (!InTaken(x, y + 1)) //bottom may be already filled, and we had an u-turn longer right
+                    {
+                        forbidden.Add(straightField);
+                        forbidden.Add(rightField);
+                    }
+                }
+            }
+            else if (rightField[directionIndex] == size && !InTakenAbs(rightField))
+            {
+                if (directionIndex == 0) //going up on right side
+                {
+                    T("In checknearborder: InTaken(x + 1, y - 1) " + InTaken(x + 1, y - 1));
+
+                    if (!InTaken(x + 1, y - 1) && !InBorder(x + 1, y - 1))
+                    {
+                        forbidden.Add(rightField);
+                    }
+                    else if (!InTaken(x + 1, y)) //side may be already filled, and we had an u-turn longer down
+                    {
+                        forbidden.Add(straightField);
+                        forbidden.Add(leftField);
+                    }
+                }
+                else //going right on down side
+                {
+                    forbidden.Add(straightField);
+                    forbidden.Add(leftField);
+                }
+            }
+
+            //going towards an edge, only applies to main line, future line far end may face incompleted fields, see 0829_2
+            if (isMain)
+            {
+                if (x + 2 * s[0] == 0)
+                {
+                    forbidden.Add(leftField);
+                    if (!InTaken(x - 1, y - 1))
+                    {
+                        forbidden.Add(straightField);
+
+                        if (size >= 9) // count area is always pair on 7x7. Situations where is would get impair are avoided with CheckFutureL, see 0902
+                        {
+                            AddExit(x - 1, y - 1);
+                            circleDirectionLeft = false;
+                        }
+                    }
+                }
+                else if (x + 2 * s[0] == size + 1)
+                {
+                    forbidden.Add(rightField);
+                    if (!InTaken(x + 1, y - 1) && y != 1)
+                    {
+                        forbidden.Add(straightField);
+
+                        if (size >= 9)
+                        {
+                            AddExit(x + 1, y - 1);
+                            circleDirectionLeft = true;
+                        }
+                    }
+                }
+                else if (y + 2 * s[1] == 0)
+                {
+                    forbidden.Add(rightField);
+                    if (!InTaken(x - 1, y - 1))
+                    {
+                        forbidden.Add(straightField);
+
+                        if (size >= 9)
+                        {
+                            AddExit(x - 1, y - 1);
+                            circleDirectionLeft = true;
+                        }
+                    }
+                }
+                else if (y + 2 * s[1] == size + 1)
+                {
+                    forbidden.Add(leftField);
+                    if (!InTaken(x - 1, y + 1) && x != 1)
+                    {
+                        forbidden.Add(straightField);
+
+                        if (size >= 9)
+                        {
+                            AddExit(x - 1, y + 1);
+                            circleDirectionLeft = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void CheckNearCorner()
+        {
+            //First condition is needed for when we are at 4,5 and the left field is 4,4 on a 5x5 field
+            if (y != size && leftField[0] == size - 1 && leftField[1] == size - 1)
+            {
+                T("Left field near corner");
+                forbidden.Add(leftField);
+            }
+            else if (x != size && rightField[0] == size - 1 && rightField[1] == size - 1)
+            {
+                T("Right field near corner");
+                forbidden.Add(rightField);
+            }
+        }
+
+        // 7 x 7
+
+        public void CheckNearField()
 		{
 			// o
 			//xo
@@ -827,7 +848,129 @@ namespace OneWayLabyrinth
 			}
 		}
 
-		private void Check1x3()
+        private void CheckCOnFarBorder()
+        {
+            // Applies from 7x7, see 0831_1. Similar to CheckNearCorner, it is just not at the corner.
+            if (x == size - 2 && rightField[0] == size - 1 && !InTakenRel(-1, -1) && InTakenRel(-1, -2))
+            {
+                T("Right field C on far border");
+                forbidden.Add(rightField);
+            }
+            else if (y == size - 2 && leftField[1] == size - 1 && !InTakenRel(1, -1) && InTakenRel(1, -2))
+            {
+                T("Left field C on far border");
+                forbidden.Add(leftField);
+            }
+        }
+
+        public void CheckFutureL()
+        {
+            // 0821, 0827
+            // the start and end fields have to be in the same section, otherwise they can connect, like in 0913
+            // conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
+
+            if (InFutureStart(x + 2 * l[0], y + 2 * l[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
+            {
+                T("CheckFutureL left");
+                forbidden.Add(rightField);
+                forbidden.Add(straightField);
+            }
+            if (InFutureStart(x + 2 * r[0], y + 2 * r[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
+            {
+                T("CheckFutureL right");
+                forbidden.Add(leftField);
+                forbidden.Add(straightField);
+            }
+            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
+            {
+                T("CheckFutureL straight left");
+                forbidden.Add(leftField);
+            }
+            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
+            {
+                T("CheckFutureL straight right");
+                forbidden.Add(rightField);
+            }
+        }
+
+        public void CheckArea() // 0909. Check both straight approach and side.
+        {
+            if (x == 3 && straightField[0] == 2 && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InTaken(1, y))
+            {
+                T("CheckArea horizontal");
+				circleDirectionLeft = false;
+				if (!CountArea(2, y - 1, 1, y - 1))
+				{
+					forbidden.Add(straightField);
+                    forbidden.Add(leftField);
+                }
+            }
+			else if (y == 3 && straightField[1] == 2 && !InTakenAbs(straightField) && !InTakenAbs(leftField) &&!InTaken(x, 1))
+			{
+                T("CheckArea vertical");
+                circleDirectionLeft = true;
+                if (!CountArea(x - 1, 2, x - 1, 1))
+                {
+                    forbidden.Add(straightField);
+                    forbidden.Add(rightField);
+                }
+            }
+            else if (x == 3 && leftField[0] == 2 && !InTaken(1, y)) //left field cannot be taken
+            {
+                T("CheckArea left side");
+                circleDirectionLeft = false;
+                if (!CountArea(2, y - 1, 1, y - 1))
+                {
+                    forbidden.Add(leftField);
+                }
+            }
+            else if (y == 3 && rightField[1] == 2 && !InTaken(x, 1))
+            {
+                T("CheckArea up side");
+                circleDirectionLeft = true;
+                if (!CountArea(x - 1, 2, x - 1, 1))
+                {
+                    forbidden.Add(rightField);
+                }
+            }
+        }
+
+        public void Check2x2AndFutureStartEnd() // 0901_1 and 0901_1_2
+												// On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
+        {
+			if (InTakenRel(1, 1) && InTakenRel(1, 2) && InTakenRel(0, 3) && InFutureStartRel(-1, 0) && InFutureEndRel(-3, 0) && (InBorderRel(-4, 1) || InTakenRel(-4, 1)))
+			{
+                T("Check2x2AndFutureStartEnd to right");
+				forbidden.Add(rightField);
+            }
+			else if (InTakenRel(-1, 1) && InTakenRel(-1, 2) && InTakenRel(0, 3) && InFutureStartRel(1, 0) && InFutureEndRel(3, 0) && (InBorderRel(4, 1) || InTakenRel(4, 1)))
+			{
+                T("Check2x2AndFutureStartEnd to left");
+                forbidden.Add(leftField);
+            }
+
+        }
+
+        // 9 x 9
+
+        private void CheckCOnNearBorder()
+        {
+            // Applies from 9x9, see 0901_1.
+            if (x == 3 && leftField[0] == 2 && !InTakenRel(1, -1) && InTakenRel(1, -2))
+            {
+                T("Left field C on near border");
+                forbidden.Add(leftField);
+            }
+            else if (y == 3 && rightField[1] == 2 && !InTakenRel(-1, -1) && InTakenRel(-1, -2))
+            {
+                T("Right field C on near border");
+                forbidden.Add(rightField);
+            }
+        }
+
+		// 11 x 11
+
+        private void Check1x3()
 		{
             //Certain edges are impossible to fill.
 
@@ -931,71 +1074,59 @@ namespace OneWayLabyrinth
             l[1] = thisL1;
         }
 
-		public void CheckFutureL()
-		{
-			// 0821, 0827
-			// the start and end fields have to be in the same section, otherwise they can connect, like in 0913
-            // conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
+		// 21 x 21
 
-            if (InFutureStart(x + 2 * l[0], y + 2 * l[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
-			{
-                T("CheckFutureL left");
-                forbidden.Add(rightField);
-                forbidden.Add(straightField);
-            }
-            if (InFutureStart(x + 2 * r[0], y + 2 * r[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
-            {
-                T("CheckFutureL right");
-                forbidden.Add(leftField);
-                forbidden.Add(straightField);
-            }
-            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
-            {
-                T("CheckFutureL straight left");
-                forbidden.Add(leftField);
-            }
-            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
-            {
-                T("CheckFutureL straight right");
-                forbidden.Add(rightField);
-            }
-        }
-
-		public void CheckMiddleCorner2x2()
+		public void CheckNearFutureStartEnd()
 		{
-			if (x == 3 && y == size - 2 && leftField[0] == 2)
+			T(" x " + x + " " + y + " " + l[0] + " " + l[1] + " " + s[0] + " " + s[1]);
+			T("CheckNearFutureStartEnd x + l[0] + 2 * s[0] " + (x + l[0] + 2 * s[0]) + " y + l[1] + 2 * s[1] " + (y + l[1] + 2 * s[1]));
+			//meeting start and end ahead. Ends are 2 apart from each other at same forward distance.
+			if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
 			{
-                T("CheckMiddleCorner2x2 to left");
-                forbidden.Add(leftField);
-            }
-			else if (y == 3 && x == size - 2 && rightField[1] == 2)
+				T("CheckNearFutureStartEnd to right");
+				forbidden.Add(rightField);
+			}
+			else if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
 			{
-                T("CheckMiddleCorner2x2 to right");
-                forbidden.Add(rightField);
-            }
-		}
-        //Example: 0305
-        public void CheckNearFutureSide() //suppose the side is of stair form
-		{
-			//mid cases are used when approaching an end, example: 0415_2
-			//but in case of 0620, this is an error
-			if (InFuture(x + 2 * s[0], y + 2 * s[1]) && InFuture(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && InFutureStart(x + r[0] + s[0], y + r[1] + s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InFutureF(leftField) && !InFutureF(straightField) && !InFutureF(rightField))
+				T("CheckNearFutureStartEnd to left");
+				forbidden.Add(leftField);
+			}
+			else if (InFutureStart(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && InFutureEnd(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
 			{
-				//touching the end at the straight right corner. Can the future line go in other direction?
-				T("CheckNearFutureSide mid right");
+				T("CheckNearFutureStartEnd to middle, start on left");
 				forbidden.Add(rightField);
 				forbidden.Add(straightField);
 			}
-			else if (InFuture(x + 2 * s[0], y + 2 * s[1]) && InFuture(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && InFutureStart(x + l[0] + s[0], y + l[1] + s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InFutureF(leftField) && !InFutureF(straightField) && !InFutureF(rightField))
+			else if (InFutureStart(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && InFutureEnd(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
 			{
-				T("CheckNearFutureSide mid left");
+				T("CheckNearFutureStartEnd to middle, start on right");
 				forbidden.Add(leftField);
 				forbidden.Add(straightField);
 			}
-			else //check possible across fields. 2 across is in future, 1 across is free, plug 1 forward (0316 can otherwise go wrong). 1 to the side is also free, but we don't need to check it. Both sides can be true simultaneousl[1], example: 0413
-			//Condition has to hold right even in situations like 0425_1
-			{
-				/*if (InFutureStart(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && !InFuture(x + r[0] + s[0], y + r[1] + s[1]) && !InFuture(x + s[0], y + s[1]) && !InFutureF(rightField)
+		}
+
+        //Example: 0305
+        public void CheckNearFutureSide() //suppose the side is of stair form
+        {
+            //mid cases are used when approaching an end, example: 0415_2
+            //but in case of 0620, this is an error
+            if (InFuture(x + 2 * s[0], y + 2 * s[1]) && InFuture(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && InFutureStart(x + r[0] + s[0], y + r[1] + s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InFutureF(leftField) && !InFutureF(straightField) && !InFutureF(rightField))
+            {
+                //touching the end at the straight right corner. Can the future line go in other direction?
+                T("CheckNearFutureSide mid right");
+                forbidden.Add(rightField);
+                forbidden.Add(straightField);
+            }
+            else if (InFuture(x + 2 * s[0], y + 2 * s[1]) && InFuture(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && InFutureStart(x + l[0] + s[0], y + l[1] + s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InFutureF(leftField) && !InFutureF(straightField) && !InFutureF(rightField))
+            {
+                T("CheckNearFutureSide mid left");
+                forbidden.Add(leftField);
+                forbidden.Add(straightField);
+            }
+            else //check possible across fields. 2 across is in future, 1 across is free, plug 1 forward (0316 can otherwise go wrong). 1 to the side is also free, but we don't need to check it. Both sides can be true simultaneousl[1], example: 0413
+                 //Condition has to hold right even in situations like 0425_1
+            {
+                /*if (InFutureStart(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && !InFuture(x + r[0] + s[0], y + r[1] + s[1]) && !InFuture(x + s[0], y + s[1]) && !InFutureF(rightField)
 					&& !InTaken(x + r[0] + s[0], y + r[1] + s[1]) && !InTaken(x + s[0], y + s[1]) )
 				{
 					//2 to right and 1 forward, plus 1 to right and 2 forward is also free
@@ -1026,7 +1157,7 @@ namespace OneWayLabyrinth
 					}
 					// we entered the stair from the start, as in 0305. The across field is going forward.
 					// But in 0729, we cannot disable the straight field, because the left field is not free.
-					else if (!(InTakenAbs(leftField) || InFutureF(leftField) || InBorderF(leftField)))
+					else if (!(InTakenAbs(leftField) || InFutureF(leftField) || InBorderAbs(leftField)))
 					{
 						T("CheckNearFutureSide across right, entered at start");
 						forbidden.Add(rightField);
@@ -1061,46 +1192,17 @@ namespace OneWayLabyrinth
 							}
 						}
 					}
-					else if (!(InTakenAbs(rightField) || InFutureF(rightField) || InBorderF(rightField)))
+					else if (!(InTakenAbs(rightField) || InFutureF(rightField) || InBorderAbs(rightField)))
 					{
 						T("CheckNearFutureSide across left, entered at start");
 						forbidden.Add(leftField);
 						forbidden.Add(straightField);
 					}
 				}*/
-			}			
-		}
+            }
+        }
 
-		public void CheckNearFutureStartEnd()
-		{
-			T(" x " + x + " " + y + " " + l[0] + " " + l[1] + " " + s[0] + " " + s[1]);
-			T("CheckNearFutureStartEnd x + l[0] + 2 * s[0] " + (x + l[0] + 2 * s[0]) + " y + l[1] + 2 * s[1] " + (y + l[1] + 2 * s[1]));
-			//meeting start and end ahead. Ends are 2 apart from each other at same forward distance.
-			if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
-			{
-				T("CheckNearFutureStartEnd to right");
-				forbidden.Add(rightField);
-			}
-			else if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
-			{
-				T("CheckNearFutureStartEnd to left");
-				forbidden.Add(leftField);
-			}
-			else if (InFutureStart(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && InFutureEnd(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
-			{
-				T("CheckNearFutureStartEnd to middle, start on left");
-				forbidden.Add(rightField);
-				forbidden.Add(straightField);
-			}
-			else if (InFutureStart(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && InFutureEnd(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
-			{
-				T("CheckNearFutureStartEnd to middle, start on right");
-				forbidden.Add(leftField);
-				forbidden.Add(straightField);
-			}
-		}
-
-		private void CheckNearFutureEnd()
+        private void CheckNearFutureEnd()
 		{
 			if (InFutureEnd(x + l[0] + s[0], y + l[1] + s[1]))
 			{
@@ -1115,89 +1217,449 @@ namespace OneWayLabyrinth
 			}
 		}
 
-		private void CheckNearCorner()
-		{
-			//First condition is needed for when we are at 4,5 and the left field is 4,4 on a 5x5 field
-			if (y != size && leftField[0] == size - 1 && leftField[1] == size - 1)
-			{
-				T("Left field near corner");
-				forbidden.Add(leftField);
-			}
-			else if (x != size && rightField[0] == size - 1 && rightField[1] == size - 1)
-			{
-				T("Right field near corner");
-				forbidden.Add(rightField);
-			}
-		}
-
-        private void CheckCOnFarBorder()
-        {
-            // Applies from 7x7, see 0831_1. Similar to CheckNearCorner, it is just not at the corner.
-            if (x == size - 2 && rightField[0] == size - 1 && !InTakenRel(-1, -1) && InTakenRel(-1, -2))
-            {
-                T("Right field C on far border");
-                forbidden.Add(rightField);
-            }
-            else if (y == size - 2 && leftField[1] == size - 1 && !InTakenRel(1, -1) && InTakenRel(1, -2))
-            {
-                T("Left field C on far border");
-                forbidden.Add(leftField);
-            }
-        }
-
-        private void CheckCOnNearBorder()
-        {
-            // Applies from 9x9, see 0901_1.
-            if (x == 3 && leftField[0] == 2 && !InTakenRel(1, -1) && InTakenRel(1, -2))
-            {
-                T("Left field C on near border");
-                forbidden.Add(leftField);
-            }
-            else if (y == 3 && rightField[1] == 2 && !InTakenRel(-1, -1) && InTakenRel(-1, -2))
-            {
-                T("Right field C on near border");
-                forbidden.Add(rightField);
-            }
-        }
+		// Check functions end here
 
         private void AddExit(int x, int y)
 		{
 			if (!isMain) return; //future path does not need exit
 
-			T("AddExit x " + x + " y " + y);
-			if (window.exitIndex.Count > 0)
-			{
-				int lastIndex = window.exits.Count - 1;
-				int[] lastExitField = window.exits[lastIndex]; //the new exit may have the same coordinates as the last one if the path came back from a U-turn. In this case the new exit index is at least 2 steps after the old one.
-				if (x == lastExitField[0] && y == lastExitField[1])
-				{
-					window.exits.RemoveAt(lastIndex);
-					window.exitIndex.RemoveAt(lastIndex);
-				}
+            T("AddExit x " + x + " y " + y);
+            
+            if (window.exitIndex.Count > 0)
+            {
+                int lastIndex = window.exits.Count - 1;
+                int[] lastExitField = window.exits[lastIndex]; //the new exit may have the same coordinates as the last one if the path came back from a U-turn. In this case the new exit index is at least 2 steps after the old one.
+                if (x == lastExitField[0] && y == lastExitField[1])
+                {
+                    window.exits.RemoveAt(lastIndex);
+                    window.exitIndex.RemoveAt(lastIndex);
+                }
 
-				int lastExitIndex = -1;
-				if (window.exits.Count > 0)
-				{
-					lastIndex = window.exits.Count - 1;
-					lastExitIndex = window.exitIndex[lastIndex];
-				}
+                int lastExitIndex = -1;
+                if (window.exits.Count > 0)
+                {
+                    lastIndex = window.exits.Count - 1;
+                    lastExitIndex = window.exitIndex[lastIndex];
+                }
 
-				if (count - 1 >= lastExitIndex + 2) //exits right after each other are unnecessar[1], there should be at least 2 steps between them 
-				{
-					window.exits.Add(new int[] { x, y });
-					window.exitIndex.Add(count - 1);
-					circleDirectionLeft = false;
-					nearField = true;
-				}
-			}
-			else
-			{
-				window.exits.Add(new int[] { x, y });
-				window.exitIndex.Add(count - 1);
-				circleDirectionLeft = false;
-				nearField = true;
-			}
+                if (count - 1 >= lastExitIndex + 2) //exits right after each other are unnecessary, there should be at least 2 steps between them 
+                {
+                    window.exits.Add(new int[] { x, y });
+                    window.exitIndex.Add(count - 1);
+                    circleDirectionLeft = false;
+                    nearField = true;
+                }
+            }
+            else
+            {
+                window.exits.Add(new int[] { x, y });
+                window.exitIndex.Add(count - 1);
+                circleDirectionLeft = false;
+                nearField = true;
+            }
 		}
+
+		private bool CountArea(int startX, int startY, int endX, int endY)
+        {            
+            int xDiff = startX - endX;
+            int yDiff = startY - endY;
+            int nextX = startX + xDiff;
+            int nextY = startY + yDiff;
+            List<int[]> areaLine = new List<int[]> { new int[] { startX, startY }, new int[] { nextX, nextY } };
+
+            List<int[]> directions;
+
+            if (circleDirectionLeft)
+            {
+                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
+            }
+            else
+            {
+                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { -1, 0 }, new int[] { 0, -1 }, new int[] { 1, 0 } };
+            }
+
+			int currentDirection = -1;
+			int i = -1;
+			foreach (int[] direction in directions)
+			{
+				i++;
+				if (direction[0] == xDiff && direction[1] == yDiff)
+				{
+					currentDirection = i;
+					break;
+				}
+			}
+			// find coorinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
+            int minY = nextY;
+            int limitX = nextX;
+            int startIndex = 0;
+
+            while (!(nextX == endX && nextY == endY))
+			{
+				currentDirection = currentDirection == 3 ? 0 : currentDirection + 1;
+				i = currentDirection;
+                int possibleNextX = nextX + directions[currentDirection][0];
+                int possibleNextY = nextY + directions[currentDirection][1];
+                
+                while (InBorder(possibleNextX, possibleNextY) || InTaken(possibleNextX, possibleNextY))
+                {
+                    i = (i == 0) ? 3 : i - 1;
+                    possibleNextX = nextX + directions[i][0];
+                    possibleNextY = nextY + directions[i][1];
+                }
+				currentDirection = i;
+
+				nextX = possibleNextX;
+				nextY = possibleNextY;
+                areaLine.Add(new int[] { nextX, nextY });
+
+                if (nextY < minY)
+                {
+                    minY = nextY;
+                    limitX = nextX;
+                    startIndex = areaLine.Count - 1;
+                }
+                else if (nextY == minY)
+                {
+                    if (circleDirectionLeft) //top right corner
+                    {
+                        if (nextX > limitX)
+                        {
+                            limitX = nextX;
+                            startIndex = areaLine.Count - 1;
+                        }
+                    }
+                    else //top left corner
+                    {
+                        if (nextX < limitX)
+                        {
+                            limitX = nextX;
+                            startIndex = areaLine.Count - 1;
+                        }
+                    }
+                }
+            }
+
+            /*foreach (int[] area in areaLine)
+			{
+				T(area[0] + " " + area[1]);
+			}*/
+
+			//Special cases are not yet programmed in here as in MainWindow.xaml.cs. We take a gradual approach, starting from the cases that can happen on 7 x 7.
+
+            List<int[]> startSquares = new List<int[]>();
+            List<int[]> endSquares = new List<int[]>();
+            int[] startCandidate = new int[] { limitX, minY };
+            int[] endCandidate = new int[] { limitX, minY };
+            int currentY = minY;
+
+            for (i = 1; i < areaLine.Count; i++)
+            {
+                int index = startIndex + i;
+                if (index >= areaLine.Count)
+                {
+                    index -= areaLine.Count;
+                }
+                int[] field = areaLine[index];
+                int fieldX = field[0];
+                int fieldY = field[1];
+
+                if (fieldY > currentY)
+                {
+                    if (circleDirectionLeft)
+                    {
+                        //in the case where where the previous row was a closed peak, but an open dip was preceding it: the previous end field should have the same y and lower x
+                        if (endSquares.Count > 0)
+                        {
+                            int[] square = endSquares[endSquares.Count - 1];
+                            int x = square[0];
+                            int y = square[1];
+
+                            if (y == fieldY - 1 && x < fieldX)
+                            {
+                                startSquares.Add(startCandidate);
+                                endSquares.Add(endCandidate);
+                                startCandidate = endCandidate = field;
+                                currentY = fieldY;
+                                continue;
+                            }
+                        }
+
+                        if (startSquares.Count > 0)
+                        {
+                            int[] square = startSquares[startSquares.Count - 1];
+                            int x = square[0];
+                            int y = square[1];
+
+                            if (y == fieldY)
+                            {
+                                //the previous row was a closed peak
+                                if (x <= fieldX)
+                                {
+                                    endSquares.Add(endCandidate);
+                                    startSquares.Add(startCandidate);
+                                }
+                                // else: open peak, no start and end should be marked
+                            }
+                            else
+                            {
+                                endSquares.Add(endCandidate);
+                            }
+                        }
+                        else
+                        {
+                            endSquares.Add(endCandidate);
+                        }
+
+                        if (startSquares.Count == 0 && endSquares.Count == 1) //the area starts with a single field on the top
+                        {
+                            int endIndex = startIndex + areaLine.Count - 1;
+                            if (endIndex >= areaLine.Count)
+                            {
+                                endIndex -= areaLine.Count;
+                            }
+                            if (areaLine[endIndex][1] != startCandidate[1])
+                            {
+                                startSquares.Add(startCandidate);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (startSquares.Count > 0)
+                        {
+                            int[] square = startSquares[startSquares.Count - 1];
+                            int x = square[0];
+                            int y = square[1];
+
+                            if (y == fieldY - 1 && x > fieldX)
+                            {
+                                startSquares.Add(startCandidate);
+                                endSquares.Add(endCandidate);
+                                startCandidate = endCandidate = field;
+                                currentY = fieldY;
+                                continue;
+                            }
+                        }
+
+                        if (endSquares.Count > 0)
+                        {
+                            int[] square = endSquares[endSquares.Count - 1];
+                            int x = square[0];
+                            int y = square[1];
+
+                            if (y == fieldY)
+                            {
+                                //the previous row was a closed peak
+                                if (x >= fieldX)
+                                {
+                                    startSquares.Add(startCandidate);
+                                    endSquares.Add(endCandidate);
+                                }
+                                // else: open peak, no start and end should be marked
+                            }
+                            else
+                            {
+                                startSquares.Add(startCandidate);
+                            }
+                        }
+                        else
+                        {
+                            startSquares.Add(startCandidate);
+                        }
+
+                        if (endSquares.Count == 0 && startSquares.Count == 1)
+                        {
+                            int endIndex = startIndex + areaLine.Count - 1;
+                            if (endIndex >= areaLine.Count)
+                            {
+                                endIndex -= areaLine.Count;
+                            }
+                            if (areaLine[endIndex][1] != endCandidate[1])
+                            {
+                                endSquares.Add(endCandidate);
+                            }
+
+                        }
+                    }
+                    startCandidate = endCandidate = field;
+                }
+                else if (fieldY == currentY)
+                {
+                    if (fieldX < startCandidate[0])
+                    {
+                        startCandidate = field;
+                    }
+                    else if (fieldX > endCandidate[0])
+                    {
+                        endCandidate = field;
+                    }
+                }
+                else
+                {
+                    if (circleDirectionLeft)
+                    {
+                        if (startSquares.Count > 0)
+                        {
+                            int[] square = startSquares[startSquares.Count - 1];
+                            int x = square[0];
+                            int y = square[1];
+
+                            if (y == fieldY + 1 && x > fieldX)
+                            {
+                                startSquares.Add(startCandidate);
+                                endSquares.Add(endCandidate);
+                                startCandidate = endCandidate = field;
+                                currentY = fieldY;
+                                continue;
+                            }
+                        }
+
+                        if (endSquares.Count > 0)
+                        {
+                            int[] square = endSquares[endSquares.Count - 1];
+                            int x = square[0];
+                            int y = square[1];
+
+                            if (y == fieldY)
+                            {
+                                //the previous row was a closed peak
+                                if (x >= fieldX)
+                                {
+                                    startSquares.Add(startCandidate);
+                                    endSquares.Add(endCandidate);
+                                }
+                                // else: open peak, no start and end should be marked
+                            }
+                            else
+                            {
+                                startSquares.Add(startCandidate);
+                            }
+                        }
+                        else
+                        {
+                            startSquares.Add(startCandidate);
+                        }
+                    }
+                    else
+                    {
+                        if (endSquares.Count > 0)
+                        {
+                            int[] square = endSquares[endSquares.Count - 1];
+                            int x = square[0];
+                            int y = square[1];
+
+                            if (y == fieldY + 1 && x < fieldX)
+                            {
+                                startSquares.Add(startCandidate);
+                                endSquares.Add(endCandidate);
+                                startCandidate = endCandidate = field;
+                                currentY = fieldY;
+                                continue;
+                            }
+                        }
+
+                        if (startSquares.Count > 0)
+                        {
+                            int[] square = startSquares[startSquares.Count - 1];
+                            int x = square[0];
+                            int y = square[1];
+
+                            if (y == fieldY)
+                            {
+                                //the previous row was a closed peak
+                                if (x <= fieldX)
+                                {
+                                    endSquares.Add(endCandidate);
+                                    startSquares.Add(startCandidate);
+                                }
+                                // else: open peak, no start and end should be marked
+                            }
+                            else
+                            {
+                                endSquares.Add(endCandidate);
+                            }
+                        }
+                        else
+                        {
+                            T("direciton right, adding end square");
+                            endSquares.Add(endCandidate);
+                        }
+                    }
+                    startCandidate = endCandidate = field;
+                }
+                currentY = fieldY;
+            }
+
+			//add last field
+            if (circleDirectionLeft)
+            {
+                //check if last (top) row was an open peak
+                int[] square = endSquares[endSquares.Count - 1];
+                int x = square[0];
+                int y = square[1];
+                if (!(startCandidate[0] == x && startCandidate[1] == y + 1))
+                {
+                    startSquares.Add(startCandidate);
+                }
+
+                //finish circle at bottom row (the circle consists of 2 rows, with one field in the top
+                if (endCandidate[1] == y + 1)
+                {
+                    endSquares.Add(endCandidate);
+                }
+            }
+            else
+            {
+                int[] square = startSquares[startSquares.Count - 1];
+                int x = square[0];
+                int y = square[1];
+                if (!(endCandidate[0] == x && endCandidate[1] == y + 1))
+                {
+                    endSquares.Add(endCandidate);
+                }
+
+                //finish circle at bottom row (the circle consists of 2 rows, with one field in the top
+                if (startCandidate[1] == y + 1)
+                {
+                    startSquares.Add(startCandidate);
+                }
+            }
+
+            count = endSquares.Count;
+            int area = 0;
+
+            /*T("CountArea start: " + startSquares.Count + " end: " + count);
+            foreach (int[] f in startSquares)
+            {
+                T("startSquares " + f[0] + " " + f[1]);
+            }
+            foreach (int[] f in endSquares)
+            {
+                T("endSquares " + f[0] + " " + f[1]);
+            }*/
+
+            if (startSquares.Count != count)
+            {
+                File.WriteAllText("error.txt", "Count of start and end squares are inequal: " + startSquares.Count + " " + count);
+                T("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
+                return false;
+            }
+
+            for (i = 0; i < count; i++)
+            {
+                area += endSquares[i][0] - startSquares[i][0] + 1;
+            }
+
+            T("Count area: " + area);
+            if (area % 2 == 1)
+            {
+				T("Count area is impair.");
+                return false;
+            }
+
+            return true;
+        }
 
 		public bool inPossible(int[] field)
 		{
@@ -1208,7 +1670,7 @@ namespace OneWayLabyrinth
 			return false;
 		}
 
-        public bool InBorderF(int[] field)
+        public bool InBorderAbs(int[] field)
         {
             int x = field[0];
             int y = field[1];
@@ -1536,8 +1998,7 @@ namespace OneWayLabyrinth
                 return InFutureStart(x, y);
         }
 
-
-        public bool InFutureStart(int x, int y)
+		public bool InFutureStart(int x, int y)
 		{
             int c = path2.Count;
 			if (c == 0) return false;
@@ -1581,7 +2042,14 @@ namespace OneWayLabyrinth
 			return false;
 		}
 
-		public bool InFutureEnd(int x, int y)
+        public bool InFutureEndRel(int left, int straight) // relative position
+        {
+            int x = this.x + left * l[0] + straight * s[0];
+            int y = this.y + left * l[1] + straight * s[1];
+            return InFutureEnd(x, y);
+        }
+
+        public bool InFutureEnd(int x, int y)
 		{
 			int c = path2.Count;
 			if (c == 0) return false;

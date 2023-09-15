@@ -2,5 +2,6 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-obj
-/.vs/OneWayLabyrinth/FileContentIndex/ead62c3d-8a72-48f9-b3f2-65c7ee5e8ff0.vsidx
+.vs/
+obj/
+

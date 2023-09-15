@@ -38,8 +38,7 @@ Write about 1-thin future line extension rule and that when the far end is at th
 
 ----- 7 x 7 -----
 
-0909_1: 1x2 future line cannot be completed
-CheckMiddleCorner2x2 is not enough, countarea needs to be introduced in light of 0913_2
+0915: Future line cannot be completed.
 
 ----- 9 x 9 -----
 
@@ -224,10 +223,29 @@ namespace OneWayLabyrinth
             DrawPath();
         }
 
-        private void StartStop_Click(object sender, RoutedEventArgs e)
+        private void FastRun_Click(object sender, RoutedEventArgs e)
         {
-			T("StartStop_Click isTaskRunning: " + isTaskRunning);
-            if (fastRun && isTaskRunning)
+            if (isTaskRunning)
+            {
+                source.Cancel();
+                return;
+            }
+            else if (timer.IsEnabled)
+            {
+                StopTimer();
+                return;
+            }
+
+            fastRun = true;
+            if (taken.path.Count >= 1)
+            {
+                StartTimer();
+            }
+        }
+
+        private void StartStop_Click(object sender, RoutedEventArgs e)
+        {			
+            if (isTaskRunning)
             {
 				source.Cancel();
 				return;
@@ -238,6 +256,7 @@ namespace OneWayLabyrinth
                 return;
             }
 
+            fastRun = false;
             if (taken.path.Count >= 1)
             {
                 StartTimer();
@@ -246,7 +265,11 @@ namespace OneWayLabyrinth
 
         private void StartTimer()
 		{
-			StartStopButton.Content = "Stop";
+            if (messageCode != -1) return;
+
+            FastRunButton.Content = "Stop run";
+            FastRunButton.Style = Resources["RedButton"] as Style;
+            StartStopButton.Content = "Stop";
             StartStopButton.Style = Resources["RedButton"] as Style;
             if (!fastRun)
 			{
@@ -269,6 +292,10 @@ namespace OneWayLabyrinth
 		private void DoThread()
 		{			
             completedCount = 0;
+			this.Dispatcher.Invoke(() =>
+			{
+				MessageLine.Visibility = Visibility.Visible;
+			});
 
             do
             {				
@@ -283,14 +310,16 @@ namespace OneWayLabyrinth
                 DrawPath();
 				if (completedWalkthrough) M("The number of walkthroughs are " + completedCount + ".", 0);
 				else if (!errorInWalkthrough) M(completedCount + " walkthroughs are completed.", 0);
-				else MessageLine.Content = MessageLine.Content.ToString().Replace("Error", "Error at " + completedCount);
+				else MessageLine.Content = "Error at " + completedCount + ": " + MessageLine.Content;
             });
 			isTaskRunning = false;
         }
 
 		private void StopTimer()
 		{
-			StartStopButton.Content = "Start";
+            FastRunButton.Content = "Fast run";
+            FastRunButton.Style = Resources["GreenButton"] as Style;
+            StartStopButton.Content = "Start";
             StartStopButton.Style = Resources["GreenButton"] as Style;
             if (!fastRun) timer.Stop();
 		}
@@ -697,6 +726,10 @@ namespace OneWayLabyrinth
                     if (isTimer && fastRun)
                     {
                         completedCount++;
+                        this.Dispatcher.Invoke(() =>
+                        {
+							MessageLine.Content = completedCount + " walkthroughs are completed.";
+                        });
                         //SavePath();
                         //this.Dispatcher.Invoke(() => { DrawPath(); }); //frequent error in SKCanvas: Attempt to read or write protected memory
                     }
@@ -1119,7 +1152,7 @@ namespace OneWayLabyrinth
 		{
 			if (futureSectionMergesHistory.Count > 0)
 			{
-				// There can be more than one future line merges in one step, like in 0913_1. Removing only the last one is not correct.
+				// There can be more than one future line merges in one step, like in 0913. Removing only the last one is not correct.
 				for(int i = futureSectionMergesHistory.Count -1; i >= 0; i--)
 				{
 					if ((int)futureSectionMergesHistory[i][0] == index)
@@ -1396,8 +1429,7 @@ namespace OneWayLabyrinth
 							limitX = nextX;
 							startIndex = areaLine.Count - 1;
 						}
-					}
-					
+					}					
 				}
 
 				if (displayArea)
@@ -1739,7 +1771,7 @@ namespace OneWayLabyrinth
 			T("CountArea start: " + startSquares.Count + " end: " + count);
 			if (startSquares.Count != count)
 			{
-				File.WriteAllText("p_error.txt", savePath);
+				File.WriteAllText("error.txt", savePath);
 				StopTimer();				
 				M("Count of start and end squares are inequal: " + startSquares.Count + " " + count, 0); 
 				return true;
@@ -2068,7 +2100,8 @@ namespace OneWayLabyrinth
                             if (!ExtendFutureLine(true, nearEndIndex, farEndIndex, nearSection, farSection, false))
                             {
                                 possibleDirections.Add(new int[] { });
-                                M("Error: 1 thin future line cannot be completed.", 2);
+                                T("1 thin future line cannot be completed.");
+                                M("1 thin future line cannot be completed.", 2);
                                 return false;
                             }
                         }
@@ -2151,7 +2184,8 @@ namespace OneWayLabyrinth
 						{
 							//when making a c shape 3 distance across from the border in the corner, it cannot be completed
 							possibleDirections.Add(new int[] { });
-							M("Error: 1x2 future line cannot be completed.", 2);							
+                            T("1x2 future line cannot be completed.");
+                            M("1x2 future line cannot be completed.", 2);							
 							return false;														
 						}
 					}
@@ -2218,7 +2252,8 @@ namespace OneWayLabyrinth
 							{
 								//when making a c shape 3 distance across from the border in the corner, it cannot be completed
 								possibleDirections.Add(new int[] { });
-								M("Error: 1x3 future line cannot be completed.", 2);
+                                T("1x3 future line cannot be completed.");
+                                M("1x3 future line cannot be completed.", 2);
 								return false;
 
 							}
@@ -2304,9 +2339,8 @@ namespace OneWayLabyrinth
 						if (!ExtendFutureLine(true, futureSections[selectedSection][0], farEndIndex, selectedSection, lastMerged, false))
 						{
 							possibleDirections.Add(new int[] { });
-							messageCode = 2;
 							T("Left/right future start line cannot be completed.");
-							//M("Left/right future start line cannot be completed.", 2);
+							M("Left/right future start line cannot be completed.", 2);
 							return false;
 						}
 					}
@@ -2374,9 +2408,8 @@ namespace OneWayLabyrinth
 							if (!ExtendFutureLine(false, futureSections[selectedSection][0], futureSections[selectedSection][1], selectedSection, selectedSection, false))
 							{
 								possibleDirections.Add(new int[] { });
-								messageCode = 2;
 								T("Left/right to 2 future start line cannot be completed.");
-								//M("Left/right to 2 future start line cannot be completed.", 2);
+								M("Left/right to 2 future start line cannot be completed.", 2);
 								return false;
 							}
                         }
@@ -2474,7 +2507,8 @@ namespace OneWayLabyrinth
 									Math.Abs(section1Start[0] - section1End[0]) == 2 && Math.Abs(section1End[1] - section0Start[1]) == 4))
 								{
 									possibleDirections.Add(new int[] { });
-									M("1x3 reverse future line makes a 4x2 rectangle", 2);
+                                    T("1x3 reverse future line makes a 4x2 rectangle");
+                                    M("1x3 reverse future line makes a 4x2 rectangle", 2);
 									return false;
 								}
 							}
@@ -2576,7 +2610,8 @@ namespace OneWayLabyrinth
                         if (!ExtendFutureLine(false, -1, endIndex, selectedSection, selectedSection, true))
 						{
 							possibleDirections.Add(new int[] { });
-							M("Closing loop, future line cannot be completed.", 2);
+                            T("Closing loop, future line cannot be completed.");
+                            M("Closing loop, future line cannot be completed.", 2);
 							return false;
 						}
 						else
@@ -3024,7 +3059,7 @@ namespace OneWayLabyrinth
             int x = taken.x + left * taken.l[0] + straight * taken.s[0];
             int y = taken.y + left * taken.l[1] + straight * taken.s[1];
 
-			//In 0913_3 it csan happen that after stepping on the future line, the 1-thin rule is true if we don't check that the coordinates are within size.
+			//In 0913_2 it can happen that after stepping on the future line, the 1-thin rule is true if we don't check that the coordinates are within size.
 			if (x > size || y > size) return true;
 
             int c = future.path.Count;
