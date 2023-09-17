@@ -35,7 +35,7 @@ Here are the things to consider on a grid of this size:
 
 - A 2 x 2 empty area next to the live end that is walled by three sides (2-2-2 long) will have a future line going through along the walls. In the example above, the far end is already extended by one step as it had only one option to move.
 
-<img src="References/0821_3.svg" width="23.8%"/><img src="References/spacer.svg" width="8%"/><img src="References/0821_4.svg" width="23.8%"/>
+<img src="References/0821_3.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0821_4.svg" width="23.8%"/>
 
 Taking a step further, another future line is created and extended on the left side. Any step we take now will further extend and connect the two future lines, giving a complete walkthrough. Future lines are first extended when we step on them. Then, if there is another line that started from the position next to where the live end was in the previous step, it gets extended too.<br />
 Note that the line being stepped on has its end at (5,4). The nearby empty fields are (4,4) and the corner, (5,5). It cannot choose the corner, because then nothing would fill (4,4). Then, the line on the left gets extended until it connects to the other. As the near end cannot be extended more, the far end gets extended until it reaches the corner.
@@ -47,11 +47,11 @@ Note that the line being stepped on has its end at (5,4). The nearby empty field
 There have not been found any case where the future line cannot extend, and the main line has to step back.<br />
 This will change on 7 x 7. See these examples:
 
-<img src="References/0821.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0827.svg" width="33.3%"/>
+<img src="References/0821.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0827.svg" width="33.3%"/>
 
 In the first, the upper right line fails when we step right. In the second, the line on the left. The results are:
 
-<img src="References/0821_fail.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0827_fail.svg" width="33.3%"/>
+<img src="References/0821_fail.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0827_fail.svg" width="33.3%"/>
 
 Do you see the pattern? To avoid the situation, we need to check if there is a future line that starts 2 to left and ends 2 to left and 2 to straight. (Same with the right side.) And that's not all. The pattern can be rotated as well, so that the future line starts 2 to straight:
 
@@ -63,7 +63,7 @@ Notice a new future line extension rule in these examples. When a near end is at
 
 Other rules define the possibilities when approaching or moving along an edge:
 
-<img src="References/0831_3.svg" width="33.3%"/><img src="References/spacer.svg" width="8%"/><img src="References/0831_4.svg" width="33.3%"/>
+<img src="References/0831_3.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0831_4.svg" width="33.3%"/>
 
 These were not necessary on 5 x 5, because future lines filled the spaces nearby. In a larger area, future lines are not constrained to only one option.
 
@@ -82,7 +82,11 @@ There is one more thing to keep in mind on 7 x 7. If the line approaches itself,
 
 <img src="References/0901.svg" width="33.3%"/>
 
-The number of 7 x 7 walkthroughs may be tens or hundreds of thousands. Right now, I let the program run randomly to find errors to correct, but it may be possible in the future to run the program through all possibilities, detecting errors on its way. If the line reaches the corner, and the number of steps taken have been less than 49, there has been something wrong.
+The program is now equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on you computer speed. This enables us to discover all 7 x 7 walkthroughs, which is in the order of 107 732, but there are still a few cases that need handling:
+
+<img src="References/0916.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0917_1.svg" width="33.3%"/>
+<img src="References/spacer.svg" width="100%" height="28.5"/>
+<img src="References/0917_4.svg" width="33.3%"/>
 
 ---
 

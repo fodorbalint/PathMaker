@@ -35,10 +35,11 @@ using SkiaSharp.Views.Desktop;
 CheckNearBorder is already actual on 5x5 (for example, at the first path of a complete walkthrough), write in documentation
 Make separate button for fastRun
 Write about 1-thin future line extension rule and that when the far end is at the corner, the near end cannot connect to the main line if it has other options. Write about merging procedure.
+1x2, 1x3 future line: check section merge after finding an example
 
 ----- 7 x 7 -----
 
-0915: Future line cannot be completed.
+Find rules to handle 0916, 0917_1, 0917_2, 0917_3, 0917_4
 
 ----- 9 x 9 -----
 
@@ -302,7 +303,7 @@ namespace OneWayLabyrinth
                 Timer_Tick(null, null);                
 				if (source.IsCancellationRequested) break;
             }
-            while (!completedWalkthrough && !errorInWalkthrough && completedCount < 1000);
+            while (!completedWalkthrough && !errorInWalkthrough);
 
             this.Dispatcher.Invoke(() =>
             {
@@ -1355,7 +1356,7 @@ namespace OneWayLabyrinth
 			possibleNextX = startX + xDiffTemp;
 			possibleNextY = startY + yDiffTemp;
 
-			while (taken.InBorder(possibleNextX, possibleNextY) || taken.InTaken(possibleNextX, possibleNextY))
+			while (taken.InBorder(possibleNextX, possibleNextY) || InTaken(possibleNextX, possibleNextY))
 			{
 				if (firstInTaken == null)
 				{
@@ -1386,7 +1387,7 @@ namespace OneWayLabyrinth
 				possibleNextX = nextX + xDiff;
 				possibleNextY = nextY + yDiff;
 
-				while (taken.InBorder(possibleNextX, possibleNextY) || taken.InTaken(possibleNextX, possibleNextY))
+				while (taken.InBorder(possibleNextX, possibleNextY) || InTaken(possibleNextX, possibleNextY))
 				{
 					if (firstInTaken == null)
 					{
@@ -2079,7 +2080,7 @@ namespace OneWayLabyrinth
 
                 for (int i = 0; i < 2; i++)
 				{
-                    if (InFuture(1, 0) && (taken.InTakenRel(2, 0) || taken.InBorderRel(2, 0) || InFuture(2,0)) && !InFuture(1, 1))
+                    if (InFuture(1, 0) && (InTakenRel(2, 0) || taken.InBorderRel(2, 0) || InFuture(2,0)) && !InTakenRel(1, 1) && !InFuture(1, 1))
 					{
 						T("1 thin future line valid at " + taken.x + " " + taken.y);
 
@@ -2149,8 +2150,8 @@ namespace OneWayLabyrinth
 
 					// at the lower right corner future line shouldn't be drawn
 
-                    if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTakenRel2(1, -1) || taken.InBorderRel2(1, -1)) && (taken.InTakenRel2(2, -1) || taken.InBorderRel2(2, -1)) && (taken.InTakenRel2(3, 0) || taken.InBorderRel2(3, 0))
-					&& !taken.InTakenRel2(1, 0) && !taken.InTakenRel2(2, 0) && !InFuture2(1, 0) && !(x + 2 * lx == size && y + 2 * ly == size))
+                    if (!(taken.x == x + lx && taken.y == y + ly) && (InTakenRel2(1, -1) || taken.InBorderRel2(1, -1)) && (InTakenRel2(2, -1) || taken.InBorderRel2(2, -1)) && (InTakenRel2(3, 0) || taken.InBorderRel2(3, 0))
+					&& !InTakenRel2(1, 0) && !InTakenRel2(2, 0) && !InFutureRel2(1, 0) && !(x + 2 * lx == size && y + 2 * ly == size))
 					{
 						x2found = true;
 						T("1x2 future valid at x " + x + " y " + y);
@@ -2158,7 +2159,7 @@ namespace OneWayLabyrinth
 						int startCount = 3;
 						
 						//This is not added in 0803:						
-						if (!InFuture2(2, 1))
+						if (!InFutureRel2(2, 1))
 						{
 							future.path.Add(new int[] { x + 2 * lx + sx, y + 2 * ly + sy });
 							startCount = 4;
@@ -2174,20 +2175,25 @@ namespace OneWayLabyrinth
 						futureSections.Add(new int[] { future.path.Count - 1, future.path.Count - startCount});
 						selectedSection = futureSections.Count - 1;
 
-						future.path2 = taken.path;
-
-						nearExtDone = false;
-						farExtDone = false;
-						nearEndDone = false;
-
-						if (!ExtendFutureLine(false, future.path.Count - 1, future.path.Count - startCount, selectedSection, selectedSection, false))
+						if (x + 2 * lx + sx != size && y + 2 * ly + sy != size) //far end
 						{
-							//when making a c shape 3 distance across from the border in the corner, it cannot be completed
-							possibleDirections.Add(new int[] { });
-                            T("1x2 future line cannot be completed.");
-                            M("1x2 future line cannot be completed.", 2);							
-							return false;														
-						}
+                            future.path2 = taken.path;
+
+                            // check section merge after finding an example
+
+                            nearExtDone = false;
+                            farExtDone = false;
+                            nearEndDone = false;
+
+                            if (!ExtendFutureLine(false, future.path.Count - 1, future.path.Count - startCount, selectedSection, selectedSection, false))
+                            {
+                                //when making a c shape 3 distance across from the border in the corner, it cannot be completed
+                                possibleDirections.Add(new int[] { });
+                                T("1x2 future line cannot be completed.");
+                                M("1x2 future line cannot be completed.", 2);
+                                return false;
+                            }
+                        }						
 					}
 
 					//turn right, pattern goes upwards
@@ -2223,9 +2229,9 @@ namespace OneWayLabyrinth
                         int ly = taken.l[1];
 
                         //first clause is for quick exclusion. Last clause is to prevent a duplicate line as in 0711
-                        if (!(taken.x == x + lx && taken.y == y + ly) && (taken.InTakenRel2(1, -1) || taken.InBorderRel2(1, -1)) && (taken.InTakenRel2(2, -1) || taken.InBorderRel2(2, -1)) && (taken.InTakenRel2(3, -1) || taken.InBorderRel2(3, -1))
-						&& (taken.InTakenRel2(4, 0) || taken.InBorderRel2(4, 0))
-						&& !taken.InTakenRel2(1, 0) && !taken.InTakenRel2(2, 0) && !taken.InTakenRel2(3, 0) && !InFuture2(2, 0) && !(x + 3 * lx == size && y + 3 * ly == size))
+                        if (!(taken.x == x + lx && taken.y == y + ly) && (InTakenRel2(1, -1) || taken.InBorderRel2(1, -1)) && (InTakenRel2(2, -1) || taken.InBorderRel2(2, -1)) && (InTakenRel2(3, -1) || taken.InBorderRel2(3, -1))
+						&& (InTakenRel2(4, 0) || taken.InBorderRel2(4, 0))
+						&& !InTakenRel2(1, 0) && !InTakenRel2(2, 0) && !InTakenRel2(3, 0) && !InFutureRel2(2, 0) && !(x + 3 * lx == size && y + 3 * ly == size))
 						{
 							//if the x + 4 * lx field was in border, we can extend the future lines after this.
 							T("1x3 future valid at x " + x + " y " + y);
@@ -2243,6 +2249,8 @@ namespace OneWayLabyrinth
 							selectedSection = futureSections.Count - 1;
 
 							future.path2 = taken.path;
+
+							// check section merge after finding an example
 
 							nearExtDone = false;
 							farExtDone = false;
@@ -2299,11 +2307,11 @@ namespace OneWayLabyrinth
                     int ly = taken.l[1];
 
 					// Future lines does not always extend from a 2x2 shape. 0901_2 has a one-wide line.
-                    if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel(1, 0) && (InFuture2(2, 0) || taken.InTakenRel2(2, 0) || taken.InBorderRel2(2, 0)) && (InFuture2(1, -1) || taken.InTakenRel2(1, -1)))
+                    if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel2(1, 0) && (InFutureRel2(2, 0) || InTakenRel2(2, 0) || taken.InBorderRel2(2, 0)) && (InFutureRel2(1, -1) || InTakenRel2(1, -1)))
 					{
 						T("Left/right future start valid at x " + x + " y " + y + ", start x " + (x + lx) + " y " + (y + ly));
 
-						if (!InFuture2(1, 1)) // Example: 0902_2
+						if (!InFutureRel2(1, 1)) // Example: 0902_2
                         {
                             int addIndex = futureSections[selectedSection][0] + 1;
                             future.path.Insert(addIndex, new int[] { x + lx + sx, y + ly + sy });
@@ -2382,10 +2390,13 @@ namespace OneWayLabyrinth
 						int lx = taken.l[0];
 						int ly = taken.l[1];
 
-						if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel(2, 0) && !taken.InTakenRel2(1, 0) && (taken.InTakenRel2(1, -1) || InFuture2(1, -1)))
+
+						if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel2(2, 0) && !InTakenRel2(1, 0) && !InFutureRel2(1, 0) && (InTakenRel2(1, -1) || InFutureRel2(1, -1)))
 						{
                             // Similar to the Left/right future start, here is an example where the two connect: 0903_3
-                            // But the previous function extends and connect to the section on the right side befure this function is called. Condition of !InFuture2(1, 1) is not needed in this example.
+                            // But the previous function extends and connect to the section on the right side befure this function is called. Condition of !InFutureRel2(1, 1) is not needed in this example.
+                            // If !InFutureRel2(1, 0) is omitted, this will go wrong: 0916_2, upper line will extend even though field below is filled with a future line.
+
                             T("Left/right to 2 future start valid at x " + x + " y " + y);
 
 							int addIndex = futureSections[selectedSection][0] + 1;
@@ -2400,12 +2411,28 @@ namespace OneWayLabyrinth
 							IncreaseFurtherSections(selectedSection);
 
 							future.path2 = taken.path;
+                            T("Extend near end");
 
-							nearExtDone = false;
+                            int farEndIndex = futureSections[selectedSection][1];
+                            int lastMerged = selectedSection;
+
+                            //check if this section is merged with another one, to prevent duplicate merging.
+                            //this section is the first of a possible merge.
+                            for (int k = 0; k < futureSectionMerges.Count; k++) // 0916_1 happens if it is not checked
+                            {
+                                int[] merge = futureSectionMerges[k];
+                                if (merge[0] == selectedSection)
+                                {
+                                    lastMerged = merge[merge.Length - 1];
+                                    farEndIndex = futureSections[lastMerged][1];
+                                }
+                            }
+
+                            nearExtDone = false;
 							farExtDone = false;
 							nearEndDone = false;
 
-							if (!ExtendFutureLine(false, futureSections[selectedSection][0], futureSections[selectedSection][1], selectedSection, selectedSection, false))
+							if (!ExtendFutureLine(false, futureSections[selectedSection][0], farEndIndex, selectedSection, lastMerged, false))
 							{
 								possibleDirections.Add(new int[] { });
 								T("Left/right to 2 future start line cannot be completed.");
@@ -2455,8 +2482,8 @@ namespace OneWayLabyrinth
                         lx = taken.l[0];
                         ly = taken.l[1];
 
-                        if (!(taken.x == x + lx && taken.y == y + ly) && taken.InTakenRel2(1, -1) && taken.InTakenRel2(2, -2) && taken.InTakenRel2(3, -2) && taken.InTakenRel2(4, -2) && InFutureStartRel(5, -1)
-							&& !taken.InTakenRel2(2, -1) && !taken.InTakenRel2(3, -1) && !taken.InTakenRel2(4, -1))
+                        if (!(taken.x == x + lx && taken.y == y + ly) && InTakenRel2(1, -1) && InTakenRel2(2, -2) && InTakenRel2(3, -2) && InTakenRel2(4, -2) && InFutureStartRel2(5, -1)
+							&& !InTakenRel2(2, -1) && !InTakenRel2(3, -1) && !InTakenRel2(4, -1))
 						{
 							T("1x3 reverse future valid at x " + x + " y " + y + " selectedSection " + selectedSection);
 
@@ -2582,7 +2609,7 @@ namespace OneWayLabyrinth
 					T("Taken connecting to future, selectedSection " + selectedSection);
 
 					//in order to have a loop, left and right fields should be empty, also at 1 step forward. Suppose the latter is true, since we are connecting to the start of a future line. Counter-example?
-					if (!taken.InTaken(x + lx, y + ly) && !future.InTakenAll(x + lx, y + ly) && !taken.InTaken(x + rx, y + ry) && !future.InTakenAll(x + rx, y + ry))
+					if (!InTaken(x + lx, y + ly) && !future.InTakenAll(x + lx, y + ly) && !InTaken(x + rx, y + ry) && !future.InTakenAll(x + rx, y + ry))
 					{
 						startIndex++;
 
@@ -3054,6 +3081,35 @@ namespace OneWayLabyrinth
 			if (inFutureIndex > futureSections[section][1]) inFutureIndex++;
 		}
 
+        private bool InTakenRel(int left, int straight)
+        {
+			int x = taken.x + left * taken.l[0] + straight * taken.s[0];
+			int y = taken.y + left * taken.l[1] + straight * taken.s[1];
+			return InTaken(x, y);
+		}
+
+        private bool InTakenRel2(int left, int straight)
+        {
+            int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
+            int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+            return InTaken(x, y);
+        }
+
+        private bool InTaken(int x, int y)
+		{
+            int c1 = taken.path.Count;
+            for (int i = c1 - 1; i >= 0; i--)
+            {
+                int[] field = taken.path[i];
+                if (x == field[0] && y == field[1])
+                {
+                    return true;
+                }
+            }
+
+			return false;
+        }
+
         public bool InFuture(int left, int straight)
         {
             int x = taken.x + left * taken.l[0] + straight * taken.s[0];
@@ -3102,7 +3158,7 @@ namespace OneWayLabyrinth
             return new int[] { -1, -1 };
         }
 
-        public bool InFuture2(int left, int straight)
+        public bool InFutureRel2(int left, int straight)
 		{
             int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
             int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
@@ -3121,7 +3177,7 @@ namespace OneWayLabyrinth
             return false;
         }
 
-		public bool InFutureStartRel(int left, int straight)
+		public bool InFutureStartRel2(int left, int straight)
 		{
 			int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
 			int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
@@ -3171,6 +3227,14 @@ namespace OneWayLabyrinth
 
 			return false;
 		}
+
+        public bool InFutureEndRel2(int left, int straight)
+        {
+            int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
+            int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+
+            return InFutureEnd(x, y);
+        }
 
         public bool InFutureEnd(int x, int y)
         {
@@ -3329,7 +3393,7 @@ namespace OneWayLabyrinth
 				int x = lastExit[0];
 				int y = lastExit[1];
 
-				if (!taken.InTaken(x, y))
+				if (!InTaken(x, y))
 				{
 					inLoop = true;
 				}
@@ -3808,7 +3872,7 @@ namespace OneWayLabyrinth
 					int x = field[0];
 					int y = field[1];
 					
-					if (displayExits && !taken.InTaken(x, y))
+					if (displayExits && !InTaken(x, y))
 					{
 						backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (x - 1) + "\" y=\"" + (y - 1) + "\" fill=\"#00ff00\" fill-opacity=\"0.4\" />\r\n";
 					}

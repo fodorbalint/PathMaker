@@ -251,6 +251,7 @@ namespace OneWayLabyrinth
                                 CheckFutureL(); // Live end, future line near end and far end make an L, with one space between.
 								CheckArea(); // 0909. A 2x2 area would created with one way to go in and out
 								Check2x2AndFutureStartEnd(); // 0909_1, 0909_1_2
+								Check2x3FutureStartEnd();
                             }
                             if (size >= 9)
                             {
@@ -717,6 +718,7 @@ namespace OneWayLabyrinth
 						int index = InTakenIndex(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]);
 
 						T("Left across field: x " + (x + 2 * l[0] + 2 * s[0]) + " y " + (y + 2 * l[1] + 2 * s[1]) + " x " + x + " y " + y);
+						// Example on 7 x 7: 0917 
 
 						int[]? nextField = null;
 						int[] prevField;
@@ -895,9 +897,9 @@ namespace OneWayLabyrinth
 
         public void CheckArea() // 0909. Check both straight approach and side.
         {
-            if (x == 3 && straightField[0] == 2 && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InTaken(1, y))
+            if (x == 3 && straightField[0] == 2 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(rightField) && !InTaken(1, y))
             {
-                T("CheckArea horizontal");
+                T("CheckArea left");
 				circleDirectionLeft = false;
 				if (!CountArea(2, y - 1, 1, y - 1))
 				{
@@ -905,9 +907,9 @@ namespace OneWayLabyrinth
                     forbidden.Add(leftField);
                 }
             }
-			else if (y == 3 && straightField[1] == 2 && !InTakenAbs(straightField) && !InTakenAbs(leftField) &&!InTaken(x, 1))
+			else if (y == 3 && straightField[1] == 2 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(leftField) &&!InTaken(x, 1))
 			{
-                T("CheckArea vertical");
+                T("CheckArea up");
                 circleDirectionLeft = true;
                 if (!CountArea(x - 1, 2, x - 1, 1))
                 {
@@ -915,7 +917,27 @@ namespace OneWayLabyrinth
                     forbidden.Add(rightField);
                 }
             }
-            else if (x == 3 && leftField[0] == 2 && !InTaken(1, y)) //left field cannot be taken
+            else if (x == size - 2 && y >= 2 && straightField[0] == size - 1 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(leftField) && !InTaken(size, y))
+            {
+                T("CheckArea right");
+                circleDirectionLeft = true;
+                if (!CountArea(size - 1, y - 1, size, y - 1))
+                {
+                    forbidden.Add(straightField);
+                    forbidden.Add(rightField);
+                }
+            }
+            else if (y == size - 2 && x >= 2 && straightField[1] == size - 1 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(rightField) && !InTaken(x, size))
+            {
+                T("CheckArea down");
+                circleDirectionLeft = false;
+                if (!CountArea(x - 1, size - 1, x - 1, size))
+                {
+                    forbidden.Add(straightField);
+                    forbidden.Add(leftField);
+                }
+            }
+            else if (x == 3 && leftField[0] == 2 && !InTaken(3, y - 1) &&!InTaken(1, y)) //straight and left field cannot be taken, but it is enough we check the most left field on border.
             {
                 T("CheckArea left side");
                 circleDirectionLeft = false;
@@ -924,13 +946,31 @@ namespace OneWayLabyrinth
                     forbidden.Add(leftField);
                 }
             }
-            else if (y == 3 && rightField[1] == 2 && !InTaken(x, 1))
+            else if (y == 3 && rightField[1] == 2 && !InTaken(x - 1, 3) && !InTaken(x, 1))
             {
                 T("CheckArea up side");
                 circleDirectionLeft = true;
                 if (!CountArea(x - 1, 2, x - 1, 1))
                 {
                     forbidden.Add(rightField);
+                }
+            }
+            else if (x == size - 2 && rightField[0] == size - 1 && !InTaken(size - 2, y - 1) && !InTaken(size, y))
+            {
+                T("CheckArea right side");
+                circleDirectionLeft = true;
+                if (!CountArea(size - 1, y - 1, size, y - 1))
+                {
+                    forbidden.Add(rightField);
+                }
+            }
+            else if (y == size - 2 && leftField[1] == size - 1 && !InTaken(x - 1, size - 2) && !InTaken(x, size))
+            {
+                T("CheckArea down side");
+                circleDirectionLeft = false;
+                if (!CountArea(x - 1, size - 1, x - 1, size))
+                {
+                    forbidden.Add(leftField);
                 }
             }
         }
@@ -946,6 +986,23 @@ namespace OneWayLabyrinth
 			else if (InTakenRel(-1, 1) && InTakenRel(-1, 2) && InTakenRel(0, 3) && InFutureStartRel(1, 0) && InFutureEndRel(3, 0) && (InBorderRel(4, 1) || InTakenRel(4, 1)))
 			{
                 T("Check2x2AndFutureStartEnd to left");
+                forbidden.Add(leftField);
+            }
+
+        }
+
+        public void Check2x3FutureStartEnd() // 0915
+											 // Is there a situation where the start and end fields are not part of one future line?
+                                             // On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
+        {
+            if (InFutureStartRel(0, 1) && InFutureEndRel(-2, 1) && (InBorderRel(-1, -2) || InTakenRel(-1, -2)))
+            {
+                T("Check2x3FutureStartEnd to right");
+                forbidden.Add(rightField);
+            }
+            else if (InFutureStartRel(0, 1) && InFutureEndRel(2, 1) && (InBorderRel(1, -2) || InTakenRel(1, -2)))
+            {
+                T("Check2x3FutureStartEnd to left");
                 forbidden.Add(leftField);
             }
 
@@ -1629,20 +1686,18 @@ namespace OneWayLabyrinth
             count = endSquares.Count;
             int area = 0;
 
-            /*T("CountArea start: " + startSquares.Count + " end: " + count);
-            foreach (int[] f in startSquares)
-            {
-                T("startSquares " + f[0] + " " + f[1]);
-            }
-            foreach (int[] f in endSquares)
-            {
-                T("endSquares " + f[0] + " " + f[1]);
-            }*/
-
             if (startSquares.Count != count)
             {
                 File.WriteAllText("error.txt", "Count of start and end squares are inequal: " + startSquares.Count + " " + count);
                 T("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
+                foreach (int[] f in startSquares)
+                {
+                    T("startSquares " + f[0] + " " + f[1]);
+                }
+                foreach (int[] f in endSquares)
+                {
+                    T("endSquares " + f[0] + " " + f[1]);
+                }
                 return false;
             }
 
@@ -2120,7 +2175,12 @@ namespace OneWayLabyrinth
 			return false;
 		}
 
-		public bool InFuture(int x, int y)
+        public bool InFutureAbs(int[] f)
+        {
+            return InFuture(f[0], f[1]);
+        }
+
+        public bool InFuture(int x, int y)
 		{
 			int c2 = path2.Count;
 			if (c2 == 0) return false;
