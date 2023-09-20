@@ -82,11 +82,7 @@ There is one more thing to keep in mind on 7 x 7. If the line approaches itself,
 
 <img src="References/0901.svg" width="33.3%"/>
 
-The program is now equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on you computer speed. This enables us to discover all 7 x 7 walkthroughs, which is in the order of 107 732, but there are still a few cases that need handling:
-
-<img src="References/0916.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0917_1.svg" width="33.3%"/>
-<img src="References/spacer.svg" width="100%" height="28.5"/>
-<img src="References/0917_4.svg" width="33.3%"/>
+The program is now equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on you computer speed. This enables us to discover all 7 x 7 walkthroughs, which is 107 704. According to the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 X 2n+1 grid) it should be 111 712. If that calculation is correct, then the program has missed some cases. Further work will be done to review all rules.
 
 ---
 
