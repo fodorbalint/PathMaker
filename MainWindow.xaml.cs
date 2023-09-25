@@ -2090,21 +2090,23 @@ namespace OneWayLabyrinth
             // 0911: Future line on the right can be extended
             if (future.path.Count != 0)
 			{
-                taken.s = new int[] { taken.x - taken.path[count - 2][0], taken.y - taken.path[count - 2][1] };
+				taken.sx = taken.x - taken.path[count - 2][0];
+				taken.sy = taken.y - taken.path[count - 2][1];
 
                 for (int i = 0; i < 4; i++)
                 {
-                    if (directions[i][0] == taken.s[0] && directions[i][1] == taken.s[1])
+                    if (directions[i][0] == taken.sx && directions[i][1] == taken.sy)
                     {
                         int newIndex = (i == 3) ? 0 : i + 1;
-                        taken.l = new int[] { directions[newIndex][0], directions[newIndex][1] };
+						taken.lx = directions[newIndex][0];
+						taken.ly = directions[newIndex][1];
                     }
                 }
 
-                thisS0 = taken.s[0];
-                thisS1 = taken.s[1];
-                thisL0 = taken.l[0];
-                thisL1 = taken.l[1];
+                thisS0 = taken.sx;
+                thisS1 = taken.sy;
+                thisL0 = taken.lx;
+                thisL1 = taken.ly;
 
                 for (int i = 0; i < 2; i++)
 				{
@@ -2136,10 +2138,10 @@ namespace OneWayLabyrinth
                         }
                     }
                     //mirror directions
-                    taken.s[0] = thisS0;
-                    taken.s[1] = thisS1;
-                    taken.l[0] = -thisL0;
-                    taken.l[1] = -thisL1;
+                    taken.sx = thisS0;
+                    taken.sy = thisS1;
+                    taken.lx = -thisL0;
+                    taken.ly = -thisL1;
                 }
 			}
 
@@ -2151,30 +2153,32 @@ namespace OneWayLabyrinth
             int y = taken.path[count - 2][1];
 			taken.x2 = x;
 			taken.y2 = y;
-			taken.s = new int[] { taken.x2 - taken.path[count - 3][0], taken.y2 - taken.path[count - 3][1] };
+			taken.sx = taken.x2 - taken.path[count - 3][0];
+			taken.sy = taken.y2 - taken.path[count - 3][1];
 
 			for (int i = 0; i < 4; i++)
 			{
-				if (directions[i][0] == taken.s[0] && directions[i][1] == taken.s[1])
+				if (directions[i][0] == taken.sx && directions[i][1] == taken.sy)
 				{
 					int newIndex = (i == 3) ? 0 : i + 1;
-                    taken.l = new int[] { directions[newIndex][0], directions[newIndex][1] };
+					taken.lx = directions[newIndex][0];
+					taken.ly = directions[newIndex][1];
 				}
 			}
 
-			thisS0 = taken.s[0];
-            thisS1 = taken.s[1];
-            thisL0 = taken.l[0];
-            thisL1 = taken.l[1];
+			thisS0 = taken.sx;
+            thisS1 = taken.sy;
+            thisL0 = taken.lx;
+            thisL1 = taken.ly;
 
             for (int i = 0; i < 2; i++)
 			{
 				for (int j = 0; j < 2; j++)
 				{
-                    int sx = taken.s[0];
-                    int sy = taken.s[1];
-                    int lx = taken.l[0];
-					int ly = taken.l[1];
+                    int sx = taken.sx;
+                    int sy = taken.sy;
+                    int lx = taken.lx;
+					int ly = taken.ly;
 
 					// at the lower right corner future line shouldn't be drawn
 
@@ -2230,25 +2234,25 @@ namespace OneWayLabyrinth
 					}
 
 					//turn right, pattern goes upwards
-					int temps0 = taken.s[0];
-                    int temps1 = taken.s[1];
-                    taken.s[0] = -lx;
-                    taken.s[1] = -ly;
-					taken.l[0] = temps0;
-                    taken.l[1] = temps1;
+					int temps0 = taken.sx;
+                    int temps1 = taken.sy;
+                    taken.sx = -lx;
+                    taken.sy = -ly;
+					taken.lx = temps0;
+                    taken.ly = temps1;
                 }
 
 				//mirror directions
-				taken.s[0] = thisS0;
-				taken.s[1] = thisS1;
-                taken.l[0] = -thisL0;
-                taken.l[1] = -thisL1;
+				taken.sx = thisS0;
+				taken.sy = thisS1;
+                taken.lx = -thisL0;
+                taken.ly = -thisL1;
             }
 
-			taken.s[0] = thisS0;
-            taken.s[1] = thisS1;
-            taken.l[0] = thisL0;
-            taken.l[1] = thisL1;
+			taken.sx = thisS0;
+            taken.sy = thisS1;
+            taken.lx = thisL0;
+            taken.ly = thisL1;
 
 			if (!x2found)
 			{
@@ -2256,10 +2260,10 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-                        int sx = taken.s[0];
-                        int sy = taken.s[1];
-                        int lx = taken.l[0];
-                        int ly = taken.l[1];
+                        int sx = taken.sx;
+                        int sy = taken.sy;
+                        int lx = taken.lx;
+                        int ly = taken.ly;
 
                         //first clause is for quick exclusion. Last clause is to prevent a duplicate line as in 0711
                         if (!(taken.x == x + lx && taken.y == y + ly) && (InTakenRel2(1, -1) || InBorderRel2(1, -1)) && (InTakenRel2(2, -1) || InBorderRel2(2, -1)) && (InTakenRel2(3, -1) || InBorderRel2(3, -1))
@@ -2301,19 +2305,19 @@ namespace OneWayLabyrinth
 						}
 
                         //turn right, pattern goes upwards
-                        int temps0 = taken.s[0];
-                        int temps1 = taken.s[1];
-                        taken.s[0] = -lx;
-                        taken.s[1] = -ly;
-                        taken.l[0] = temps0;
-                        taken.l[1] = temps1;
+                        int temps0 = taken.sx;
+                        int temps1 = taken.sy;
+                        taken.sx = -lx;
+                        taken.sy = -ly;
+                        taken.lx = temps0;
+                        taken.ly = temps1;
                     }
 
                     //mirror directions
-                    taken.s[0] = thisS0;
-                    taken.s[1] = thisS1;
-                    taken.l[0] = -thisL0;
-                    taken.l[1] = -thisL1;
+                    taken.sx = thisS0;
+                    taken.sy = thisS1;
+                    taken.lx = -thisL0;
+                    taken.ly = -thisL1;
                 }
             }
 
@@ -2323,10 +2327,10 @@ namespace OneWayLabyrinth
             // Example: 0430_2. All 4 directions of needs to be examined, so that O618 works too.
             // minimum size: 5
 
-            taken.s[0] = thisS0;
-            taken.s[1] = thisS1;
-            taken.l[0] = thisL0;
-            taken.l[1] = thisL1;
+            taken.sx = thisS0;
+            taken.sy = thisS1;
+            taken.lx = thisL0;
+            taken.ly = thisL1;
 
             taken.path2 = future.path;
 
@@ -2334,10 +2338,10 @@ namespace OneWayLabyrinth
 			{
 				for (int j = 0; j < 2; j++)
 				{
-                    int sx = taken.s[0];
-                    int sy = taken.s[1];
-                    int lx = taken.l[0];
-                    int ly = taken.l[1];
+                    int sx = taken.sx;
+                    int sy = taken.sy;
+                    int lx = taken.lx;
+                    int ly = taken.ly;
 
 					// Future lines does not always extend from a 2x2 shape. 0901_2 has a one-wide line.
                     if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel2(1, 0) && (InFutureRel2(2, 0) || InTakenRel2(2, 0) || InBorderRel2(2, 0)) && (InFutureRel2(1, -1) || InTakenRel2(1, -1)))
@@ -2384,19 +2388,19 @@ namespace OneWayLabyrinth
 					}
 
                     //turn right, pattern goes upwards
-                    int temps0 = taken.s[0];
-                    int temps1 = taken.s[1];
-                    taken.s[0] = -lx;
-                    taken.s[1] = -ly;
-                    taken.l[0] = temps0;
-                    taken.l[1] = temps1;
+                    int temps0 = taken.sx;
+                    int temps1 = taken.sy;
+                    taken.sx = -lx;
+                    taken.sy = -ly;
+                    taken.lx = temps0;
+                    taken.ly = temps1;
                 }
 
                 //mirror directions
-                taken.s[0] = thisS0;
-                taken.s[1] = thisS1;
-                taken.l[0] = -thisL0;
-                taken.l[1] = -thisL1;
+                taken.sx = thisS0;
+                taken.sy = thisS1;
+                taken.lx = -thisL0;
+                taken.ly = -thisL1;
             }
 
             // When there is a future start 2 to the left or right (due to the extension of the originally created C shape), and the live end goes straight or the other way (example: 0430_1), the start end can be extended. It will in some cases act as 1x3 C shape checking 
@@ -2404,10 +2408,10 @@ namespace OneWayLabyrinth
 
             if (size >= 7)
 			{
-                taken.s[0] = thisS0;
-                taken.s[1] = thisS1;
-                taken.l[0] = thisL0;
-                taken.l[1] = thisL1;
+                taken.sx = thisS0;
+                taken.sy = thisS1;
+                taken.lx = thisL0;
+                taken.ly = thisL1;
 
                 taken.path2 = future.path;
 
@@ -2415,10 +2419,10 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-                        int sx = taken.s[0];
-						int sy = taken.s[1];
-						int lx = taken.l[0];
-						int ly = taken.l[1];
+                        int sx = taken.sx;
+						int sy = taken.sy;
+						int lx = taken.lx;
+						int ly = taken.ly;
 
 
 						if (!(taken.x == x + lx && taken.y == y + ly) && InFutureStartRel2(2, 0) && !InTakenRel2(1, 0) && !InFutureRel2(1, 0) && (InTakenRel2(1, -1) || InFutureRel2(1, -1)))
@@ -2469,19 +2473,19 @@ namespace OneWayLabyrinth
                         }
 
                         //turn right, pattern goes upwards
-                        int temps0 = taken.s[0];
-                        int temps1 = taken.s[1];
-                        taken.s[0] = -lx;
-                        taken.s[1] = -ly;
-                        taken.l[0] = temps0;
-                        taken.l[1] = temps1;
+                        int temps0 = taken.sx;
+                        int temps1 = taken.sy;
+                        taken.sx = -lx;
+                        taken.sy = -ly;
+                        taken.lx = temps0;
+                        taken.ly = temps1;
                     }
 
                     //mirror directions
-                    taken.s[0] = thisS0;
-                    taken.s[1] = thisS1;
-                    taken.l[0] = -thisL0;
-                    taken.l[1] = -thisL1;
+                    taken.sx = thisS0;
+                    taken.sy = thisS1;
+                    taken.lx = -thisL0;
+                    taken.ly = -thisL1;
                 }
             }			
 
@@ -2490,10 +2494,10 @@ namespace OneWayLabyrinth
 			{
 				int sx, sy, lx, ly, rx, ry;
 				
-                taken.s[0] = thisS0;
-                taken.s[1] = thisS1;
-                taken.l[0] = thisL0;
-                taken.l[1] = thisL1;
+                taken.sx = thisS0;
+                taken.sy = thisS1;
+                taken.lx = thisL0;
+                taken.ly = thisL1;
 
                 taken.path2 = future.path;
 
@@ -2501,10 +2505,10 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-                        sx = taken.s[0];
-                        sy = taken.s[1];
-                        lx = taken.l[0];
-                        ly = taken.l[1];
+                        sx = taken.sx;
+                        sy = taken.sy;
+                        lx = taken.lx;
+                        ly = taken.ly;
 
                         if (!(taken.x == x + lx && taken.y == y + ly) && InTakenRel2(1, -1) && InTakenRel2(2, -2) && InTakenRel2(3, -2) && InTakenRel2(4, -2) && InFutureStartRel2(5, -1)
 							&& !InTakenRel2(2, -1) && !InTakenRel2(3, -1) && !InTakenRel2(4, -1))
@@ -2564,19 +2568,19 @@ namespace OneWayLabyrinth
 						}
 
                         //turn right, pattern goes upwards
-                        int temps0 = taken.s[0];
-                        int temps1 = taken.s[1];
-                        taken.s[0] = -lx;
-                        taken.s[1] = -ly;
-                        taken.l[0] = temps0;
-                        taken.l[1] = temps1;
+                        int temps0 = taken.sx;
+                        int temps1 = taken.sy;
+                        taken.sx = -lx;
+                        taken.sy = -ly;
+                        taken.lx = temps0;
+                        taken.ly = temps1;
                     }
 
                     //mirror directions
-                    taken.s[0] = thisS0;
-                    taken.s[1] = thisS1;
-                    taken.l[0] = -thisL0;
-                    taken.l[1] = -thisL1;
+                    taken.sx = thisS0;
+                    taken.sy = thisS1;
+                    taken.lx = -thisL0;
+                    taken.ly = -thisL1;
                 }
 
                 // what is the minimum size for this?
@@ -3169,15 +3173,15 @@ namespace OneWayLabyrinth
 
         public bool InBorderRel(int left, int straight)
         {
-            int x = taken.x + left * taken.l[0] + straight * taken.s[0];
-            int y = taken.y + left * taken.l[1] + straight * taken.s[1];
+            int x = taken.x + left * taken.lx + straight * taken.sx;
+            int y = taken.y + left * taken.ly + straight * taken.sy;
             return InBorder(x, y);
         }
 
         public bool InBorderRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
-            int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+            int x = taken.x2 + left * taken.lx + straight * taken.sx;
+            int y = taken.y2 + left * taken.ly + straight * taken.sy;
             return InBorder(x, y);
         }
 
@@ -3189,15 +3193,15 @@ namespace OneWayLabyrinth
 
         private bool InTakenRel(int left, int straight)
         {
-			int x = taken.x + left * taken.l[0] + straight * taken.s[0];
-			int y = taken.y + left * taken.l[1] + straight * taken.s[1];
+			int x = taken.x + left * taken.lx + straight * taken.sx;
+			int y = taken.y + left * taken.ly + straight * taken.sy;
 			return InTaken(x, y);
 		}
 
         private bool InTakenRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
-            int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+            int x = taken.x2 + left * taken.lx + straight * taken.sx;
+            int y = taken.y2 + left * taken.ly + straight * taken.sy;
             return InTaken(x, y);
         }
 
@@ -3218,8 +3222,8 @@ namespace OneWayLabyrinth
 
         public bool InFutureRel(int left, int straight)
         {
-            int x = taken.x + left * taken.l[0] + straight * taken.s[0];
-            int y = taken.y + left * taken.l[1] + straight * taken.s[1];
+            int x = taken.x + left * taken.lx + straight * taken.sx;
+            int y = taken.y + left * taken.ly + straight * taken.sy;
 
 			//In 0913_2 it can happen that after stepping on the future line, the 1-thin rule is true if we don't check that the coordinates are within size.
 			if (x > size || y > size) return true;
@@ -3229,8 +3233,8 @@ namespace OneWayLabyrinth
 		
 		public bool InFutureRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
-            int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+            int x = taken.x2 + left * taken.lx + straight * taken.sx;
+            int y = taken.y2 + left * taken.ly + straight * taken.sy;
 
             return InFuture(x, y);
         }
@@ -3254,8 +3258,8 @@ namespace OneWayLabyrinth
 
 		public bool InFutureStartRel2(int left, int straight)
 		{
-			int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
-			int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+			int x = taken.x2 + left * taken.lx + straight * taken.sx;
+			int y = taken.y2 + left * taken.ly + straight * taken.sy;
 
 			return InFutureStart(x, y);
 		}
@@ -3305,8 +3309,8 @@ namespace OneWayLabyrinth
 
         public bool InFutureEndRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.l[0] + straight * taken.s[0];
-            int y = taken.y2 + left * taken.l[1] + straight * taken.s[1];
+            int x = taken.x2 + left * taken.lx + straight * taken.sx;
+            int y = taken.y2 + left * taken.ly + straight * taken.sy;
 
             return InFutureEnd(x, y);
         }
@@ -3816,7 +3820,7 @@ namespace OneWayLabyrinth
 					if (endItem)
 					{
 						pathFuture += "L " + (newX - 0.5f) + " " + (newY - 0.5f) + "\r\n";
-						futurePath += "\t<path d=\"M " + startPosFuture + "\r\n" + pathFuture + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" />\r\n";
+						futurePath += "\t<path d=\"M " + startPosFuture + "\r\n" + pathFuture + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n";
 					}
 				}
 
@@ -3943,7 +3947,7 @@ namespace OneWayLabyrinth
 								if (endItem)
 								{
 									pathFuture += "L " + (newX - 0.5f) + " " + (newY - 0.5f) + "\r\n";
-									futurePath += "\t<path d=\"M " + startPosFuture + "\r\n" + pathFuture + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" />\r\n";
+									futurePath += "\t<path d=\"M " + startPosFuture + "\r\n" + pathFuture + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n";
 								}
 							}
 						}
@@ -3992,8 +3996,8 @@ namespace OneWayLabyrinth
 				path = path.Substring(0, path.Length - 2);
 			}
 
-			string content = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + +size + " " + size + "\">\r\n\t<path d=\"M0,0 h" + size + " v" + size + " h-" + size + " z\" fill=\"#dddddd\" />\r\n" + backgrounds + futureBackgrounds + possibles + areaBackground + grid +
-				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" />\r\n" +
+			string content = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + size + " " + size + "\">\r\n\t<path d=\"M0,0 h" + size + " v" + size + " h-" + size + " z\" fill=\"#dddddd\" />\r\n" + backgrounds + futureBackgrounds + possibles + areaBackground + grid +
+				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n" +
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
 
@@ -4160,5 +4164,11 @@ namespace OneWayLabyrinth
 			MessageLine.Visibility = Visibility.Hidden;
 			OKButton.Visibility = Visibility.Hidden;			
 		}
-	}
+
+        private void Rules_Click(object sender, RoutedEventArgs e)
+        {
+            Rules rules = new Rules();
+            rules.Show();
+        }
+    }
 }

@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET6_0;NETCOREAPP
 C:\Users\fodor\OneWayLabyrinth\App.xaml
-11407045341
+214233356
 
-6-1242285791
+8-1864015604
 204-1715228344
-MainWindow.xaml;
+MainWindow.xaml;Rules.xaml;
 
-False
+True
 

@@ -70,5 +70,6 @@
         <Label x:Name="CoordinateLabel" Content="" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black" Background="White" Visibility="Hidden" IsHitTestVisible="False" ClipToBounds="False" />
         <Label x:Name="MessageLine" Content="" HorizontalAlignment="Left" Margin="20,108,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
         <Button x:Name="OKButton" Background="LightPink" Content="OK" HorizontalAlignment="Left" Margin="371,112,0,0" VerticalAlignment="Top" Width="50" Click="OK_Click" Height="21" Visibility="Hidden"/>
+        <Button Content="Rule editor" HorizontalAlignment="Left" Margin="593,107,0,0" VerticalAlignment="Top" Width="70" Click="Rules_Click" Height="21"  Focusable="False"/>
     </Grid>
 </Window>

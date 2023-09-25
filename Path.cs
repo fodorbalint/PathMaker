@@ -15,7 +15,7 @@ using System.Windows.Documents;
 
 namespace OneWayLabyrinth
 {
-	public class Path
+	public partial class Path
 	{
 		MainWindow window;
 		int size;
@@ -29,15 +29,21 @@ namespace OneWayLabyrinth
 		public bool nearField;
 		public bool circleDirectionLeft = true;
 		public int x, y, x2, y2;
-		public int[] s = new int[] { 0, 0 }; //straight, left and right coordinates
-        public int[] l = new int[] { 0, 0 };
-        public int[] r = new int[] { 0, 0 };
+        public int sx = 0; //straight, left and right coordinates
+        public int sy = 0;
+        public int lx = 0;
+        public int ly = 0;
+        public int rx = 0;
+        public int ry = 0;
+        private int thisSx = 0; // remain constant in one step, while the above variables change for the InTakenRel calls.
+        private int thisSy = 0;
+        private int thisLx = 0;
+        private int thisLy = 0;
         int[] straightField = new int[] { };
 		int[] leftField = new int[] { };
 		int[] rightField = new int[] { };
 		List<int[]> directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } }; //down, right, up, left
 		int[] selectedDirection = new int[] { };
-		bool CShape;
 		int nearSection, farSection;
 		int foundSectionStart, foundSectionEnd;
 
@@ -112,43 +118,38 @@ namespace OneWayLabyrinth
 				for (i = 0; i < 4; i++)
 				{
 					//last movement: down, right, up, left
-					s[0] = directions[i][0];
-					s[1] = directions[i][1];
+					thisSx = sx = directions[i][0];
+					thisSy = sy = directions[i][1];
 
-					//this shouldn't be needed. But there is a bug in the framework that changes s when l changes below
-					int s0 = s[0];
-                    int s1 = s[1];
-
-                    if (x - x0 == s[0] && y - y0 == s[1])
+                    if (x - x0 == sx && y - y0 == sy)
 					{
                         selectedDirection = directions[i];
 
                         if (i == 0)
 						{
-							l[0] = directions[1][0];
-							l[1] = directions[1][1];
-							r[0] = directions[3][0];
-							r[1] = directions[3][1];
+							thisLx = lx = directions[1][0];
+                            thisLy = ly = directions[1][1];
+							rx = directions[3][0];
+							ry = directions[3][1];
 						}
 						else if (i == 3)
 						{
-							l[0] = directions[0][0];
-							l[1] = directions[0][1];
-							r[0] = directions[2][0];
-							r[1] = directions[2][1];
+                            thisLx = lx = directions[0][0];
+                            thisLy = ly = directions[0][1];
+							rx = directions[2][0];
+							ry = directions[2][1];
 						}
 						else
 						{
-                            l[0] = directions[i + 1][0]; // bug: this line changes s[0] too
-                            l[1] = directions[i + 1][1]; // bug: this line changes s[1] too
-                            r[0] = directions[i - 1][0];
-                            r[1] = directions[i - 1][1];
+                            thisLx = lx = directions[i + 1][0]; // bug: this line changes sx too
+                            thisLy = ly = directions[i + 1][1]; // bug: this line changes sy too
+                            rx = directions[i - 1][0];
+                            ry = directions[i - 1][1];
                         }
-						s = new int[] { s0, s1 };
 
-                        straightField = new int[] { x + s[0], y + s[1] };
-						leftField = new int[] { x + l[0], y + l[1] };
-						rightField = new int[] { x + r[0], y + r[1] };
+                        straightField = new int[] { x + sx, y + sy };
+						leftField = new int[] { x + lx, y + ly };
+						rightField = new int[] { x + rx, y + ry };
 
                         if (!InTakenAbs(straightField) && !InBorderAbs(straightField) && !InFutureAbs(straightField))
 						{
@@ -210,7 +211,7 @@ namespace OneWayLabyrinth
 
 						if (isMain && possible.Count == 1 && InFutureStartAbs(possible[0])) break;
 
-						//check for an empty cell next to the position, and a taken one further. In case of a C shape, we need to fill the middle. The shape was formed by the previous 5 steps.
+						//check for an empty cell next to the position, and a taken one further. In case of a C-shape, we need to fill the middle. The shape was formed by the previous 5 steps.
 						T("possible.Count " + possible.Count);
 											
 						CShape = false;
@@ -282,47 +283,47 @@ namespace OneWayLabyrinth
 
 		public void CheckNearFieldCommon()
 		{
-            // Even future line can make a straight C shape, see 0727_1
+            // Even future line can make a straight C-shape, see 0727_1
 
-            int thisS0 = s[0];
-            int thisS1 = s[1];
-            int thisL0 = l[0];
-            int thisL1 = l[1];
+            int thisS0 = sx;
+            int thisS1 = sy;
+            int thisL0 = lx;
+            int thisL1 = ly;
 
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    //C shape that needs to be filled, unless there is a live end nearby that can fill it
+                    //C-shape that needs to be filled, unless there is a live end nearby that can fill it
                     if ((InTakenRel(2, 0) || InBorderRel(2, 0)) && InTakenRel(1, -1) && !InTakenRel(1, 0, 0) &&
                         (isMain || !isMain && !InFutureStartRel(1, -1) && !InFutureEndRel(1, -1) && !InFutureStartRel(2, 0) && !InFutureEndRel(2, 0))) //2 to left
                     {
-                        T("C shape at " + i + " " + j);
-                        forbidden.Add(new int[]{ x + s[0], y + s[1]}); //straight
-                        forbidden.Add(new int[]{ x - l[0], y - l[1]}); //right
+                        T("C-shape at " + i + " " + j);
+                        forbidden.Add(new int[]{ x + sx, y + sy}); //straight
+                        forbidden.Add(new int[]{ x - lx, y - ly}); //right
                         CShape = true; // left/right across checking will be disabled, no exits needed					
                     }
 
                     //turn right, pattern goes upwards
-                    int temps0 = s[0];
-                    int temps1 = s[1];
-                    s[0] = -l[0];
-                    s[1] = -l[1];
-                    l[0] = temps0;
-                    l[1] = temps1;
+                    int temps0 = sx;
+                    int temps1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = temps0;
+                    ly = temps1;
                 }
 
                 //mirror directions
-                s[0] = thisS0;
-                s[1] = thisS1;
-                l[0] = -thisL0;
-                l[1] = -thisL1;
+                sx = thisS0;
+                sy = thisS1;
+                lx = -thisL0;
+                ly = -thisL1;
             }
 
-            s[0] = thisS0;
-            s[1] = thisS1;
-            l[0] = thisL0;
-            l[1] = thisL1;
+            sx = thisS0;
+            sy = thisS1;
+            lx = thisL0;
+            ly = thisL1;
 		}
 
         public void CheckNearBorder()
@@ -330,12 +331,12 @@ namespace OneWayLabyrinth
             int directionIndex = Math.Abs(selectedDirection[0]); //0 for vertical, 1 for horizontal
 
             // going up on left side
-            if (x == 2 && x + l[0] == 1 && !InTakenAbs(leftField) && !InTaken(x - 1, y - 1))
+            if (x == 2 && x + lx == 1 && !InTakenAbs(leftField) && !InTaken(x - 1, y - 1))
             {
                 forbidden.Add(leftField);
             }
             // going left on up side
-            else if (y == 2 && y + r[1] == 1 && !InTakenAbs(rightField) && !InTaken(x - 1, y - 1))
+            else if (y == 2 && y + ry == 1 && !InTakenAbs(rightField) && !InTaken(x - 1, y - 1))
             {
                 forbidden.Add(rightField);
             }
@@ -349,7 +350,7 @@ namespace OneWayLabyrinth
                 }
                 else //going left on down side
                 {
-                    if ((isMain && !InTaken(x - 1, y + 1) || !isMain && (!InTaken(x - 1, y + 1) || InFutureEnd(x - 1, y + 1))) && !InBorder(x - 1, y + 1)) //InBorder checking is necessar[1] when x=1
+                    if ((isMain && !InTaken(x - 1, y + 1) || !isMain && (!InTaken(x - 1, y + 1) || InFutureEnd(x - 1, y + 1))) && !InBorder(x - 1, y + 1)) //InBorder checking is necessary when x=1
                     {
                         forbidden.Add(leftField);
                     }
@@ -385,7 +386,7 @@ namespace OneWayLabyrinth
             if (isMain) // The field x - 1, y - 1 can be filled earlier than the future line far end, so extending the far end on the border is not correct. 
             {
                 //going towards an edge
-                if (x + 2 * s[0] == 0)
+                if (x + 2 * sx == 0)
                 {
                     forbidden.Add(leftField);
                     if (!InTaken(x - 1, y - 1))
@@ -399,7 +400,7 @@ namespace OneWayLabyrinth
                         }
                     }
                 }
-                else if (x + 2 * s[0] == size + 1)
+                else if (x + 2 * sx == size + 1)
                 {
                     forbidden.Add(rightField);
                     if (!InTaken(x + 1, y - 1) && y != 1)
@@ -413,7 +414,7 @@ namespace OneWayLabyrinth
                         }
                     }
                 }
-                else if (y + 2 * s[1] == 0)
+                else if (y + 2 * sy == 0)
                 {
                     forbidden.Add(rightField);
                     if (!InTaken(x - 1, y - 1))
@@ -427,7 +428,7 @@ namespace OneWayLabyrinth
                         }
                     }
                 }
-                else if (y + 2 * s[1] == size + 1)
+                else if (y + 2 * sy == size + 1)
                 {
                     forbidden.Add(leftField);
                     if (!InTaken(x - 1, y + 1) && x != 1)
@@ -465,8 +466,8 @@ namespace OneWayLabyrinth
 		{
 			if (!CShape)
 			{
-                int thisL0 = l[0];
-                int thisL1 = l[1];
+                int thisL0 = lx;
+                int thisL1 = ly;
 
                 for (int i = 0; i < 2; i++)
                 {
@@ -484,12 +485,12 @@ namespace OneWayLabyrinth
                     }
 
                     //mirror directions
-                    l[0] = -thisL0;
-                    l[1] = -thisL1;
+                    lx = -thisL0;
+                    ly = -thisL1;
                 }
 
-                l[0] = thisL0;
-                l[1] = thisL1;
+                lx = thisL0;
+                ly = thisL1;
 
                 if (size == 7)
                 {
@@ -500,14 +501,14 @@ namespace OneWayLabyrinth
                     if (InTakenRel(0, 2) && !InTakenRel(0, 1)) // the field 2 straight is taken 
                     {
                         T("CheckNearField close straight");
-                        int index = InTakenIndex(x + 2 * s[0], y + 2 * s[1]);
+                        int index = InTakenIndex(x + 2 * sx, y + 2 * sy);
                         int[] nextField = path[index + 1];
 
                         forbidden.Add(straightField);
-                        if (nextField[0] == x + 3 * s[0] && nextField[1] == y + 3 * s[1]) //next step is straight, examine previous step
+                        if (nextField[0] == x + 3 * sx && nextField[1] == y + 3 * sy) //next step is straight, examine previous step
                         {
                             int[] prevField = path[index - 1];
-                            if (prevField[0] == x + l[0] + 2 * s[0] && prevField[1] == y + l[1] + 2 * s[1]) // previous step left, area is on the right
+                            if (prevField[0] == x + lx + 2 * sx && prevField[1] == y + ly + 2 * sy) // previous step left, area is on the right
                             {
                                 forbidden.Add(leftField);
                             }
@@ -516,7 +517,7 @@ namespace OneWayLabyrinth
                                 forbidden.Add(rightField);
                             }
                         }
-                        else if (nextField[0] == x + l[0] + 2 * s[0] && nextField[1] == y + l[1] + 2 * s[1])
+                        else if (nextField[0] == x + lx + 2 * sx && nextField[1] == y + ly + 2 * sy)
                         { // area is on the left
                             forbidden.Add(rightField);
                         }
@@ -527,8 +528,8 @@ namespace OneWayLabyrinth
                     }
                     else // the field 2 straight and 1 left/right is taken
                     {
-                        thisL0 = l[0];
-                        thisL1 = l[1];
+                        thisL0 = lx;
+                        thisL1 = ly;
 
                         for (int i = 0; i < 2; i++)
                         {
@@ -536,11 +537,11 @@ namespace OneWayLabyrinth
                             {
                                 T("CheckNearField close mid across at " + i);
                                 closeMidAcrossFound = true;
-                                int index = InTakenIndex(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]);
+                                int index = InTakenIndex(x + lx + 2 * sx, y + ly + 2 * sy);
                                 int[] nextField = path[index + 1];
 
                                 forbidden.Add(straightField);
-                                if (nextField[0] == x + l[0] + 3 * s[0] && nextField[1] == y + l[1] + 3 * s[1]) //next step is straight, area on right
+                                if (nextField[0] == x + lx + 3 * sx && nextField[1] == y + ly + 3 * sy) //next step is straight, area on right
                                 {
                                     forbidden.Add(i == 0 ? leftField : rightField);
                                 }
@@ -551,12 +552,12 @@ namespace OneWayLabyrinth
                             }
 
                             //mirror directions
-                            l[0] = -thisL0;
-                            l[1] = -thisL1;
+                            lx = -thisL0;
+                            ly = -thisL1;
                         }
 
-                        l[0] = thisL0;
-                        l[1] = thisL1;
+                        lx = thisL0;
+                        ly = thisL1;
 
                         if (!closeMidAcrossFound)
                         {
@@ -566,10 +567,10 @@ namespace OneWayLabyrinth
                                 {
                                     T("CheckNearField close across at " + i);
                                     closeAcrossFound = true;
-                                    int index = InTakenIndex(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]);
+                                    int index = InTakenIndex(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy);
                                     int[] nextField = path[index + 1];
 
-                                    if (nextField[0] == x + 2 * l[0] + 3 * s[0] && nextField[1] == y + 2 * l[1] + 3 * s[1]) //next step is straight, area on right
+                                    if (nextField[0] == x + 2 * lx + 3 * sx && nextField[1] == y + 2 * ly + 3 * sy) //next step is straight, area on right
                                     {
                                         forbidden.Add(i == 0 ? leftField : rightField);
                                     }
@@ -581,17 +582,17 @@ namespace OneWayLabyrinth
                                 }
 
                                 //mirror directions
-                                l[0] = -thisL0;
-                                l[1] = -thisL1;
+                                lx = -thisL0;
+                                ly = -thisL1;
                             }
 
-                            l[0] = thisL0;
-                            l[1] = thisL1;
+                            lx = thisL0;
+                            ly = thisL1;
 
                             if (!closeAcrossFound)
                             {
-                                int thisS0 = s[0];
-                                int thisS1 = s[1];
+                                int thisS0 = sx;
+                                int thisS1 = sy;
 
                                 for (int i = 0; i < 2; i++)
                                 {
@@ -599,14 +600,14 @@ namespace OneWayLabyrinth
                                     {
                                         if (InTakenRel(1, 3) && !InTakenRel(1, 2) && !InTakenRel(0, 3)) //start with area on the right, mirrored to the example
                                         {
-                                            int index = InTakenIndex(x + l[0] + 3 * s[0], y + l[1] + 3 * s[1]);
+                                            int index = InTakenIndex(x + lx + 3 * sx, y + ly + 3 * sy);
                                             int[] nextField = path[index + 1];
 
-                                            if (nextField[0] == x + l[0] + 4 * s[0] && nextField[1] == y + l[1] + 4 * s[1])
+                                            if (nextField[0] == x + lx + 4 * sx && nextField[1] == y + ly + 4 * sy)
                                             {
                                                 T("CheckNearField across, next field up at " + i + " " + j);
                                                 circleDirectionLeft = i == 0 ? false : true;
-                                                if (!CountArea(x + s[0], y + s[1], x + 2 * s[0], y + 2 * s[1]))
+                                                if (!CountArea(x + sx, y + sy, x + 2 * sx, y + 2 * sy))
                                                 {
                                                     if (j == 0)
                                                     {
@@ -622,7 +623,7 @@ namespace OneWayLabyrinth
                                             {
                                                 T("CheckNearField across, next field side at " + i + " " + j);
                                                 circleDirectionLeft = i == 0 ? true : false;
-                                                if (!CountArea(x + s[0], y + s[1], x + 2 * s[0], y + 2 * s[1]))
+                                                if (!CountArea(x + sx, y + sy, x + 2 * sx, y + 2 * sy))
                                                 {
                                                     if (j == 0)
                                                     {
@@ -637,25 +638,25 @@ namespace OneWayLabyrinth
                                         }
 
                                         //turn left, pattern goes downwards
-                                        int temps0 = s[0];
-                                        int temps1 = s[1];
-                                        s[0] = l[0];
-                                        s[1] = l[1];
-                                        l[0] = -temps0;
-                                        l[1] = -temps1;
+                                        int temps0 = sx;
+                                        int temps1 = sy;
+                                        sx = lx;
+                                        sy = ly;
+                                        lx = -temps0;
+                                        ly = -temps1;
                                     }
 
                                     //mirror directions
-                                    s[0] = thisS0;
-                                    s[1] = thisS1;
-                                    l[0] = -thisL0;
-                                    l[1] = -thisL1;
+                                    sx = thisS0;
+                                    sy = thisS1;
+                                    lx = -thisL0;
+                                    ly = -thisL1;
                                 }
 
-                                s[0] = thisS0;
-                                s[1] = thisS1;
-                                l[0] = thisL0;
-                                l[1] = thisL1;
+                                sx = thisS0;
+                                sy = thisS1;
+                                lx = thisL0;
+                                ly = thisL1;
                             }
                         }
                     }   
@@ -666,10 +667,10 @@ namespace OneWayLabyrinth
 
                     if (InTakenRel(1, 2) &&
                         !InTakenAbs(straightField) &&
-                        !InTakenRel(1, 1) && !(x + l[0] + 2 * s[0] == 1 && y + l[1] + 2 * s[1] == 1))
+                        !InTakenRel(1, 1) && !(x + lx + 2 * sx == 1 && y + ly + 2 * sy == 1))
                     { //inTakenIndex would be negative when getting to the upper left corner, rigtt mid across check will be true instead.
-                        int index = InTakenIndex(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]);
-                        T("Left mid across field: x " + (x + l[0] + 2 * s[0]) + " y " + (y + l[1] + 2 * s[1]) + " x " + x + " y " + y);
+                        int index = InTakenIndex(x + lx + 2 * sx, y + ly + 2 * sy);
+                        T("Left mid across field: x " + (x + lx + 2 * sx) + " y " + (y + ly + 2 * sy) + " x " + x + " y " + y);
 
                         int[] nextField;
                         int[] prevField;
@@ -680,17 +681,17 @@ namespace OneWayLabyrinth
                         forbidden.Add(straightField);
 
                         //In the 7x7 example, the area is pair, and there does not seem to be another scenario
-                        AddExit(x + l[0] + s[0], y + l[1] + s[1]);
+                        AddExit(x + lx + sx, y + ly + sy);
 
                         int firstConditionValue, secondConditionValue;
                         if (directionIndex == 0)
                         {
-                            firstConditionValue = x + 2 * l[0];
+                            firstConditionValue = x + 2 * lx;
                             secondConditionValue = x;
                         }
                         else
                         {
-                            firstConditionValue = y + 2 * l[1];
+                            firstConditionValue = y + 2 * ly;
                             secondConditionValue = y;
                         }
 
@@ -724,10 +725,10 @@ namespace OneWayLabyrinth
                     }
                     else if (InTakenRel(-1, 2) &&
                         !InTakenAbs(straightField) &&
-                        !InTakenRel(-1, 1) && !(x + r[0] + 2 * s[0] == 1 && y + r[1] + 2 * s[1] == 1))
+                        !InTakenRel(-1, 1) && !(x + rx + 2 * sx == 1 && y + ry + 2 * sy == 1))
                     {
-                        int index = InTakenIndex(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]);
-                        T("Right mid across field: x " + (x + r[0] + 2 * s[0]) + " y " + (y + r[1] + 2 * s[1]) + " x " + x + " y " + y);
+                        int index = InTakenIndex(x + rx + 2 * sx, y + ry + 2 * sy);
+                        T("Right mid across field: x " + (x + rx + 2 * sx) + " y " + (y + ry + 2 * sy) + " x " + x + " y " + y);
 
                         int[] nextField;
                         int[] prevField;
@@ -737,17 +738,17 @@ namespace OneWayLabyrinth
 
                         forbidden.Add(straightField);
 
-                        AddExit(x + r[0] + s[0], y + r[1] + s[1]);
+                        AddExit(x + rx + sx, y + ry + sy);
 
                         int firstConditionValue, secondConditionValue;
                         if (directionIndex == 0)
                         {
-                            firstConditionValue = x + 2 * r[0];
+                            firstConditionValue = x + 2 * rx;
                             secondConditionValue = x;
                         }
                         else
                         {
-                            firstConditionValue = y + 2 * r[1];
+                            firstConditionValue = y + 2 * ry;
                             secondConditionValue = y;
                         } 
 
@@ -770,7 +771,7 @@ namespace OneWayLabyrinth
                             }
                             else //from left
                             {
-                                //check C shape
+                                //check C-shape
                                 forbidden.Add(leftField);
                                 circleDirectionLeft = false;
                             }
@@ -781,13 +782,13 @@ namespace OneWayLabyrinth
                         int firstConditionValue, secondConditionValue;
                         if (directionIndex == 0)
                         {
-                            firstConditionValue = y + 3 * s[1];
-                            secondConditionValue = y + s[1];
+                            firstConditionValue = y + 3 * sy;
+                            secondConditionValue = y + sy;
                         }
                         else
                         {
-                            firstConditionValue = x + 3 * s[0];
-                            secondConditionValue = x + s[0];
+                            firstConditionValue = x + 3 * sx;
+                            secondConditionValue = x + sx;
                         }
 
                         if (InTakenRel(2, 2) &&
@@ -795,9 +796,9 @@ namespace OneWayLabyrinth
                             !InTakenRel(1, 1) &&
                             !InTakenAbs(leftField))
                         {
-                            int index = InTakenIndex(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]);
+                            int index = InTakenIndex(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy);
 
-                            T("Left across field: x " + (x + 2 * l[0] + 2 * s[0]) + " y " + (y + 2 * l[1] + 2 * s[1]) + " x " + x + " y " + y);
+                            T("Left across field: x " + (x + 2 * lx + 2 * sx) + " y " + (y + 2 * ly + 2 * sy) + " x " + x + " y " + y);
                             // Example on 7 x 7: 0917 
 
                             int[]? nextField = null;
@@ -806,7 +807,7 @@ namespace OneWayLabyrinth
                             nextField = path[index + 1];
                             prevField = path[index - 1];
 
-                            AddExit(x + l[0] + s[0], y + l[1] + s[1]);
+                            AddExit(x + lx + sx, y + ly + sy);
 
                             if (nextField != null && nextField[1 - directionIndex] == firstConditionValue) //up
                             {
@@ -846,9 +847,9 @@ namespace OneWayLabyrinth
                         !InTakenRel(-1, 1) &&
                         !InTakenAbs(rightField))
                         {
-                            int index = InTakenIndex(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]);
+                            int index = InTakenIndex(x + 2 * rx + 2 * sx, y + 2 * ry + 2 * sy);
 
-                            T("Right across field: x " + (x + 2 * r[0] + 2 * s[0]) + " y " + (y + 2 * r[1] + 2 * s[1]) + " x " + x + " y " + y);
+                            T("Right across field: x " + (x + 2 * rx + 2 * sx) + " y " + (y + 2 * ry + 2 * sy) + " x " + x + " y " + y);
 
                             int[]? nextField = null;
                             int[] prevField;
@@ -856,7 +857,7 @@ namespace OneWayLabyrinth
                             nextField = path[index + 1];
                             prevField = path[index - 1];
 
-                            AddExit(x + r[0] + s[0], y + r[1] + s[1]);
+                            AddExit(x + rx + sx, y + ry + sy);
 
                             if (nextField != null && nextField[1 - directionIndex] == firstConditionValue) //up
                             {
@@ -916,24 +917,24 @@ namespace OneWayLabyrinth
             // the start and end fields have to be in the same section, otherwise they can connect, like in 0913
             // conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
 
-            if (InFutureStart(x + 2 * l[0], y + 2 * l[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
+            if (InFutureStart(x + 2 * lx, y + 2 * ly) && InFutureEnd(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy) && foundSectionStart == foundSectionEnd)
             {
                 T("CheckFutureL left");
                 forbidden.Add(rightField);
                 forbidden.Add(straightField);
             }
-            if (InFutureStart(x + 2 * r[0], y + 2 * r[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
+            if (InFutureStart(x + 2 * rx, y + 2 * ry) && InFutureEnd(x + 2 * rx + 2 * sx, y + 2 * ry + 2 * sy) && foundSectionStart == foundSectionEnd)
             {
                 T("CheckFutureL right");
                 forbidden.Add(leftField);
                 forbidden.Add(straightField);
             }
-            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
+            if (InFutureStart(x + 2 * sx, y + 2 * sy) && InFutureEnd(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy) && foundSectionStart == foundSectionEnd)
             {
                 T("CheckFutureL straight left");
                 forbidden.Add(leftField);
             }
-            if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && foundSectionStart == foundSectionEnd)
+            if (InFutureStart(x + 2 * sx, y + 2 * sy) && InFutureEnd(x + 2 * rx + 2 * sx, y + 2 * ry + 2 * sy) && foundSectionStart == foundSectionEnd)
             {
                 T("CheckFutureL straight right");
                 forbidden.Add(rightField);
@@ -1022,7 +1023,7 @@ namespace OneWayLabyrinth
             }
         }
 
-        public void Check2x2FutureStartEnd() // 0901_1 and 0901_1_2
+        public void Check2x2FutureStartEnd() // 0909_1 and 0909_1_2
 												// On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
         {
 			if (InTakenRel(1, 1) && InTakenRel(1, 2) && InTakenRel(0, 3) && InFutureStartRel(-1, 0) && InFutureEndRel(-3, 0) && (InBorderRel(-4, 1) || InTakenRel(-4, 1)))
@@ -1057,10 +1058,10 @@ namespace OneWayLabyrinth
 
 		public void Check3x3FutureStartEnd() // 0916, mirrored
 		{
-            int thisS0 = s[0];
-            int thisS1 = s[1];
-            int thisL0 = l[0];
-            int thisL1 = l[1];
+            int thisS0 = sx;
+            int thisS1 = sy;
+            int thisL0 = lx;
+            int thisL1 = ly;
 
             for (int i = 0; i < 2; i++)
             {
@@ -1069,29 +1070,29 @@ namespace OneWayLabyrinth
                     if (InFutureStartRel(1, 0) && InFutureEndRel(3, 0) && (InBorderRel(1, 4) || InTakenRel(1, 4)) && (InBorderRel(2, 4) || InTakenRel(2, 4)) && (InBorderRel(3, 4) || InTakenRel(3, 4)) && (InBorderRel(4, 3) || InTakenRel(4, 3)) && (InBorderRel(4, 2) || InTakenRel(4, 2)) && (InBorderRel(4, 1) || InTakenRel(4, 1)) && !InTakenRel(3, 1) && !InTakenRel(3, 2) && !InTakenRel(3, 3) && !InTakenRel(2, 3) && !InTakenRel(1, 3))
                     {
                         T("Check3x3FutureStartEnd");
-                        forbidden.Add(new int[] { x + l[0], y + l[1] }); //left field in the example
+                        forbidden.Add(new int[] { x + lx, y + ly }); //left field in the example
                     }
 
                     //turn right, pattern goes upwards
-                    int temps0 = s[0];
-                    int temps1 = s[1];
-                    s[0] = -l[0];
-                    s[1] = -l[1];
-                    l[0] = temps0;
-                    l[1] = temps1;
+                    int temps0 = sx;
+                    int temps1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = temps0;
+                    ly = temps1;
                 }
 
                 //mirror directions
-                s[0] = thisS0;
-                s[1] = thisS1;
-                l[0] = -thisL0;
-                l[1] = -thisL1;
+                sx = thisS0;
+                sy = thisS1;
+                lx = -thisL0;
+                ly = -thisL1;
             }
 
-            s[0] = thisS0;
-            s[1] = thisS1;
-            l[0] = thisL0;
-            l[1] = thisL1;
+            sx = thisS0;
+            sy = thisS1;
+            lx = thisL0;
+            ly = thisL1;
         }
 
         // 9 x 9
@@ -1124,10 +1125,10 @@ namespace OneWayLabyrinth
             //next step has to be left
 
 			//if I give value to int[] thisS = s, it will change when s changes.
-            int thisS0 = s[0];
-            int thisS1 = s[1];
-            int thisL0 = l[0];
-            int thisL1 = l[1];
+            int thisS0 = sx;
+            int thisS1 = sy;
+            int thisL0 = lx;
+            int thisL1 = ly;
 
             for (int i = 0; i < 2; i++)
 			{
@@ -1139,30 +1140,30 @@ namespace OneWayLabyrinth
 					&& !InTakenRel(4, 1))
 					{
 						T("1x3 valid at x " + x + " y " + y);
-						forbidden.Add(new int[] { x + s[0], y + s[1] }); //straight field
-						forbidden.Add(new int[] { x - l[0], y - l[1] }); //right field (per the start direction)
+						forbidden.Add(new int[] { x + sx, y + sy }); //straight field
+						forbidden.Add(new int[] { x - lx, y - ly }); //right field (per the start direction)
 					}
 
                     //turn right, pattern goes upwards
-                    int temps0 = s[0];
-					int temps1 = s[1];
-					s[0] = -l[0];
-					s[1] = -l[1];                    
-                    l[0] = temps0;
-					l[1] = temps1;
+                    int temps0 = sx;
+					int temps1 = sy;
+					sx = -lx;
+					sy = -ly;                    
+                    lx = temps0;
+					ly = temps1;
                 }
 
 				//mirror directions
-				s[0] = thisS0;
-                s[1] = thisS1;
-                l[0] = -thisL0;
-				l[1] = -thisL1;
+				sx = thisS0;
+                sy = thisS1;
+                lx = -thisL0;
+				ly = -thisL1;
             }
 
-            s[0] = thisS0;
-            s[1] = thisS1;
-            l[0] = thisL0;
-            l[1] = thisL1;
+            sx = thisS0;
+            sy = thisS1;
+            lx = thisL0;
+            ly = thisL1;
         }
 
 		private void Check3x3()
@@ -1175,10 +1176,10 @@ namespace OneWayLabyrinth
 
             //next step has to be left
 
-            int thisS0 = s[0];
-            int thisS1 = s[1];
-            int thisL0 = l[0];
-            int thisL1 = l[1];
+            int thisS0 = sx;
+            int thisS1 = sy;
+            int thisL0 = lx;
+            int thisL1 = ly;
 
             for (int i = 0; i < 2; i++)
 			{
@@ -1191,56 +1192,56 @@ namespace OneWayLabyrinth
 					 && !InTakenRel(3, 1) && !InTakenRel(3, 2))
 					{
 						T("3x3 valid at x " + x + " y " + y);
-						forbidden.Add(new int[] { x + s[0], y + s[1] }); //straight field
-						forbidden.Add(new int[] { x - l[0], y - l[1] }); //right field (per the start direction)
+						forbidden.Add(new int[] { x + sx, y + sy }); //straight field
+						forbidden.Add(new int[] { x - lx, y - ly }); //right field (per the start direction)
 					}
 
                     //turn right, pattern goes upwards
-                    int temps0 = s[0];
-                    int temps1 = s[1];
-                    s[0] = -l[0];
-                    s[1] = -l[1];
-                    l[0] = temps0;
-                    l[1] = temps1;
+                    int temps0 = sx;
+                    int temps1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = temps0;
+                    ly = temps1;
                 }
 
                 //mirror directions
-                s[0] = thisS0;
-                s[1] = thisS1;
-                l[0] = -thisL0;
-                l[1] = -thisL1;
+                sx = thisS0;
+                sy = thisS1;
+                lx = -thisL0;
+                ly = -thisL1;
             }
 
-            s[0] = thisS0;
-            s[1] = thisS1;
-            l[0] = thisL0;
-            l[1] = thisL1;
+            sx = thisS0;
+            sy = thisS1;
+            lx = thisL0;
+            ly = thisL1;
         }
 
 		// 21 x 21
 
 		public void CheckNearFutureStartEnd()
 		{
-			T(" x " + x + " " + y + " " + l[0] + " " + l[1] + " " + s[0] + " " + s[1]);
-			T("CheckNearFutureStartEnd x + l[0] + 2 * s[0] " + (x + l[0] + 2 * s[0]) + " y + l[1] + 2 * s[1] " + (y + l[1] + 2 * s[1]));
+			T(" x " + x + " " + y + " " + lx + " " + ly + " " + sx + " " + sy);
+			T("CheckNearFutureStartEnd x + lx + 2 * sx " + (x + lx + 2 * sx) + " y + ly + 2 * sy " + (y + ly + 2 * sy));
 			//meeting start and end ahead. Ends are 2 apart from each other at same forward distance.
-			if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
+			if (InFutureStart(x + 2 * sx, y + 2 * sy) && InFutureEnd(x + 2 * rx + 2 * sx, y + 2 * ry + 2 * sy) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
 			{
 				T("CheckNearFutureStartEnd to right");
 				forbidden.Add(rightField);
 			}
-			else if (InFutureStart(x + 2 * s[0], y + 2 * s[1]) && InFutureEnd(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
+			else if (InFutureStart(x + 2 * sx, y + 2 * sy) && InFutureEnd(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
 			{
 				T("CheckNearFutureStartEnd to left");
 				forbidden.Add(leftField);
 			}
-			else if (InFutureStart(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && InFutureEnd(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
+			else if (InFutureStart(x + lx + 2 * sx, y + ly + 2 * sy) && InFutureEnd(x + rx + 2 * sx, y + ry + 2 * sy) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
 			{
 				T("CheckNearFutureStartEnd to middle, start on left");
 				forbidden.Add(rightField);
 				forbidden.Add(straightField);
 			}
-			else if (InFutureStart(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && InFutureEnd(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
+			else if (InFutureStart(x + rx + 2 * sx, y + ry + 2 * sy) && InFutureEnd(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField))
 			{
 				T("CheckNearFutureStartEnd to middle, start on right");
 				forbidden.Add(leftField);
@@ -1253,27 +1254,27 @@ namespace OneWayLabyrinth
         {
             //mid cases are used when approaching an end, example: 0415_2
             //but in case of 0620, this is an error
-            if (InFuture(x + 2 * s[0], y + 2 * s[1]) && InFuture(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]) && InFutureStart(x + r[0] + s[0], y + r[1] + s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InFutureAbs(leftField) && !InFutureAbs(straightField) && !InFutureAbs(rightField))
+            if (InFuture(x + 2 * sx, y + 2 * sy) && InFuture(x + rx + 2 * sx, y + ry + 2 * sy) && InFutureStart(x + rx + sx, y + ry + sy) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InFutureAbs(leftField) && !InFutureAbs(straightField) && !InFutureAbs(rightField))
             {
                 //touching the end at the straight right corner. Can the future line go in other direction?
                 T("CheckNearFutureSide mid right");
                 forbidden.Add(rightField);
                 forbidden.Add(straightField);
             }
-            else if (InFuture(x + 2 * s[0], y + 2 * s[1]) && InFuture(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]) && InFutureStart(x + l[0] + s[0], y + l[1] + s[1]) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InFutureAbs(leftField) && !InFutureAbs(straightField) && !InFutureAbs(rightField))
+            else if (InFuture(x + 2 * sx, y + 2 * sy) && InFuture(x + lx + 2 * sx, y + ly + 2 * sy) && InFutureStart(x + lx + sx, y + ly + sy) && !InTakenAbs(leftField) && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InFutureAbs(leftField) && !InFutureAbs(straightField) && !InFutureAbs(rightField))
             {
                 T("CheckNearFutureSide mid left");
                 forbidden.Add(leftField);
                 forbidden.Add(straightField);
             }
-            else //check possible across fields. 2 across is in future, 1 across is free, plug 1 forward (0316 can otherwise go wrong). 1 to the side is also free, but we don't need to check it. Both sides can be true simultaneousl[1], example: 0413
+            else //check possible across fields. 2 across is in future, 1 across is free, plug 1 forward (0316 can otherwise go wrong). 1 to the side is also free, but we don't need to check it. Both sides can be true simultaneously, example: 0413
                  //Condition has to hold right even in situations like 0425_1
             {
-                /*if (InFutureStart(x + 2 * r[0] + 2 * s[0], y + 2 * r[1] + 2 * s[1]) && !InFuture(x + r[0] + s[0], y + r[1] + s[1]) && !InFuture(x + s[0], y + s[1]) && !InFutureF(rightField)
-					&& !InTaken(x + r[0] + s[0], y + r[1] + s[1]) && !InTaken(x + s[0], y + s[1]) )
+                /*if (InFutureStart(x + 2 * rx + 2 * sx, y + 2 * ry + 2 * sy) && !InFuture(x + rx + sx, y + ry + sy) && !InFuture(x + sx, y + sy) && !InFutureF(rightField)
+					&& !InTaken(x + rx + sx, y + ry + sy) && !InTaken(x + sx, y + sy) )
 				{
 					//2 to right and 1 forward, plus 1 to right and 2 forward is also free
-					if (!InFuture(x + 2 * r[0] + s[0], y + 2 * r[1] + s[1]) && !InFuture(x + r[0] + 2 * s[0], y + r[1] + 2 * s[1]))
+					if (!InFuture(x + 2 * rx + sx, y + 2 * ry + sy) && !InFuture(x + rx + 2 * sx, y + ry + 2 * sy))
 					{
 						T("CheckNearFutureSide across right");
 
@@ -1282,8 +1283,8 @@ namespace OneWayLabyrinth
 							T("Not start of section");
 							int[] nextField = path2[i - 1];
 							//goes to right further
-							if (nextField[0] == x + 3 * r[0] + 2 * s[0] &&
-								nextField[1] == y + 3 * r[1] + 2 * s[1])
+							if (nextField[0] == x + 3 * rx + 2 * sx &&
+								nextField[1] == y + 3 * ry + 2 * sy)
 							{
 								T("Goes right");
 								forbidden.Add(leftField);
@@ -1309,9 +1310,9 @@ namespace OneWayLabyrinth
 				}
 
 				//left across
-				if (InFutureStart(x + 2 * l[0] + 2 * s[0], y + 2 * l[1] + 2 * s[1]) && !InFuture(x + l[0] + s[0], y + l[1] + s[1]) && !InFuture(x + s[0], y + s[1]) && !InTaken(x + l[0] + s[0], y + l[1] + s[1]) && !InTaken(x + s[0], y + s[1]) && !InFutureF(leftField))
+				if (InFutureStart(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy) && !InFuture(x + lx + sx, y + ly + sy) && !InFuture(x + sx, y + sy) && !InTaken(x + lx + sx, y + ly + sy) && !InTaken(x + sx, y + sy) && !InFutureF(leftField))
 				{
-					if (!InFuture(x + 2 * l[0] + s[0], y + 2 * l[1] + s[1]) && !InFuture(x + l[0] + 2 * s[0], y + l[1] + 2 * s[1]))
+					if (!InFuture(x + 2 * lx + sx, y + 2 * ly + sy) && !InFuture(x + lx + 2 * sx, y + ly + 2 * sy))
 					{
 						T("CheckNearFutureSide across left");
 
@@ -1320,8 +1321,8 @@ namespace OneWayLabyrinth
 							T("Not start of section");
 							int[] nextField = path2[i - 1];
 							//goes to right further
-							if (nextField[0] == x + 3 * l[0] + 2 * s[0] &&
-								nextField[1] == y + 3 * l[1] + 2 * s[1])
+							if (nextField[0] == x + 3 * lx + 2 * sx &&
+								nextField[1] == y + 3 * ly + 2 * sy)
 							{
 								T("Goes left");
 								forbidden.Add(rightField);
@@ -1347,13 +1348,13 @@ namespace OneWayLabyrinth
 
         private void CheckNearFutureEnd()
 		{
-			if (InFutureEnd(x + l[0] + s[0], y + l[1] + s[1]))
+			if (InFutureEnd(x + lx + sx, y + ly + sy))
 			{
 				T("CheckNearFutureEnd to left");
 				forbidden.Add(rightField);
 				//0804_1 makes this untrue: forbidden.Add(straightField);
 			}
-			else if (InFutureEnd(x + r[0] + s[0], y + r[1] + s[1]))
+			else if (InFutureEnd(x + rx + sx, y + ry + sy))
 			{
 				T("CheckNearFutureEnd to right");
 				forbidden.Add(leftField);
@@ -1825,8 +1826,8 @@ namespace OneWayLabyrinth
 
         public bool InBorderRel(int left, int straight)
         {
-            int x = this.x + left * l[0] + straight * s[0];
-            int y = this.y + left * l[1] + straight * s[1];
+            int x = this.x + left * lx + straight * sx;
+            int y = this.y + left * ly + straight * sy;
             return InBorder(x, y);
         }
 
@@ -1846,8 +1847,8 @@ namespace OneWayLabyrinth
 
         public bool InTakenRel(int left, int straight, int searchStart = -1)
         {
-            int x = this.x + left * l[0] + straight * s[0];
-            int y = this.y + left * l[1] + straight * s[1];
+            int x = this.x + left * lx + straight * sx;
+            int y = this.y + left * ly + straight * sy;
             return InTaken(x, y, searchStart);
         }
 
@@ -1860,7 +1861,7 @@ namespace OneWayLabyrinth
 				{
 					int c2 = path2.Count;
 
-                    if (searchStart != -1) // for checking C shape middle field
+                    if (searchStart != -1) // for checking C-shape middle field
                     {
                         searchStart = c2 - 1;
                     }
@@ -1948,8 +1949,8 @@ namespace OneWayLabyrinth
 
         public bool InFutureRel(int left, int straight)
         {
-            int x = this.x + left * l[0] + straight * s[0];
-            int y = this.y + left * l[1] + straight * s[1];
+            int x = this.x + left * lx + straight * sx;
+            int y = this.y + left * ly + straight * sy;
             return InFuture(x, y);
         }
 
@@ -1977,8 +1978,8 @@ namespace OneWayLabyrinth
 
         public bool InFutureStartRel(int left, int straight) // relative position
         {
-                int x = this.x + left * l[0] + straight * s[0];
-                int y = this.y + left * l[1] + straight * s[1];
+                int x = this.x + left * lx + straight * sx;
+                int y = this.y + left * ly + straight * sy;
                 return InFutureStart(x, y);
         }
 
@@ -2037,8 +2038,8 @@ namespace OneWayLabyrinth
 
         public bool InFutureEndRel(int left, int straight) // relative position
         {
-            int x = this.x + left * l[0] + straight * s[0];
-            int y = this.y + left * l[1] + straight * s[1];
+            int x = this.x + left * lx + straight * sx;
+            int y = this.y + left * ly + straight * sy;
             return InFutureEnd(x, y);
         }
 
