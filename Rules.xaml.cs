@@ -34,7 +34,7 @@ namespace OneWayLabyrinth
         int xSize;
         int ySize;
         string grid;
-        string liveEnd, emptyField, takenField, takenOrBorderField, futureStartField, futureEndField, forbiddenField;
+        string liveEnd, emptyField, takenField, takenOrBorderField, futureStartField, futureEndField, forbiddenField, notCornerField;
         string newRule;
         int draggedElement = 0;
         SKElement draggedObj;
@@ -42,6 +42,7 @@ namespace OneWayLabyrinth
         Thickness origMargin;
         List<int[]> takenCoordinates = new();
         List<int[]> forbiddenCoordinates = new();
+        int[]? noCornerCoordinates = null;
         int childIndex = 0;
         List<string> activeRules = new();
 
@@ -60,8 +61,9 @@ namespace OneWayLabyrinth
             childIndex = 0;
             string[] listOfSizes = Directory.GetDirectories("rules");            
             int yTotalPos = 0;
-            string codeString = "namespace OneWayLabyrinth\n{\n\tpublic partial class Path\n\t{\n[conditionVariables]\n\t\tpublic void RunRules()\n\t\t{\n";
-            string conditionVariables = "";
+            string codeString = "namespace OneWayLabyrinth\n{\n\tpublic partial class Path\n\t{\n[conditionVariablesDeclare]\n\t\tpublic void RunRules()\n\t\t{\n[conditionVariablesReset]\n";
+            string conditionVariablesDeclare = "";
+            string conditionVariablesReset = "";
             activeRules = new() { "(no rule)" };            
 
             foreach (string size in listOfSizes)
@@ -100,7 +102,12 @@ namespace OneWayLabyrinth
                     string[] sizes = sizeStr.Split(" ");
 
                     string ruleName = rule.Replace(size + "\\", "").Replace(".svg","");
-                    conditionVariables += "\t\tbool " + ruleName.Replace(" ", "").Replace("-", "") + " = false;\n";
+                    string variableName = ruleName.Replace(" ", "").Replace("-", "");
+                    if (variableName != "CShape")
+                    {
+                        conditionVariablesDeclare += "\t\tpublic bool " + variableName + " = false;\n";
+                        conditionVariablesReset += "\t\t\t" + variableName + " = false;\n";
+                    }
                     codeString += "\t\t\t\t// " + ruleName + "\n";
                     activeRules.Add(ruleName);                    
 
@@ -153,6 +160,7 @@ namespace OneWayLabyrinth
                     int sectionPos = content.IndexOf("<!--1-->");
                     List<int[]> takenFields = new();
                     List<int[]> forbiddenFields = new();
+                    int[]? noCornerField = null;
                     while (true)
                     {
                         pos = content.IndexOf("<!-- ", pos);
@@ -166,11 +174,19 @@ namespace OneWayLabyrinth
                         }
                         else
                         {
-                            forbiddenFields.Add(new int[] { int.Parse(arr[0]), int.Parse(arr[1]) });
+                            if (int.Parse(arr[2]) == 8)
+                            {
+                                forbiddenFields.Add(new int[] { int.Parse(arr[0]), int.Parse(arr[1]) });
+                            }
+                            else
+                            {
+                                noCornerField = new int[] { int.Parse(arr[0]), int.Parse(arr[1]) };
+                            }
+                                
                         }
                         pos = lastPos;
                     }
-                    codeString += GenerateCode(ruleName.Replace(" ", "").Replace("-", ""), metaArr, takenFields, forbiddenFields);
+                    codeString += GenerateCode(variableName, metaArr, takenFields, forbiddenFields, noCornerField);
                 }
                 codeString = codeString.Substring(0, codeString.Length - 1);
                 codeString += "\t\t\t}\n\n";
@@ -183,14 +199,18 @@ namespace OneWayLabyrinth
             RotateCounterClockwise.IsChecked = false;
             codeString = codeString.Substring(0, codeString.Length - 1);
             codeString += "\t\t}\n\t}\n}";
-            codeString = codeString.Replace("[conditionVariables]", conditionVariables);
+            codeString = codeString.Replace("[conditionVariablesDeclare]", conditionVariablesDeclare);
+            codeString = codeString.Replace("[conditionVariablesReset]", conditionVariablesReset);
             File.WriteAllText("PathRules.cs", codeString);
         }
 
-        private string GenerateCode(string variableName, string[] meta, List<int[]> takenFields, List<int[]> forbiddenFields)
+        private string GenerateCode(string variableName, string[] meta, List<int[]> takenFields, List<int[]> forbiddenFields, int[]? noCornerField)
         {
+            if (variableName == "CShape") return "\t\t\t\t// Embedded in Path.cs as the absolute checking functions need it.\n\n";
+
             int startX = 0;
             int startY = 0;
+
             foreach (int[] field in takenFields)
             {
                 if (field[2] == 1)
@@ -200,7 +220,7 @@ namespace OneWayLabyrinth
                 }
             }
 
-            string condition = "";            
+            string conditionStr = "";            
 
             foreach (int[] field in takenFields)
             {
@@ -209,48 +229,138 @@ namespace OneWayLabyrinth
                 switch (field[2])
                 {
                     case 2:
-                        condition += "!InTakenRel(" + relX + "," + relY + ") && !InBorderRel(" + relX + "," + relY + ") && ";
+                        conditionStr += "!InTakenRel(" + relX + "," + relY + ") && ";
                         break;
                     case 3:
-                        condition += "InTakenRel(" + relX + "," + relY + ") && ";
+                        conditionStr += "InTakenRel(" + relX + "," + relY + ") && ";
                         break;
                     case 4:
-                        condition += "(InTakenRel(" + relX + "," + relY + ") || InBorderRel(" + relX + "," + relY + ")) && ";
+                        conditionStr += "(InTakenRel(" + relX + "," + relY + ") || InBorderRel(" + relX + "," + relY + ")) && ";
                         break;
                     case 5:
-                        condition += "InFutureStart(" + relX + "," + relY + ") && ";
+                        conditionStr += "InFutureStartRel(" + relX + "," + relY + ") && ";
                         break;
                     case 6:
-                        condition += "InFutureEnd(" + relX + "," + relY + ") && ";
+                        conditionStr += "InFutureEndRel(" + relX + "," + relY + ") && ";
                         break;
                 }
-            }            
-            condition = "\t\t\t\tif (" + condition.Substring(0, condition.Length - 4) + ")\n\t\t\t\t{\n\t\t\t\t\t" + variableName + " = true;\n";
+            }
+
+            if (!(noCornerField is null))
+            {
+                int relX = startX - noCornerField[0];
+                int relY = startY - noCornerField[1];
+                conditionStr += "!InCornerRel(" + relX + "," + relY + ") && ";
+            }
+
+            conditionStr = conditionStr.Substring(0, conditionStr.Length - 4);
+
+            // only works if only one future start and end fields are added
+            if (conditionStr.IndexOf("InFutureStart") != -1 && conditionStr.IndexOf("InFutureEnd") != -1)
+            {
+                conditionStr += " && foundSectionStart == foundSectionEnd";
+            }
+
+            string forbiddenStr = "";
+
             foreach (int[] field in forbiddenFields)
             {
                 int relX = startX - field[0];
                 int relY = startY - field[1];
                 if (relX == 0)
                 {
-                    condition += "\t\t\t\t\tforbidden.Add(new int[] { x + sx, y + sy });\n";
+                    forbiddenStr += "\t\t\t\t\t\tforbidden.Add(new int[] { x + sx, y + sy });\n";
                 }
                 else if (relX == 1)
                 {
-                    condition += "\t\t\t\t\tforbidden.Add(new int[] { x + lx, y + ly });\n";
+                    forbiddenStr += "\t\t\t\t\t\tforbidden.Add(new int[] { x + lx, y + ly });\n";
                 }
                 else
                 {
-                    condition += "\t\t\t\t\tforbidden.Add(new int[] { x - lx, y - ly });\n";
+                    forbiddenStr += "\t\t\t\t\t\tforbidden.Add(new int[] { x - lx, y - ly });\n";
                 }
             }
-            condition += "\t\t\t\t}\n\n";
+
+            string codeStr;
+
+            if (meta[1] == "True")
+            {
+                codeStr = "\t\t\t\tfor (int i = 0; i < 2; i++)\n" +
+                    "\t\t\t\t{\n" +
+                    "\t\t\t\t\tfor (int j = 0; j < 2; j++)\n" +
+                    "\t\t\t\t\t{\n" +
+                    "\t\t\t\t\t\tif (" + conditionStr + ")\n" +
+                    "\t\t\t\t\t\t{\n" +
+                    "\t\t\t\t\t\t\t" + variableName + " = true;\n" +
+                    forbiddenStr.Replace("\t\t\t\t\t\t", "\t\t\t\t\t\t\t") +
+                    "\t\t\t\t\t\t}\n" +
+                    "\t\t\t\t\t\tint s0 = sx;\n" +
+                    "\t\t\t\t\t\tint s1 = sy;\n" +
+                    "\t\t\t\t\t\tsx = -lx;\n" +
+                    "\t\t\t\t\t\tsy = -ly;\n" +
+                    "\t\t\t\t\t\tlx = s0;\n" +
+                    "\t\t\t\t\t\tly = s1;\n" +
+                    "\t\t\t\t\t}\n" +
+                    "\t\t\t\t\tsx = thisSx;\n" +
+                    "\t\t\t\t\tsy = thisSy;\n" +
+                    "\t\t\t\t\tlx = -thisLx;\n" +
+                    "\t\t\t\t\tly = -thisLy;\n" +
+                    "\t\t\t\t}\n" +
+                    "\t\t\t\tsx = thisSx;\n" +
+                    "\t\t\t\tsy = thisSy;\n" +
+                    "\t\t\t\tlx = thisLx;\n" +
+                    "\t\t\t\tly = thisLy;\n\n";
+
+            }
+            else if (meta[2] == "True")
+            {
+                codeStr = "\t\t\t\tfor (int i = 0; i < 2; i++)\n" +
+                    "\t\t\t\t{\n" +
+                    "\t\t\t\t\tfor (int j = 0; j < 2; j++)\n" +
+                    "\t\t\t\t\t{\n" +
+                    "\t\t\t\t\t\tif (" + conditionStr + ")\n" +
+                    "\t\t\t\t\t\t{\n" +
+                    "\t\t\t\t\t\t\t" + variableName + " = true;\n" +
+                    forbiddenStr.Replace("\t\t\t\t\t\t", "\t\t\t\t\t\t\t") +
+                    "\t\t\t\t\t\t}\n" +
+                    "\t\t\t\t\t\tint l0 = lx;\n" +
+                    "\t\t\t\t\t\tint l1 = ly;\n" +
+                    "\t\t\t\t\t\tlx = -sx;\n" +
+                    "\t\t\t\t\t\tly = -sy;\n" +
+                    "\t\t\t\t\t\tsx = l0;\n" +
+                    "\t\t\t\t\t\tsy = l1;\n" +
+                    "\t\t\t\t\t}\n" +
+                    "\t\t\t\t\tsx = thisSx;\n" +
+                    "\t\t\t\t\tsy = thisSy;\n" +
+                    "\t\t\t\t\tlx = -thisLx;\n" +
+                    "\t\t\t\t\tly = -thisLy;\n" +
+                    "\t\t\t\t}\n" +
+                    "\t\t\t\tsx = thisSx;\n" +
+                    "\t\t\t\tsy = thisSy;\n" +
+                    "\t\t\t\tlx = thisLx;\n" +
+                    "\t\t\t\tly = thisLy;\n\n";
+            }
+            else
+            {
+                codeStr = "\t\t\t\tfor (int i = 0; i < 2; i++)\n" +
+                    "\t\t\t\t{\n" +
+                    "\t\t\t\t\tif (" + conditionStr + ")\n" +
+                    "\t\t\t\t\t{\n" +
+                    "\t\t\t\t\t\t" + variableName + " = true;\n" +
+                    "" + forbiddenStr + "\t\t\t\t\t}\n" +
+                    "\t\t\t\t\tlx = -lx;\n" +
+                    "\t\t\t\t\tly = -ly;\n" +
+                    "\t\t\t\t}\n" +
+                    "\t\t\t\tlx = thisLx;\n" +
+                    "\t\t\t\tly = thisLy;\n\n";
+            }
 
             if (meta[0] != "")
             {
-                condition = "\t\t\t\tif (!" + meta[0].Replace(" ", "").Replace("-", "") + ")\n\t\t\t\t{\n" + condition.Substring(0, condition.Length - 1).Replace("\t\t\t\t", "\t\t\t\t\t") + "\t\t\t\t}\n\n";
+                codeStr = "\t\t\t\tif (!" + meta[0].Replace(" ", "").Replace("-", "") + ")\n\t\t\t\t{\n" + codeStr.Substring(0, codeStr.Length - 1).Replace("\t\t\t\t", "\t\t\t\t\t") + "\t\t\t\t}\n\n";
             }
 
-            return condition;
+            return codeStr;
         }
 
         private void CreateNew_Click(object sender, RoutedEventArgs e)
@@ -300,12 +410,15 @@ namespace OneWayLabyrinth
             content = singleGrid.Replace("<!---->", futureEndField);
             if (!File.Exists("futureEndField.svg")) File.WriteAllText("futureEndField.svg", content);
 
+            notCornerField = "<path d=\"M 0.2 0.2 v 0.6 h 0.6 h -0.3 a 0.3 0.3 0 0 0 -0.3 -0.3\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" /><circle cx=\"0.32\" cy=\"0.68\" r=\"0.05\" fill=\"red\" fill-opacity=\"1\" />\r\n";
+            content = singleGrid.Replace("<!---->", notCornerField);
+            if (!File.Exists("notCornerField.svg")) File.WriteAllText("notCornerField.svg", content);
+
             forbiddenField = "<path d=\"M 0.2 0.2 l 0.6 0.6 M 0.2 0.8 l 0.6 -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\r\n";
             content = singleGrid.Replace("<!---->", forbiddenField);
             if (!File.Exists("forbiddenField.svg")) File.WriteAllText("forbiddenField.svg", content);
 
-            svgName = "newRule.svg";
-            
+            svgName = "newRule.svg";            
             
             xSize = int.Parse(XSize.Text);
             ySize = int.Parse(YSize.Text);
@@ -327,6 +440,7 @@ namespace OneWayLabyrinth
             Canvas5.InvalidateVisual();
             Canvas6.InvalidateVisual();
             Canvas7.InvalidateVisual();
+            Canvas8.InvalidateVisual();
         }
 
         private void SaveRule_Click(object sender, RoutedEventArgs e)
@@ -338,7 +452,8 @@ namespace OneWayLabyrinth
                 M("The rule is larger than the applied size.");
                 return;
             }
-            if (takenCoordinates.Count == 0) {
+            if (takenCoordinates.Count == 0)
+            {
                 M("Empty rule not saved.");
                 return;
             }
@@ -354,7 +469,17 @@ namespace OneWayLabyrinth
             }
             if (newRule.IndexOf("1 -->") == -1)
             {
-                M("No live end exist.");
+                M("No live end added.");
+                return;
+            }
+            if (newRule.IndexOf("8 -->") == -1)
+            {
+                M("No forbidden fields added.");
+                return;
+            }
+            if (newRule.IndexOf("2 -->") == -1 && newRule.IndexOf("3 -->") == -1 && newRule.IndexOf("4 -->") == -1 && newRule.IndexOf("5 -->") == -1 && newRule.IndexOf("6 -->") == -1)
+            {
+                M("No conditions are added.");
                 return;
             }
             if (!Directory.Exists("rules/" + size))
@@ -387,12 +512,19 @@ namespace OneWayLabyrinth
 
         private void ResetRule_Click(object sender, RoutedEventArgs e)
         {
+            xSize = int.Parse(XSize.Text);
+            ySize = int.Parse(YSize.Text);
+
+            Canvas.Width = xSize * 40;
+            Canvas.Height = ySize * 40;
+
             DrawGrid();
 
             newRule = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + xSize + " " + ySize + "\">\r\n\t<!--1-->\r\n\t<!--2-->\r\n" + grid + "\r\n</svg>";
             File.WriteAllText(svgName, newRule);
             takenCoordinates = new();
             forbiddenCoordinates = new();
+            noCornerCoordinates = null;
 
             NewRuleGrid.Height = 174 + ySize * 40; // the dragged element will otherwise stretch it on the bottom, no other solution have been found.
             Precondition.SelectedIndex = 0;
@@ -509,7 +641,7 @@ namespace OneWayLabyrinth
             }
             else
             {
-                preCondition = (string)Precondition.SelectedItem;                
+                preCondition = (string)Precondition.SelectedItem;
             }
             int pos = newRule.IndexOf("<svg");
             newRule = "<!--|" + preCondition + "|" + RotateClockwise.IsChecked + "|" + RotateCounterClockwise.IsChecked + "|-->\r\n" + newRule.Substring(pos);
@@ -570,12 +702,13 @@ namespace OneWayLabyrinth
                 if (x >= 200 && x <= 240) draggedElement = 5;
                 if (x >= 250 && x <= 290) draggedElement = 6;
                 if (x >= 300 && x <= 340) draggedElement = 7;
+                if (x >= 350 && x <= 390) draggedElement = 8;
             }
 
             draggedObj = (SKElement)RuleGrid.Children[draggedElement];
             T("draggedObj " + draggedObj);
             origMargin = draggedObj.Margin;
-            Panel.SetZIndex(draggedObj, 8);
+            Panel.SetZIndex(draggedObj, 9);
         }
 
         private void RuleGrid_MouseMove(object sender, MouseEventArgs e)
@@ -624,6 +757,41 @@ namespace OneWayLabyrinth
 
                 if (draggedElement == 7)
                 {
+                    if (!(noCornerCoordinates is null))
+                    {
+                        T("Corner already exists.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    if (coordX > 2 && coordX < xSize - 1 && coordY > 2)
+                    {
+                        T("Corner misplaced.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in forbiddenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY)
+                        {
+                            T("Corner cannot be forbidden.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    noCornerCoordinates = new int[] { coordX, coordY };
+                }
+                else if (draggedElement == 8)
+                {
+                    if (!(noCornerCoordinates is null) && coordX == noCornerCoordinates[0] && coordY == noCornerCoordinates[1])
+                    {
+                        T("Corner cannot be forbidden.");
+                        draggedElement = 0;
+                        return;
+                    }
+
                     if (forbiddenCoordinates.Count == 2)
                     {
                         T("Too many forbidden.");
@@ -711,10 +879,25 @@ namespace OneWayLabyrinth
                     {
                         if (draggedElement == 1 && coord[2] == 1)
                         {
-                            T("Exusting live end-");
+                            T("Existing live end");
                             draggedElement = 0;
                             return;
                         }
+                        else if (draggedElement == 5 && coord[2] == 5)
+                        {
+                            T("Existing future start");
+                            M("Only one future start field can be added.");
+                            draggedElement = 0;
+                            return;
+                        }
+                        else if (draggedElement == 6 && coord[2] == 6)
+                        {
+                            T("Existing future end");
+                            M("Only one future end field can be added.");
+                            draggedElement = 0;
+                            return;
+                        }
+
                         if (draggedElement == 1 && coord[0] == coordX && coord[1] == coordY + 1)
                         {
                             T("Live end bottom taken.");
@@ -760,11 +943,14 @@ namespace OneWayLabyrinth
                         addField = futureEndField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.5", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.5f));
                         break;
                     case 7:
+                        addField = notCornerField.Replace("M 0.2 0.2", "M " + (coordX - 0.8f) + " " + (coordY - 0.8f)).Replace("0.32", (coordX - 0.68f).ToString()).Replace("0.68", (coordY - 0.32f).ToString());
+                        break;
+                    case 8:
                         addField = forbiddenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.2", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.2f)).Replace("M 0.2 0.8", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.8f));
                         break;
                 }
 
-                if (draggedElement == 7)
+                if (draggedElement == 7 || draggedElement == 8)
                 {
                     newRule = newRule.Replace("<!--2-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\t<!--2-->");
                 }

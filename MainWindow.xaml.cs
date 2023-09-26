@@ -142,9 +142,11 @@ namespace OneWayLabyrinth
 		bool fastRun = false;
 		//bool saveOnlyDirecions = true;
 		bool keepLeftCheck, continueCheck;
-        int completedCount;
+        public int completedCount;
 		bool completedWalkthrough = false;
         public bool errorInWalkthrough = false;
+		bool toReload = false;
+		bool toSave = false;
         CancellationTokenSource source;
         bool isTaskRunning = false;
         private List<int[]> extensionPossibilities = new List<int[]>();
@@ -228,6 +230,7 @@ namespace OneWayLabyrinth
 
         private void FastRun_Click(object sender, RoutedEventArgs e)
         {
+            FocusButton.Focus();
             if (isTaskRunning)
             {
                 source.Cancel();
@@ -247,7 +250,8 @@ namespace OneWayLabyrinth
         }
 
         private void StartStop_Click(object sender, RoutedEventArgs e)
-        {			
+        {
+            FocusButton.Focus();
             if (isTaskRunning)
             {
 				source.Cancel();
@@ -285,6 +289,7 @@ namespace OneWayLabyrinth
 		{
             if (messageCode != -1) return;
 
+			MessageLine.Content = "";
             FastRunButton.Content = "Stop run";
             FastRunButton.Style = Resources["RedButton"] as Style;
             StartStopButton.Content = "Stop";
@@ -322,15 +327,29 @@ namespace OneWayLabyrinth
             }
             while (!completedWalkthrough && !errorInWalkthrough);
 
+
             Dispatcher.Invoke(() =>
             {
                 StopTimer(); //in case of errors, it is already called.
                 DrawPath();
+                isTaskRunning = false;
+                if (toReload)
+				{
+					toReload = false;
+					Reload_Click(null, null);
+					return;
+				}
+				else if (toSave)
+				{
+                    toSave = false;
+                    Save_Click(null, null);
+					return;
+                }
 				if (completedWalkthrough) M("The number of walkthroughs are " + completedCount + ".", 0);
 				else if (!errorInWalkthrough) M(completedCount + " walkthroughs are completed.", 0);
 				else MessageLine.Content = "Error at " + completedCount + ": " + MessageLine.Content;
             });
-			isTaskRunning = false;
+			
         }
 
 		private void StopTimer()
@@ -552,7 +571,20 @@ namespace OneWayLabyrinth
 
 		private void Reload_Click(object sender, RoutedEventArgs e)
 		{
-			HideMessage();
+			FocusButton.Focus();
+
+            if (isTaskRunning)
+            {
+                source.Cancel();
+				toReload = true;
+                return;
+            }
+            else if (timer.IsEnabled)
+            {
+                StopTimer();
+            }
+
+            HideMessage();
 			messageCode = -1;				
 
 			exits = new List<int[]>();
@@ -611,7 +643,22 @@ namespace OneWayLabyrinth
 
 		private void Save_Click(object sender, RoutedEventArgs e)
 		{
-			ReadDir();
+            FocusButton.Focus();
+			if (messageCode == -1)
+			{
+                if (isTaskRunning)
+                {
+                    source.Cancel();
+                    toSave = true;
+                    return;
+                }
+                else if (timer.IsEnabled)
+                {
+                    StopTimer();
+                }
+            }
+
+            ReadDir();
 
 			string saveName = loadFile;
 			if (saveName == "")
@@ -623,7 +670,19 @@ namespace OneWayLabyrinth
 
 		private void Previous_Click(object sender, RoutedEventArgs e)
 		{
-			if (messageCode == 2)
+            FocusButton.Focus();
+            if (isTaskRunning)
+            {
+                source.Cancel();
+                return;
+            }
+            else if (timer.IsEnabled)
+            {
+                StopTimer();
+                return;
+            }
+
+            if (messageCode == 2)
 			{
 				possibleDirections.RemoveAt(possibleDirections.Count - 1);
 				PreviousStepWithFuture();
@@ -639,7 +698,19 @@ namespace OneWayLabyrinth
 
 		private void Next_Click(object sender, RoutedEventArgs e)
 		{
-			NextClick(false);
+            FocusButton.Focus();
+            if (isTaskRunning)
+            {
+                source.Cancel();
+                return;
+            }
+            else if (timer.IsEnabled)
+            {
+                StopTimer();
+                return;
+            }
+
+            NextClick(false);
 		}
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -649,10 +720,10 @@ namespace OneWayLabyrinth
 
 		private void NextClick(bool isTimer)
 		{
-			if (isTimer && fastRun && messageCode != -1)
-			{
-				if (messageCode != 3) errorInWalkthrough = true; // 3 indicats halfway walkthrough
-                return;
+			if (isTimer && fastRun && messageCode != -1 && messageCode != 3) // 3 indicats halfway walkthrough
+            {
+				errorInWalkthrough = true;
+				return;
             }
 
 			if (messageCode == 2)
@@ -763,11 +834,17 @@ namespace OneWayLabyrinth
                         {
 							MessageLine.Content = completedCount + " walkthroughs are completed.";
                         });
+                        
                         //SavePath();
                         //Dispatcher.Invoke(() => { DrawPath(); }); //frequent error in SKCanvas: Attempt to read or write protected memory
                     }
                     else DrawPath();
-					return;
+
+                    if (taken.path.Count != size * size)
+                    {
+                        M("The number of steps were only " + taken.path.Count + ".", 0);
+                    }
+                    return;
 				}
 
 				NextStepPossibilities();
@@ -1042,6 +1119,21 @@ namespace OneWayLabyrinth
 				errorInWalkthrough = true;
 				StopAll("No option to move.");
 			}
+
+			//Stop at pattern here
+
+            /*if (taken.Future3x3StartEnd)
+            {
+				taken.Future3x3StartEnd = false;
+                M("Future3x3StartEnd: " + completedCount + " walkthroughs are completed.", 3);
+                if (isTaskRunning)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        DrawPath();
+                    });
+                }
+            }*/
         }
 
 		private bool NextStep()
@@ -1726,7 +1818,6 @@ namespace OneWayLabyrinth
 						}
 						else
 						{
-							T("direciton right, adding end square");
 							endSquares.Add(endCandidate);
 						}
 					}
@@ -3474,7 +3565,7 @@ namespace OneWayLabyrinth
             if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedPathCode + ".txt", savePath);
         }
 
-		private void DrawPath()
+		public void DrawPath()
 		{
 			string startPos = 0.5 + " " + 0.5;
 			string startPosFuture = "";
@@ -3531,7 +3622,7 @@ namespace OneWayLabyrinth
 				savePath = savePath.Substring(0, savePath.Length - 1);
 				savePath += "-" + newX + "," + newY + ";";
 
-				if ((SaveCheck.IsChecked == true || fastRun) && lineFinished)
+				if (SaveCheck.IsChecked == true && lineFinished)
 				{
 					for (int j = 0; j < 4; j++)
 					{
@@ -4048,7 +4139,6 @@ namespace OneWayLabyrinth
 			if (e.Key == Key.Enter)
 			{
 				Reload_Click(new object(), new RoutedEventArgs());
-				FocusButton.Focus();
 				//Keyboard.ClearFocus(); removes the focus from the textbox, but the window becomes unresponsive. Calling MWindow.Focus(); will put the focus on the textbox again.
 			}
 
@@ -4115,7 +4205,7 @@ namespace OneWayLabyrinth
 			}
 		}
 
-		private void M(object o, int code)
+		public void M(object o, int code)
 		{
 			Dispatcher.Invoke(() =>
 			{

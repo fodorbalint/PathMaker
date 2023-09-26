@@ -82,9 +82,54 @@ There is one more thing to keep in mind on 7 x 7. If the line approaches itself,
 
 <img src="References/0901.svg" width="33.3%"/>
 
-The program is now equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on you computer speed. This enables us to discover all 7 x 7 walkthroughs, which is 107 704. According to the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 X 2n+1 grid) it should be 111 712. If that calculation is correct, then the program has missed some cases.
+The program is now equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7 x 7 walkthroughs. According to the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 X 2n+1 grid) it should be 111 712, but this is not easy to verify.
 
-A rule editor is being created now to provide a better overview about them.
+A rule editor has been created to provide a better overview about them. Here you can drag and drop the following fields:
+- live end
+- empty field
+- taken field
+- taken or border field
+- future start field
+- future end field
+- a field that is not the end corner
+- forbidden field
+
+These are the currently used relative rules (where the x or y-position is not determined like on the edge) with examples:
+
+C-shape:
+
+<img src="References/rules/5/C-Shape.svg" width="19.05%"/>
+
+Side back:
+
+<img align="top" src="References/rules/7/Side back.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Side back 2558.svg" width="33.3%"/>
+
+
+Side front:
+
+<img align="top" src="References/rules/7/Side front.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Side front 266.svg" width="33.3%"/>
+
+Side front L:
+
+<img align="top"  src="References/rules/7/Side front L.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Side front L 3627.svg" width="33.3%"/>
+
+Future L:
+
+<img align="top" src="References/rules/7/Future L.svg" width="19.05%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future L 65.svg" width="33.3%"/>
+
+Future 2 x 2 Start End:
+
+<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="28.57%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/>
+
+Future 2 x 3 Start End:
+
+<img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future 2 x 3 Start End 465.svg" width="33.3%"/>
+
+Future 3 x 3 Start End:
+
+<img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future 3 x 3 Start End 1861.svg" width="33.3%"/>
+
+The number of walkthroughs are now 111 708. Which 4 cases have I missed? 
 
 ---
 
