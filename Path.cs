@@ -37,10 +37,10 @@ namespace OneWayLabyrinth
         public int ly = 0;
         public int rx = 0;
         public int ry = 0;
-        private int thisSx = 0; // remain constant in one step, while the above variables change for the InTakenRel calls.
-        private int thisSy = 0;
-        private int thisLx = 0;
-        private int thisLy = 0;
+        public int thisSx = 0; // remain constant in one step, while the above variables change for the InTakenRel calls.
+        public int thisSy = 0;
+        public int thisLx = 0;
+        public int thisLy = 0;
         int[] straightField = new int[] { };
 		int[] leftField = new int[] { };
 		int[] rightField = new int[] { };
@@ -350,7 +350,7 @@ namespace OneWayLabyrinth
                 for (int j = 0; j < 2; j++)
                 {
                     int[] liveEnd = path2[path2.Count - 1];
-                    if (InTakenRel(1, -1) && (InTakenRel(2, 0) || InBorderRel(2, 0)) && !InTakenRel(1, 0) && !(!window.inFuture && liveEnd[0] == x + lx - sx && liveEnd[1] == y + ly - sy) && !InFutureStartRel(1, -1) && !InFutureEndRel(1, -1) && !(!window.inFuture && liveEnd[0] == x + 2 * lx && liveEnd[1] == y + 2 * ly) && !InFutureStartRel(2, 0) && !InFutureEndRel(2, 0))
+                    if (!(x + lx == size && y + ly == size) && (InTakenRel(1, -1) || InBorderRel(1, -1)) && (InTakenRel(2, 0) || InBorderRel(2, 0)) && !InTakenRel(1, 0) && !(!window.inFuture && liveEnd[0] == x + lx - sx && liveEnd[1] == y + ly - sy) && !InFutureStartRel(1, -1) && !InFutureEndRel(1, -1) && !(!window.inFuture && liveEnd[0] == x + 2 * lx && liveEnd[1] == y + 2 * ly) && !InFutureStartRel(2, 0) && !InFutureEndRel(2, 0))
                     {
                         CShape = true;
                         forbidden.Add(new int[] { x - lx, y - ly }); //right

@@ -51,7 +51,7 @@ This will change on 7 x 7. See these examples:
 
 In the first, the upper right line fails when we step right. In the second, the line on the left. The results are:
 
-<img src="References/0821_fail.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0827_fail.svg" width="33.3%"/>
+<img src="References/0821_0_1.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0827_0_1.svg" width="33.3%"/>
 
 Do you see the pattern? To avoid the situation, we need to check if there is a future line that starts 2 to left and ends 2 to left and 2 to straight. (Same with the right side.) And that's not all. The pattern can be rotated as well, so that the future line starts 2 to straight:
 
@@ -61,7 +61,12 @@ In these situations the only possibility is to step towards the start of the fut
 
 Notice a new future line extension rule in these examples. When a near end is at 2 distance left or right from the actual end, it will fill the field between them if the live end steps elsewhere.
 
-Other rules define the possibilities when approaching or moving along an edge:
+<!-- change -->
+And other situations, there is a 1-thin future line next to the live end that can be extended if its far end is at the corner. Though disabling this rule does not affect the total amount of walkthroughs on a 7 x 7 grid, I chose to include it in the project on the basis that if a future line can be extended, we should do it. It can make a considerable difference. The left picture is without the rule, the right is with it:
+
+<img src="References/0911.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0911_0_1.svg" width="33.3%"/>
+
+There are also rules that define the possibilities when approaching or moving along an edge:
 
 <img src="References/0831_3.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0831_4.svg" width="33.3%"/>
 
@@ -77,12 +82,13 @@ And on 9 x 9, the same rule will apply near the left and upper edge.
 
 <img src="References/0901_1.svg" width="42.86%"/>
 
-The green fields now mark a new rule, but that's for later.<br /> 
-There is one more thing to keep in mind on 7 x 7. If the line approaches itself, it needs to behave as on the edge. In the following situation, the left and straight option has to be disabled.
+The green fields now mark a new rule, counting the enclosed area. If it is impair, the area cannot be completed. It actually needs to be applied on 7 x 7 already.
+
+There is one more thing to keep in mind. If the line approaches itself, it needs to behave as on the edge. In the following situation, the left and straight option has to be disabled.
 
 <img src="References/0901.svg" width="33.3%"/>
 
-The program is now equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7 x 7 walkthroughs. According to the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 X 2n+1 grid) it should be 111 712, but this is not easy to verify.
+The program is now equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7 x 7 walkthroughs. According to the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 x 2n+1 grid) it should be 111 712, but this is not easy to achieve.
 
 A rule editor has been created to provide a better overview about them. Here you can drag and drop the following fields:
 - live end
@@ -117,19 +123,20 @@ Future L:
 
 <img align="top" src="References/rules/7/Future L.svg" width="19.05%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future L 65.svg" width="33.3%"/>
 
-Future 2 x 2 Start End:
+Future 2 x 2 Start End
 
 <img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="28.57%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/>
 
-Future 2 x 3 Start End:
+Future 2 x 3 Start End
 
 <img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future 2 x 3 Start End 465.svg" width="33.3%"/>
 
-Future 3 x 3 Start End:
+Future 3 x 3 Start End
 
 <img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future 3 x 3 Start End 1861.svg" width="33.3%"/>
 
-The number of walkthroughs are now 111 708. Which 4 cases have I missed? 
+We also need to pay attention to how the future lines are created and extended, which I will write about later.
+I can now, on the 28th September, confirm that the number of walkthroughs are correct.
 
 ---
 
