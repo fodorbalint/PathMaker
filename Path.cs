@@ -49,6 +49,11 @@ namespace OneWayLabyrinth
         int foundSectionStart, foundSectionEnd;
         bool CShape = false;
 
+        //used only for displaying area
+        public bool countAreaImpair = false;
+        public List<int[]> areaLine = new();
+
+
         public Path(MainWindow window, int size, List<int[]> path, List<int[]>? path2, bool isMain)
 		{
 			this.window = window;
@@ -237,63 +242,62 @@ namespace OneWayLabyrinth
                         else
                         {
                             CheckCShape();
-                            CheckNearBorder();
-                            CheckNearCorner(); // 0811_2, which also satisfies CheckFutureL rule
-                            if (size >= 7)
-							{
-                                // --- Border and count area rules:
+                            if (!CShape)
+                            {
+                                areaLine = new();
+                                countAreaImpair = false;
 
-                                CheckCOnFarBorder(); // 0831_1_2
-                                CheckAreaNearBorder(); // 0909. A 2x2 area would created with one way to go in and out
-                                if (!CShape) // when a straight C-shape is true, CheckNearField close straight would be as well, disabling the straight opportunity
+                                CheckNearBorder();
+                                CheckAreaNearBorder(); // Uses countarea, see 0909. A 2x2 area would be created with one way to go in and out
+
+                                if (size >= 7)
                                 {
+                                    // when a straight C-shape is true, CheckNearField close straight would be as well, disabling the straight opportunity
                                     CheckNearField(); // 0901, 0917_1, 0917_4
+
+                                    // --- Relative rules, created by the editor:
+
+                                    // Side back
+
+                                    // Side front
+
+                                    // Side front L
+
+                                    // Future L
+                                    // 0821, 0827
+                                    // the start and end fields have to be in the same section, otherwise they can connect, like in 0913
+                                    // conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
+
+                                    // Future 2 x 2 Start End
+                                    // 0909_1, 0909_1_2
+                                    // On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
+
+                                    // Future 2 x 3 Start End
+                                    // 0915
+                                    // Is there a situation where the start and end fields are not part of one future line?
+                                    // On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
+
+                                    // Future 3 x 3 Start End
+                                    //0916
+
+                                    RunRules();
+
+                                    T("Sideback " + Sideback + " Sidefront " + Sidefront + " SidefrontL " + SidefrontL + " FutureL " + FutureL + " Future2x2StartEnd  " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd);
                                 }
+                                if (size >= 9)
+                                {
 
-                                T("forbidden.Count " + forbidden.Count);
-
-                                // --- Relative rules, created by the editor:
-
-                                // Side back
-
-                                // Side front
-
-                                // Side front L
-
-                                // Future L
-                                // 0821, 0827
-                                // the start and end fields have to be in the same section, otherwise they can connect, like in 0913
-                                // conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
-
-                                // Future 2 x 2 Start End
-                                // 0909_1, 0909_1_2
-                                // On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
-
-                                // Future 2 x 3 Start End
-                                // 0915
-                                // Is there a situation where the start and end fields are not part of one future line?
-                                // On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
-
-                                // Future 3 x 3 Start End
-                                //0916
-
-                                RunRules();
-
-                                T("Sideback " + Sideback + " Sidefront " + Sidefront + " SidefrontL " + SidefrontL + " FutureL " + FutureL + " Future2x2StartEnd  " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd);                                                                   
+                                }
+                                /* (not actual yet)
+                                if (size >= 21)
+                                {
+                                    // found on 21x21, may recreate the situation on smaller boards.
+                                    CheckNearFutureStartEnd();
+                                    CheckNearFutureSide();
+                                    // 0630, but needs to work with 0804_1 too
+                                    // CheckNearFutureEnd();
+                                } */
                             }
-                            if (size >= 9)
-                            {
-                                CheckCOnNearBorder();
-                            }
-                            /* (not actual yet)
-                            if (size >= 21)
-                            {
-                                // found on 21x21, may recreate the situation on smaller boards.
-                                CheckNearFutureStartEnd();
-                                CheckNearFutureSide();
-                                // 0630, but needs to work with 0804_1 too
-                                // CheckNearFutureEnd();
-                            } */   
                         }
                         break;
 					}
@@ -459,7 +463,8 @@ namespace OneWayLabyrinth
             }    
         }
 
-        private void CheckNearCorner()
+        /* May not be needed, countarea on the border takes care of it
+        private void CheckNearCorner() // 0811_2, which also satisfies CheckFutureL rule
         {
             //First condition is needed for when we are at 4,5 and the left field is 4,4 on a 5x5 field
             if (y != size && leftField[0] == size - 1 && leftField[1] == size - 1)
@@ -470,23 +475,26 @@ namespace OneWayLabyrinth
             {
                 forbidden.Add(rightField);
             }
-        }
+        }*/
 
 
         // 7 x 7
 
-        private void CheckCOnFarBorder()
+        /* May not be needed, countarea on the border takes care of it
+         * private void CheckCOnFarBorder() // 0831_1_2
         {
             // Applies from 7x7, see 0831_1_2. Similar to CheckNearCorner, it is just not at the corner.
             if (x == size - 2 && rightField[0] == size - 1 && !InTakenRel(-1, -1) && InTakenRel(-1, -2))
             {
+                T("COnFarBorder horizontal");
                 forbidden.Add(rightField);
             }
             else if (y == size - 2 && leftField[1] == size - 1 && !InTakenRel(1, -1) && InTakenRel(1, -2))
             {
+                T("COnFarBorder vertical");
                 forbidden.Add(leftField);
             }
-        }
+        }*/
 
         public void CheckAreaNearBorder() // 0909. Check both straight approach and side.
         {
@@ -572,7 +580,6 @@ namespace OneWayLabyrinth
 
         public void CheckNearField()
 		{
-
             if (size == 7)
             {
                 bool closeMidAcrossFound = false;
@@ -973,7 +980,8 @@ namespace OneWayLabyrinth
 
         // 9 x 9
 
-        private void CheckCOnNearBorder() // Applies from 9x9, see 0901_1.
+        /* May not be needed, countarea on the border takes care of it
+         * private void CheckCOnNearBorder() // Applies from 9x9, see 0901_1.
         {
             if (x == 3 && leftField[0] == 2 && !InTakenRel(1, -1) && InTakenRel(1, -2))
             {
@@ -985,11 +993,11 @@ namespace OneWayLabyrinth
                 T("Right field C on near border");
                 forbidden.Add(rightField);
             }
-        }
+        }*/
 
-		// 21 x 21
+        // 21 x 21
 
-		public void CheckNearFutureStartEnd()
+        public void CheckNearFutureStartEnd()
 		{
 			T(" x " + x + " " + y + " " + lx + " " + ly + " " + sx + " " + sy);
 			T("CheckNearFutureStartEnd x + lx + 2 * sx " + (x + lx + 2 * sx) + " y + ly + 2 * sy " + (y + ly + 2 * sy));
@@ -1176,8 +1184,9 @@ namespace OneWayLabyrinth
         {            
             int xDiff = startX - endX;
             int yDiff = startY - endY;
-            
-            List<int[]> areaLine = new List<int[]> { new int[] { startX, startY } };
+
+            areaLine = new List<int[]> { new int[] { startX, startY } };
+            //List<int[]> areaLine = new List<int[]> { new int[] { startX, startY } };
 
             List<int[]> directions;
 
@@ -1577,6 +1586,7 @@ namespace OneWayLabyrinth
             T("Count area: " + area);
             if (area % 2 == 1)
             {
+                countAreaImpair = true;
 				T("Count area is impair.");
                 return false;
             }

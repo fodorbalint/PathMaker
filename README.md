@@ -20,6 +20,8 @@ A 3 x 3 area can only be filled in two ways, like this and mirrored:
 
 The 5 x 5 requires much more consideration. Whenever it is possible to draw future lines, the program has to be able to do it. The future lines can not only extend at each step but connect too.
 
+<!-- specify extension and connection rules -->
+
 <img src="References/0806.svg" width="23.8%"/>
 
 By August 21, 2023 all 5 x 5 scenarios were discovered. The number of walkthroughs are 104.<br />
@@ -62,7 +64,7 @@ In these situations the only possibility is to step towards the start of the fut
 Notice a new future line extension rule in these examples. When a near end is at 2 distance left or right from the actual end, it will fill the field between them if the live end steps elsewhere.
 
 <!-- change -->
-And other situations, there is a 1-thin future line next to the live end that can be extended if its far end is at the corner. Though disabling this rule does not affect the total amount of walkthroughs on a 7 x 7 grid, I chose to include it in the project on the basis that if a future line can be extended, we should do it. It can make a considerable difference. The left picture is without the rule, the right is with it:
+And in other situations, there is a 1-thin future line next to the live end that can be extended if its far end is at the corner. Though disabling this rule does not affect the total amount of walkthroughs on a 7 x 7 grid, I chose to include it in the project on the basis that if a future line can be extended, we should do it. It can make a considerable difference. The left picture is without the rule, the right is with it:
 
 <img src="References/0911.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0911_0_1.svg" width="33.3%"/>
 
@@ -72,25 +74,23 @@ There are also rules that define the possibilities when approaching or moving al
 
 These were not necessary on 5 x 5, because future lines filled the spaces nearby. In a larger area, future lines are not constrained to only one option.
 
-C-shapes on the right and bottom edge also come into play. From here, it is not possible to continue:
+<!-- change -->
+Before we get to the edge, however, we need to count the number of enclosed cells. Take a look at these two examples:
 
-<img src="References/0831_1_2.svg" width="33.3%"/>
+<img src="References/0929.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0929_1.svg" width="33.3%"/>
 
-So, we need to define a rule already at the previous step to prevent stepping here; that is if the current x position is n - 2, and the right field's x position is n - 1, and the field 1 to right and 1 back is free, and the field 1 to right and 2 to back is taken, we cannot step right.
+It is not obvious in the first why you wouldn't be able to fill the area if your next step was left. But in the second, there is only one way to continue if you step upwards.<br />
+Imagine if the table was a chess board. In order to step from white to black, you would need to take an impair amount of steps - the color changes at every step. For the same reason, if you start at (4,2) and have to end at (4,1) to fill the enclosed area, you need a pair amount of cells.
 
-And on 9 x 9, the same rule will apply near the left and upper edge.
-
-<img src="References/0901_1.svg" width="42.86%"/>
-
-The green fields now mark a new rule, counting the enclosed area. If it is impair, the area cannot be completed. It actually needs to be applied on 7 x 7 already.
-
-There is one more thing to keep in mind. If the line approaches itself, it needs to behave as on the edge. In the following situation, the left and straight option has to be disabled.
+Now, if you have checked for parity, you may approach the edge or the line itself further. And you have to disable some fields, depending on which side the enclosed area is created. This you can check by examining the direction of the line at that point.
 
 <img src="References/0901.svg" width="33.3%"/>
 
-The program is now equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7 x 7 walkthroughs. According to the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 x 2n+1 grid) it should be 111 712, but this is not easy to achieve.
+The program is equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7 x 7 walkthroughs. According to the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 x 2n+1 grid) it should be 111 712, but this is not easy to achieve.
 
-A rule editor has been created to provide a better overview about them. Here you can drag and drop the following fields:
+Applying all the rules above, there can still be situations where you cannot complete the grid.
+
+I have created a rule editor to provide a better overview about them. Here you can drag and drop the following fields:
 - live end
 - empty field
 - taken field
@@ -100,7 +100,7 @@ A rule editor has been created to provide a better overview about them. Here you
 - a field that is not the end corner
 - forbidden field
 
-These are the currently used relative rules (where the x or y-position is not determined like on the edge) with examples:
+These are the relative rules (where the x or y-position is not determined like on the edge) with examples:
 
 C-shape:
 
@@ -109,7 +109,6 @@ C-shape:
 Side back:
 
 <img align="top" src="References/rules/7/Side back.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Side back 2558.svg" width="33.3%"/>
-
 
 Side front:
 
@@ -135,8 +134,15 @@ Future 3 x 3 Start End
 
 <img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.75%"/><img align="top"  src="References/Future 3 x 3 Start End 1861.svg" width="33.3%"/>
 
-We also need to pay attention to how the future lines are created and extended, which I will write about later.
-I can now, on the 28th September, confirm that the number of walkthroughs are correct.
+
+I can now confirm that the number of walkthroughs in the encyclopedia are correct.
+
+Is it possible to develop an algorythm that works for all sizes? We have seen above rules about approacing the edge or the line itself, which are quite universal. Counting an area too, as well as the side front/back rules. But the "Future ... Start End" patterns look unique.<br />
+There will be more cases like this on 9 x 9, and who knows if it gets complicated infinitely.
+
+As the sizes grow, it will be impossible to run through all cases with one computer in a reasonable time. In order to discover the patterns, we need to run the program randomly.
+
+Next, I will make statistics about how many percent of walkthrough attempts are successful on different sizes, using the rules we already have.
 
 ---
 
