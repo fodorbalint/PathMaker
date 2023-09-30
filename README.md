@@ -42,9 +42,13 @@ Here are the things to consider on a grid of this size:
 Taking a step further, another future line is created and extended on the left side. Any step we take now will further extend and connect the two future lines, giving a complete walkthrough. Future lines are first extended when we step on them. Then, if there is another line that started from the position next to where the live end was in the previous step, it gets extended too.<br />
 Note that the line being stepped on has its end at (5,4). The nearby empty fields are (4,4) and the corner, (5,5). It cannot choose the corner, because then nothing would fill (4,4). Then, the line on the left gets extended until it connects to the other. As the near end cannot be extended more, the far end gets extended until it reaches the corner.
 
-- When the left or the right field is (n-1, n-1), we cannot step there unless we are on the edge.
+<!-- change -->
+- When we are two distance away from the edge, we need to check if stepping towards it is possible.
 
-<img src="References/0831_2.svg" width="23.8%"/>
+<img src="References/0930.svg" width="23.8%"/>
+
+It is because if we do so, an enclosed area is created, with one way to go out of it. If that area has an impair amount of cells, it cannot be filled, so we cannot take that step.<br />
+The explanation is simple: Imagine if the table was a chess board. In order to step from white to black, you would need to take an impair amount of steps - the color changes at every step. Here, the entry of the area would be (4,3) and the exit (5,3). An impair amount of steps means pair amount of cells.
 
 There have not been found any case where the future line cannot extend, and the main line has to step back.<br />
 This will change on 7 x 7. See these examples:
@@ -75,16 +79,13 @@ There are also rules that define the possibilities when approaching or moving al
 These were not necessary on 5 x 5, because future lines filled the spaces nearby. In a larger area, future lines are not constrained to only one option.
 
 <!-- change -->
-Before we get to the edge, however, we need to count the number of enclosed cells. Take a look at these two examples:
-
-<img src="References/0929.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0929_1.svg" width="33.3%"/>
-
-It is not obvious in the first why you wouldn't be able to fill the area if your next step was left. But in the second, there is only one way to continue if you step upwards.<br />
-Imagine if the table was a chess board. In order to step from white to black, you would need to take an impair amount of steps - the color changes at every step. For the same reason, if you start at (4,2) and have to end at (4,1) to fill the enclosed area, you need a pair amount of cells.
-
-Now, if you have checked for parity, you may approach the edge or the line itself further. And you have to disable some fields, depending on which side the enclosed area is created. This you can check by examining the direction of the line at that point.
+You need to do the same inside the grid as well, and for that it is necessary to determine which direction the line was going at the point you are heading to.
 
 <img src="References/0901.svg" width="33.3%"/>
+
+Impair areas can now happen inside the grid, not just on the edge.
+
+<img src="References/0929_1.svg" width="33.3%"/>
 
 The program is equipped with a "Fast run" function, which makes it possible to run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7 x 7 walkthroughs. According to the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 x 2n+1 grid) it should be 111 712, but this is not easy to achieve.
 
