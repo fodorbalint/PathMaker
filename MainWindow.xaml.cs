@@ -132,9 +132,7 @@ namespace OneWayLabyrinth
 		List<int[]> directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } }; //down, right, up, left
 		DispatcherTimer timer;
 		int messageCode = -1;
-		bool nearExtDone, farExtDone, nearEndDone;
-		bool displayArea = true; //used for CountArea
-		bool displayExits = true;
+		bool nearExtDone, farExtDone, nearEndDone, farEndDone; // extension at near / far end, near end connected to live end, far end reached the corner.		
 		bool lineFinished = false;
 		int nextDirection = -2;
 		int lastDirection = -1;
@@ -149,6 +147,11 @@ namespace OneWayLabyrinth
         CancellationTokenSource source;
         bool isTaskRunning = false;
         private List<int[]> extensionPossibilities = new List<int[]>();
+
+        bool displayFuture = true;
+        bool displayArea = true;
+        bool displayExits = true;
+		bool settingsOpen = false;
 
 
         public MainWindow()
@@ -175,6 +178,12 @@ namespace OneWayLabyrinth
                 arr = lines[4].Split(": ");
                 KeepLeftCheck.IsChecked = bool.Parse(arr[1]);
                 keepLeftCheck = (bool)KeepLeftCheck.IsChecked;
+                arr = lines[5].Split(": ");
+                DisplayFutureCheck.IsChecked = bool.Parse(arr[1]);
+                displayFuture = (bool)DisplayFutureCheck.IsChecked;
+                arr = lines[6].Split(": ");
+                DisplayAreaCheck.IsChecked = bool.Parse(arr[1]);
+                displayArea = (bool)DisplayAreaCheck.IsChecked;
 
                 CheckSize();
 				Size.Text = size.ToString();
@@ -189,6 +198,10 @@ namespace OneWayLabyrinth
 				continueCheck = false;
                 KeepLeftCheck.IsChecked = false;
 				keepLeftCheck = false;
+                DisplayFutureCheck.IsChecked = true;
+                displayFuture = true;
+                DisplayAreaCheck.IsChecked = true;
+                displayArea = true;
             }
 			
 			exits = new List<int[]>();
@@ -634,8 +647,10 @@ namespace OneWayLabyrinth
         {
 			continueCheck = (bool)ContinueCheck.IsChecked;
 			keepLeftCheck = (bool)KeepLeftCheck.IsChecked;
+            displayFuture = (bool)DisplayFutureCheck.IsChecked;
+            displayArea = (bool)DisplayAreaCheck.IsChecked;
 
-            string[] lines = new string[] { "size: " + size, "loadFromFile: " + LoadCheck.IsChecked, "saveOnCompletion: " + SaveCheck.IsChecked, "continueOnCompletion: " + ContinueCheck.IsChecked, "keepLeft: " + KeepLeftCheck.IsChecked };
+            string[] lines = new string[] { "size: " + size, "loadFromFile: " + LoadCheck.IsChecked, "saveOnCompletion: " + SaveCheck.IsChecked, "continueOnCompletion: " + ContinueCheck.IsChecked, "keepLeft: " + KeepLeftCheck.IsChecked, "displayFutureLines: " + DisplayFutureCheck.IsChecked, "displayArea: " + DisplayAreaCheck.IsChecked};
 			
 			File.WriteAllLines("settings.txt", lines);
 		}
@@ -1130,9 +1145,9 @@ namespace OneWayLabyrinth
 
 			//Stop at pattern here
 
-            /*if (taken.countAreaImpair)
+            /*if (!taken.countAreaImpair && taken.FutureL)
             {
-                M("Count area impair: " + completedCount + " walkthroughs are completed.", 3);
+                M("Future L: " + completedCount + " walkthroughs are completed.", 3);
                 if (isTaskRunning)
                 {
                     Dispatcher.Invoke(() =>
@@ -2129,6 +2144,7 @@ namespace OneWayLabyrinth
                             nearExtDone = true;
                             farExtDone = false;
                             nearEndDone = true;
+							farEndDone = false;
 
                             if (!ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true))
 							{
@@ -2148,6 +2164,7 @@ namespace OneWayLabyrinth
                             nearExtDone = true;
                             farExtDone = false;
                             nearEndDone = true;
+                            farEndDone = false;
 
                             ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true);
 						}
@@ -2232,6 +2249,7 @@ namespace OneWayLabyrinth
                         nearExtDone = false;
                         farExtDone = false;
                         nearEndDone = false;
+                        farEndDone = false;
 
                         if (!ExtendFutureLine(true, addIndex, farEndIndex, nearSection, farSection, false))
                         {
@@ -2318,9 +2336,10 @@ namespace OneWayLabyrinth
 							nearExtDone = false;
 							farExtDone = false;
 							nearEndDone = false;
+                            farEndDone = false;
 
-							//start extension from near end, since the far end already has multiple choice
-							if (!ExtendFutureLine(true, futureSections[foundSection][0], farEndIndex, foundSection, lastMerged, false))
+                            //start extension from near end, since the far end already has multiple choice
+                            if (!ExtendFutureLine(true, futureSections[foundSection][0], farEndIndex, foundSection, lastMerged, false))
 							{
 								possibleDirections.Add(new int[] { });
 								T("Left/right future start line cannot be completed.");
@@ -2400,8 +2419,9 @@ namespace OneWayLabyrinth
 								nearExtDone = false;
 								farExtDone = false;
 								nearEndDone = false;
+                                farEndDone = false;
 
-								if (!ExtendFutureLine(false, futureSections[foundSection][0], farEndIndex, foundSection, lastMerged, false))
+                                if (!ExtendFutureLine(false, futureSections[foundSection][0], farEndIndex, foundSection, lastMerged, false))
 								{
 									possibleDirections.Add(new int[] { });
 									T("Left/right to 2 future start line cannot be completed.");
@@ -2483,6 +2503,7 @@ namespace OneWayLabyrinth
                             nearExtDone = false;
                             farExtDone = false;
                             nearEndDone = false;
+                            farEndDone = false;
 
                             if (!ExtendFutureLine(false, future.path.Count - 1, future.path.Count - startCount, selectedExtSection, selectedExtSection, false))
                             {
@@ -2562,6 +2583,7 @@ namespace OneWayLabyrinth
                             nearExtDone = false;
                             farExtDone = false;
                             nearEndDone = false;
+                            farEndDone = false;
 
                             if (!ExtendFutureLine(false, future.path.Count - 1, future.path.Count - 5, selectedExtSection, selectedExtSection, false))
                             {
@@ -2625,8 +2647,9 @@ namespace OneWayLabyrinth
 							nearExtDone = false;
 							farExtDone = false;
 							nearEndDone = false;
+                            farEndDone = false;
 
-							if (!ExtendFutureLine(false, addIndex + 1, insertIndex, foundSection, foundSection, false))
+                            if (!ExtendFutureLine(false, addIndex + 1, insertIndex, foundSection, foundSection, false))
 							{
 								possibleDirections.Add(new int[] { });
 								M("1x3 reverse future line cannot be completed.", 2);
@@ -2680,7 +2703,7 @@ namespace OneWayLabyrinth
                 taken.lx = taken.thisLx;
                 taken.ly = taken.thisLy;
 
-				/*
+                /*
                 // what is the minimum size for this?
 
                 taken.path2 = future.path;
@@ -2713,6 +2736,7 @@ namespace OneWayLabyrinth
                         nearExtDone = false;
                         farExtDone = false;
                         nearEndDone = false;
+						farEndDone = false;
 
                         ExtendFutureLine(true, startIndex, -1, selectedExtSection, selectedExtSection, true);
 					}
@@ -2754,6 +2778,7 @@ namespace OneWayLabyrinth
                         nearExtDone = false;
                         farExtDone = false;
                         nearEndDone = false;
+						farEndDone = false;
 
                         //only extend the far end. The near end has to be extended simultaneously with the live end.
                         if (!ExtendFutureLine(false, -1, endIndex, foundSection, foundSection, true))
@@ -2771,8 +2796,8 @@ namespace OneWayLabyrinth
 						}
 					}
                 }*/
-			}
-			return true;
+            }
+            return true;
 		}
 		private List<int[]> Copy(List<int[]> obj)
 		{
@@ -2797,6 +2822,7 @@ namespace OneWayLabyrinth
 				if (!isNearEnd && future.path[index][0] == size && future.path[index][1] == size)
 				{
 					farExtDone = true;
+					farEndDone = true;
 					if (nearExtDone) return true;
 					break;
 				}
@@ -2821,8 +2847,8 @@ namespace OneWayLabyrinth
 					{
 						int[] field = future.possible[i];
 						if (field[0] == size && field[1] == size)
-						{
-							T("Near end connected to main line, removing corner from possibilities");
+						{                            
+                            T("Near end connected to main line, removing corner from possibilities");
 							future.possible.RemoveAt(i);
 							break;
 						}
@@ -2830,14 +2856,14 @@ namespace OneWayLabyrinth
 				}
 
 				// 0911: If the far end has reached the corner, the near end has to choose the other option besides connecting to the live end.
-				if (future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size && future.possible.Count == 2)
+				if (farEndDone && future.possible.Count == 2)
 				{
                     for (int i = 0; i < future.possible.Count; i++)
                     {
                         int[] field = future.possible[i];
                         if (field[0] == taken.x && field[1] == taken.y)
-                        {
-                            T("Far end reached the corner, removing live end from possibilities");
+                        {							
+                            T("Far end reached the corner, removing live end from possibilities");                     
                             future.possible.RemoveAt(i);
                             break;
                         }
@@ -2851,8 +2877,10 @@ namespace OneWayLabyrinth
 					// if the only possibility is to connect to the main line, we continue the extension at the far end. example: 0618_2
 					if (newField[0] == taken.x && newField[1] == taken.y)
 					{
-						nearExtDone = true;
+                        T("Near end done");
+						if (farEndDone) return true;
 						nearEndDone = true;
+						farExtDone = false;
 						break;
 					}
 
@@ -2902,7 +2930,6 @@ namespace OneWayLabyrinth
                                             {
                                                 return ExtendFutureLine(!isNearEnd, nearEndIndex, farEndIndex, nearSection, farSection, once);
                                             }
-                                            return true;
                                         }
                                     }
 
@@ -2927,7 +2954,6 @@ namespace OneWayLabyrinth
 												{
                                                     return ExtendFutureLine(!isNearEnd, nearEndIndex, farEndIndex, nearSection, farSection, once);
                                                 }
-                                                return true;
                                             }
                                         }
                                     }
@@ -2967,7 +2993,6 @@ namespace OneWayLabyrinth
                                                     {
                                                         return ExtendFutureLine(!isNearEnd, nearEndIndex, farEndIndex, nearSection, farSection, once);
                                                     }
-                                                    return true;
                                                 }
                                             }
 
@@ -2993,7 +3018,6 @@ namespace OneWayLabyrinth
                                                         {
                                                             return ExtendFutureLine(!isNearEnd, nearEndIndex, farEndIndex, nearSection, farSection, once);
                                                         }
-                                                        return true;
                                                     }
                                                 }
                                             }
@@ -3029,7 +3053,6 @@ namespace OneWayLabyrinth
                                             {
                                                 return ExtendFutureLine(!isNearEnd, nearEndIndex, farEndIndex, nearSection, farSection, once);
                                             }
-                                            return true;
                                         }
                                     }
 
@@ -3054,7 +3077,6 @@ namespace OneWayLabyrinth
                                                 {
                                                     return ExtendFutureLine(!isNearEnd, nearEndIndex, farEndIndex, nearSection, farSection, once);
                                                 }
-                                                return true;
                                             }
                                         }
                                     }
@@ -3094,7 +3116,6 @@ namespace OneWayLabyrinth
                                                     {
                                                         return ExtendFutureLine(!isNearEnd, nearEndIndex, farEndIndex, nearSection, farSection, once);
                                                     }
-                                                    return true;
                                                 }
                                             }
 
@@ -3120,7 +3141,6 @@ namespace OneWayLabyrinth
                                                         {
                                                             return ExtendFutureLine(!isNearEnd, nearEndIndex, farEndIndex, nearSection, farSection, once);
                                                         }
-                                                        return true;
                                                     }
                                                 }
                                             }
@@ -3189,7 +3209,8 @@ namespace OneWayLabyrinth
 					{
 						T("Far end done");
                         if (nearEndDone) return true; //only return if the near end can only connect to the main line. Otherwise extend the near end again, it might connect to another section now as in 0919_2
-                        nearExtDone = false;
+						farEndDone = true;
+						nearExtDone = false;
                         break;
 					}
 
@@ -3785,7 +3806,7 @@ namespace OneWayLabyrinth
 
             bool prevStartItem = false;
 
-			if (future.path.Count != 0)
+			if (future.path.Count != 0 && displayFuture)
 			{
 				for (int i = future.path.Count - 1; i >= 0; i--)
 				{
@@ -4384,7 +4405,34 @@ namespace OneWayLabyrinth
 			}
 		}
 
-		public void M(object o, int code)
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+			SettingsGrid.Visibility = Visibility.Visible;
+			settingsOpen = true;
+        }
+
+        private void CloseSettings_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsGrid.Visibility = Visibility.Hidden;
+            settingsOpen = false;
+        }
+
+        private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+			if (settingsOpen)
+			{
+                Point pt = e.GetPosition((UIElement)sender);
+                HitTestResult result = VisualTreeHelper.HitTest((UIElement)sender, pt);
+
+                if (result.VisualHit == SettingsGrid)
+                {
+                    CloseSettings_Click(null, null);
+                    e.Handled = true;
+                }
+            }
+        }
+
+        public void M(object o, int code)
 		{
 			Dispatcher.Invoke(() =>
 			{
