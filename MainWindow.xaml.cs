@@ -1092,7 +1092,6 @@ namespace OneWayLabyrinth
 		private void NextStepPossibilities()
 		{
 			T("NextStepPossibilities main, inFuture: " + inFuture + " inFutureIndex: " + inFutureIndex);
-			taken.areaLine = new();
 			if (inFuture)
 			{
 				int[] futureField = future.path[inFutureIndex];
@@ -1348,6 +1347,7 @@ namespace OneWayLabyrinth
 		{
 			taken.x = x;
 			taken.y = y;
+			taken.areaLine = new();
 
 			T("AddNextStep newX " + x + " newY " + y);
 
@@ -1812,6 +1812,11 @@ namespace OneWayLabyrinth
                                 farExtDone = true;
                                 farEndDone = true;
                             }
+							else
+							{
+                                farExtDone = false;
+                                farEndDone = false;
+                            }
 
                             //start extension from near end, since the far end already has multiple choice
                             if (!ExtendFutureLine(true, futureSections[foundSection][0], farEndIndex, foundSection, lastMerged, false))
@@ -1891,10 +1896,18 @@ namespace OneWayLabyrinth
 									}
 								}
 
+                                nearEndDone = false;
+                                nearExtDone = false;
+
                                 if (future.path[farEndIndex][0] == size && future.path[farEndIndex][1] == size)
                                 {
                                     farExtDone = true;
                                     farEndDone = true;
+                                }
+                                else
+                                {
+                                    farExtDone = false;
+                                    farEndDone = false;
                                 }
 
                                 if (!ExtendFutureLine(false, futureSections[foundSection][0], farEndIndex, foundSection, lastMerged, false))

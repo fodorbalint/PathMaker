@@ -105,7 +105,7 @@ As the sizes grow, it will be impossible to run through all cases with one compu
 
 Is it possible to develop an algorythm that works for all sizes? The edge-related and area-counting rules are universal, but the size-specific rules get more and more complex. Can you define them with one statement?
 
-I have made statistics about how many random walkthroughs you can complete on different grids using the 7 x 7-complete rules before running into an error. Based on 1000 attempts, here are the results:<br />
+I have made statistics about how many random walkthroughs you can complete on different grids using the 7 x 7-specific and the universal rules before running into an error. Based on 1000 attempts, here are the results:<br />
 9: 16.7<br />
 11: 4<br />
 13: 1.8<br />
@@ -113,6 +113,10 @@ I have made statistics about how many random walkthroughs you can complete on di
 17: 0.4<br />
 19: 0.2<br />
 21: 0.1
+
+To discover 9-specific patterns, I run the program keeping it left as long as the time to get to the first error is too big. After that, I will run it randomly. Right now, the first 13 826 walkthroughs are completed before we encounter a situation. It is similar to the last one we discovered on 7 x 7:
+
+<img align="top" src="References/1007.svg" width="42.86%"/>
 
 ---
 

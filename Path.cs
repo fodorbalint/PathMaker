@@ -652,13 +652,10 @@ namespace OneWayLabyrinth
 
                         for (int i = 0; i < 2; i++)
                         {
-                            for (int j = 0; j < 2; j++)
+                            for (int j = 0; j < 3; j++)
                             {
                                 if (InTakenRel(0, 3) && InTakenRel(1, 3) && !InTakenRel(0, 2) && !InTakenRel(1, 2))
                                 {
-                                    T("CheckNearField straight at " + i + " " + j);
-                                    checkNearFieldStraight = true;
-
                                     int middleIndex = InTakenIndex(x + 3 * sx, y + 3 * sy);
                                     int sideIndex = InTakenIndex(x + lx + 3 * sx, y + ly + 3 * sy);
 
@@ -666,28 +663,53 @@ namespace OneWayLabyrinth
                                     if (sideIndex > middleIndex) // area on left
                                     {
                                         circleDirectionLeft = i == 0 ? true : false;
-                                        if (!InTakenRel(2, 2) && !CountArea(x + lx + sx, y + ly + sy, x + lx + 2 * sx, y + ly + 2 * sy))
+                                        if (!InTakenRel(2, 2))
                                         {
-                                            forbidden.Add(new int[] { x + sx, y + sy });
-                                        }
+                                            T("CheckNearField straight small at " + i + " " + j);
+                                            checkNearFieldStraight = true;
+
+                                            if (!CountArea(x + lx + sx, y + ly + sy, x + lx + 2 * sx, y + ly + 2 * sy))
+                                            {
+                                                forbidden.Add(new int[] { x + sx, y + sy });
+                                                forbidden.Add(new int[] { x - lx, y - ly });
+                                            }
+                                        } 
                                     }
                                     else // area on right
                                     {
                                         circleDirectionLeft = i == 0 ? false : true;
-                                        if (!InTakenRel(-1, 2) && !InTakenRel(-2, 2)  && !CountArea(x - lx + sx, y - ly + sy, x - lx + 2 * sx, y - ly + 2 * sy))
+                                        if (!InTakenRel(-1, 2) && !InTakenRel(-2, 2))
                                         {
-                                            forbidden.Add(new int[] { x + sx, y + sy });
-                                        }
+                                            T("CheckNearField straight big at " + i + " " + j);
+                                            checkNearFieldStraight = true;
+
+                                            if (!CountArea(x - lx + sx, y - ly + sy, x - lx + 2 * sx, y - ly + 2 * sy))
+                                            {
+                                                forbidden.Add(new int[] { x + sx, y + sy });
+                                                forbidden.Add(new int[] { x + lx, y + ly });
+                                            }
+                                        }  
                                     }
                                 }
 
-                                //turn left, pattern goes downwards
-                                int l0 = lx;
-                                int l1 = ly;
-                                lx = -sx;
-                                ly = -sy;
-                                sx = l0;
-                                sy = l1;
+                                if (j == 0)
+                                {
+                                    //turn left, pattern goes downwards
+                                    int l0 = lx;
+                                    int l1 = ly;
+                                    lx = -sx;
+                                    ly = -sy;
+                                    sx = l0;
+                                    sy = l1;
+                                }
+                                else
+                                {
+                                    //turn right of the original, mirror recent
+                                    sx = -sx;
+                                    sy = -sy;
+                                    lx = -lx;
+                                    ly = -ly;
+                                }
                             }
 
                             //mirror directions
@@ -710,21 +732,36 @@ namespace OneWayLabyrinth
                                 {
                                     if (InTakenRel(1, 3) && !InTakenRel(1, 2) && !InTakenRel(0, 3)) //start with area on the right, mirrored to the example
                                     {
-                                        T("CheckNearField across at " + i + " " + j);
                                         int middleIndex = InTakenIndex(x + lx + 3 * sx, y + ly + 3 * sy);
                                         int sideIndex = InTakenIndex(x + 2 * lx + 3 * sx, y + 2 * ly + 3 * sy);
+
                                         if (sideIndex > middleIndex) // area on left
                                         {
                                             circleDirectionLeft = i == 0 ? true : false;
+                                            if (!InTakenRel(2, 2))
+                                            {
+                                                T("CheckNearField across small at " + i + " " + j);
+
+                                                if (!CountArea(x + lx + sx, y + ly + sy, x + lx + 2 * sx, y + ly + 2 * sy))
+                                                {
+                                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                                }
+                                            }
                                         }
                                         else // area on right
                                         {
                                             circleDirectionLeft = i == 0 ? false : true;
-                                        }
+                                            if (!InTakenRel(-1, 3))
+                                            {
+                                                T("CheckNearField across big at " + i + " " + j);
 
-                                        if (!CountArea(x + sx, y + sy, x + 2 * sx, y + 2 * sy))
-                                        {
-                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                                if (!CountArea(x + sx, y + sy, x + 2 * sx, y + 2 * sy))
+                                                {
+                                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                                }
+                                            }
                                         }
                                     }
 
