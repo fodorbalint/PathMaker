@@ -31,14 +31,27 @@ namespace OneWayLabyrinth
 				// Future 2 x 2 Start End
 				for (int i = 0; i < 2; i++)
 				{
-					if (InTakenRel(0,3) && InTakenRel(-1,2) && InTakenRel(-1,1) && !InTakenRel(0,2) && InFutureStartRel(1,0) && InFutureEndRel(3,0) && (InTakenRel(4,1) || InBorderRel(4,1)) && foundSectionStart == foundSectionEnd)
+					for (int j = 0; j < 2; j++)
 					{
-						Future2x2StartEnd = true;
-						forbidden.Add(new int[] { x + lx, y + ly });
+						if (InTakenRel(0,3) && InTakenRel(-1,2) && InTakenRel(-1,1) && !InTakenRel(0,2) && InFutureStartRel(1,0) && InFutureEndRel(3,0) && (InTakenRel(4,1) || InBorderRel(4,1)) && foundSectionStart == foundSectionEnd)
+						{
+							Future2x2StartEnd = true;
+							forbidden.Add(new int[] { x + lx, y + ly });
+						}
+						int s0 = sx;
+						int s1 = sy;
+						sx = -lx;
+						sy = -ly;
+						lx = s0;
+						ly = s1;
 					}
-					lx = -lx;
-					ly = -ly;
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
 				}
+				sx = thisSx;
+				sy = thisSy;
 				lx = thisLx;
 				ly = thisLy;
 

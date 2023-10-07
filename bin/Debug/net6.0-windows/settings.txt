@@ -1,7 +1,8 @@
-size: 7
-loadFromFile: True
+size: 21
+loadFromFile: False
 saveOnCompletion: False
 continueOnCompletion: True
-keepLeft: True
+keepLeft: False
 displayFutureLines: True
 displayArea: True
+makeStats: True

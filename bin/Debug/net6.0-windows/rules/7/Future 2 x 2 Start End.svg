@@ -1,3 +1,4 @@
+<!--||True|False|-->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 4">
 	<!-- 5 4 1 -->
 	<path d="M 4 3 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
