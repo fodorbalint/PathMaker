@@ -118,6 +118,20 @@ To discover 9-specific patterns, I run the program keeping it left as long as th
 
 <img align="top" src="References/1007.svg" width="42.86%"/>
 
+Let's simplify the pattern. Which will be impossible to fill?
+
+<img align="top" src="References/1008.svg" width="42.86%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1008_1.svg" width="42.86%"/>
+
+It is the picture on the left. Since the yellow-bordered area is impair, adding the (4,2) (4,3) (4,4) fields will be pair. We enter the area at (4,4), so we will exit at (4,3). Now we enter the 3 x 3 area in the top left corner at its side, (3,3) and will exit at (2,4). The results is two C-shapes on each side:
+
+<img align="top" src="References/1008_2.svg" width="42.86%"/>
+
+We can define a rule by marking the following fields and counting the area from the fields in front of the main line to the right:
+
+<img align="top" src="References/1008_rule.svg" width="28.57%"/>
+
+Start field is (4,4) in the actual example. End_1 field is (4,2), End_2 field is (4,3). Direction of the circle: right (counter-clockwise). If the area is pair, it cannot be filled. 
+
 ---
 
 The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".
