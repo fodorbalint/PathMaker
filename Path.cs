@@ -278,7 +278,7 @@ namespace OneWayLabyrinth
 
                                     RunRules();
 
-                                    T("Sideback " + Sideback + " Sidefront " + Sidefront + " SidefrontL " + SidefrontL + " FutureL " + FutureL + " Future2x2StartEnd  " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd);
+                                    T("Sideback " + Sideback + " Sidefront " + Sidefront + " SidefrontL " + SidefrontL + " FutureL " + FutureL + " Future2x2StartEnd  " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3);
                                 }
                                 if (size >= 9)
                                 {
@@ -561,7 +561,7 @@ namespace OneWayLabyrinth
             if (InTakenRel(0, 2) && !InTakenRel(0, 1)) // the field 2 straight is taken 
             {
                 T("CheckNearField close straight");
-                int index = InTakenIndex(x + 2 * sx, y + 2 * sy);
+                int index = InTakenIndexRel(0, 2);
                 int[] nextField = path[index + 1];
 
                 forbidden.Add(straightField);
@@ -594,7 +594,7 @@ namespace OneWayLabyrinth
                     {
                         T("CheckNearField close mid across at " + i);
                         closeMidAcrossFound = true;
-                        int index = InTakenIndex(x + lx + 2 * sx, y + ly + 2 * sy);
+                        int index = InTakenIndexRel(1, 2);
                         int[] nextField = path[index + 1];
 
                         forbidden.Add(straightField);
@@ -624,7 +624,7 @@ namespace OneWayLabyrinth
                         {
                             T("CheckNearField close across at " + i);
                             closeAcrossFound = true;
-                            int index = InTakenIndex(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy);
+                            int index = InTakenIndexRel(2, 2);
                             int[] nextField = path[index + 1];
 
                             if (nextField[0] == x + 2 * lx + 3 * sx && nextField[1] == y + 2 * ly + 3 * sy) //next step is straight, area on right
@@ -656,8 +656,8 @@ namespace OneWayLabyrinth
                             {
                                 if (InTakenRel(0, 3) && InTakenRel(1, 3) && !InTakenRel(0, 2) && !InTakenRel(1, 2))
                                 {
-                                    int middleIndex = InTakenIndex(x + 3 * sx, y + 3 * sy);
-                                    int sideIndex = InTakenIndex(x + lx + 3 * sx, y + ly + 3 * sy);
+                                    int middleIndex = InTakenIndexRel(0, 3);
+                                    int sideIndex = InTakenIndexRel(1, 3);
 
                                     // if 2,2 fields were taken on either side, closeAcrossFound would be true now.
                                     if (sideIndex > middleIndex) // area on left
@@ -668,7 +668,7 @@ namespace OneWayLabyrinth
                                             T("CheckNearField straight small at " + i + " " + j);
                                             checkNearFieldStraight = true;
 
-                                            if (!CountArea(x + lx + sx, y + ly + sy, x + lx + 2 * sx, y + ly + 2 * sy))
+                                            if (!CountAreaRel(1,1, 1,2))
                                             {
                                                 forbidden.Add(new int[] { x + sx, y + sy });
                                                 forbidden.Add(new int[] { x - lx, y - ly });
@@ -683,7 +683,7 @@ namespace OneWayLabyrinth
                                             T("CheckNearField straight big at " + i + " " + j);
                                             checkNearFieldStraight = true;
 
-                                            if (!CountArea(x - lx + sx, y - ly + sy, x - lx + 2 * sx, y - ly + 2 * sy))
+                                            if (!CountAreaRel(-1,1, -1,2))
                                             {
                                                 forbidden.Add(new int[] { x + sx, y + sy });
                                                 forbidden.Add(new int[] { x + lx, y + ly });
@@ -732,8 +732,8 @@ namespace OneWayLabyrinth
                                 {
                                     if (InTakenRel(1, 3) && !InTakenRel(1, 2) && !InTakenRel(0, 3)) //start with area on the right, mirrored to the example
                                     {
-                                        int middleIndex = InTakenIndex(x + lx + 3 * sx, y + ly + 3 * sy);
-                                        int sideIndex = InTakenIndex(x + 2 * lx + 3 * sx, y + 2 * ly + 3 * sy);
+                                        int middleIndex = InTakenIndexRel(1, 3);
+                                        int sideIndex = InTakenIndexRel(2, 3);
 
                                         if (sideIndex > middleIndex) // area on left
                                         {
@@ -742,7 +742,7 @@ namespace OneWayLabyrinth
                                             {
                                                 T("CheckNearField across small at " + i + " " + j);
 
-                                                if (!CountArea(x + lx + sx, y + ly + sy, x + lx + 2 * sx, y + ly + 2 * sy))
+                                                if (!CountAreaRel(1,1, 1,2))
                                                 {
                                                     forbidden.Add(new int[] { x + sx, y + sy });
                                                     forbidden.Add(new int[] { x - lx, y - ly });
@@ -756,7 +756,7 @@ namespace OneWayLabyrinth
                                             {
                                                 T("CheckNearField across big at " + i + " " + j);
 
-                                                if (!CountArea(x + sx, y + sy, x + 2 * sx, y + 2 * sy))
+                                                if (!CountAreaRel(0,1, 0,2))
                                                 {
                                                     forbidden.Add(new int[] { x + sx, y + sy });
                                                     forbidden.Add(new int[] { x + lx, y + ly });
@@ -1005,15 +1005,34 @@ namespace OneWayLabyrinth
 			}
 		}
 
-		// Check functions end here
+        // Check functions end here
 
-		private bool CountArea(int startX, int startY, int endX, int endY)
-        {            
-            int xDiff = startX - endX;
-            int yDiff = startY - endY;
+        public bool CountAreaRel(int left1, int straight1, int left2, int straight2)
+        {
+            int x1 = this.x + left1 * lx + straight1 * sx;
+            int y1 = this.y + left1 * ly + straight1 * sy;
+            int x2 = this.x + left2 * lx + straight2 * sx;
+            int y2 = this.y + left2 * ly + straight2 * sy;
+            return CountArea(x1, y1, x2, y2);
+        }
 
-            areaLine = new List<int[]> { new int[] { startX, startY } };
-            //List<int[]> areaLine = new List<int[]> { new int[] { startX, startY } };
+        private bool CountArea(int startX, int startY, int endX, int endY)
+        {
+            int xDiff, yDiff;
+            if (Math.Abs(endX - startX) == 2 || Math.Abs(endY - startY) == 2)
+            {
+                int middleX = (endX + startX) / 2;
+                int middleY = (endY + startY) / 2;
+                xDiff = startX - middleX;
+                yDiff = startY - middleY;
+                areaLine = new List<int[]> { new int[] { middleX, middleY }, new int[] { startX, startY } };
+            }
+            else
+            {
+                xDiff = startX - endX;
+                yDiff = startY - endY;
+                areaLine = new List<int[]> { new int[] { startX, startY } };
+            }
 
             List<int[]> directions;
 
@@ -1686,6 +1705,13 @@ namespace OneWayLabyrinth
 
             return false;
 		}
+
+        public int InTakenIndexRel(int left, int straight) // relative position
+        {
+            int x = this.x + left * lx + straight * sx;
+            int y = this.y + left * ly + straight * sy;
+            return InTakenIndex(x, y);
+        }
 
         public int InTakenIndex(int x, int y)
         {

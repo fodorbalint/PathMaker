@@ -12,9 +12,10 @@
 	<!-- 2 3 2 -->
 	<path d="M 1 2 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />
 	<!--1-->
+	<!--2-->
 	<!-- 2 2 8 -->
 	<path d="M 1.2 1.2 l 0.6 0.6 M 1.2 1.8 l 0.6 -0.6" fill="white" fill-opacity="0" stroke="red" stroke-width="0.05" stroke-linecap="round" stroke-linejoin="round" />
-	<!--2-->
+	<!--3-->
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 3" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 3" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 3" />
@@ -23,5 +24,4 @@
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 1 h 3" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 2 h 3" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 2.99 h 3" />
-
 </svg>

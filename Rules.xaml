@@ -10,7 +10,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
 
         <ScrollViewer x:Name="MainScroll" Grid.Column="0">
@@ -25,21 +25,20 @@
                 <Button x:Name="ResetRule" Click="ResetRule_Click" Grid.Row="0" Margin="153,0,0,0" Padding="3,1,3,1" Content="Reset" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed" />
                 <Button x:Name="Cancel" Click="Cancel_Click" Grid.Row="0" Margin="200,0,0,0" Padding="3,1,3,1" Content="Cancel" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed" />
 
-                <Grid x:Name="NewRuleGrid" Grid.Row="0" Margin="10,31,20,0" Visibility="Collapsed">
+                <Grid x:Name="NewRuleGrid" Grid.Row="0" Margin="10,31,20,0" Visibility="visible">
                     <TextBlock Margin="0,0,0,0" Text="Name:" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                    <TextBlock Margin="0,21,0,0" Text="Precondition:" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                    <TextBlock Margin="0,66,0,0" Text="Applies to size:" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                    <TextBlock Text="Area size:" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,87,0,0" />
-                    <TextBlock Margin="90,87,0,0" Text="by" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                    <TextBlock Margin="0,40,0,0" Text="Applies to size:" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                    <TextBlock Text="Area size:" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,61,0,0" />
+                    <TextBlock Margin="90,61,0,0" Text="by" VerticalAlignment="Top" HorizontalAlignment="Left" />
 
                     <TextBox x:Name="RuleName" HorizontalAlignment="Left" Margin="41,0,0,0" TextWrapping="NoWrap" Text="Rule 1" VerticalAlignment="Top" Width="120"/>
-                    <ComboBox Name="Precondition" Width="200" IsEditable="true" IsReadOnly="true" Margin="80,21,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="Precondition_SelectionChanged" />
-                    <CheckBox x:Name="RotateClockwise" Content="Rotate clockwise" Click="RotateClockwise_Click" HorizontalAlignment="Left" Margin="0,47,0,0" VerticalAlignment="Top"/>
-                    <CheckBox x:Name="RotateCounterClockwise" Content="Rotate counter-clockwise" Click="RotateCounterClockwise_Click" HorizontalAlignment="Left" Margin="120,47,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="AppliedSize" HorizontalAlignment="Left" Margin="84,66,0,0" TextWrapping="NoWrap" Text="5" VerticalAlignment="Top" Width="30"/>
-                    <TextBox x:Name="XSize" HorizontalAlignment="Left" Margin="55,88,0,0" TextWrapping="NoWrap" Text="4" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
-                    <TextBox x:Name="YSize" HorizontalAlignment="Left" Margin="108,88,0,0" TextWrapping="NoWrap" Text="3" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
-                    <Grid x:Name="RuleGrid" Grid.Column="0" Margin="0,109,0,0" MouseDown="RuleGrid_MouseDown" MouseMove="RuleGrid_MouseMove" MouseUp="RuleGrid_MouseUp" MouseLeave="RuleGrid_MouseLeave" VerticalAlignment="Top" HorizontalAlignment="Left">
+                    <CheckBox x:Name="RotateClockwise" Content="Rotate clockwise" Click="RotateClockwise_Click" HorizontalAlignment="Left" Margin="0,21,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name="RotateCounterClockwise" Content="Rotate counter-clockwise" Click="RotateCounterClockwise_Click" HorizontalAlignment="Left" Margin="120,21,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name="CircleDirectionLeft" Content="Circle direction left" Click="CircleDirectionLeft_Click" HorizontalAlignment="Left" Margin="290,21,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="AppliedSize" HorizontalAlignment="Left" Margin="84,40,0,0" TextWrapping="NoWrap" Text="5" VerticalAlignment="Top" Width="30"/>
+                    <TextBox x:Name="XSize" HorizontalAlignment="Left" Margin="55,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
+                    <TextBox x:Name="YSize" HorizontalAlignment="Left" Margin="108,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
+                    <Grid x:Name="RuleGrid" Grid.Column="0" Margin="0,83,0,0" MouseDown="RuleGrid_MouseDown" MouseMove="RuleGrid_MouseMove" MouseUp="RuleGrid_MouseUp" MouseLeave="RuleGrid_MouseLeave" VerticalAlignment="Top" HorizontalAlignment="Left">
                         <skia:SKElement x:Name="Canvas" Panel.ZIndex="0" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="newRule" Margin="0,50,0,10" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <skia:SKElement x:Name="Canvas1" Panel.ZIndex="1" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag ="liveEnd" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                         <skia:SKElement x:Name="Canvas2" Panel.ZIndex="2" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="emptyField" Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
@@ -49,6 +48,8 @@
                         <skia:SKElement x:Name="Canvas6" Panel.ZIndex="6" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="futureEndField" Margin="250,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                         <skia:SKElement x:Name="Canvas7" Panel.ZIndex="7" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="notCornerField" Margin="300,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                         <skia:SKElement x:Name="Canvas8" Panel.ZIndex="8" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="forbiddenField" Margin="350,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
+                        <skia:SKElement x:Name="Canvas9" Panel.ZIndex="8" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="countAreaStartField" Margin="400,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
+                        <skia:SKElement x:Name="Canvas10" Panel.ZIndex="8" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="countAreaEndField" Margin="450,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                     </Grid>
                 </Grid>
             </Grid>

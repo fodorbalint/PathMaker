@@ -9,6 +9,7 @@ namespace OneWayLabyrinth
 		public bool Sideback = false;
 		public bool SidefrontL = false;
 		public bool Sidefront = false;
+		public bool CountArea3x3 = false;
 
 		public void RunRules()
 		{
@@ -19,6 +20,7 @@ namespace OneWayLabyrinth
 			Sideback = false;
 			SidefrontL = false;
 			Sidefront = false;
+			CountArea3x3 = false;
 
 			if (size >= 5)
 			{
@@ -163,6 +165,67 @@ namespace OneWayLabyrinth
 					lx = -lx;
 					ly = -ly;
 				}
+				lx = thisLx;
+				ly = thisLy;
+			}
+
+			if (size >= 9)
+			{
+				// Count Area 3 x 3
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if ((InTakenRel(3,4) || InBorderRel(3,4)) && (InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(0,4) || InBorderRel(0,4)) && (InTakenRel(4,3) || InBorderRel(4,3)) && (InTakenRel(4,2) || InBorderRel(4,2)) && (InTakenRel(4,1) || InBorderRel(4,1)) && !InTakenRel(3,3) && !InTakenRel(3,1) && !InTakenRel(0,3) && !InTakenRel(-1,3) && !InTakenRel(0,1) && !InTakenRel(-1,1) && !InCornerRel(3,3))
+						{
+							int middleIndex = InTakenIndexRel(0,4);
+							if (middleIndex != -1)
+							{
+								if (InTakenRel(1,4))
+								{
+									int sideIndex = InTakenIndexRel(1,4);
+									if (sideIndex < middleIndex)
+									{
+										circleDirectionLeft = false;
+										if (CountAreaRel(0,1, 0,3))
+										{
+											CountArea3x3 = true;
+											forbidden.Add(new int[] { x + sx, y + sy });
+										}
+									}
+								}
+								else
+								{
+									int sideIndex = InTakenIndexRel(-1,4);
+									if (sideIndex > middleIndex)
+									{
+										circleDirectionLeft = false;
+										if (CountAreaRel(0,1, 0,3))
+										{
+											CountArea3x3 = true;
+											forbidden.Add(new int[] { x + sx, y + sy });
+										}
+									}
+								}
+							}
+							else
+							{
+							}
+						}
+						int s0 = sx;
+						int s1 = sy;
+						sx = -lx;
+						sy = -ly;
+						lx = s0;
+						ly = s1;
+					}
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
+				}
+				sx = thisSx;
+				sy = thisSy;
 				lx = thisLx;
 				ly = thisLy;
 			}

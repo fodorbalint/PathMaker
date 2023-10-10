@@ -30,9 +30,11 @@ using SkiaSharp.Views.Desktop;
 
 /*
 
------ DOCUMENT -----
+----- OTHER -----
 
 In 1-thin future line extension rule, it is not necessary that the far end is at the corner. We are in a closed loop where the far end cannot have effect on the near end, unless the field 2 to left is part of the same future line which took a U-turn.
+Check border when counting area from rule.
+Check if there is a taken or border field next to the count area end field when creating rule
 
 ----- 9 x 9 -----
 

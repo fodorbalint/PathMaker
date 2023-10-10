@@ -128,9 +128,11 @@ It is the picture on the left. Since the yellow-bordered area is impair, adding 
 
 We can define a rule by marking the following fields and counting the area from the fields in front of the main line to the right:
 
-<img align="top" src="References/1008_rule.svg" width="28.57%"/>
+<img align="top" src="References/rules/9/Count Area 3 x 3.svg" width="28.57%"/>
 
-Start field is (4,4) in the actual example. End_1 field is (4,2), End_2 field is (4,3). Direction of the circle: right (counter-clockwise). If the area is pair, it cannot be filled. 
+Start_1 field is (4,3) and Start_2 field is (4,4) in the actual example. End field is (4,2). Direction of the circle: right (counter-clockwise). If the area is pair, we cannot step straight. 
+
+When this situation is sorted out, 13950 more walkthroughs can be made.
 
 ---
 

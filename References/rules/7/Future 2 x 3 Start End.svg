@@ -15,9 +15,10 @@
 	<path d="M 0 0 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 0.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2 l 0.2 -0.2 v 0.3 v -0.6" fill="white" fill-opacity="0" stroke="blue" stroke-width="0.05" stroke-linecap="round" stroke-linejoin="round" />
 	<!--1-->
+	<!--2-->
 	<!-- 2 2 8 -->
 	<path d="M 1.2 1.2 l 0.6 0.6 M 1.2 1.8 l 0.6 -0.6" fill="white" fill-opacity="0" stroke="red" stroke-width="0.05" stroke-linecap="round" stroke-linejoin="round" />
-	<!--2-->
+	<!--3-->
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 4" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 4" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 4" />
@@ -27,5 +28,4 @@
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 2 h 3" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 3 h 3" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 3.99 h 3" />
-
 </svg>
