@@ -10,6 +10,7 @@ namespace OneWayLabyrinth
 		public bool SidefrontL = false;
 		public bool Sidefront = false;
 		public bool CountArea3x3 = false;
+		public bool Future2x2StartEnd9 = false;
 
 		public void RunRules()
 		{
@@ -21,6 +22,7 @@ namespace OneWayLabyrinth
 			SidefrontL = false;
 			Sidefront = false;
 			CountArea3x3 = false;
+			Future2x2StartEnd9 = false;
 
 			if (size >= 5)
 			{
@@ -186,7 +188,7 @@ namespace OneWayLabyrinth
 									int sideIndex = InTakenIndexRel(1,4);
 									if (sideIndex < middleIndex)
 									{
-										circleDirectionLeft = false;
+										circleDirectionLeft = (i == 0) ? false : true;
 										if (CountAreaRel(0,1, 0,3))
 										{
 											CountArea3x3 = true;
@@ -199,7 +201,7 @@ namespace OneWayLabyrinth
 									int sideIndex = InTakenIndexRel(-1,4);
 									if (sideIndex > middleIndex)
 									{
-										circleDirectionLeft = false;
+										circleDirectionLeft = (i == 0) ? false : true;
 										if (CountAreaRel(0,1, 0,3))
 										{
 											CountArea3x3 = true;
@@ -210,6 +212,74 @@ namespace OneWayLabyrinth
 							}
 							else
 							{
+								middleIndex = InBorderIndexRel(0,4);
+								int farSideIndex = InBorderIndexRel(1,4);
+								if (farSideIndex > middleIndex)
+								{
+									circleDirectionLeft = (i == 0) ? false : true;
+									if (CountAreaRel(0,1, 0,3))
+									{
+										CountArea3x3 = true;
+										forbidden.Add(new int[] { x + sx, y + sy });
+									}
+								}
+							}
+						}
+						int s0 = sx;
+						int s1 = sy;
+						sx = -lx;
+						sy = -ly;
+						lx = s0;
+						ly = s1;
+					}
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
+				}
+				sx = thisSx;
+				sy = thisSy;
+				lx = thisLx;
+				ly = thisLy;
+
+				// Future 2 x 2 Start End 9
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if (InTakenRel(0,3) && (InTakenRel(4,1) || InBorderRel(4,1)) && InFutureStartRel(1,0) && InFutureEndRel(3,0) && !InTakenRel(0,2) && foundSectionStart == foundSectionEnd)
+						{
+							int middleIndex = InTakenIndexRel(0,3);
+							if (middleIndex != -1)
+							{
+								if (InTakenRel(1,3))
+								{
+									int sideIndex = InTakenIndexRel(1,3);
+									if (sideIndex < middleIndex)
+									{
+										Future2x2StartEnd9 = true;
+										forbidden.Add(new int[] { x + lx, y + ly });
+									}
+								}
+								else
+								{
+									int sideIndex = InTakenIndexRel(-1,3);
+									if (sideIndex > middleIndex)
+									{
+										Future2x2StartEnd9 = true;
+										forbidden.Add(new int[] { x + lx, y + ly });
+									}
+								}
+							}
+							else
+							{
+								middleIndex = InBorderIndexRel(0,3);
+								int farSideIndex = InBorderIndexRel(1,3);
+								if (farSideIndex > middleIndex)
+								{
+									Future2x2StartEnd9 = true;
+									forbidden.Add(new int[] { x + lx, y + ly });
+								}
 							}
 						}
 						int s0 = sx;

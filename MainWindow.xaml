@@ -65,8 +65,6 @@
         1, 2<LineBreak />
         2, 1
         </TextBlock>
-        <Label Content="Exits: " HorizontalAlignment="Left" Margin="560,30,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="ExitCoords" IsTabStop="False" HorizontalAlignment="Left" Margin="600,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="63" Height="50"/>
         <Label x:Name="CoordinateLabel" Content="" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black" Background="White" Visibility="Hidden" IsHitTestVisible="False" ClipToBounds="False" />
         <Label x:Name="MessageLine" Content="" HorizontalAlignment="Left" Margin="20,108,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
         <Button x:Name="OKButton" Background="LightPink" Content="OK" HorizontalAlignment="Left" Margin="371,112,0,0" VerticalAlignment="Top" Width="50" Click="OK_Click" Height="21" Visibility="Hidden"/>

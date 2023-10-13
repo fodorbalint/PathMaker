@@ -90,7 +90,7 @@ Impair areas can now happen inside the grid, not just on the edge.
 
 - This is what I started the 7 x 7 introduction with.
 
-<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="28.57%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/>
+<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/>
 
 <img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="14.3%"/><img src="References/spacer.svg" width="19.05%"/><img align="top" src="References/Future 2 x 3 Start End 465.svg" width="33.3%"/>
 
@@ -114,7 +114,7 @@ I have made statistics about how many random walkthroughs you can complete on di
 19: 0.2<br />
 21: 0.1
 
-To discover 9-specific patterns, I run the program keeping it left as long as the time to get to the first error is too big. After that, I will run it randomly. Right now, the first 13 826 walkthroughs are completed before we encounter a situation. It is similar to the last one we discovered on 7 x 7:
+To discover 9-specific patterns, I run the program keeping it left as long as the time to get to the first error is too big. After that, I will run it randomly. The first 13 826 walkthroughs are completed before we encounter a situation. It is similar to the last one we discovered on 7 x 7:
 
 <img align="top" src="References/1007.svg" width="42.86%"/>
 
@@ -130,9 +130,39 @@ We can define a rule by marking the following fields and counting the area from 
 
 <img align="top" src="References/rules/9/Count Area 3 x 3.svg" width="28.57%"/>
 
-Start_1 field is (4,3) and Start_2 field is (4,4) in the actual example. End field is (4,2). Direction of the circle: right (counter-clockwise). If the area is pair, we cannot step straight. 
+Start_1 field is (4,3) and Start_2 field is (4,4) in the actual example. End field is (4,2). Direction of the circle: right (counter-clockwise). If the area is pair, we cannot step straight.
 
-When this situation is sorted out, 13950 more walkthroughs can be made.
+When generating code from the drawing, we have to check on which side the enclosed area was created. Here, we want it to be on the right side, so there are two cases to look at:
+- The taken or border field beyond the end field is a taken field. In this case, if the field to its left is taken, its index must be lower. If the field to the right is taken, its index must be higher.
+- It is the border. Add together the x- and y-coordinates to get a value. A higher value is closer to the end corner. Here, we compare the border field straight ahead and on its left, and we want the first-mentioned to be the smaller.
+
+I have applied this rule rotated clockwise (besides mirroring it, or course), so that the live end can both come from the bottom and the right. But it can also come from the left in this example:
+
+<img align="top" src="References/1010_2.svg" width="42.86%"/>
+
+This will probably be another rule, because in this case it is not necessary to have an empty 3 x 3 field on the left.
+
+Now let's run the program further up to number 13 992:
+<!-- (from stepping back + 142 (with first rule disabled) / 158 = 13 984) why? -->
+
+<img align="top" src="References/1010_4_error.svg" width="42.86%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1010_4.svg" width="42.86%"/>
+
+It is also just like the 7 x 7 rule, just with the extension of the area on the opposite side of the future line ends. But we can't simply remove the two taken fields on that side, because the line might continue in that direction, as it is the case here:
+
+<img align="top" src="References/1013.svg" width="33.3%"/>
+
+It would be a mistake to disable the right field.
+
+So we need to check if an enclosed has been created on that side, but counting the area is unnecessary. Nevertheless, we can represent the rule this way, setting the circle direction to right:
+
+<img align="top" src="References/rules/9/Future 2 x 2 Start End 9.svg" width="23.8%"/>
+
+The code generator will examine if the count area start and end fields are 1 or 2 distance apart. In the first case, it will only determine in which direction the taken field straight ahead is going to, and if it is right, the forbidden field will take effect.<br />
+You may ask, why that field is "taken", not "taken or border". From what I found through some examples, if that field is border, the enclosed area on the right is impair, so the line cannot step in the other direction anyway. But it needs further examination.
+
+The next error, at 14 004 has something to with how I defined the universal rules of approaching an older section of the line, it needs to be reworked in light of the C-shape the main line can create with the border.
+
+<img align="top" src="References/1013_1.svg" width="42.86%"/>
 
 ---
 

@@ -143,8 +143,8 @@ namespace OneWayLabyrinth
 						}
 						else
 						{
-                            thisLx = lx = directions[i + 1][0]; // bug: this line changes sx too
-                            thisLy = ly = directions[i + 1][1]; // bug: this line changes sy too
+                            thisLx = lx = directions[i + 1][0];
+                            thisLy = ly = directions[i + 1][1];
                             rx = directions[i - 1][0];
                             ry = directions[i - 1][1];
                         }
@@ -174,7 +174,7 @@ namespace OneWayLabyrinth
                         // It cannot connect to the end of the same section
 						if (!isMain) {
 
-                            if (isNearEnd) // main line can be connected to
+                            if (isNearEnd && !window.inFuture) // main line can be connected to if it is not already connected to another future line
                             {
                                 int c2 = path2.Count;
                                 if (path2[c2 - 1][0] == straightField[0] && path2[c2 - 1][1] == straightField[1]) possible.Add(straightField);
@@ -276,14 +276,20 @@ namespace OneWayLabyrinth
                                     // Future 3 x 3 Start End
                                     //0916
 
-                                    RunRules();
-
-                                    T("Sideback " + Sideback + " Sidefront " + Sidefront + " SidefrontL " + SidefrontL + " FutureL " + FutureL + " Future2x2StartEnd  " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3);
                                 }
                                 if (size >= 9)
                                 {
+                                    // Count Area 3 x 3
+                                    // 1008
 
+                                    // Future 2 x 2 Start End 9
+                                    // 1010_4
                                 }
+
+                                RunRules();
+
+                                T("Sideback " + Sideback + " Sidefront " + Sidefront + " SidefrontL " + SidefrontL + " FutureL " + FutureL + " Future2x2StartEnd " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3 + " Future2x2StartEnd9 " + Future2x2StartEnd9);
+
                                 /* (not actual yet)
                                 if (size >= 21)
                                 {
@@ -1073,6 +1079,32 @@ namespace OneWayLabyrinth
             nextY += directions[currentDirection][1];
             areaLine.Add(new int[] { nextX, nextY });
 
+            if (nextY < minY)
+            {
+                minY = nextY;
+                limitX = nextX;
+                startIndex = areaLine.Count - 1;
+            }
+            else if (nextY == minY)
+            {
+                if (circleDirectionLeft) //top right corner
+                {
+                    if (nextX > limitX)
+                    {
+                        limitX = nextX;
+                        startIndex = areaLine.Count - 1;
+                    }
+                }
+                else //top left corner
+                {
+                    if (nextX < limitX)
+                    {
+                        limitX = nextX;
+                        startIndex = areaLine.Count - 1;
+                    }
+                }
+            }
+
             while (!(nextX == endX && nextY == endY))
 			{
                 int startDirection = currentDirection;
@@ -1135,9 +1167,10 @@ namespace OneWayLabyrinth
                 }
             }
 
-            /*foreach (int[] area in areaLine)
+            /*T("minY " + minY + " limitX " + limitX);
+            foreach (int[] a in areaLine)
 			{
-				T(area[0] + " " + area[1]);
+				T(a[0] + " " + a[1]);
 			}*/
 
 			//Special cases are not yet programmed in here as in MainWindow.xaml.cs. We take a gradual approach, starting from the cases that can happen on 7 x 7.
@@ -1158,6 +1191,8 @@ namespace OneWayLabyrinth
                 int[] field = areaLine[index];
                 int fieldX = field[0];
                 int fieldY = field[1];
+
+                //T(" currentY " + currentY + " fieldX " + fieldX + " fieldY " + fieldY + " startCandidate " + startCandidate[0] + " " + startCandidate[1] + " endCandidate " + endCandidate[0] + " " + endCandidate[1]);
 
                 if (fieldY > currentY)
                 {
@@ -1705,6 +1740,14 @@ namespace OneWayLabyrinth
 
             return false;
 		}
+
+        public int InBorderIndexRel(int left, int straight)
+        {
+            int x = this.x + left * lx + straight * sx;
+            int y = this.y + left * ly + straight * sy;
+            return x + y;
+        }
+
 
         public int InTakenIndexRel(int left, int straight) // relative position
         {

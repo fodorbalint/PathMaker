@@ -33,10 +33,13 @@ using SkiaSharp.Views.Desktop;
 ----- OTHER -----
 
 In 1-thin future line extension rule, it is not necessary that the far end is at the corner. We are in a closed loop where the far end cannot have effect on the near end, unless the field 2 to left is part of the same future line which took a U-turn.
-Check border when counting area from rule.
-Check if there is a taken or border field next to the count area end field when creating rule
+Write about basic countarea rules, make drawings
+Write about counting area start end field rules
+Write about stepped on future extension rules, added 1010_3
 
------ 9 x 9 -----
+----- 11 x 11 -----
+
+3x3 countarea rule can be rotated counter-clockwise too, but it may only be actual on 11 x 11 (1010_2)
 
 ----- 21 x 21 -----
 
@@ -484,25 +487,50 @@ namespace OneWayLabyrinth
 
 			taken.circleDirectionLeft = circleDirectionLeft;
 
-			foreach (string coords in loadPath)
+			if (content.IndexOf("-") != -1) // normal mode, with possibilities
 			{
-				string[] sections = coords.Split("-");
-				int[] possibles = Array.ConvertAll(sections[0].Split(","), s => int.Parse(s));
-				possibleDirections.Add(possibles);
-				if (sections.Length == 2)
-				{
-					int[] field = Array.ConvertAll(sections[1].Split(","), s => int.Parse(s));					
-					taken.path.Add(field);
+                foreach (string coords in loadPath)
+                {
+                    string[] sections = coords.Split("-");
+                    int[] possibles = Array.ConvertAll(sections[0].Split(","), s => int.Parse(s));
+                    possibleDirections.Add(possibles);
+                    if (sections.Length == 2)
+                    {
+                        int[] field = Array.ConvertAll(sections[1].Split(","), s => int.Parse(s));
+                        taken.path.Add(field);
+                        int x = field[0];
+                        int y = field[1];
+                        taken.x = x;
+                        taken.y = y;
+
+                        CheckFutureLine(x, y);
+                    }
+                }
+            }
+			else // only coordinates
+			{
+				int startX = 0;
+				int startY = 1;
+
+                foreach (string coords in loadPath)
+                {
+                    int[] field = Array.ConvertAll(coords.Split(","), s => int.Parse(s));
+                    taken.path.Add(field);
                     int x = field[0];
                     int y = field[1];
-					taken.x = x;
-					taken.y = y;
+                    taken.x = x;
+                    taken.y = y;
 
-					CheckFutureLine(x, y);					
-				}
-			}
+					possibleDirections.Add(new int[] { FindDirection(x - startX, y - startY) });
+					startX = x;
+					startY = y;
 
-			T("LoadFromFile " + taken.path.Count + " " + possibleDirections.Count);
+                    CheckFutureLine(x, y);
+                }
+                possibleDirections.Add(new int[] { });
+            }
+
+            T("LoadFromFile " + taken.path.Count + " " + possibleDirections.Count);
 
 			nextDirection = -2;
 
@@ -536,21 +564,12 @@ namespace OneWayLabyrinth
 
 			CurrentCoords.Content = taken.x + " " + taken.y;
 			PossibleCoords.Text = "";
-			ExitCoords.Text = "";
 
 			taken.possible = new List<int[]>();
 			foreach (int direction in possibleDirections[possibleDirections.Count - 1])
 			{
 				PossibleCoords.Text += taken.x + directions[direction][0] + " " + (taken.y + directions[direction][1]) + "\n";
 				taken.possible.Add(new int[] { taken.x + directions[direction][0], taken.y + directions[direction][1] });
-			}
-			foreach (int[] exit in exits)
-			{
-				ExitCoords.Text += exit[0] + " " + exit[1] + "\n";
-			}
-			if (ExitCoords.Text.Length > 0)
-			{
-				ExitCoords.Text = ExitCoords.Text.Substring(0, ExitCoords.Text.Length - 1);
 			}
 		}
 
@@ -569,7 +588,6 @@ namespace OneWayLabyrinth
 			{
 				CurrentCoords.Content = taken.x + " " + taken.y;
 				PossibleCoords.Text = "";
-				ExitCoords.Text = "";
             }
 
             foreach (int direction in possibleDirections[possibleDirections.Count - 1])
@@ -900,13 +918,13 @@ namespace OneWayLabyrinth
                         if (isTaskRunning)
                         {
                             completedCount++;
-                            /*string pathStr = "";
+                            string pathStr = "";
                             foreach (int[] field in taken.path)
                             {
                                 pathStr += field[0] + ","+ field[1] + ";";
                             }
                             pathStr = pathStr.Substring(0, pathStr.Length - 1);
-                            File.AppendAllText("completedPaths.txt", pathStr + "\n");*/
+                            File.AppendAllText("completedPaths.txt", pathStr + "\n");
                             Dispatcher.Invoke(() =>
                             {
                                 if (!(makeStats && !keepLeftCheck))
@@ -1593,8 +1611,11 @@ namespace OneWayLabyrinth
 						int endX = future.path[farEndIndex][0];
 						int endY = future.path[farEndIndex][1];
 
-						// if the near and far end are 2 apart, the field between will be now taken by the far end and can be extended further.
-						if (x == endX && Math.Abs(y - endY) == 2 || y == endY && Math.Abs(x - endX) == 2)
+						int prevX = taken.path[taken.path.Count - 2][0];
+                        int prevY = taken.path[taken.path.Count - 2][1];
+
+                        // if the near and far end are 2 apart, the field between will be now taken by the far end and can be extended further.
+                        if (x == endX && Math.Abs(y - endY) == 2 || y == endY && Math.Abs(x - endX) == 2)
 						{
 							future.path2 = taken.path;
 
@@ -1605,7 +1626,6 @@ namespace OneWayLabyrinth
 
                             if (!ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true))
 							{
-								//is it possible to form another future line in this step?
 								possibleDirections.Add(new int[] { });
 								M("Stepped on future, other end cannot be completed.", 1);
 								//the new possible directions is not set yet.
@@ -1613,6 +1633,24 @@ namespace OneWayLabyrinth
 								return false; //to prevent NextStepPossibilities from running
 							}
 						}
+						// The live end steps elsewhere, so the far end can now make a C-shape, see 1010_3
+						else if (prevX == endX && Math.Abs(prevY - endY) == 2 || prevY == endY && Math.Abs(prevX - endX) == 2)
+						{
+                            future.path2 = taken.path;
+
+                            nearExtDone = true;
+                            farExtDone = false;
+                            nearEndDone = true;
+                            farEndDone = false;
+
+                            if (!ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true))
+                            {
+                                possibleDirections.Add(new int[] { });
+                                M("Stepped on future, other end cannot be completed.", 1);
+
+                                return false;
+                            }
+                        }
 						// if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field
 						else if (endX == size && endY == size - 1 || endY == size && endX == size - 1)
 						{
@@ -2311,6 +2349,7 @@ namespace OneWayLabyrinth
             }
             return true;
 		}
+
 		private List<int[]> Copy(List<int[]> obj)
 		{
 			List<int[]> newObj = new();
@@ -3689,7 +3728,6 @@ namespace OneWayLabyrinth
 			}
 			savePath = savePath.Substring(0, savePath.Length - 1);
 
-			ExitCoords.Text = "";
 			if (exits.Count > 0)
 			{
 				savePath += ":";
@@ -3706,9 +3744,7 @@ namespace OneWayLabyrinth
 					}
 					
 					savePath += x + "," + y + "," + exitIndex[i] + ";";
-					ExitCoords.Text += field[0] + " " + field[1] + "\n";
 				}
-				ExitCoords.Text = ExitCoords.Text.Substring(0, ExitCoords.Text.Length - 1);
 
 				savePath = savePath.Substring(0, savePath.Length - 1) + "," + taken.circleDirectionLeft;
 			}
@@ -3931,12 +3967,16 @@ namespace OneWayLabyrinth
 			{
 				StartStop_Click(new object(), new RoutedEventArgs());
 			}
-			else if ((Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) && e.Key == Key.S)
+			else if (e.Key == Key.S && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
 			{
 				Save_Click(new object(), new RoutedEventArgs());
 				return;
 			}
-			else if (CapsLock || Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
+            else if (e.Key == Key.D && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                ExtractDifference();
+            }
+            else if (CapsLock || Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
 
 				int direction = -1;
 				switch(e.Key)
@@ -4031,7 +4071,6 @@ namespace OneWayLabyrinth
 		{
 			Dispatcher.Invoke(() =>
 			{
-				L(o.ToString());
                 messageCode = code;
                 if (!(isTaskRunning && makeStats && !keepLeftCheck))
 				{
@@ -4039,7 +4078,11 @@ namespace OneWayLabyrinth
                     MessageLine.Visibility = Visibility.Visible;
                     OKButton.Visibility = Visibility.Visible;
                     if (code != 3) StopTimer();
-                }                
+                }    
+				else
+				{
+                    L(o.ToString());
+                }
             });
         }
 
@@ -4085,6 +4128,47 @@ namespace OneWayLabyrinth
         {
             Rules rules = new Rules();
             rules.Show();
+        }
+
+		private void ExtractDifference()
+		{
+			string[] complete = File.ReadAllLines("completedPaths.txt");
+            string[] incomplete = File.ReadAllLines("completedPaths_1.txt");
+			if (!Directory.Exists("diff"))
+			{
+				Directory.CreateDirectory("diff");
+			}
+
+			int count = 0;
+			int i = 0;
+			for (int c = 0; c < complete.Length; c++)
+			{
+				string lineC = complete[c];
+				string lineiC = incomplete[i];
+
+				if (lineC != lineiC)
+				{
+					File.WriteAllText("diff/" + (c + 1) + ".txt", lineC);
+					count++;
+				}
+				else
+				{
+                    i++;
+                }
+            }
+			M(count + " differences extracted.", 0);
+        }
+
+		private int FindDirection(int xDiff, int yDiff)
+		{
+            for (int i = 0; i < 4; i++)
+            {
+                if (directions[i][0] == xDiff && directions[i][1] == yDiff)
+                {
+					return i;
+                }
+            }
+			return 0;
         }
     }
 }

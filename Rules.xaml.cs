@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using System.Windows.Automation;
+using System.Diagnostics.Eventing.Reader;
 
 namespace OneWayLabyrinth
 {
@@ -55,6 +56,7 @@ namespace OneWayLabyrinth
             LoadDir();
             XSize.Text = "6";
             YSize.Text = "5";
+            AppliedSize.Text = "9";
         }
 
         private void LoadDir()
@@ -321,9 +323,17 @@ namespace OneWayLabyrinth
                 int[] middleWall;
 
                 // suppose count area start and end is 2 distance apart
-                middleWall = new int[] { countAreaEndField[0] - (countAreaStartField[0] - countAreaEndField[0]) / 2, countAreaEndField[1] - (countAreaStartField[1] - countAreaEndField[1]) / 2 };
 
-
+                bool diff2 = false;
+                if (Math.Abs(countAreaStartField[0] - countAreaEndField[0]) == 2 || Math.Abs(countAreaStartField[1] - countAreaEndField[1]) == 2)
+                {
+                    diff2 = true;
+                    middleWall = new int[] { countAreaEndField[0] - (countAreaStartField[0] - countAreaEndField[0]) / 2, countAreaEndField[1] - (countAreaStartField[1] - countAreaEndField[1]) / 2 };
+                }
+                else // fields 1 distance apart, we don't count area, we only need to check the direction of the middle field
+                {
+                    middleWall = new int[] { countAreaEndField[0] - (countAreaStartField[0] - countAreaEndField[0]), countAreaEndField[1] - (countAreaStartField[1] - countAreaEndField[1]) };
+                }
 
                 int relX = startX - middleWall[0];
                 int relY = startY - middleWall[1];
@@ -332,7 +342,26 @@ namespace OneWayLabyrinth
                 int endRelX = startX - countAreaEndField[0];
                 int endRelY = startY - countAreaEndField[1];
 
-                forbiddenStr = "\t\t\t\t" + forbiddenStr.Replace("\n", "\n\t\t\t\t") + "\n";
+                string countAreaRule;
+
+                if (diff2)
+                {
+                    forbiddenStr = "\t\t\t" + forbiddenStr.Replace("\n", "\n\t\t\t") + "\n";
+
+                    countAreaRule = "\t\tcircleDirectionLeft = (i == 0) ? " + circleDirectionLeft.ToString().ToLower() + " : " + (!circleDirectionLeft).ToString().ToLower() + ";\n" +
+                    "\t\tif (CountAreaRel(" + startRelX + "," + startRelY + ", " + endRelX + "," + endRelY + "))\n" +
+                    "\t\t{\n" +
+                    "\t\t\t" + variableName + " = true;\n" +
+                    forbiddenStr +
+                    "\t\t}\n";
+                }
+                else
+                {
+                    forbiddenStr = "\t\t" + forbiddenStr.Replace("\n", "\n\t\t") + "\n";
+
+                    countAreaRule = "\t\t" + variableName + " = true;\n" +
+                    forbiddenStr;
+                }
 
                 ruleCore = "int middleIndex = InTakenIndexRel(" + relX + "," + relY + ");\n" +
                     "if (middleIndex != -1)\n" +
@@ -342,12 +371,7 @@ namespace OneWayLabyrinth
                     "\t\tint sideIndex = InTakenIndexRel(" + (relX + 1) + "," + relY + ");\n" +
                     "\t\tif (sideIndex [1] middleIndex)\n" +
                     "\t\t{\n" +
-                    "\t\t\tcircleDirectionLeft = " + circleDirectionLeft.ToString().ToLower() + ";\n" +
-                    "\t\t\tif (CountAreaRel(" + startRelX + "," + startRelY + ", " + endRelX + "," + endRelY + "))\n" +
-                    "\t\t\t{\n" +
-                    "\t\t\t\t" + variableName + " = true;\n" +
-                    forbiddenStr +
-                    "\t\t\t}\n" +
+                    countAreaRule.Replace("\t\t", "\t\t\t") +
                     "\t\t}\n" +
                     "\t}\n" +
                     "\telse\n" +
@@ -355,17 +379,18 @@ namespace OneWayLabyrinth
                     "\t\tint sideIndex = InTakenIndexRel(" + (relX - 1) + "," + relY + ");\n" +
                     "\t\tif (sideIndex [2] middleIndex)\n" +
                     "\t\t{\n" +
-                    "\t\t\tcircleDirectionLeft = " + circleDirectionLeft.ToString().ToLower() + ";\n" +
-                    "\t\t\tif (CountAreaRel(" + startRelX + "," + startRelY + ", " + endRelX + "," + endRelY + "))\n" +
-                    "\t\t\t{\n" +
-                    "\t\t\t\t" + variableName + " = true;\n" +
-                    forbiddenStr +
-                    "\t\t\t}\n" +
+                    countAreaRule.Replace("\t\t", "\t\t\t") +
                     "\t\t}\n" +
                     "\t}\n" +
                     "}\n" +
                     "else\n" +
                     "{\n" +
+                    "\tmiddleIndex = InBorderIndexRel(" + relX + "," + relY + ");\n" +
+                    "\tint farSideIndex = InBorderIndexRel(" + (circleDirectionLeft?(relX - 1):(relX + 1)) + "," + relY + ");\n" +
+                    "\tif (farSideIndex [2] middleIndex)\n" +
+                    "\t{\n" +
+                    countAreaRule +
+                    "\t}\n" +
                     "}";
 
                 if (circleDirectionLeft)
@@ -566,6 +591,33 @@ namespace OneWayLabyrinth
             {
                 M("Count area start field has to be added.");
                 return;
+            }
+            else if (countAreaStartCoordinates != null && countAreaEndCoordinates != null)
+            {
+                int takenOrBorderX, takenOrBorderY;
+                if (Math.Abs(countAreaStartCoordinates[0] - countAreaEndCoordinates[0]) == 2)
+                {
+                    takenOrBorderX = countAreaEndCoordinates[0] - (countAreaStartCoordinates[0] - countAreaEndCoordinates[0]) / 2;
+                }
+                else
+                {
+                    takenOrBorderX = countAreaEndCoordinates[0] - (countAreaStartCoordinates[0] - countAreaEndCoordinates[0]);
+                }
+
+                if (Math.Abs(countAreaStartCoordinates[1] - countAreaEndCoordinates[1]) == 2)
+                {
+                    takenOrBorderY = countAreaEndCoordinates[1] - (countAreaStartCoordinates[1] - countAreaEndCoordinates[1]) / 2;
+                }
+                else
+                {
+                    takenOrBorderY = countAreaEndCoordinates[1] - (countAreaStartCoordinates[1] - countAreaEndCoordinates[1]);
+                }
+
+                if (newRule.IndexOf("<!-- " + takenOrBorderX + " " + takenOrBorderY + " 3 -->") == -1 && newRule.IndexOf("<!-- " + takenOrBorderX + " " + takenOrBorderY + " 4 -->") == -1)
+                {
+                    M("There has to be a taken or border field next to the count area end.");
+                    return;
+                }
             }
             if (xSize > size || ySize > size)
             {
@@ -962,7 +1014,7 @@ namespace OneWayLabyrinth
                         return;
                     }
 
-                    if (!(countAreaEndCoordinates is null) && !(Math.Abs(coordX - countAreaEndCoordinates[0]) == 2 && coordY == countAreaEndCoordinates[1] || Math.Abs(coordY - countAreaEndCoordinates[1]) == 2 && coordX == countAreaEndCoordinates[0]))
+                    if (!(countAreaEndCoordinates is null) && !(Math.Abs(coordX - countAreaEndCoordinates[0]) == 2 && coordY == countAreaEndCoordinates[1] || Math.Abs(coordY - countAreaEndCoordinates[1]) == 2 && coordX == countAreaEndCoordinates[0] || Math.Abs(coordX - countAreaEndCoordinates[0]) == 1 && coordY == countAreaEndCoordinates[1] || Math.Abs(coordY - countAreaEndCoordinates[1]) == 1 && coordX == countAreaEndCoordinates[0]))
                     {
                         T("Count area start and end field has to be 2 distance apart.");
                         draggedElement = 0;
@@ -991,7 +1043,7 @@ namespace OneWayLabyrinth
                         return;
                     }
 
-                    if (!(countAreaStartCoordinates is null) && !(Math.Abs(coordX - countAreaStartCoordinates[0]) == 2 && coordY == countAreaStartCoordinates[1] || Math.Abs(coordY - countAreaStartCoordinates[1]) == 2 && coordX == countAreaStartCoordinates[0]))
+                    if (!(countAreaStartCoordinates is null) && !(Math.Abs(coordX - countAreaStartCoordinates[0]) == 2 && coordY == countAreaStartCoordinates[1] || Math.Abs(coordY - countAreaStartCoordinates[1]) == 2 && coordX == countAreaStartCoordinates[0] || Math.Abs(coordX - countAreaStartCoordinates[0]) == 1 && coordY == countAreaStartCoordinates[1] || Math.Abs(coordY - countAreaStartCoordinates[1]) == 1 && coordX == countAreaStartCoordinates[0]))
                     {
                         T("Count area start and end field has to be 2 distance apart.");
                         draggedElement = 0;
