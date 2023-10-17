@@ -539,7 +539,7 @@ namespace OneWayLabyrinth
             content = singleGrid.Replace("<!---->", notCornerField);
             if (!File.Exists("notCornerField.svg")) File.WriteAllText("notCornerField.svg", content);
 
-            forbiddenField = "<path d=\"M 0.2 0.2 l 0.6 0.6 M 0.2 0.8 l 0.6 -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            forbiddenField = "<path d=\"M 0.2 0.2 l 0.6 0.6 M 0.2 0.8 l 0.6 -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", forbiddenField);
             if (!File.Exists("forbiddenField.svg")) File.WriteAllText("forbiddenField.svg", content);
 
@@ -716,7 +716,7 @@ namespace OneWayLabyrinth
             string sizeStr = newRule.Substring(pos + 13, lastPos - pos - 13);
             newRule = newRule.Replace("viewBox=\"0 0 " + sizeStr, "viewBox=\"0 0 " + xSize + " " + ySize);
 
-            pos = newRule.IndexOf("<!--2-->");
+            pos = newRule.IndexOf("<!--3-->");
             newRule = newRule.Substring(0, pos + 8) + "\r\n" + grid + "\r\n</svg>";
 
             // remove fields that are now outside the area

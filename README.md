@@ -74,6 +74,20 @@ In other situations, there is a 1-thin future line next to the live end that can
 
 - Just like moving near the edge, we need to disable some fields if we are approaching an older section of the main line. In order to determine on which side the enclosed area is created, we need to examine the direction of the line at the connection point.
 
+<img src="References/checknearfield/close straight left right.svg" width="9.5%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/checknearfield/close straight left left.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/checknearfield/close straight right right.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/checknearfield/close straight right left.svg" width="9.5%"/>
+
+The gray square means empty field. When the field 2 to straight is taken, its left or right side will be taken too.
+
+<img src="References/checknearfield/close mid across right.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/checknearfield/close mid across left.svg" width="19%"/>
+
+These will only be checked if one of the above 4 situations were not present. (They have to be mirrored, too.)
+
+<img src="References/checknearfield/close across right.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/checknearfield/close across left.svg" width="23.8%"/>
+
+Likewise, these will be not be checked if the previous rules were true.
+
+And when none of the 1-distance situations are valid, we check for 2-distance.
+
 <img src="References/0929_1.svg" width="33.3%"/>
 
 Impair areas can now happen inside the grid, not just on the edge.
