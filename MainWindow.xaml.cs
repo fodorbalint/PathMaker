@@ -36,6 +36,9 @@ In 1-thin future line extension rule, it is not necessary that the far end is at
 Write about basic countarea rules, make drawings
 Write about counting area start end field rules
 Write about stepped on future extension rules, added 1010_3
+1017: step until future line cannot be completed, step back a few times, step forward one, future line cannot be completed now.
+1017_1: Due to imcomplete countarea checking, stepping left is enabled, but it shouldn't be.
+No option to move when loading aa completed path
 
 ----- 11 x 11 -----
 
@@ -434,7 +437,7 @@ namespace OneWayLabyrinth
 			foreach (string file in files)
 			{
 				string fileName = file.Substring(2);
-				if (fileName != "settings.txt" && fileName != "log.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
+				if (fileName != "settings.txt" && fileName != "log.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
 				{
 					T(fileName);
 					loadFile = fileName;

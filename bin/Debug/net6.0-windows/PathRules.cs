@@ -6,9 +6,6 @@ namespace OneWayLabyrinth
 		public bool Future2x3StartEnd = false;
 		public bool Future3x3StartEnd = false;
 		public bool FutureL = false;
-		public bool Sideback = false;
-		public bool SidefrontL = false;
-		public bool Sidefront = false;
 		public bool CountArea3x3 = false;
 		public bool Future2x2StartEnd9 = false;
 
@@ -18,9 +15,6 @@ namespace OneWayLabyrinth
 			Future2x3StartEnd = false;
 			Future3x3StartEnd = false;
 			FutureL = false;
-			Sideback = false;
-			SidefrontL = false;
-			Sidefront = false;
 			CountArea3x3 = false;
 			Future2x2StartEnd9 = false;
 
@@ -125,48 +119,6 @@ namespace OneWayLabyrinth
 				}
 				sx = thisSx;
 				sy = thisSy;
-				lx = thisLx;
-				ly = thisLy;
-
-				// Side back
-				for (int i = 0; i < 2; i++)
-				{
-					if (InTakenRel(2,-1) && !InTakenRel(1,0) && !InTakenRel(1,-1))
-					{
-						Sideback = true;
-						forbidden.Add(new int[] { x + lx, y + ly });
-					}
-					lx = -lx;
-					ly = -ly;
-				}
-				lx = thisLx;
-				ly = thisLy;
-
-				// Side front L
-				for (int i = 0; i < 2; i++)
-				{
-					if (InTakenRel(2,1) && !InTakenRel(1,1) && !InTakenRel(1,0) && !InTakenRel(2,0))
-					{
-						SidefrontL = true;
-						forbidden.Add(new int[] { x + lx, y + ly });
-					}
-					lx = -lx;
-					ly = -ly;
-				}
-				lx = thisLx;
-				ly = thisLy;
-
-				// Side front
-				for (int i = 0; i < 2; i++)
-				{
-					if (InTakenRel(2,1) && !InTakenRel(1,1) && !InTakenRel(1,0) && !InTakenRel(1,-1))
-					{
-						Sidefront = true;
-						forbidden.Add(new int[] { x + lx, y + ly });
-					}
-					lx = -lx;
-					ly = -ly;
-				}
 				lx = thisLx;
 				ly = thisLy;
 			}

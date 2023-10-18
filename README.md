@@ -90,15 +90,28 @@ And when none of the 1-distance situations are valid, we check for 2-distance.
 
 <img src="References/0929_1.svg" width="33.3%"/>
 
-Impair areas can now happen inside the grid, not just on the edge.
+Impair areas can now happen inside the grid, not just on the edge, and the following rules have to be applied:
 
-<img align="top" src="References/rules/7/Side back.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Side back 2558.svg" width="33.3%"/>
+<img src="References/checknearfield/far straight left.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/checknearfield/far straight right.svg" width="19%"/>
 
-<img align="top" src="References/rules/7/Side front.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Side front 266.svg" width="33.3%"/>
+The procedure is similar to the the straight 2-distance rule. The only difference is that we count the area starting and ending at the marked fields. In the first, the direction of the circle is left, in the second right.<br />
+Besides mirroring them, we also have to rotate them both counter-clockwise and clockwise.<br />
+But we do not need 12 of such rules. Taking the first, the live end cannot come from the left, because the area parity was already checked in the previous step, and now we just added 2 fields to it. It can come from the right, and then there is naturally only one field we might have to disable.<br />
+Here are the representations of the two scenarios for the left side:
 
-<img align="top"  src="References/rules/7/Side front L.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Side front L 3627.svg" width="33.3%"/>
+<img align="top" src="References/checknearfield/far side down.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/far side up.svg" width="19%"/>
 
-- When we are entering or moving in an enclosed area, the above rules define movement near the edge.
+Similarly to the straight rules, these will only apply if there is no wall 2 distance to the left or right. Let's construct these preconditions.
+
+<img align="top" src="References/checknearfield/close side straight.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/close side mid across up.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/close side mid across down.svg" width="14.3%"/>
+
+We are not finished. Did you notice the example above is not covered by these rules? We have to move the taken fields 1 to the side, both in straight and side direction.
+
+<img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/>
+
+<img align="top" src="References/checknearfield/far side mid across up.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/far side mid across down.svg" width="19%"/>
+
+And these are the rest of the rules:
 
 <img align="top" src="References/rules/7/Future L.svg" width="19.05%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Future L 65.svg" width="33.3%"/>
 

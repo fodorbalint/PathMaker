@@ -717,7 +717,7 @@ namespace OneWayLabyrinth
             newRule = newRule.Replace("viewBox=\"0 0 " + sizeStr, "viewBox=\"0 0 " + xSize + " " + ySize);
 
             pos = newRule.IndexOf("<!--3-->");
-            newRule = newRule.Substring(0, pos + 8) + "\r\n" + grid + "\r\n</svg>";
+            newRule = newRule.Substring(0, pos + 8) + "\r\n" + grid + "</svg>";
 
             // remove fields that are now outside the area
 
