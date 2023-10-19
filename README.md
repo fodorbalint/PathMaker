@@ -45,9 +45,17 @@ Here are the things to consider on a grid of this size:
 
 - A 2 x 2 empty area next to the live end that is walled by three sides (2-2-2 long) will have a future line going through along the walls. In this example, the far end is already extended by one step as it had only one option to move.
 
+<img src="References/1019_9.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/1019_10.svg" width="23.8%"/>
+
+- Future line extension when we step on a future line: The far can be extended if it was 2 distance away from the near end. It can now fill the C-shape.
+
+<img src="References/1019_11.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/1019_12.svg" width="23.8%"/>
+
+Also, if the far end was near the end corner, it has to choose the other empty field.
+
 <img src="References/0821_3.svg" width="23.8%"/>
 
-- Future line extension: If there was a near end where the main line was in the previous step, it now may have only one choice to move, so it can be extended.
+- Future line extension when stepping away: If there was a near end where the main line was in the previous step, it now may have only one choice to move, so it can be extended.
 
 <img src="References/future connection.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0821_4.svg" width="23.8%"/>
 
@@ -64,7 +72,7 @@ In the example, you can also say that we cannot step right, because there is a f
 
 But let's start with the simpler rules:
 
-- Future line extension: When a near end is at 2 distance left or right from the live end, it will fill the field between them if the live end steps elsewhere. That's what happened above before the line failed.
+- Future line extension: When a near end is at 2 distance left or right from the live end, it will fill the field between them if the live end steps elsewhere. That's what happened in the 5 x 5 example above before the line failed.
 
 <img src="References/0911.svg" width="33.3%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/0911_0_1.svg" width="33.3%"/>
 
@@ -105,11 +113,17 @@ Similarly to the straight rules, these will only apply if there is no wall 2 dis
 
 <img align="top" src="References/checknearfield/close side straight.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/close side mid across up.svg" width="14.3%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/close side mid across down.svg" width="14.3%"/>
 
-We are not finished. Did you notice the example above is not covered by these rules? We have to move the taken fields 1 to the side, both in straight and side direction.
+We are not finished. Did you notice the example above is not covered by these rules? We have to move the taken fields 1 and 2 steps to the side, both in straight and side direction.
 
 <img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/>
 
 <img align="top" src="References/checknearfield/far side mid across up.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/far side mid across down.svg" width="19%"/>
+
+[remaining pictures will be uploaded]
+
+When any of the straight 2-distance rules are present, we don't need to check the side rules. This is not entirely proven, but take this 9 x 9 example:
+
+<img src="References/1019_8.svg" width="42.9%"/>
 
 And these are the rest of the rules:
 

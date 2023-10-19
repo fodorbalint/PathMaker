@@ -33,12 +33,8 @@ using SkiaSharp.Views.Desktop;
 ----- OTHER -----
 
 In 1-thin future line extension rule, it is not necessary that the far end is at the corner. We are in a closed loop where the far end cannot have effect on the near end, unless the field 2 to left is part of the same future line which took a U-turn.
-Write about basic countarea rules, make drawings
 Write about counting area start end field rules
 Write about stepped on future extension rules, added 1010_3
-1017: step until future line cannot be completed, step back a few times, step forward one, future line cannot be completed now.
-1017_1: Due to imcomplete countarea checking, stepping left is enabled, but it shouldn't be.
-No option to move when loading aa completed path
 
 ----- 11 x 11 -----
 
@@ -217,7 +213,14 @@ namespace OneWayLabyrinth
 
             if (taken != null && possibleDirections.Count == taken.path.Count) //null checking is only needed for removing warning
 			{
-                NextStepPossibilities();
+                if (!lineFinished)
+                {
+                    NextStepPossibilities();
+                }
+				else
+				{
+                    possibleDirections.Add(new int[] { });
+                }
             }
 			else if (taken != null && possibleDirections.Count != taken.path.Count + 1)
 			{
@@ -310,7 +313,7 @@ namespace OneWayLabyrinth
 				completedWalkthrough = false;
 				errorInWalkthrough = false;
                 MessageLine.Visibility = Visibility.Visible;
-				//File.WriteAllText("completedPaths.txt", "");
+				File.WriteAllText("completedPaths.txt", "");
                 source = new CancellationTokenSource();
                 CancellationToken token = source.Token;                
                 Task task = new Task(() => DoThread(), token);
@@ -691,8 +694,15 @@ namespace OneWayLabyrinth
 
 			if (possibleDirections.Count == taken.path.Count)
 			{
-				NextStepPossibilities();
-			}
+				if (!lineFinished)
+				{
+                    NextStepPossibilities();
+                }
+                else
+                {
+                    possibleDirections.Add(new int[] { });
+                }
+            }
 			else if (possibleDirections.Count != taken.path.Count + 1)
 			{
 				M("Error in file", 0);
@@ -1636,24 +1646,6 @@ namespace OneWayLabyrinth
 								return false; //to prevent NextStepPossibilities from running
 							}
 						}
-						// The live end steps elsewhere, so the far end can now make a C-shape, see 1010_3
-						else if (prevX == endX && Math.Abs(prevY - endY) == 2 || prevY == endY && Math.Abs(prevX - endX) == 2)
-						{
-                            future.path2 = taken.path;
-
-                            nearExtDone = true;
-                            farExtDone = false;
-                            nearEndDone = true;
-                            farEndDone = false;
-
-                            if (!ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true))
-                            {
-                                possibleDirections.Add(new int[] { });
-                                M("Stepped on future, other end cannot be completed.", 1);
-
-                                return false;
-                            }
-                        }
 						// if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field
 						else if (endX == size && endY == size - 1 || endY == size && endX == size - 1)
 						{
@@ -1953,7 +1945,7 @@ namespace OneWayLabyrinth
                                     farEndDone = false;
                                 }
 
-                                if (!ExtendFutureLine(false, futureSections[foundSection][0], farEndIndex, foundSection, lastMerged, false))
+                                if (!ExtendFutureLine(true, futureSections[foundSection][0], farEndIndex, foundSection, lastMerged, false))
 								{
 									possibleDirections.Add(new int[] { });
 									T("Left/right to 2 future start line cannot be completed.");
@@ -2739,6 +2731,10 @@ namespace OneWayLabyrinth
 			if (future.possible.Count > 1)
 			{
                 T("Future path has multiple choice, stepCount " + stepCount);
+				foreach (int[] field in future.possible)
+				{
+					T(field[0] + " " + field[1]);
+                }
             }
 			if (nearEndDone)
 			{

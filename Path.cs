@@ -358,7 +358,11 @@ namespace OneWayLabyrinth
                 for (int j = 0; j < 2; j++)
                 {
                     int[] liveEnd = path2[path2.Count - 1];
-                    if (!(x + lx == size && y + ly == size) && (InTakenRel(1, -1) || InBorderRel(1, -1)) && (InTakenRel(2, 0) || InBorderRel(2, 0)) && !InTakenRel(1, 0) && !(isNearEnd && !window.inFuture && liveEnd[0] == x + lx - sx && liveEnd[1] == y + ly - sy) && !InFutureStartRel(1, -1) && !InFutureEndRel(1, -1) && !(!window.inFuture && liveEnd[0] == x + 2 * lx && liveEnd[1] == y + 2 * ly) && !InFutureStartRel(2, 0) && !InFutureEndRel(2, 0))
+                    if (!(x + lx == size && y + ly == size) && (InTakenRel(1, -1) || InBorderRel(1, -1)) && (InTakenRel(2, 0) || InBorderRel(2, 0)) && !InTakenRel(1, 0)
+                        && !InFutureStartRel(1, -1) && !InFutureEndRel(1, -1)
+                        && !InFutureStartRel(2, 0) && !InFutureEndRel(2, 0)
+                        && !(isNearEnd && !window.inFuture && liveEnd[0] == x + lx - sx && liveEnd[1] == y + ly - sy)
+                         && !(isNearEnd && !window.inFuture && liveEnd[0] == x + 2 * lx && liveEnd[1] == y + 2 * ly))
                     {
                         T("Future C Shape");
                         CShape = true;
@@ -659,7 +663,7 @@ namespace OneWayLabyrinth
 
             if (!closeStraight && !closeMidAcross && !closeAcross)
             {
-                if (InTakenRel(0, 3) && !InTakenRel(0, 1))
+                if (InTakenRel(0, 3) && !InTakenRel(0, 1)) //  0,1: 1019_3
                 {
                     int middleIndex = InTakenIndexRel(0, 3);
                     if (InTakenRel(1, 3)) // left side taken
@@ -667,7 +671,7 @@ namespace OneWayLabyrinth
                         int sideIndex = InTakenIndexRel(1, 3);
                         if (sideIndex > middleIndex) // area on left
                         {
-                            if (!InTakenRel(1, 1) && !InTakenRel(2, 1))
+                            if (!InTakenRel(1, 1) && !InTakenRel(2, 1)) // 1,1: 1019_4, 2,1: 1019_5
                             {
                                 farStraight = true;
                                 circleDirectionLeft = true;
@@ -680,7 +684,7 @@ namespace OneWayLabyrinth
                         }
                         else // area on right
                         {
-                            if (!InTakenRel(-1, 1) && !InTakenRel(-2, 1))
+                            if (!InTakenRel(-1, 1) && !InTakenRel(-2, 1)) // -1, 1: 1019_6, -2, 1: 1019_7
                             {
                                 farStraight = true;
                                 circleDirectionLeft = false;
@@ -730,13 +734,13 @@ namespace OneWayLabyrinth
             {
                 for (int i = 0; i < 2; i++)
                 {
-                    if (InTakenRel(1, 3) && !InTakenRel(0, 1) && !InTakenRel(1, 1))
+                    if (InTakenRel(1, 3) && InTakenRel(2, 3) && !InTakenRel(0, 1) && !InTakenRel(1, 1)) // 0,1: 1019_3, 1,1: 1019_2
                     {
                         int middleIndex = InTakenIndexRel(1, 3);
                         int sideIndex = InTakenIndexRel(2, 3);
                         if (sideIndex > middleIndex) // area on left
                         {
-                            if (!InTakenRel(2, 1))
+                            if (!InTakenRel(2, 1)) // 1019
                             {
                                 circleDirectionLeft = i == 0 ? true : false;
                                 if (!CountAreaRel(1, 1, 1, 2))
@@ -748,7 +752,7 @@ namespace OneWayLabyrinth
                         }
                         else // area on right
                         {
-                            if (!InTakenRel(-1, 1))
+                            if (!InTakenRel(-1, 1)) // 1019_1
                             {
                                 circleDirectionLeft = i == 0 ? false : true;
                                 if (!CountAreaRel(0, 1, 0, 2))
@@ -766,26 +770,13 @@ namespace OneWayLabyrinth
                 ly = thisLy;
             }
 
-            for (int i = 0; i < 2; i++)
-            {
-                if (InTakenRel(2, 0) && !InTakenRel(1, 0))
-                {
-                    closeSideStraight = true;
-                    forbidden.Add(new int[] { x + lx, y + ly });
-                }
-                lx = -lx;
-                ly = -ly;
-            }
-            lx = thisLx;
-            ly = thisLy;
-
-            if (!closeSideStraight)
+            if (!closeStraight && !closeMidAcross && !closeAcross) // 1019_8
             {
                 for (int i = 0; i < 2; i++)
                 {
-                    if (!InTakenRel(1, 0) && (InTakenRel(2, 1) && !InTakenRel(1, 1) || InTakenRel(2, -1) && !InTakenRel(1, -1)))
+                    if (InTakenRel(2, 0) && !InTakenRel(1, 0))
                     {
-                        closeSideMidAcross = true;
+                        closeSideStraight = true;
                         forbidden.Add(new int[] { x + lx, y + ly });
                     }
                     lx = -lx;
@@ -793,85 +784,101 @@ namespace OneWayLabyrinth
                 }
                 lx = thisLx;
                 ly = thisLy;
-            }
 
-            if (!closeSideStraight && !closeSideMidAcross)
-            {
-                for (int i = 0; i < 2; i++)
+                if (!closeSideStraight)
                 {
-                    if (InTakenRel(3, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1))
+                    for (int i = 0; i < 2; i++)
                     {
-                        int middleIndex = InTakenIndexRel(3, 0);
-                        if (InTakenRel(3, -1)) // down side taken
+                        if (!InTakenRel(1, 0) && (InTakenRel(2, 1) && !InTakenRel(1, 1) || InTakenRel(2, -1) && !InTakenRel(1, -1)))
                         {
-                            int sideIndex = InTakenIndexRel(3, -1);
+                            closeSideMidAcross = true;
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
+                        lx = -lx;
+                        ly = -ly;
+                    }
+                    lx = thisLx;
+                    ly = thisLy;
+                }
+
+                if (!closeSideStraight && !closeSideMidAcross)
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        if (InTakenRel(3, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1))
+                        {
+                            int middleIndex = InTakenIndexRel(3, 0);
+                            if (InTakenRel(3, -1)) // down side taken
+                            {
+                                int sideIndex = InTakenIndexRel(3, -1);
+                                if (sideIndex < middleIndex) // area up
+                                {
+                                    farSide = true;
+                                    circleDirectionLeft = i == 0 ? false : true;
+                                    if (!CountAreaRel(1, 1, 2, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                }
+                            }
+                            else // up side taken
+                            {
+                                int sideIndex = InTakenIndexRel(3, 1);
+                                if (sideIndex > middleIndex) // area up
+                                {
+                                    farSide = true;
+                                    circleDirectionLeft = i == 0 ? false : true;
+                                    if (!CountAreaRel(1, 1, 2, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                }
+                            }
+                        }
+                        lx = -lx;
+                        ly = -ly;
+                    }
+                    lx = thisLx;
+                    ly = thisLy;
+                }
+
+                if (!closeSideStraight && !closeSideMidAcross && !farSide)
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        if (InTakenRel(3, -1) && InTakenRel(3, -2) && !InTakenRel(1, 0) && !InTakenRel(1, -1)) // mid across down
+                        {
+                            int middleIndex = InTakenIndexRel(3, -1);
+                            int sideIndex = InTakenIndexRel(3, -2);
                             if (sideIndex < middleIndex) // area up
                             {
-                                farSide = true;
                                 circleDirectionLeft = i == 0 ? false : true;
-                                if (!CountAreaRel(1, 1, 2, 1))
+                                if (!CountAreaRel(1, 0, 2, 0))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
                             }
                         }
-                        else // up side taken
+
+                        if (InTakenRel(3, 1) && InTakenRel(3, 2) && !InTakenRel(1, 0) && !InTakenRel(1, 1)) // mid across up
                         {
-                            int sideIndex = InTakenIndexRel(3, 1);
+                            int middleIndex = InTakenIndexRel(3, 1);
+                            int sideIndex = InTakenIndexRel(3, 2);
                             if (sideIndex > middleIndex) // area up
                             {
-                                farSide = true;
                                 circleDirectionLeft = i == 0 ? false : true;
-                                if (!CountAreaRel(1, 1, 2, 1))
+                                if (!CountAreaRel(1, 0, 2, 0))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
                             }
                         }
+                        lx = -lx;
+                        ly = -ly;
                     }
-                    lx = -lx;
-                    ly = -ly;
+                    lx = thisLx;
+                    ly = thisLy;
                 }
-                lx = thisLx;
-                ly = thisLy;
-            }
-
-            if (!closeSideStraight && !closeSideMidAcross && !farSide)
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    if (InTakenRel(3, -1) && InTakenRel(3, -2) && !InTakenRel(1, 0) && !InTakenRel(1, -1)) // mid across down
-                    {
-                        int middleIndex = InTakenIndexRel(3, -1);
-                        int sideIndex = InTakenIndexRel(3, -2);
-                        if (sideIndex < middleIndex) // area up
-                        {
-                            circleDirectionLeft = i == 0 ? false : true;
-                            if (!CountAreaRel(1, 0, 2, 0))
-                            {
-                                forbidden.Add(new int[] { x + lx, y + ly });
-                            }
-                        }
-                    }
-
-                    if (InTakenRel(3, 1) && InTakenRel(3, 2) && !InTakenRel(1, 0) && !InTakenRel(1, 1)) // mid across up
-                    {
-                        int middleIndex = InTakenIndexRel(3, 1);
-                        int sideIndex = InTakenIndexRel(3, 2);
-                        if (sideIndex > middleIndex) // area up
-                        {
-                            circleDirectionLeft = i == 0 ? false : true;
-                            if (!CountAreaRel(1, 0, 2, 0))
-                            {
-                                forbidden.Add(new int[] { x + lx, y + ly });
-                            }
-                        }
-                    }
-                    lx = -lx;
-                    ly = -ly;
-                }
-                lx = thisLx;
-                ly = thisLy;
             }
         }
 
