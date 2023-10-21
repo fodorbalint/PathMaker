@@ -34,7 +34,9 @@ using SkiaSharp.Views.Desktop;
 
 In 1-thin future line extension rule, it is not necessary that the far end is at the corner. We are in a closed loop where the far end cannot have effect on the near end, unless the field 2 to left is part of the same future line which took a U-turn.
 Write about counting area start end field rules
-Write about stepped on future extension rules, added 1010_3
+Can it happen that two different checknearfield rules are true on opposite sides, and one of them is cancelled due to preconditions?
+1021_9: Causes error of field exists in arealine, but we shouldn't come here to start with
+1021_10: Causes error of single field in arealine, but we shouldn't come here to start with
 
 ----- 11 x 11 -----
 
@@ -274,17 +276,15 @@ namespace OneWayLabyrinth
 
         public void StopAll(string error) // used when count area is inequal in Path.cs or there is no possibility to move
         {
-			M(error, 0);
             if (isTaskRunning)
             {
                 source.Cancel();
-                return;
             }
             else if (timer.IsEnabled)
             {
                 StopTimer();
-                return;
             }
+            M(error, 0);
         }
 
         private void StartTimer(bool fastRun)
@@ -377,7 +377,7 @@ namespace OneWayLabyrinth
                 Dispatcher.Invoke(() =>
                 {
                     StopTimer();
-					if (MessageLine.Content.ToString().IndexOf("inequal") == -1)
+					if (MessageLine.Content.ToString().IndexOf("inequal") == -1 && MessageLine.Content.ToString().IndexOf("arealine") == -1)
 					{
                         MessageLine.Content = "In " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.";
                     }
@@ -1150,7 +1150,7 @@ namespace OneWayLabyrinth
 					possibleDirections.Add(possibleFields.ToArray());
                     Dispatcher.Invoke(() =>
 					{
-						T("NExtstepposs Stopping timer");
+						T("Nextstepposs stopping timer");
 						StopAll((string)MessageLine.Content);
 					});
                 }
@@ -1646,8 +1646,27 @@ namespace OneWayLabyrinth
 								return false; //to prevent NextStepPossibilities from running
 							}
 						}
-						// if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field
-						else if (endX == size && endY == size - 1 || endY == size && endX == size - 1)
+                        // 1021_3. Only if C-shape is created.
+                        if (Math.Abs(x - endX) == 1 && Math.Abs(y - endY) == 1)
+                        {
+                            future.path2 = taken.path;
+
+                            nearExtDone = true;
+                            farExtDone = false;
+                            nearEndDone = true;
+                            farEndDone = false;
+
+                            if (!ExtendFutureLine(false, foundIndex, farEndIndex, selectedSection, lastMerged, true))
+                            {
+                                possibleDirections.Add(new int[] { });
+                                M("Stepped on future, other end cannot be completed.", 1);
+                                //the new possible directions is not set yet.
+
+                                return false; //to prevent NextStepPossibilities from running
+                            }
+                        }
+                        // if the end is next to the lower right corner, and it has 2 possibilities, it has to choose the other field
+                        else if (endX == size && endY == size - 1 || endY == size && endX == size - 1)
 						{
 							future.path2 = taken.path;
 
@@ -4071,7 +4090,7 @@ namespace OneWayLabyrinth
 			Dispatcher.Invoke(() =>
 			{
                 messageCode = code;
-                if (!(isTaskRunning && makeStats && !keepLeftCheck))
+                if (!(isTaskRunning && makeStats && !keepLeftCheck && !source.IsCancellationRequested))
 				{
                     MessageLine.Content = o.ToString();
                     MessageLine.Visibility = Visibility.Visible;

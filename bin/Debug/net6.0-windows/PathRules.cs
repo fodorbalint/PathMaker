@@ -130,7 +130,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(3,4) || InBorderRel(3,4)) && (InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(0,4) || InBorderRel(0,4)) && (InTakenRel(4,3) || InBorderRel(4,3)) && (InTakenRel(4,2) || InBorderRel(4,2)) && (InTakenRel(4,1) || InBorderRel(4,1)) && !InTakenRel(3,3) && !InTakenRel(3,1) && !InTakenRel(0,3) && !InTakenRel(-1,3) && !InTakenRel(0,1) && !InTakenRel(-1,1) && !InCornerRel(3,3))
+						if ((InTakenRel(3,4) || InBorderRel(3,4)) && (InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(4,3) || InBorderRel(4,3)) && (InTakenRel(4,2) || InBorderRel(4,2)) && (InTakenRel(4,1) || InBorderRel(4,1)) && !InTakenRel(3,3) && !InTakenRel(3,1) && !InTakenRel(0,3) && !InTakenRel(0,1) && !InTakenRel(-1,3) && !InTakenRel(-1,1) && !InTakenRel(-2,2) && (InTakenRel(0,4) || InBorderRel(0,4)) && !InCornerRel(3,3))
 						{
 							int middleIndex = InTakenIndexRel(0,4);
 							if (middleIndex != -1)

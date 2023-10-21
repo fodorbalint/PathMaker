@@ -49,9 +49,13 @@ Here are the things to consider on a grid of this size:
 
 - Future line extension when we step on a future line: The far can be extended if it was 2 distance away from the near end. It can now fill the C-shape.
 
+<img src="References/1021_4.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/1021_5.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/1021_6.svg" width="23.8%"/>
+
+The same goes with 1 x- and y-distance. A C-Shape is not always created in this case.
+
 <img src="References/1019_11.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img src="References/1019_12.svg" width="23.8%"/>
 
-Also, if the far end was near the end corner, it has to choose the other empty field.
+If the far end was near the end corner, it has to choose the other empty field.
 
 <img src="References/0821_3.svg" width="23.8%"/>
 
@@ -117,13 +121,15 @@ We are not finished. Did you notice the example above is not covered by these ru
 
 <img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/>
 
+<img align="top" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/far across right.svg" width="19%"/>
+
 <img align="top" src="References/checknearfield/far side mid across up.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/far side mid across down.svg" width="19%"/>
 
-[remaining pictures will be uploaded]
+<img align="top" src="References/checknearfield/far side across up.svg" width="19%"/>
 
-When any of the straight 2-distance rules are present, we don't need to check the side rules. This is not entirely proven, but take this 9 x 9 example:
+When any of the straight 2-distance rules are present, we don't need to check the side rules or the area created with the border. This is not entirely proven, but take these 9 x 9 examples:
 
-<img src="References/1019_8.svg" width="42.9%"/>
+<img src="References/1019_8.svg" width="42.9%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1021_2.svg" width="42.9%"/>
 
 And these are the rest of the rules:
 
@@ -147,13 +153,13 @@ As the sizes grow, it will be impossible to run through all cases with one compu
 Is it possible to develop an algorythm that works for all sizes? The edge-related and area-counting rules are universal, but the size-specific rules get more and more complex. Can you define them with one statement?
 
 I have made statistics about how many random walkthroughs you can complete on different grids using the 7 x 7-specific and the universal rules before running into an error. Based on 1000 attempts, here are the results:<br />
-9: 16.7<br />
-11: 4<br />
-13: 1.8<br />
-15: 0.9<br />
-17: 0.4<br />
-19: 0.2<br />
-21: 0.1
+9: 19.5<br />
+11: 5.7<br />
+13: 2.6<br />
+15: 1.2<br />
+17: 0.7<br />
+19: 0.4<br />
+21: 0.2
 
 To discover 9-specific patterns, I run the program keeping it left as long as the time to get to the first error is too big. After that, I will run it randomly. The first 13 826 walkthroughs are completed before we encounter a situation. It is similar to the last one we discovered on 7 x 7:
 

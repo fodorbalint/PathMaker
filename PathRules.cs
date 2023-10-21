@@ -6,9 +6,6 @@ namespace OneWayLabyrinth
 		public bool Future2x3StartEnd = false;
 		public bool Future3x3StartEnd = false;
 		public bool FutureL = false;
-		public bool Sideback = false;
-		public bool SidefrontL = false;
-		public bool Sidefront = false;
 		public bool CountArea3x3 = false;
 		public bool Future2x2StartEnd9 = false;
 
@@ -18,9 +15,6 @@ namespace OneWayLabyrinth
 			Future2x3StartEnd = false;
 			Future3x3StartEnd = false;
 			FutureL = false;
-			Sideback = false;
-			SidefrontL = false;
-			Sidefront = false;
 			CountArea3x3 = false;
 			Future2x2StartEnd9 = false;
 
@@ -127,48 +121,6 @@ namespace OneWayLabyrinth
 				sy = thisSy;
 				lx = thisLx;
 				ly = thisLy;
-
-				// Side back
-				for (int i = 0; i < 2; i++)
-				{
-					if (InTakenRel(2,-1) && !InTakenRel(1,0) && !InTakenRel(1,-1))
-					{
-						Sideback = true;
-						forbidden.Add(new int[] { x + lx, y + ly });
-					}
-					lx = -lx;
-					ly = -ly;
-				}
-				lx = thisLx;
-				ly = thisLy;
-
-				// Side front L
-				for (int i = 0; i < 2; i++)
-				{
-					if (InTakenRel(2,1) && !InTakenRel(1,1) && !InTakenRel(1,0) && !InTakenRel(2,0))
-					{
-						SidefrontL = true;
-						forbidden.Add(new int[] { x + lx, y + ly });
-					}
-					lx = -lx;
-					ly = -ly;
-				}
-				lx = thisLx;
-				ly = thisLy;
-
-				// Side front
-				for (int i = 0; i < 2; i++)
-				{
-					if (InTakenRel(2,1) && !InTakenRel(1,1) && !InTakenRel(1,0) && !InTakenRel(1,-1))
-					{
-						Sidefront = true;
-						forbidden.Add(new int[] { x + lx, y + ly });
-					}
-					lx = -lx;
-					ly = -ly;
-				}
-				lx = thisLx;
-				ly = thisLy;
 			}
 
 			if (size >= 9)
@@ -178,7 +130,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(3,4) || InBorderRel(3,4)) && (InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(0,4) || InBorderRel(0,4)) && (InTakenRel(4,3) || InBorderRel(4,3)) && (InTakenRel(4,2) || InBorderRel(4,2)) && (InTakenRel(4,1) || InBorderRel(4,1)) && !InTakenRel(3,3) && !InTakenRel(3,1) && !InTakenRel(0,3) && !InTakenRel(-1,3) && !InTakenRel(0,1) && !InTakenRel(-1,1) && !InCornerRel(3,3))
+						if ((InTakenRel(3,4) || InBorderRel(3,4)) && (InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(4,3) || InBorderRel(4,3)) && (InTakenRel(4,2) || InBorderRel(4,2)) && (InTakenRel(4,1) || InBorderRel(4,1)) && !InTakenRel(3,3) && !InTakenRel(3,1) && !InTakenRel(0,3) && !InTakenRel(0,1) && !InTakenRel(-1,3) && !InTakenRel(-1,1) && !InTakenRel(-2,2) && (InTakenRel(0,4) || InBorderRel(0,4)) && !InCornerRel(3,3))
 						{
 							int middleIndex = InTakenIndexRel(0,4);
 							if (middleIndex != -1)

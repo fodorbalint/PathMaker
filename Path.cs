@@ -49,6 +49,10 @@ namespace OneWayLabyrinth
         int foundSectionStart, foundSectionEnd;
         bool CShape = false;
 
+        bool closeStraight = false;
+        bool closeMidAcross = false;
+        bool closeAcross = false;
+
         //used only for displaying area
         public bool countAreaImpair = false;
         public List<int[]> areaLine = new();
@@ -244,8 +248,11 @@ namespace OneWayLabyrinth
 
                             if (!CShape)
                             {
-                                CheckNearBorder();
-                                CheckAreaNearBorder(); // Uses countarea, see 0909. A 2x2 area would be created with one way to go in and out
+                                closeStraight = false;
+                                closeMidAcross = false;
+                                closeAcross = false;
+
+                                CheckNearBorder();                                
 
                                 if (size >= 7)
                                 {                                    
@@ -287,9 +294,16 @@ namespace OneWayLabyrinth
                                     // 1010_4
                                 }
 
+                                if (!closeStraight && !closeMidAcross && !closeAcross)
+                                {
+                                    CheckAreaNearBorder(); // Uses countarea, see 0909. A 2x2 area would be created with one way to go in and out
+                                }
+
                                 RunRules();
 
-                                T("Sideback " + Sideback + " Sidefront " + Sidefront + " SidefrontL " + SidefrontL + " FutureL " + FutureL + " Future2x2StartEnd " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3 + " Future2x2StartEnd9 " + Future2x2StartEnd9);
+                                T(" FutureL " + FutureL + " Future2x2StartEnd " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3 + " Future2x2StartEnd9 " + Future2x2StartEnd9);
+
+                                // CountArea3x3 2,2: 1021_1
 
                                 /* (not actual yet)
                                 if (size >= 21)
@@ -483,8 +497,6 @@ namespace OneWayLabyrinth
 
         public void CheckAreaNearBorder() // 0909. Check both straight approach and side.
         {
-            if (CShape) return;
-
             if (x == 3 && straightField[0] == 2 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(rightField) && !InTaken(1, y))
             {
                 T("CheckArea left");
@@ -565,16 +577,16 @@ namespace OneWayLabyrinth
 
         public void CheckNearField()
         {
-            bool closeStraight = false;
-            bool closeMidAcross = false;
-            bool closeAcross = false;
             bool farStraight = false;
+            bool farMidAcross = false;
             bool closeSideStraight = false;
             bool closeSideMidAcross = false;
             bool farSide = false;
+            bool farSideMidAcross = false;
 
             // 0917_1, 0917_4, 0901 (straight line ahead, count area is true at this size, we just need to disable the directions)
 
+            // straight rules
             if (InTakenRel(0, 2) && !InTakenRel(0, 1))
             {
                 closeStraight = true;
@@ -665,6 +677,9 @@ namespace OneWayLabyrinth
             {
                 if (InTakenRel(0, 3) && !InTakenRel(0, 1)) //  0,1: 1019_3
                 {
+                    T("farStraight");
+                    farStraight = true;
+
                     int middleIndex = InTakenIndexRel(0, 3);
                     if (InTakenRel(1, 3)) // left side taken
                     {
@@ -673,7 +688,6 @@ namespace OneWayLabyrinth
                         {
                             if (!InTakenRel(1, 1) && !InTakenRel(2, 1)) // 1,1: 1019_4, 2,1: 1019_5
                             {
-                                farStraight = true;
                                 circleDirectionLeft = true;
                                 if (!CountAreaRel(1, 1, 1, 2))
                                 {
@@ -686,7 +700,6 @@ namespace OneWayLabyrinth
                         {
                             if (!InTakenRel(-1, 1) && !InTakenRel(-2, 1)) // -1, 1: 1019_6, -2, 1: 1019_7
                             {
-                                farStraight = true;
                                 circleDirectionLeft = false;
                                 if (!CountAreaRel(-1, 1, -1, 2))
                                 {
@@ -703,7 +716,6 @@ namespace OneWayLabyrinth
                         {
                             if (!InTakenRel(1, 1) && !InTakenRel(2, 1))
                             {
-                                farStraight = true;
                                 circleDirectionLeft = true;
                                 if (!CountAreaRel(1, 1, 1, 2))
                                 {
@@ -717,7 +729,6 @@ namespace OneWayLabyrinth
                         {
                             if (!InTakenRel(-1, 1) && !InTakenRel(-2, 1))
                             {
-                                farStraight = true;
                                 circleDirectionLeft = false;
                                 if (!CountAreaRel(-1, 1, -1, 2))
                                 {
@@ -736,6 +747,9 @@ namespace OneWayLabyrinth
                 {
                     if (InTakenRel(1, 3) && InTakenRel(2, 3) && !InTakenRel(0, 1) && !InTakenRel(1, 1)) // 0,1: 1019_3, 1,1: 1019_2
                     {
+                        T("farMidAcross");
+                        farMidAcross = true;
+
                         int middleIndex = InTakenIndexRel(1, 3);
                         int sideIndex = InTakenIndexRel(2, 3);
                         if (sideIndex > middleIndex) // area on left
@@ -770,6 +784,42 @@ namespace OneWayLabyrinth
                 ly = thisLy;
             }
 
+            if (!closeStraight && !closeMidAcross && !closeAcross && !farStraight && !farMidAcross)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    if (InTakenRel(2, 3) && InTakenRel(3, 3) && !InTakenRel(0, 1) && !InTakenRel(1, 1) && !InTakenRel(2, 1))
+                    {
+                        T("farAcross");
+
+                        int middleIndex = InTakenIndexRel(2, 3);
+                        int sideIndex = InTakenIndexRel(3, 3);
+                        if (sideIndex > middleIndex) // area on left
+                        {
+                            circleDirectionLeft = i == 0 ? true : false;
+                            if (!CountAreaRel(1, 1, 1, 2))
+                            {
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                forbidden.Add(new int[] { x - lx, y - ly });
+                            }
+                        }
+                        else
+                        {
+                            circleDirectionLeft = i == 0 ? false : true;
+                            if (!CountAreaRel(1, 1, 1, 2, 0, 1))
+                            {
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                            }
+                        }
+                    }
+                    lx = -lx;
+                    ly = -ly;
+                }
+                lx = thisLx;
+                ly = thisLy;
+            }
+
+            // left/right side rules
             if (!closeStraight && !closeMidAcross && !closeAcross) // 1019_8
             {
                 for (int i = 0; i < 2; i++)
@@ -807,13 +857,15 @@ namespace OneWayLabyrinth
                     {
                         if (InTakenRel(3, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1))
                         {
+                            T("farSide");
+                            farSide = true;
+
                             int middleIndex = InTakenIndexRel(3, 0);
                             if (InTakenRel(3, -1)) // down side taken
                             {
                                 int sideIndex = InTakenIndexRel(3, -1);
                                 if (sideIndex < middleIndex) // area up
                                 {
-                                    farSide = true;
                                     circleDirectionLeft = i == 0 ? false : true;
                                     if (!CountAreaRel(1, 1, 2, 1))
                                     {
@@ -826,7 +878,6 @@ namespace OneWayLabyrinth
                                 int sideIndex = InTakenIndexRel(3, 1);
                                 if (sideIndex > middleIndex) // area up
                                 {
-                                    farSide = true;
                                     circleDirectionLeft = i == 0 ? false : true;
                                     if (!CountAreaRel(1, 1, 2, 1))
                                     {
@@ -846,8 +897,11 @@ namespace OneWayLabyrinth
                 {
                     for (int i = 0; i < 2; i++)
                     {
-                        if (InTakenRel(3, -1) && InTakenRel(3, -2) && !InTakenRel(1, 0) && !InTakenRel(1, -1)) // mid across down
+                        if (InTakenRel(3, -1) && InTakenRel(3, -2) && !InTakenRel(1, 1) && !InTakenRel(1, 0) && !InTakenRel(1, -1)) // mid across down, 1,1: 1021_8
                         {
+                            T("farSideMidAcross");
+                            farSideMidAcross = true;
+
                             int middleIndex = InTakenIndexRel(3, -1);
                             int sideIndex = InTakenIndexRel(3, -2);
                             if (sideIndex < middleIndex) // area up
@@ -862,12 +916,41 @@ namespace OneWayLabyrinth
 
                         if (InTakenRel(3, 1) && InTakenRel(3, 2) && !InTakenRel(1, 0) && !InTakenRel(1, 1)) // mid across up
                         {
+                            T("farSideMidAcross");
+                            farSideMidAcross = true;
+
                             int middleIndex = InTakenIndexRel(3, 1);
                             int sideIndex = InTakenIndexRel(3, 2);
                             if (sideIndex > middleIndex) // area up
                             {
                                 circleDirectionLeft = i == 0 ? false : true;
-                                if (!CountAreaRel(1, 0, 2, 0))
+                                if (!CountAreaRel(1, 1, 2, 1))
+                                {
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                            }
+                        }
+                        lx = -lx;
+                        ly = -ly;
+                    }
+                    lx = thisLx;
+                    ly = thisLy;
+                }
+
+                if (!closeSideStraight && !closeSideMidAcross && !farSide && !farSideMidAcross)
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        if (InTakenRel(3, 2) && InTakenRel(3, 3) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2)) // across up 1,2: 1021
+                        {
+                            T("farSideAcross");
+
+                            int middleIndex = InTakenIndexRel(3, 2);
+                            int sideIndex = InTakenIndexRel(3, 3);
+                            if (sideIndex > middleIndex) // area up
+                            {
+                                circleDirectionLeft = i == 0 ? false : true;
+                                if (!CountAreaRel(1, 1, 2, 1))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
@@ -1098,18 +1181,31 @@ namespace OneWayLabyrinth
 
         // Check functions end here
 
-        public bool CountAreaRel(int left1, int straight1, int left2, int straight2)
+        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, int left3 = 0, int straight3 = 0)
         {
-            T("CountAreaRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
+            // left3 and straight 3 is the second start field in far across checking
+            T("CountAreaRel " + left1 + " " + straight1 + " " + left2 + " " + straight2 + " " + left3 + " " + straight3);
             int x1 = this.x + left1 * lx + straight1 * sx;
             int y1 = this.y + left1 * ly + straight1 * sy;
             int x2 = this.x + left2 * lx + straight2 * sx;
             int y2 = this.y + left2 * ly + straight2 * sy;
-            return CountArea(x1, y1, x2, y2);
+            int x3 = 0;
+            int y3 = 0;
+            if (!(left3 == 0 && straight3 == 0))
+            {
+                x3 = this.x + left3 * lx + straight3 * sx;
+                y3 = this.y + left3 * ly + straight3 * sy;
+            }
+            return CountArea(x1, y1, x2, y2, x3, y3);
         }
 
-        private bool CountArea(int startX, int startY, int endX, int endY)
+        private bool CountArea(int startX, int startY, int endX, int endY, int start2X = 0, int start2Y = 0)
         {
+            // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
+            int minY = startY;
+            int limitX = startX;
+            int startIndex = 0;
+
             int xDiff, yDiff;
             if (Math.Abs(endX - startX) == 2 || Math.Abs(endY - startY) == 2)
             {
@@ -1121,9 +1217,20 @@ namespace OneWayLabyrinth
             }
             else
             {
-                xDiff = startX - endX;
-                yDiff = startY - endY;
                 areaLine = new List<int[]> { new int[] { startX, startY } };
+                if (!(start2X == 0 && start2Y == 0))
+                {
+                    areaLine.Add(new int[] { start2X, start2Y });
+                    xDiff = start2X - startX;
+                    yDiff = start2Y - startY;
+                    startX = start2X;
+                    startY = start2Y;
+                }
+                else
+                {
+                    xDiff = startX - endX;
+                    yDiff = startY - endY;
+                }
             }
 
             List<int[]> directions;
@@ -1148,11 +1255,6 @@ namespace OneWayLabyrinth
 					break;
 				}
 			}
-
-			// find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
-            int minY = startY;
-            int limitX = startX;
-            int startIndex = 0;
 
             int nextX = startX;
             int nextY = startY;
@@ -1210,14 +1312,8 @@ namespace OneWayLabyrinth
                 {
                     T("Error at " + startX + " " + startY + " " + endX + " " + endY);
                     window.errorInWalkthrough = true;
-                    if (!(window.isTaskRunning && window.makeStats && !window.keepLeftCheck))
-                    {
-                        window.M("Single field in arealine.", 0);
-                    }
-                    else
-                    {
-                        window.L("Single field in arealine.");
-                    }
+                    window.M("Single field in arealine.", 1);
+                    //window.StopAll("Single field in arealine.");
                     return false;
                 }
                 
@@ -1225,6 +1321,18 @@ namespace OneWayLabyrinth
 
 				nextX = possibleNextX;
 				nextY = possibleNextY;
+
+                foreach (int[] field in areaLine)
+                {
+                    if (field[0] == nextX && field[1] == nextY)
+                    {
+                        T("Error at " + startX + " " + startY + " " + endX + " " + endY);
+                        window.errorInWalkthrough = true;
+                        window.M("Field exists in arealine.", 1);
+                        //window.StopAll("Field exists in arealine.");
+                        return false;
+                    }
+                }
                 areaLine.Add(new int[] { nextX, nextY });
 
                 if (nextY < minY)
