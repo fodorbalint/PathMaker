@@ -7,6 +7,7 @@ namespace OneWayLabyrinth
 		public bool Future3x3StartEnd = false;
 		public bool FutureL = false;
 		public bool CountArea3x3 = false;
+		public bool FarMidAcrossCShape = false;
 		public bool Future2x2StartEnd9 = false;
 
 		public void RunRules()
@@ -16,6 +17,7 @@ namespace OneWayLabyrinth
 			Future3x3StartEnd = false;
 			FutureL = false;
 			CountArea3x3 = false;
+			FarMidAcrossCShape = false;
 			Future2x2StartEnd9 = false;
 
 			if (size >= 5)
@@ -191,6 +193,50 @@ namespace OneWayLabyrinth
 				}
 				sx = thisSx;
 				sy = thisSy;
+				lx = thisLx;
+				ly = thisLy;
+
+				// Far Mid Across C-Shape
+				for (int i = 0; i < 2; i++)
+				{
+					if ((InTakenRel(1,-2) || InBorderRel(1,-2)) && InTakenRel(3,1) && !InTakenRel(2,1))
+					{
+						int middleIndex = InTakenIndexRel(3,1);
+						if (middleIndex != -1)
+						{
+							if (InTakenRel(3,0))
+							{
+								int sideIndex = InTakenIndexRel(3,0);
+								if (sideIndex < middleIndex)
+								{
+									FarMidAcrossCShape = true;
+									forbidden.Add(new int[] { x + lx, y + ly });
+								}
+							}
+							else
+							{
+								int sideIndex = InTakenIndexRel(3,2);
+								if (sideIndex > middleIndex)
+								{
+									FarMidAcrossCShape = true;
+									forbidden.Add(new int[] { x + lx, y + ly });
+								}
+							}
+						}
+						else
+						{
+							middleIndex = InBorderIndexRel(3,1);
+							int farSideIndex = InBorderIndexRel(3,0);
+							if (farSideIndex > middleIndex)
+							{
+								FarMidAcrossCShape = true;
+								forbidden.Add(new int[] { x + lx, y + ly });
+							}
+						}
+					}
+					lx = -lx;
+					ly = -ly;
+				}
 				lx = thisLx;
 				ly = thisLy;
 

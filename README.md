@@ -211,6 +211,14 @@ The next error, at 14 004 has something to with how I defined the universal rule
 
 <img align="top" src="References/1013_1.svg" width="42.86%"/>
 
+We need to take a few steps back, and then we can create the rule. It is similar to the universal 2-distance rule on the side, it just checks the field 2 behind and 1 to the side too. Even though the area counted is pair, now stepping to the right is disabled.
+
+<img align="top" src="References/rules/9/Far Mid Across C-Shape.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1013_2.svg" width="42.86%"/>
+
+At 55 298, we get this:
+
+<img align="top" src="References/1022.svg" width="42.86%"/>
+
 ---
 
 The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".

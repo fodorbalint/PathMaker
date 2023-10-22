@@ -301,7 +301,7 @@ namespace OneWayLabyrinth
 
                                 RunRules();
 
-                                T(" FutureL " + FutureL + " Future2x2StartEnd " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3 + " Future2x2StartEnd9 " + Future2x2StartEnd9);
+                                T(" FutureL " + FutureL + " Future2x2StartEnd " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3 + " Future2x2StartEnd9 " + Future2x2StartEnd9 + " FarMidAcrossCShape " + FarMidAcrossCShape);
 
                                 // CountArea3x3 2,2: 1021_1
 

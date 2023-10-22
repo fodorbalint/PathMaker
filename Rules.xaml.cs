@@ -48,9 +48,10 @@ namespace OneWayLabyrinth
         int[]? countAreaEndCoordinates = null;
         int childIndex = 0;
         List<string> activeRules = new();
+        List<int[]> directions = new() { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
 
 
-        public Rules()
+public Rules()
         {
             InitializeComponent();
             LoadDir();
@@ -318,25 +319,37 @@ namespace OneWayLabyrinth
 
                 // First, we need to make sure that the wall ahead is going into the direction according the circle direction (it has to go in the same direction)
                 // Find wall fields, one straight, one side, but we need to find which side is taken
-                // The wall can also be the border !
-
-                int[] middleWall;
-
-                // suppose count area start and end is 2 distance apart
+                // The wall can also be the border
 
                 bool diff2 = false;
+                int diffX, diffY;
+
                 if (Math.Abs(countAreaStartField[0] - countAreaEndField[0]) == 2 || Math.Abs(countAreaStartField[1] - countAreaEndField[1]) == 2)
                 {
                     diff2 = true;
-                    middleWall = new int[] { countAreaEndField[0] - (countAreaStartField[0] - countAreaEndField[0]) / 2, countAreaEndField[1] - (countAreaStartField[1] - countAreaEndField[1]) / 2 };
+                    diffX = (countAreaStartField[0] - countAreaEndField[0]) / 2;
+                    diffY = (countAreaStartField[1] - countAreaEndField[1]) / 2;                    
                 }
                 else // fields 1 distance apart, we don't count area, we only need to check the direction of the middle field
                 {
-                    middleWall = new int[] { countAreaEndField[0] - (countAreaStartField[0] - countAreaEndField[0]), countAreaEndField[1] - (countAreaStartField[1] - countAreaEndField[1]) };
+                    diffX = countAreaStartField[0] - countAreaEndField[0];
+                    diffY = countAreaStartField[1] - countAreaEndField[1];
                 }
 
-                int relX = startX - middleWall[0];
-                int relY = startY - middleWall[1];
+                int[] middleWall = new int[] { countAreaEndField[0] - diffX, countAreaEndField[1] - diffY };
+                int directionIndex = FindDirection(diffX, diffY);
+                int leftDirection = (directionIndex == 0) ? 3 : directionIndex - 1;
+                int rightDirection = (directionIndex == 3) ? 0 : directionIndex + 1;
+
+                int[] leftSideWall = new int[] { middleWall[0] + directions[leftDirection][0], middleWall[1] + directions[leftDirection][1] };
+                int[] rightSideWall = new int[] { middleWall[0] + directions[rightDirection][0], middleWall[1] + directions[rightDirection][1] };
+
+                int middleWallRelX = startX - middleWall[0];
+                int middleWallRelY = startY - middleWall[1];
+                int leftSideWallRelX = startX - leftSideWall[0];
+                int leftSideWallRelY = startY - leftSideWall[1];
+                int rightSideWallRelX = startX - rightSideWall[0];
+                int rightSideWallRelY = startY - rightSideWall[1];
                 int startRelX = startX - countAreaStartField[0];
                 int startRelY = startY - countAreaStartField[1];
                 int endRelX = startX - countAreaEndField[0];
@@ -363,12 +376,12 @@ namespace OneWayLabyrinth
                     forbiddenStr;
                 }
 
-                ruleCore = "int middleIndex = InTakenIndexRel(" + relX + "," + relY + ");\n" +
+                ruleCore = "int middleIndex = InTakenIndexRel(" + middleWallRelX + "," + middleWallRelY + ");\n" +
                     "if (middleIndex != -1)\n" +
                     "{\n" +
-                    "\tif (InTakenRel(" + (relX + 1) + "," + relY + "))\n" +
+                    "\tif (InTakenRel(" + leftSideWallRelX + "," + leftSideWallRelY + "))\n" +
                     "\t{\n" +
-                    "\t\tint sideIndex = InTakenIndexRel(" + (relX + 1) + "," + relY + ");\n" +
+                    "\t\tint sideIndex = InTakenIndexRel(" + leftSideWallRelX + "," + leftSideWallRelY + ");\n" +
                     "\t\tif (sideIndex [1] middleIndex)\n" +
                     "\t\t{\n" +
                     countAreaRule.Replace("\t\t", "\t\t\t") +
@@ -376,7 +389,7 @@ namespace OneWayLabyrinth
                     "\t}\n" +
                     "\telse\n" +
                     "\t{\n" +
-                    "\t\tint sideIndex = InTakenIndexRel(" + (relX - 1) + "," + relY + ");\n" +
+                    "\t\tint sideIndex = InTakenIndexRel(" + rightSideWallRelX + "," + rightSideWallRelY + ");\n" +
                     "\t\tif (sideIndex [2] middleIndex)\n" +
                     "\t\t{\n" +
                     countAreaRule.Replace("\t\t", "\t\t\t") +
@@ -385,8 +398,8 @@ namespace OneWayLabyrinth
                     "}\n" +
                     "else\n" +
                     "{\n" +
-                    "\tmiddleIndex = InBorderIndexRel(" + relX + "," + relY + ");\n" +
-                    "\tint farSideIndex = InBorderIndexRel(" + (circleDirectionLeft?(relX - 1):(relX + 1)) + "," + relY + ");\n" +
+                    "\tmiddleIndex = InBorderIndexRel(" + middleWallRelX + "," + middleWallRelY + ");\n" +
+                    "\tint farSideIndex = InBorderIndexRel(" + (circleDirectionLeft ? rightSideWallRelX : leftSideWallRelX) + "," + (circleDirectionLeft ? rightSideWallRelY : leftSideWallRelY) + ");\n" +
                     "\tif (farSideIndex [2] middleIndex)\n" +
                     "\t{\n" +
                     countAreaRule +
@@ -1221,6 +1234,18 @@ namespace OneWayLabyrinth
         private void M(object o)
         {
             MessageBox.Show(o.ToString());
+        }
+
+        private int FindDirection(int xDiff, int yDiff)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (directions[i][0] == xDiff && directions[i][1] == yDiff)
+                {
+                    return i;
+                }
+            }
+            return 0;
         }
     }
 }

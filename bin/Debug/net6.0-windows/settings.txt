@@ -2,7 +2,7 @@ size: 9
 loadFromFile: False
 saveOnCompletion: False
 continueOnCompletion: True
-keepLeft: False
+keepLeft: True
 displayFutureLines: True
 displayArea: True
 makeStats: True

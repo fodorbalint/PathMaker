@@ -37,6 +37,11 @@ Write about counting area start end field rules
 Can it happen that two different checknearfield rules are true on opposite sides, and one of them is cancelled due to preconditions?
 1021_9: Causes error of field exists in arealine, but we shouldn't come here to start with
 1021_10: Causes error of single field in arealine, but we shouldn't come here to start with
+Show arealine upon loading from file
+Far Mid Across C-Shape: create rule rotated clockwise (and find example)
+Create inferface for disabling/enabling rules. Find out why it is not equal:
+- Amount of walkthroughs before getting stuck at the second rule
+- Amount of walkthroughs before getting stuck at the first rule, plus further walkthroughs until the second rule.
 
 ----- 11 x 11 -----
 
