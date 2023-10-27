@@ -318,7 +318,7 @@ namespace OneWayLabyrinth
 				completedWalkthrough = false;
 				errorInWalkthrough = false;
                 MessageLine.Visibility = Visibility.Visible;
-				File.WriteAllText("completedPaths.txt", "");
+				//File.WriteAllText("completedPaths.txt", "");
                 source = new CancellationTokenSource();
                 CancellationToken token = source.Token;                
                 Task task = new Task(() => DoThread(), token);
@@ -942,7 +942,7 @@ namespace OneWayLabyrinth
                                 pathStr += field[0] + ","+ field[1] + ";";
                             }
                             pathStr = pathStr.Substring(0, pathStr.Length - 1);
-                            File.AppendAllText("completedPaths.txt", pathStr + "\n");
+                            //File.AppendAllText("completedPaths.txt", pathStr + "\n");
                             Dispatcher.Invoke(() =>
                             {
                                 if (!(makeStats && !keepLeftCheck))

@@ -219,6 +219,22 @@ At 55 298, we get this:
 
 <img align="top" src="References/1022.svg" width="42.86%"/>
 
+Let's analyze it! A double C-shape is created, because the line occupied the A field, and out of the B, C and D fields it exited the right-side area at C. It means, the area enclosed by the marked fields is pair. In this case, we shouldn't step right and the rule will therefore look like:
+
+<img align="top" src="References/Double C-Shape mirrored.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1022_1.svg" width="42.86%"/>
+
+But what if from the A position, we step upwards in another situation?<br />
+Compare these two on 11 x 11:
+
+<img align="top" src="References/1022_2.svg" width="52.4%"/>
+<img align="top" src="References/1022_3.svg" width="52.4%"/>
+
+If the area we started with is pair, then the other will be impair. We can only enter the area at the light-gray field and will exit at A. From there we must go through B, C and D, and then a double C-shape is again created.
+
+<!--will be:
+
+<img align="top" src="References/1027.svg" width="42.86%"/>-->
+
 ---
 
 The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".

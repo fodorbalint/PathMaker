@@ -6,7 +6,7 @@
         xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
         xmlns:local="clr-namespace:OneWayLabyrinth"
         mc:Ignorable="d"
-        Title="Rules" Height="851" Width="888" Left="735" Top="0" >
+        Title="Rules" Height="851" Width="770" Left="735" Top="0" >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -39,17 +39,18 @@
                     <TextBox x:Name="XSize" HorizontalAlignment="Left" Margin="55,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
                     <TextBox x:Name="YSize" HorizontalAlignment="Left" Margin="108,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
                     <Grid x:Name="RuleGrid" Grid.Column="0" Margin="0,83,0,0" MouseDown="RuleGrid_MouseDown" MouseMove="RuleGrid_MouseMove" MouseUp="RuleGrid_MouseUp" MouseLeave="RuleGrid_MouseLeave" VerticalAlignment="Top" HorizontalAlignment="Left">
-                        <skia:SKElement x:Name="Canvas" Panel.ZIndex="0" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="newRule" Margin="0,50,0,10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <skia:SKElement x:Name="Canvas" Panel.ZIndex="0" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="newRule" Margin="0,100,0,10" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <skia:SKElement x:Name="Canvas1" Panel.ZIndex="1" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag ="liveEnd" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                         <skia:SKElement x:Name="Canvas2" Panel.ZIndex="2" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="emptyField" Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                         <skia:SKElement x:Name="Canvas3" Panel.ZIndex="3" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag ="takenField" Margin="100,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False"/>
                         <skia:SKElement x:Name="Canvas4" Panel.ZIndex="4" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="takenOrBorderField" Margin="150,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                         <skia:SKElement x:Name="Canvas5" Panel.ZIndex="5" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag ="futureStartField" Margin="200,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                         <skia:SKElement x:Name="Canvas6" Panel.ZIndex="6" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="futureEndField" Margin="250,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
-                        <skia:SKElement x:Name="Canvas7" Panel.ZIndex="7" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="notCornerField" Margin="300,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
-                        <skia:SKElement x:Name="Canvas8" Panel.ZIndex="8" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="forbiddenField" Margin="350,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
-                        <skia:SKElement x:Name="Canvas9" Panel.ZIndex="8" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="countAreaStartField" Margin="400,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
-                        <skia:SKElement x:Name="Canvas10" Panel.ZIndex="8" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="countAreaEndField" Margin="450,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
+                        <skia:SKElement x:Name="Canvas7" Panel.ZIndex="7" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="notCornerField" Margin="0,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
+                        <skia:SKElement x:Name="Canvas8" Panel.ZIndex="8" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="forbiddenField" Margin="50,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
+                        <skia:SKElement x:Name="Canvas9" Panel.ZIndex="9" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="countAreaStartField" Margin="100,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
+                        <skia:SKElement x:Name="Canvas10" Panel.ZIndex="10" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="countAreaEndField" Margin="150,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
+                        <skia:SKElement x:Name="Canvas11" Panel.ZIndex="11" Width="40" Height="40" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="countAreaBorderField" Margin="200,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="False" />
                     </Grid>
                 </Grid>
             </Grid>

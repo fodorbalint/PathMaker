@@ -301,7 +301,7 @@ namespace OneWayLabyrinth
 
                                 RunRules();
 
-                                T(" FutureL " + FutureL + " Future2x2StartEnd " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3 + " Future2x2StartEnd9 " + Future2x2StartEnd9 + " FarMidAcrossCShape " + FarMidAcrossCShape);
+                                T(" FutureL " + FutureL + " Future2x2StartEnd " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3 + " Future2x2StartEnd9 " + Future2x2StartEnd9 + " FarMidAcrossCShape " + FarMidAcrossCShape + " DoubleCShape " + DoubleCShape);
 
                                 // CountArea3x3 2,2: 1021_1
 
@@ -1181,25 +1181,35 @@ namespace OneWayLabyrinth
 
         // Check functions end here
 
-        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, int left3 = 0, int straight3 = 0)
+        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, int left3 = 0, int straight3 = 0, List<int[]> borderFields = null)
         {
             // left3 and straight 3 is the second start field in far across checking
             T("CountAreaRel " + left1 + " " + straight1 + " " + left2 + " " + straight2 + " " + left3 + " " + straight3);
-            int x1 = this.x + left1 * lx + straight1 * sx;
-            int y1 = this.y + left1 * ly + straight1 * sy;
-            int x2 = this.x + left2 * lx + straight2 * sx;
-            int y2 = this.y + left2 * ly + straight2 * sy;
+            int x1 = x + left1 * lx + straight1 * sx;
+            int y1 = y + left1 * ly + straight1 * sy;
+            int x2 = x + left2 * lx + straight2 * sx;
+            int y2 = y + left2 * ly + straight2 * sy;
             int x3 = 0;
             int y3 = 0;
             if (!(left3 == 0 && straight3 == 0))
             {
-                x3 = this.x + left3 * lx + straight3 * sx;
-                y3 = this.y + left3 * ly + straight3 * sy;
+                x3 = x + left3 * lx + straight3 * sx;
+                y3 = y + left3 * ly + straight3 * sy;
             }
-            return CountArea(x1, y1, x2, y2, x3, y3);
+            List<int[]>? absBorderFields = null;
+            if (!(borderFields is null))
+            {
+                absBorderFields = new();
+                foreach (int[] field in borderFields)
+                {
+                    absBorderFields.Add(new int[] { x + field[0] * lx + field[1] * sx, y + field[0] * ly + field[1] * sy });
+                }
+            }
+            
+            return CountArea(x1, y1, x2, y2, x3, y3, absBorderFields);
         }
 
-        private bool CountArea(int startX, int startY, int endX, int endY, int start2X = 0, int start2Y = 0)
+        private bool CountArea(int startX, int startY, int endX, int endY, int start2X = 0, int start2Y = 0, List<int[]> borderFields = null)
         {
             // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
             int minY = startY;
@@ -1207,31 +1217,48 @@ namespace OneWayLabyrinth
             int startIndex = 0;
 
             int xDiff, yDiff;
-            if (Math.Abs(endX - startX) == 2 || Math.Abs(endY - startY) == 2)
+
+            if (borderFields == null)
             {
-                int middleX = (endX + startX) / 2;
-                int middleY = (endY + startY) / 2;
-                xDiff = startX - middleX;
-                yDiff = startY - middleY;
-                areaLine = new List<int[]> { new int[] { middleX, middleY }, new int[] { startX, startY } };
-            }
-            else
-            {
-                areaLine = new List<int[]> { new int[] { startX, startY } };
-                if (!(start2X == 0 && start2Y == 0))
+                if (Math.Abs(endX - startX) == 2 || Math.Abs(endY - startY) == 2)
                 {
-                    areaLine.Add(new int[] { start2X, start2Y });
-                    xDiff = start2X - startX;
-                    yDiff = start2Y - startY;
-                    startX = start2X;
-                    startY = start2Y;
+                    int middleX = (endX + startX) / 2;
+                    int middleY = (endY + startY) / 2;
+                    xDiff = startX - middleX;
+                    yDiff = startY - middleY;
+                    areaLine = new List<int[]> { new int[] { middleX, middleY }, new int[] { startX, startY } };
                 }
                 else
                 {
-                    xDiff = startX - endX;
-                    yDiff = startY - endY;
+                    areaLine = new List<int[]> { new int[] { startX, startY } };
+                    if (!(start2X == 0 && start2Y == 0))
+                    {
+                        areaLine.Add(new int[] { start2X, start2Y });
+                        xDiff = start2X - startX;
+                        yDiff = start2Y - startY;
+                        startX = start2X;
+                        startY = start2Y;
+                    }
+                    else
+                    {
+                        xDiff = startX - endX;
+                        yDiff = startY - endY;
+                    }
                 }
             }
+            else
+            {
+                areaLine = new();
+                foreach (int[] field in borderFields)
+                {
+                    areaLine.Add(new int[] { field[0], field[1] });                
+                }
+                xDiff = startX - borderFields[borderFields.Count - 1][0];
+                yDiff = startY - borderFields[borderFields.Count - 1][1];
+
+                areaLine.Add(new int[] { startX, startY });
+            }
+            
 
             List<int[]> directions;
 
