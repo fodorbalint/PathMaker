@@ -231,6 +231,14 @@ Compare these two on 11 x 11:
 
 If the area we started with is pair, then the other will be impair. We can only enter the area at the light-gray field and will exit at A. From there we must go through B, C and D, and then a double C-shape is again created.
 
+One certain situation reveals the incorrectness of the 7-rules, when it comes to a 9-grid. In the following example, when I apply a rule rotated, it will disable a field that would otherwise be viable.
+
+<img align="top" src="References/Future 2 x 2 Start End rotated.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1027.svg" width="42.86%"/>
+
+Rotating was not necessary to start with on 7 x 7´, because no such situation occurred.<br />
+We can see that defining a rule with future line starts and ends does not tell us on which side the future line was created. That is the side that contains the enclosed area. We need to therefore replace such rules with area counting. 
+
+
 <!--will be:
 
 <img align="top" src="References/1027.svg" width="42.86%"/>-->

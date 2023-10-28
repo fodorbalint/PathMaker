@@ -42,7 +42,8 @@ Far Mid Across C-Shape: create rule rotated clockwise (and find example)
 Create inferface for disabling/enabling rules. Find out why it is not equal:
 - Amount of walkthroughs before getting stuck at the second rule
 - Amount of walkthroughs before getting stuck at the first rule, plus further walkthroughs until the second rule.
-
+Becaouse of 1027, we cannot rotate Future 2 x 2 Start End 9 and Future 2 x 2 Start End. Future 3 x 3 Start End cannot be applied on 9 x 9 (not even necessary) 
+Why is far right empty field necessary on Count Area 3 x 3 ?
 ----- 11 x 11 -----
 
 3x3 countarea rule can be rotated counter-clockwise too, but it may only be actual on 11 x 11 (1010_2)
@@ -134,7 +135,7 @@ namespace OneWayLabyrinth
 		bool settingsOpen = false;
         int numberOfRuns = 0;
         int numberOfCompleted = 0;
-
+		int saveFrequency = 10000;
 
         public MainWindow()
 		{
@@ -951,7 +952,11 @@ namespace OneWayLabyrinth
                                 }
                             });
 
-                            //SavePath();
+                            if (saveCheck && completedCount % saveFrequency == 0)
+							{
+                                SavePath();
+                            }
+							
                             //Dispatcher.Invoke(() => { DrawPath(); }); //frequent error in SKCanvas: Attempt to read or write protected memory
                         }
                         else DrawPath();
@@ -3242,7 +3247,7 @@ namespace OneWayLabyrinth
             }
             savePath = savePath.Substring(0, savePath.Length - 1);
 
-            if (exits.Count > 0)
+            /*if (exits.Count > 0)
             {
                 savePath += ":";
 
@@ -3255,9 +3260,9 @@ namespace OneWayLabyrinth
                     savePath += x + "," + y + "," + exitIndex[i] + ";";
                 }
                 savePath = savePath.Substring(0, savePath.Length - 1) + "," + taken.circleDirectionLeft;
-            }
+            }*/
 
-            if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedPathCode + ".txt", savePath);
+            if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedCount + "_" + completedPathCode + ".txt", savePath);
         }
 
 		public void DrawPath()
