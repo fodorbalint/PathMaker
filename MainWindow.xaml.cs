@@ -43,7 +43,8 @@ Create inferface for disabling/enabling rules. Find out why it is not equal:
 - Amount of walkthroughs before getting stuck at the second rule
 - Amount of walkthroughs before getting stuck at the first rule, plus further walkthroughs until the second rule.
 Becaouse of 1027, we cannot rotate Future 2 x 2 Start End 9 and Future 2 x 2 Start End. Future 3 x 3 Start End cannot be applied on 9 x 9 (not even necessary) 
-Why is far right empty field necessary on Count Area 3 x 3 ?
+Check side or across field of count area end field when creating rule.
+
 ----- 11 x 11 -----
 
 3x3 countarea rule can be rotated counter-clockwise too, but it may only be actual on 11 x 11 (1010_2)
@@ -120,7 +121,7 @@ namespace OneWayLabyrinth
 		int lastDirection = -1;
 		bool saveCheck, loadCheck, continueCheck;
 		public bool keepLeftCheck;
-        public int completedCount;
+        public int completedCount, fileCompletedCount;
 		bool completedWalkthrough = false;
         public bool errorInWalkthrough = false;
 		bool toReload = false;
@@ -330,8 +331,8 @@ namespace OneWayLabyrinth
 		}
 
         private void DoThread()
-		{			
-            completedCount = 0;			
+		{
+			completedCount = fileCompletedCount;
             do
             {				
                 Timer_Tick(null, null);                
@@ -574,6 +575,12 @@ namespace OneWayLabyrinth
 				lineFinished = false;
 			}
 
+			if (loadFile.IndexOf("_") != -1)
+			{
+				string[] arr = loadFile.Split("_");
+				fileCompletedCount = int.Parse(arr[0]);
+			}
+
 			CurrentCoords.Content = taken.x + " " + taken.y;
 			PossibleCoords.Text = "";
 
@@ -595,6 +602,7 @@ namespace OneWayLabyrinth
 			nextDirection = -2;
 			lastDirection = 0;
 			InitializeFuture();
+			fileCompletedCount = 0;
 
 			if (!isTaskRunning)
 			{

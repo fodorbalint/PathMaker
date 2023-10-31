@@ -297,11 +297,12 @@ namespace OneWayLabyrinth
                                 if (!closeStraight && !closeMidAcross && !closeAcross)
                                 {
                                     CheckAreaNearBorder(); // Uses countarea, see 0909. A 2x2 area would be created with one way to go in and out
+                                    // With the exception of closeAcross large area, all near field rules disable two fields, leaving only one option. Running further rules are not necessary. 
+                                    // Example of interference: 1031_1
+                                    RunRules();
                                 }
 
-                                RunRules();
-
-                                T(" FutureL " + FutureL + " Future2x2StartEnd " + Future2x2StartEnd + " Future2x3StartEnd " + Future2x3StartEnd + " Future3x3StartEnd " + Future3x3StartEnd + " CountArea3x3 " + CountArea3x3 + " Future2x2StartEnd9 " + Future2x2StartEnd9 + " FarMidAcrossCShape " + FarMidAcrossCShape + " DoubleCShape " + DoubleCShape);
+                                
 
                                 // CountArea3x3 2,2: 1021_1
 

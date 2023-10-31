@@ -135,7 +135,7 @@ And these are the rest of the rules:
 
 <img align="top" src="References/rules/7/Future L.svg" width="19.05%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Future L 65.svg" width="33.3%"/>
 
-- This is what I started the 7 x 7 introduction with.
+- This is what I started the 7 x 7 introduction with. I will call it Future L.
 
 <img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/>
 
@@ -143,7 +143,7 @@ And these are the rest of the rules:
 
 <img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="9.52%"/><img align="top" src="References/Future 3 x 3 Start End 1861.svg" width="33.3%"/>
 
-- And these are the remaining size-specific rules.
+- And these are the remaining size-specific rules. Future 2 x 2 Start End, Future 2 x 3 Start End and Future 3 x 3 Start End.
 
 The program, in fast mode, can run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7 x 7 walkthroughs, which is 111 712.<br />
 It is equal to what is described in the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 x 2n+1 grid).
@@ -175,7 +175,7 @@ It is the picture on the left. Since the yellow-bordered area is impair, adding 
 
 We can define a rule by marking the following fields and counting the area from the fields in front of the main line to the right:
 
-<img align="top" src="References/rules/9/Count Area 3 x 3.svg" width="28.57%"/>
+<img align="top" src="References/rules/9/Future 3 x 3 Start End 9.svg" width="28.57%"/>
 
 Start_1 field is (4,3) and Start_2 field is (4,4) in the actual example. End field is (4,2). Direction of the circle: right (counter-clockwise). If the area is pair, we cannot step straight.
 
@@ -183,7 +183,7 @@ When generating code from the drawing, we have to check on which side the enclos
 - The taken or border field beyond the end field is a taken field. In this case, if the field to its left is taken, its index must be lower. If the field to the right is taken, its index must be higher.
 - It is the border. Add together the x- and y-coordinates to get a value. A higher value is closer to the end corner. Here, we compare the border field straight ahead and on its left, and we want the first-mentioned to be the smaller.
 
-I have applied this rule rotated clockwise (besides mirroring it, or course), so that the live end can both come from the bottom and the right. But it can also come from the left in this example:
+I have applied this rule rotated clockwise (besides mirroring it, of course), so that the live end can both come from the bottom and the right. But it can also come from the left in this example:
 
 <img align="top" src="References/1010_2.svg" width="42.86%"/>
 
@@ -213,7 +213,7 @@ The next error, at 14 004 has something to with how I defined the universal rule
 
 We need to take a few steps back, and then we can create the rule. It is similar to the universal 2-distance rule on the side, it just checks the field 2 behind and 1 to the side too. Even though the area counted is pair, now stepping to the right is disabled.
 
-<img align="top" src="References/rules/9/Far Mid Across C-Shape.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1013_2.svg" width="42.86%"/>
+<img align="top" src="References/rules/9/Future 2 x 3 Start End 9.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1013_2.svg" width="42.86%"/>
 
 At 55 298, we get this:
 
@@ -231,17 +231,27 @@ Compare these two on 11 x 11:
 
 If the area we started with is pair, then the other will be impair. We can only enter the area at the light-gray field and will exit at A. From there we must go through B, C and D, and then a double C-shape is again created.
 
-One certain situation reveals the incorrectness of the 7-rules, when it comes to a 9-grid. In the following example, when I apply a rule rotated, it will disable a field that would otherwise be viable.
+One certain situation reveals the incorrectness of the 7-rules when it comes to a 9-grid. In the following example, when I apply a rule rotated, it will disable a field that would otherwise be viable.
 
 <img align="top" src="References/Future 2 x 2 Start End rotated.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1027.svg" width="42.86%"/>
 
-Rotating was not necessary to start with on 7 x 7´, because no such situation occurred.<br />
-We can see that defining a rule with future line starts and ends does not tell us on which side the future line was created. That is the side that contains the enclosed area. We need to therefore replace such rules with area counting. 
+Rotating was not necessary to start with on 7 x 7, because no such situation occurred.
 
+We can see that defining a rule with future line starts and ends does not tell us on which side the future line was created. That is the side that contains the enclosed area. We need to therefore replace such rules with area counting, which we actually already did, with the exception of Future L. Here the future line couldn't have been created on the other side, because that's the side the live end is at right now. And area counting is not always possible, like in this situation:
 
-<!--will be:
+<img align="top" src="References/1031.svg" width="61.9%"/>
 
-<img align="top" src="References/1027.svg" width="42.86%"/>-->
+As we run the program further, we will discover this at 227 200:
+
+<img align="top" src="References/227200.svg" width="42.86%"/>
+
+Intuitively, we can draw up the square, and let's mark the exit as well. There can be loops on the upper, lower and right side, they have no importance when tracing it back to the live end. There is only one way to go through.
+
+<img align="top" src="References/rules/9/Square 4 x 2.svg" width="23.8%"/>
+
+233810 will look like:
+
+<img align="top" src="References/233810.svg" width="42.86%"/>
 
 ---
 

@@ -70,6 +70,7 @@ public Rules()
             string codeString = "namespace OneWayLabyrinth\n{\n\tusing System.Collections.Generic;\n\n\tpublic partial class Path\n\t{\n[conditionVariablesDeclare]\n\t\tpublic void RunRules()\n\t\t{\n[conditionVariablesReset]\n";
             string conditionVariablesDeclare = "";
             string conditionVariablesReset = "";
+            string conditionVariablesSet = "T(";
             activeRules = new() { "(no rule)" };            
 
             foreach (string size in listOfSizes)
@@ -92,7 +93,14 @@ public Rules()
                 MainGrid.Children.Insert(++childIndex, g);
                 Grid.SetRow(g, 1);
 
-                codeString += "\t\t\tif (size >= " + sizeNumber + ")\n\t\t\t{\n";
+                if (int.Parse(sizeNumber) < 9)
+                {
+                    codeString += "\t\t\tif (size == " + sizeNumber + ")\n\t\t\t{\n";
+                }
+                else
+                {
+                    codeString += "\t\t\tif (size >= " + sizeNumber + ")\n\t\t\t{\n";
+                }
 
                 string[] listOfRules = Directory.GetFiles(size);
 
@@ -113,6 +121,7 @@ public Rules()
                     {
                         conditionVariablesDeclare += "\t\tpublic bool " + variableName + " = false;\n";
                         conditionVariablesReset += "\t\t\t" + variableName + " = false;\n";
+                        conditionVariablesSet += "\"" + variableName + ": \" + " + variableName + " + \"\\n\" + ";
                     }
                     codeString += "\t\t\t\t// " + ruleName + "\n";
                     activeRules.Add(ruleName);
@@ -231,7 +240,7 @@ public Rules()
             RotateCounterClockwise.IsChecked = false;
             CircleDirectionLeft.IsChecked = false;
             codeString = codeString.Substring(0, codeString.Length - 1);
-            codeString += "\t\t}\n\t}\n}";
+            codeString += "\t\t\t" + conditionVariablesSet.Substring(0, conditionVariablesSet.Length - 10) + ");\n\t\t}\n\t}\n}";
             codeString = codeString.Replace("[conditionVariablesDeclare]", conditionVariablesDeclare);
             codeString = codeString.Replace("[conditionVariablesReset]", conditionVariablesReset);
             File.WriteAllText("PathRules.cs", codeString);
@@ -253,7 +262,9 @@ public Rules()
                 }
             }
 
-            string conditionStr = "";            
+            string conditionStr = "";
+
+            List<int[]> takenOrBorderFields = new();
 
             foreach (int[] field in takenFields)
             {
@@ -266,9 +277,11 @@ public Rules()
                         break;
                     case 3:
                         conditionStr += "InTakenRel(" + relX + "," + relY + ") && ";
+                        takenOrBorderFields.Add(new int[] { field[0], field[1] });
                         break;
                     case 4:
                         conditionStr += "(InTakenRel(" + relX + "," + relY + ") || InBorderRel(" + relX + "," + relY + ")) && ";
+                        takenOrBorderFields.Add(new int[] { field[0], field[1] });
                         break;
                     case 5:
                         conditionStr += "InFutureStartRel(" + relX + "," + relY + ") && ";
@@ -321,9 +334,29 @@ public Rules()
             {
                 bool circleDirectionLeft = bool.Parse(meta[2]);
 
-                // First, we need to make sure that the wall ahead is going into the direction according the circle direction (it has to go in the same direction)
-                // Find wall fields, one straight, one side, but we need to find which side is taken
-                // The wall can also be the border
+                // We need to make sure that the wall ahead is going into the direction according the circle direction (it has to go in the same direction). To do this, we find the taken or border field next to the count area end field.
+
+                int[] middleWall = new int[] { 0, 0 };
+                bool straightFound = false;
+                bool acrossFound = false;
+                foreach (int[] field in takenOrBorderFields)
+                {
+                    // field next to the count area end field (prioritized)
+                    if (field[0] == countAreaEndField[0] && Math.Abs(field[1] - countAreaEndField[1]) == 1 || field[1] == countAreaEndField[1] && Math.Abs(field[0] - countAreaEndField[0]) == 1)
+                    {
+                        straightFound = true;
+                        middleWall = field;
+                        break;
+                    }
+                    // field across the count area end field
+                    else if (Math.Abs(field[0] - countAreaEndField[0]) == 1 && Math.Abs(field[1] - countAreaEndField[1]) == 1)
+                    {
+                        acrossFound = true;
+                        middleWall = field;
+                    }
+                }
+
+                // determine distance between count area start end end fields; if it is more than 2, draw border line. Find direction between them or between the end field and the nearest border line field.
 
                 bool diff1 = false;
                 bool diff2 = false;
@@ -367,7 +400,8 @@ public Rules()
                     countAreaBorderFieldsStr = countAreaBorderFieldsStr.Substring(0, countAreaBorderFieldsStr.Length - 2) + "};\n";
                 }
 
-                int[] middleWall = new int[] { countAreaEndField[0] - diffX, countAreaEndField[1] - diffY };
+                // find perpendicular left/right directions
+
                 int directionIndex = FindDirection(diffX, diffY);
                 int leftDirection = (directionIndex == 0) ? 3 : directionIndex - 1;
                 int rightDirection = (directionIndex == 3) ? 0 : directionIndex + 1;
