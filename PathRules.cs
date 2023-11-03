@@ -8,6 +8,7 @@ namespace OneWayLabyrinth
 		public bool Future2x3StartEnd = false;
 		public bool Future3x3StartEnd = false;
 		public bool FutureL = false;
+		public bool CountAreaAcrossBorderC = false;
 		public bool DoubleCShape = false;
 		public bool Future2x2StartEnd9 = false;
 		public bool Future2x3StartEnd9 = false;
@@ -21,6 +22,7 @@ namespace OneWayLabyrinth
 			Future2x3StartEnd = false;
 			Future3x3StartEnd = false;
 			FutureL = false;
+			CountAreaAcrossBorderC = false;
 			DoubleCShape = false;
 			Future2x2StartEnd9 = false;
 			Future2x3StartEnd9 = false;
@@ -122,6 +124,65 @@ namespace OneWayLabyrinth
 
 			if (size >= 9)
 			{
+				// Count Area Across Border C
+				for (int i = 0; i < 2; i++)
+				{
+					if ((InTakenRel(-1,-2) || InBorderRel(-1,-2)) && !InTakenRel(-1,-1) && !InBorderRel(-1,-1) && InTakenRel(-3,3) && !InTakenRel(-3,2) && !InBorderRel(-3,2) && !InTakenRel(-2,2) && !InBorderRel(-2,2) && !InTakenRel(-1,1) && !InBorderRel(-1,1))
+					{
+						int middleIndex = InTakenIndexRel(-3,3);
+						if (middleIndex != -1)
+						{
+							if (InTakenRel(-2,3))
+							{
+								int sideIndex = InTakenIndexRel(-2,3);
+								if (sideIndex > middleIndex)
+								{
+									circleDirectionLeft = (i == 0) ? true : false;
+									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-2,1}};
+									if (!CountAreaRel(-1, 1, -2, 2, 0, 0, countAreaBorderFields))
+									{
+										CountAreaAcrossBorderC = true;
+										forbidden.Add(new int[] { x - lx, y - ly });
+									}
+								}
+							}
+							else
+							{
+								int sideIndex = InTakenIndexRel(-4,3);
+								if (sideIndex < middleIndex)
+								{
+									circleDirectionLeft = (i == 0) ? true : false;
+									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-2,1}};
+									if (!CountAreaRel(-1, 1, -2, 2, 0, 0, countAreaBorderFields))
+									{
+										CountAreaAcrossBorderC = true;
+										forbidden.Add(new int[] { x - lx, y - ly });
+									}
+								}
+							}
+						}
+						else
+						{
+							middleIndex = InBorderIndexRel(-3,3);
+							int farSideIndex = InBorderIndexRel(-4,3);
+							if (farSideIndex > middleIndex)
+							{
+								circleDirectionLeft = (i == 0) ? true : false;
+								List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-2,1}};
+								if (!CountAreaRel(-1, 1, -2, 2, 0, 0, countAreaBorderFields))
+								{
+									CountAreaAcrossBorderC = true;
+									forbidden.Add(new int[] { x - lx, y - ly });
+								}
+							}
+						}
+					}
+					lx = -lx;
+					ly = -ly;
+				}
+				lx = thisLx;
+				ly = thisLy;
+
 				// Double C-Shape
 				for (int i = 0; i < 2; i++)
 				{
@@ -367,7 +428,7 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 			}
-			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Future2x2StartEnd9: " + Future2x2StartEnd9 + "\n" + "Future2x3StartEnd9: " + Future2x3StartEnd9 + "\n" + "Future3x3StartEnd9: " + Future3x3StartEnd9 + "\n" + "FutureL9: " + FutureL9 + "\n" + "Square4x2: " + Square4x2);
+			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountAreaAcrossBorderC: " + CountAreaAcrossBorderC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Future2x2StartEnd9: " + Future2x2StartEnd9 + "\n" + "Future2x3StartEnd9: " + Future2x3StartEnd9 + "\n" + "Future3x3StartEnd9: " + Future3x3StartEnd9 + "\n" + "FutureL9: " + FutureL9 + "\n" + "Square4x2: " + Square4x2);
 		}
 	}
 }

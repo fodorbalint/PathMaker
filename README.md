@@ -247,11 +247,28 @@ As we run the program further, we will discover this at 227 200:
 
 Intuitively, we can draw up the square, and let's mark the exit as well. There can be loops on the upper, lower and right side, they have no importance when tracing it back to the live end. There is only one way to go through.
 
-<img align="top" src="References/rules/9/Square 4 x 2.svg" width="23.8%"/>
+<img align="top" src="References/rules/9/Square 4 x 2.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/227200_1.svg" width="42.86%"/>
 
-233810 will look like:
+233 810 will look like:
 
 <img align="top" src="References/233810.svg" width="42.86%"/>
+
+Once we step to A, it is unavoidable to get to B before entering the outlined area. It is because we can only reach B from the left or the bottom.<br />
+The area is impair, therefore we cannot complete it starting in C and ending in D.<br />
+As with many of the previous rules, the C-shape created with the border is to blame and therefore we need to represent it.
+
+<img align="top" src="References/rules/9/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/233810_1.svg" width="42.86%"/>
+
+234 256 has at first sight something to do with future lines.
+
+<img align="top" src="References/234256.svg" width="42.86%"/>
+
+But it is more than that. Notice that enclosed areas has been created on both sides simultaneously. Because of the universal rules for approaching an older section of the line, now we have no option to move. The areas can be filled individually, but we cannot step to left and right at the same time.<br />
+We have to create 2-distance rules, which take both sides into account.
+
+<img align="top" src="References/checknearfield/2 far mid across + across.svg" width="28.6%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/2 far side mid across + across down.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/2 far side mid across + across up.svg" width="19%"/>
+
+It would look like this. As far as programming concerned, all that is needed is checking the existence of the two separate rules.<br />
 
 ---
 

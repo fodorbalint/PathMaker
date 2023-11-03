@@ -1340,6 +1340,7 @@ namespace OneWayLabyrinth
                 {
                     T("Error at " + startX + " " + startY + " " + endX + " " + endY);
                     window.errorInWalkthrough = true;
+                    T("Single field in arealine.");
                     window.M("Single field in arealine.", 1);
                     //window.StopAll("Single field in arealine.");
                     return false;
@@ -1356,6 +1357,7 @@ namespace OneWayLabyrinth
                     {
                         T("Error at " + startX + " " + startY + " " + endX + " " + endY);
                         window.errorInWalkthrough = true;
+                        T("Field exists in arealine.");
                         window.M("Field exists in arealine.", 1);
                         //window.StopAll("Field exists in arealine.");
                         return false;

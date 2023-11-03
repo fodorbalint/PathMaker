@@ -35,7 +35,7 @@ namespace OneWayLabyrinth
         int xSize;
         int ySize;
         string grid;
-        string liveEnd, emptyField, takenField, takenOrBorderField, futureStartField, futureEndField, forbiddenField, notCornerField, countAreaStartField, countAreaEndField, countAreaBorderField;
+        string liveEnd, emptyField, takenField, takenOrBorderField, futureStartField, futureEndField, forbiddenField, notCornerField, countAreaPairStartField, countAreaPairEndField, countAreaPairBorderField, countAreaImpairStartField, countAreaImpairEndField, countAreaImpairBorderField;
         string newRule;
         int draggedElement = 0;
         SKElement draggedObj;
@@ -44,15 +44,18 @@ namespace OneWayLabyrinth
         List<int[]> takenCoordinates = new();
         List<int[]> forbiddenCoordinates = new();
         int[]? noCornerCoordinates = null;
-        int[]? countAreaStartCoordinates = null;
-        int[]? countAreaEndCoordinates = null;
-        List<int[]> countAreaBorderCoordinates = new();
+        int[]? countAreaPairStartCoordinates = null;
+        int[]? countAreaPairEndCoordinates = null;
+        List<int[]> countAreaPairBorderCoordinates = new();
+        int[]? countAreaImpairStartCoordinates = null;
+        int[]? countAreaImpairEndCoordinates = null;
+        List<int[]> countAreaImpairBorderCoordinates = new();
         int childIndex = 0;
         List<string> activeRules = new();
         List<int[]> directions = new() { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
 
 
-public Rules()
+        public Rules()
         {
             InitializeComponent();
             LoadDir();
@@ -60,6 +63,966 @@ public Rules()
             YSize.Text = "5";
             AppliedSize.Text = "9";
         }
+
+        // ----- Generate grid and field types -----
+
+
+        private void CreateNew_Click(object sender, RoutedEventArgs e)
+        {
+            xSize = 1;
+            ySize = 1;
+            DrawGrid();
+
+            string singleGrid = "<svg xmlns =\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1 1\">\r\n\t<!---->\r\n" + grid + "</svg>";
+            if (!File.Exists("singleGrid.svg")) File.WriteAllText("singleGrid.svg", singleGrid);
+
+            string color = "#ff0000";
+            string opacity = "0.15";
+            liveEnd = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
+                "\t<path d=\"M 0.5 1 v -0.5\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            string content = singleGrid.Replace("<!---->", liveEnd);
+            if (!File.Exists("liveEnd.svg")) File.WriteAllText("liveEnd.svg", content);
+
+            emptyField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"#dddddd\" fill-opacity=\"1\" />";
+            content = singleGrid.Replace("<!---->", emptyField);
+            if (!File.Exists("emptyField.svg")) File.WriteAllText("emptyField.svg", content);
+
+            color = "#ff0000";
+            opacity = "0.15";
+            takenField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            content = singleGrid.Replace("<!---->", takenField);
+            if (!File.Exists("takenField.svg")) File.WriteAllText("takenField.svg", content);
+
+            color = "#000000";
+            opacity = "0.5";
+            takenOrBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />";
+            content = singleGrid.Replace("<!---->", takenOrBorderField);
+            if (!File.Exists("takenOrBorderField.svg")) File.WriteAllText("takenOrBorderField.svg", content);
+
+            color = "#0000ff";
+            opacity = "0.15";
+            futureStartField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
+                "\t<path d=\"M 0.2 0.2 v 0.6 v -0.3 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            content = singleGrid.Replace("<!---->", futureStartField);
+            if (!File.Exists("futureStartField.svg")) File.WriteAllText("futureStartField.svg", content);
+
+            color = "#0000ff";
+            opacity = "0.15";
+
+            futureEndField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
+                "\t<path d=\"M 0.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2 l 0.2 -0.2 v 0.3 v -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            content = singleGrid.Replace("<!---->", futureEndField);
+            if (!File.Exists("futureEndField.svg")) File.WriteAllText("futureEndField.svg", content);
+
+            notCornerField = "<path d=\"M 0.3 0.2 v 0.5 h 0.5 h -0.2 a 0.3 0.3 0 0 0 -0.3 -0.3\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" /><circle cx=\"0.42\" cy=\"0.58\" r=\"0.05\" fill=\"red\" fill-opacity=\"1\" />";
+            content = singleGrid.Replace("<!---->", notCornerField);
+            if (!File.Exists("notCornerField.svg")) File.WriteAllText("notCornerField.svg", content);
+
+            forbiddenField = "<path d=\"M 0.2 0.2 l 0.6 0.6 M 0.2 0.8 l 0.6 -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            content = singleGrid.Replace("<!---->", forbiddenField);
+            if (!File.Exists("forbiddenField.svg")) File.WriteAllText("forbiddenField.svg", content);
+
+            countAreaPairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            content = singleGrid.Replace("<!---->", countAreaPairStartField);
+            if (!File.Exists("countAreaPairStartField.svg")) File.WriteAllText("countAreaPairStartField.svg", content);
+
+            countAreaPairEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            content = singleGrid.Replace("<!---->", countAreaPairEndField);
+            if (!File.Exists("countAreaPairEndField.svg")) File.WriteAllText("countAreaPairEndField.svg", content);
+
+            countAreaPairBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />";
+            content = singleGrid.Replace("<!---->", countAreaPairBorderField);
+            if (!File.Exists("countAreaPairBorderField.svg")) File.WriteAllText("countAreaPairBorderField.svg", content);
+
+            countAreaImpairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            content = singleGrid.Replace("<!---->", countAreaImpairStartField);
+            if (!File.Exists("countAreaImpairStartField.svg")) File.WriteAllText("countAreaImpairStartField.svg", content);
+
+            countAreaImpairEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            content = singleGrid.Replace("<!---->", countAreaImpairEndField);
+            if (!File.Exists("countAreaImpairEndField.svg")) File.WriteAllText("countAreaImpairEndField.svg", content);
+
+            countAreaImpairBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />";
+            content = singleGrid.Replace("<!---->", countAreaImpairBorderField);
+            if (!File.Exists("countAreaImpairBorderField.svg")) File.WriteAllText("countAreaImpairBorderField.svg", content);
+
+            svgName = "newRule.svg";
+
+            xSize = int.Parse(XSize.Text);
+            ySize = int.Parse(YSize.Text);
+
+            Canvas.Width = xSize * 40;
+            Canvas.Height = ySize * 40;
+
+            ResetRule_Click(null, null);
+
+            NewRuleGrid.Visibility = Visibility.Visible;
+            SaveRule.Visibility = Visibility.Visible;
+            ResetRule.Visibility = Visibility.Visible;
+            Cancel.Visibility = Visibility.Visible;
+
+            Canvas1.InvalidateVisual();
+            Canvas2.InvalidateVisual();
+            Canvas3.InvalidateVisual();
+            Canvas4.InvalidateVisual();
+            Canvas5.InvalidateVisual();
+            Canvas6.InvalidateVisual();
+            Canvas7.InvalidateVisual();
+            Canvas8.InvalidateVisual();
+            Canvas9.InvalidateVisual();
+            Canvas10.InvalidateVisual();
+            Canvas11.InvalidateVisual();
+            Canvas12.InvalidateVisual();
+            Canvas13.InvalidateVisual();
+            Canvas14.InvalidateVisual();
+        }
+
+        private void ResetRule_Click(object sender, RoutedEventArgs e)
+        {
+            xSize = int.Parse(XSize.Text);
+            ySize = int.Parse(YSize.Text);
+
+            Canvas.Width = xSize * 40;
+            Canvas.Height = ySize * 40;
+
+            DrawGrid();
+
+            newRule = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + xSize + " " + ySize + "\">\r\n\t<!--1-->\r\n\t<!--2-->\r\n\t<!--3-->\r\n" + grid + "</svg>";
+            File.WriteAllText(svgName, newRule);
+            takenCoordinates = new();
+            forbiddenCoordinates = new();
+            noCornerCoordinates = null;
+            countAreaPairStartCoordinates = null;
+            countAreaPairEndCoordinates = null;
+            countAreaPairBorderCoordinates = new();
+            countAreaImpairStartCoordinates = null;
+            countAreaImpairEndCoordinates = null;
+            countAreaImpairBorderCoordinates = new();
+
+            NewRuleGrid.Height = 198 + ySize * 40; // the dragged element will otherwise stretch it on the bottom, no other solution have been found.
+            RotateClockwise.IsChecked = false;
+            RotateCounterClockwise.IsChecked = false;
+            CircleDirectionLeft.IsChecked = false;
+            Canvas.InvalidateVisual();
+        }
+
+        private void DrawGrid()
+        {
+            grid = "";
+
+            for (int i = 0; i <= xSize; i++)
+            {
+                float i2 = i;
+                if (i == 0)
+                {
+                    i2 = i + 0.01f;
+                }
+                else if (i == xSize)
+                {
+                    i2 = i - 0.01f;
+                }
+
+                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M " + i2 + " 0 v " + ySize + "\" />\r\n";
+            }
+            for (int i = 0; i <= ySize; i++)
+            {
+                float i2 = i;
+                if (i == 0)
+                {
+                    i2 = i + 0.01f;
+                }
+                else if (i == ySize)
+                {
+                    i2 = i - 0.01f;
+                }
+
+                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M 0 " + i2 + " h " + xSize + "\" />\r\n";
+            }
+        }
+
+        private void XYSize_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                xSize = int.Parse(XSize.Text);
+                ySize = int.Parse(YSize.Text);
+
+                Canvas.Width = xSize * 40;
+                Canvas.Height = ySize * 40;
+
+                ResizeGrid();
+            }
+        }
+
+        private void ResizeGrid()
+        {
+            DrawGrid();
+
+            int pos = newRule.IndexOf("viewBox=\"0 0 ");
+            int lastPos = newRule.IndexOf("\"", pos + 13);
+            string sizeStr = newRule.Substring(pos + 13, lastPos - pos - 13);
+            newRule = newRule.Replace("viewBox=\"0 0 " + sizeStr, "viewBox=\"0 0 " + xSize + " " + ySize);
+
+            pos = newRule.IndexOf("<!--3-->");
+            newRule = newRule.Substring(0, pos + 8) + "\r\n" + grid + "</svg>";
+
+            // remove fields that are now outside the area
+
+            pos = 0;
+            do
+            {
+                pos = newRule.IndexOf("<!-- ", pos);
+                if (pos == -1) break;
+                lastPos = newRule.IndexOf(" -->", pos);
+                string areaCode = newRule.Substring(pos + 5, lastPos - pos - 5);
+
+                string[] codes = areaCode.Split(" ");
+                bool deleted = false;
+                if (int.Parse(codes[0]) > xSize || int.Parse(codes[1]) > ySize)
+                {
+                    int nextPos = newRule.IndexOf("<!--", lastPos);
+                    newRule = newRule.Substring(0, pos) + newRule.Substring(nextPos);
+                    deleted = true;
+                }
+                if (!deleted) pos++;
+
+            } while (true);
+
+            File.WriteAllText(svgName, newRule);
+
+            NewRuleGrid.Height = 198 + ySize * 40;
+            Canvas.InvalidateVisual();
+        }
+
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            NewRuleGrid.Visibility = Visibility.Collapsed;
+            SaveRule.Visibility = Visibility.Collapsed;
+            ResetRule.Visibility = Visibility.Collapsed;
+            Cancel.Visibility = Visibility.Collapsed;
+        }
+
+
+        // ----- Rule creation process -----
+
+
+        private void RuleGrid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            T("Start mouse coordinates: " + e.GetPosition(RuleGrid).X + " " + e.GetPosition(RuleGrid).Y);
+            T("NewRuleGrid height " + NewRuleGrid.ActualHeight);
+            double x = e.GetPosition(RuleGrid).X;
+            double y = e.GetPosition(RuleGrid).Y;
+            startMouseX = x;
+            startMouseY = y;
+            if (y <= 90)
+            {
+                if (x >= 0 && x <= 40 && y <= 40) draggedElement = 1;
+                if (x >= 50 && x <= 90 && y <= 40) draggedElement = 2;
+                if (x >= 100 && x <= 140 && y <= 40) draggedElement = 3;
+                if (x >= 150 && x <= 190 && y <= 40) draggedElement = 4;
+                if (x >= 200 && x <= 240 && y <= 40) draggedElement = 5;
+                if (x >= 250 && x <= 290 && y <= 40) draggedElement = 6;
+                if (x >= 300 && x <= 340 && y <= 40) draggedElement = 7;
+                if (x >= 350 && x <= 390 && y <= 40) draggedElement = 8;
+                if (x >= 0 && x <= 40 && y >= 50 && y <= 90) draggedElement = 9;
+                if (x >= 50 && x <= 90 && y >= 50 && y <= 90) draggedElement = 10;
+                if (x >= 100 && x <= 140 && y >= 50 && y <= 90) draggedElement = 11;
+                if (x >= 150 && x <= 190 && y >= 50 && y <= 90) draggedElement = 12;
+                if (x >= 200 && x <= 240 && y >= 50 && y <= 90) draggedElement = 13;
+                if (x >= 250 && x <= 290 && y >= 50 && y <= 90) draggedElement = 14;
+            }
+
+            draggedObj = (SKElement)RuleGrid.Children[draggedElement];
+            T("draggedObj " + draggedObj);
+            origMargin = draggedObj.Margin;
+            Panel.SetZIndex(draggedObj, RuleGrid.Children.Count);
+        }
+
+        private void RuleGrid_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (draggedElement == 0) return;
+            double x = e.GetPosition(RuleGrid).X;
+            double y = e.GetPosition(RuleGrid).Y;
+            draggedObj.Margin = new Thickness(x - startMouseX + 50 * ((draggedElement - 1) % 8), y - startMouseY + 50 * ((draggedElement - 1 - (draggedElement - 1) % 8) / 8), 0, 0);
+        }
+
+        private void RuleGrid_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (draggedElement == 0) return;
+            draggedObj.Margin = origMargin;
+            Panel.SetZIndex(draggedObj, draggedElement);
+            draggedElement = 0;
+
+        }
+
+        private void RuleGrid_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (draggedElement == 0) return;
+
+            double x = e.GetPosition(Canvas).X;
+            double y = e.GetPosition(Canvas).Y;
+
+            draggedObj.Margin = origMargin;
+            Panel.SetZIndex(draggedObj, draggedElement);
+            double centerX = x - startMouseX + 20 + 50 * ((draggedElement - 1) % 8);
+            double centerY = y - startMouseY + 20 + 50 * (draggedElement - 1 - (draggedElement - 1) % 8) / 8;
+
+            if (centerX < 0 || centerY < 0)
+            {
+                draggedElement = 0;
+                return;
+            }
+
+            T("centerX: " + centerX + " centerY: " + centerY);
+
+            int coordX = (int)(centerX - centerX % 40) / 40 + 1;
+            int coordY = (int)(centerY - centerY % 40) / 40 + 1;
+
+            T("coordX: " + coordX + " coordY: " + coordY);
+
+            if (coordX <= xSize && coordY <= ySize)
+            {
+                T("End in table: " + coordX + " " + coordY);
+
+                // only pair or impair count area fields are allowed
+                if (draggedElement >= 9 && draggedElement <= 11)
+                {
+                    if (!(countAreaImpairStartCoordinates is null) || !(countAreaImpairEndCoordinates is null) || countAreaImpairBorderCoordinates.Count > 0)
+                    {
+                        T("Count area impair fields already exist.");
+                        draggedElement = 0;
+                        return;
+                    }
+                }
+                else if (draggedElement >= 12 && draggedElement <= 14)
+                {
+                    if (!(countAreaPairStartCoordinates is null) || !(countAreaPairEndCoordinates is null) || countAreaPairBorderCoordinates.Count > 0)
+                    {
+                        T("Count area pair fields already exist.");
+                        draggedElement = 0;
+                        return;
+                    }
+                }
+
+                if (draggedElement == 7) // no corner
+                {
+                    if (!(noCornerCoordinates is null))
+                    {
+                        T("Corner already exists.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    if (coordX > 2 && coordX < xSize - 1 && coordY > 2)
+                    {
+                        T("Corner misplaced.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in forbiddenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY)
+                        {
+                            T("Corner cannot be forbidden.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    noCornerCoordinates = new int[] { coordX, coordY };
+                }
+                else if (draggedElement == 8) // forbidden
+                {
+                    if (!(noCornerCoordinates is null) && coordX == noCornerCoordinates[0] && coordY == noCornerCoordinates[1])
+                    {
+                        T("Corner cannot be forbidden.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    if (forbiddenCoordinates.Count == 2)
+                    {
+                        T("Too many forbidden.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in forbiddenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY)
+                        {
+                            T("Found forbidden.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    if (forbiddenCoordinates.Count == 1 && !(Math.Abs(coordX - forbiddenCoordinates[0][0]) == 2 && coordY == forbiddenCoordinates[0][1] || Math.Abs(coordX - forbiddenCoordinates[0][0]) == 1 && Math.Abs(coordY - forbiddenCoordinates[0][1]) == 1))
+                    {
+                        T("Existing forbidden dislocated.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in takenCoordinates)
+                    {
+                        if (coord[2] == 1 && !(Math.Abs(coordX - coord[0]) == 1 && coordY == coord[1] || coordY - coord[1] == -1 && coordX == coord[0]))
+                        {
+                            T("Live end dislocated.");
+                            draggedElement = 0;
+                            return;
+                        }
+                        else if (coordX == coord[0] && coordY == coord[1] && coord[2] != 2 && coord[2] != 5)
+                        {
+                            T("Only empty, undetermined or future start field should be marked forbidden.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    forbiddenCoordinates.Add(new int[] { coordX, coordY });
+                }
+                else if (draggedElement == 9) // count area pair start
+                {
+                    if (!(countAreaPairStartCoordinates is null))
+                    {
+                        T("Count area pair start already exists.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in takenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area pair start can only be placed on an empty field");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    foreach (int[] coord in countAreaPairBorderCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area pair start cannot be place on a count area border field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    countAreaPairStartCoordinates = new int[] { coordX, coordY };
+                    SaveMeta();
+                }
+                else if (draggedElement == 10) // count area pair end
+                {
+                    if (!(countAreaPairEndCoordinates is null))
+                    {
+                        T("Count area pair end already exists.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in takenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area pair end can only be placed on an empty field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    foreach (int[] coord in countAreaPairBorderCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area pair end cannot be place on a count area border field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    countAreaPairEndCoordinates = new int[] { coordX, coordY };
+                    SaveMeta();
+                }
+                else if (draggedElement == 11) // count area pair border
+                {
+                    if (!(countAreaPairStartCoordinates is null))
+                    {
+                        if (countAreaPairStartCoordinates[0] == coordX && countAreaPairStartCoordinates[1] == coordY)
+                        {
+                            T("Count area pair border cannot be placed on count area start field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+                    if (!(countAreaPairEndCoordinates is null))
+                    {
+                        if (countAreaPairEndCoordinates[0] == coordX && countAreaPairEndCoordinates[1] == coordY)
+                        {
+                            T("Count area pair border cannot be placed on count area end field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    foreach (int[] coord in takenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area pair border can only be placed on an empty field");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    countAreaPairBorderCoordinates.Add(new int[] { coordX, coordY });
+                }
+                else if (draggedElement == 12) // count area impair start
+                {
+                    if (!(countAreaImpairStartCoordinates is null))
+                    {
+                        T("Count area impair start already exists.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in takenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area impair start can only be placed on an empty field");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    foreach (int[] coord in countAreaImpairBorderCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area impair start cannot be place on a count area border field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    countAreaImpairStartCoordinates = new int[] { coordX, coordY };
+                    SaveMeta();
+                }
+                else if (draggedElement == 13) // count area impair end
+                {
+                    if (!(countAreaImpairEndCoordinates is null))
+                    {
+                        T("Count area impair end already exists.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in takenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area impair end can only be placed on an empty field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    foreach (int[] coord in countAreaImpairBorderCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area impair end cannot be place on a count area border field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    countAreaImpairEndCoordinates = new int[] { coordX, coordY };
+                    SaveMeta();
+                }
+                else if (draggedElement == 14) // count area impair border
+                {
+                    if (!(countAreaImpairStartCoordinates is null))
+                    {
+                        if (countAreaImpairStartCoordinates[0] == coordX && countAreaImpairStartCoordinates[1] == coordY)
+                        {
+                            T("Count area impair border cannot be placed on count area start field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+                    if (!(countAreaImpairEndCoordinates is null))
+                    {
+                        if (countAreaImpairEndCoordinates[0] == coordX && countAreaImpairEndCoordinates[1] == coordY)
+                        {
+                            T("Count area impair border cannot be placed on count area end field.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    foreach (int[] coord in takenCoordinates)
+                    {
+                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
+                        {
+                            T("Count area impair border can only be placed on an empty field");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    countAreaImpairBorderCoordinates.Add(new int[] { coordX, coordY });
+                }
+                else
+                {
+                    if (draggedElement == 1)
+                    {
+                        if (forbiddenCoordinates.Count == 1)
+                        {
+                            if (!(Math.Abs(coordX - forbiddenCoordinates[0][0]) == 1 && coordY == forbiddenCoordinates[0][1] || coordY - forbiddenCoordinates[0][1] == 1 && coordX == forbiddenCoordinates[0][0]))
+                            {
+                                T("Forbidden field dislocated.");
+                                draggedElement = 0;
+                                return;
+                            }
+                        }
+                        else if (forbiddenCoordinates.Count == 2)
+                        {
+                            if (forbiddenCoordinates[0][1] == forbiddenCoordinates[1][1] && !(coordX == (forbiddenCoordinates[0][0] + forbiddenCoordinates[1][0]) / 2 && coordY == forbiddenCoordinates[0][1]))
+                            {
+                                T("Two forbidden fields in a row dislocated.");
+                                draggedElement = 0;
+                                return;
+                            }
+                            else if (forbiddenCoordinates[0][1] > forbiddenCoordinates[1][1] && !(coordX == forbiddenCoordinates[1][0] && coordY == forbiddenCoordinates[0][1]) || forbiddenCoordinates[1][1] > forbiddenCoordinates[0][1] && !(coordX == forbiddenCoordinates[0][0] && coordY == forbiddenCoordinates[1][1]))
+                            {
+                                T("Two forbidden fields across dislocated.");
+                                draggedElement = 0;
+                                return;
+                            }
+                        }
+                    }
+                    else if (draggedElement != 2)
+                    {
+                        foreach (int[] coord in forbiddenCoordinates)
+                        {
+                            if (coordX == coord[0] && coordY == coord[1])
+                            {
+                                T("Only empty or undetermined should be marked forbidden.");
+                                draggedElement = 0;
+                                return;
+                            }
+                        }
+                    }
+
+                    if (draggedElement != 2 && (countAreaPairStartCoordinates != null && coordX == countAreaPairStartCoordinates[0] && coordY == countAreaPairStartCoordinates[1] || countAreaPairEndCoordinates != null && coordX == countAreaPairEndCoordinates[0] && coordY == countAreaPairEndCoordinates[1]))
+                    {
+                        T("Only empty field can be count area pair start or end.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    if (draggedElement != 2 && (countAreaImpairStartCoordinates != null && coordX == countAreaImpairStartCoordinates[0] && coordY == countAreaImpairStartCoordinates[1] || countAreaImpairEndCoordinates != null && coordX == countAreaImpairEndCoordinates[0] && coordY == countAreaImpairEndCoordinates[1]))
+                    {
+                        T("Only empty field can be count area impair start or end.");
+                        draggedElement = 0;
+                        return;
+                    }
+
+                    foreach (int[] coord in takenCoordinates)
+                    {
+                        if (draggedElement == 1 && coord[2] == 1)
+                        {
+                            T("Existing live end");
+                            draggedElement = 0;
+                            return;
+                        }
+                        else if (draggedElement == 5 && coord[2] == 5)
+                        {
+                            T("Existing future start");
+                            M("Only one future start field can be added.");
+                            draggedElement = 0;
+                            return;
+                        }
+                        else if (draggedElement == 6 && coord[2] == 6)
+                        {
+                            T("Existing future end");
+                            M("Only one future end field can be added.");
+                            draggedElement = 0;
+                            return;
+                        }
+
+                        if (draggedElement == 1 && coord[0] == coordX && coord[1] == coordY + 1)
+                        {
+                            T("Live end bottom taken.");
+                            draggedElement = 0;
+                            return;
+                        }
+                        else if (coord[0] == coordX && coord[1] == coordY)
+                        {
+                            T("Field taken.");
+                            draggedElement = 0;
+                            return;
+                        }
+                    }
+
+                    takenCoordinates.Add(new int[] { coordX, coordY, draggedElement });
+                }
+
+                string addField = "";
+
+                switch (draggedElement)
+                {
+                    case 1:
+                        addField = liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 1", "M " + (coordX - 0.5f) + " " + coordY) + 
+                            liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + coordY).Replace("M 0.5 1 v -0.5", "M " + (coordX - 0.5f) + " " + coordY + " v 0.5");
+                        takenCoordinates.Add(new int[] { coordX, coordY + 1, 0 });
+                        break;
+                    case 2:
+                        addField = emptyField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
+                        break;
+                    case 3:
+                        addField = takenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 0.7f) + " " + (coordY - 0.5f)).Replace("M 0.5 0.3", "M " + (coordX - 0.5f) + " " + (coordY - 0.7f));
+                        break;
+                    case 4:
+                        addField = takenOrBorderField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
+                        break;
+                    case 5:
+                        addField = futureStartField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.2", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.2f));
+                        break;
+                    case 6:
+                        addField = futureEndField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.5", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.5f));
+                        break;
+                    case 7:
+                        addField = notCornerField.Replace("M 0.3 0.2", "M " + (coordX - 0.7f) + " " + (coordY - 0.8f)).Replace("0.42", (coordX - 0.58f).ToString()).Replace("0.58", (coordY - 0.42f).ToString());
+                        break;
+                    case 8:
+                        addField = forbiddenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.2", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.2f)).Replace("M 0.2 0.8", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.8f));
+                        break;
+                    case 9:
+                        addField = countAreaPairStartField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.3", "M " + (coordX - 1 + 0.3f) + " " + (coordY - 1 + 0.3f));
+                        break;
+                    case 10:
+                        addField = countAreaPairEndField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 1 + 0.3f) + " " + (coordY - 1 + 0.5f));
+                        break;
+                    case 11:
+                        addField = countAreaPairBorderField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
+                        break;
+                    case 12:
+                        addField = countAreaImpairStartField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.3", "M " + (coordX - 1 + 0.3f) + " " + (coordY - 1 + 0.3f));
+                        break;
+                    case 13:
+                        addField = countAreaImpairEndField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 1 + 0.3f) + " " + (coordY - 1 + 0.5f));
+                        break;
+                    case 14:
+                        addField = countAreaImpairBorderField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
+                        break;
+                }
+
+                if (draggedElement == 7 || draggedElement == 8)
+                {
+                    newRule = newRule.Replace("<!--3-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--3-->");
+                }
+                else if (draggedElement >= 9)
+                {
+                    newRule = newRule.Replace("<!--2-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--2-->");
+                }
+                else
+                {
+                    newRule = newRule.Replace("<!--1-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--1-->");
+                }
+
+                File.WriteAllText(svgName, newRule);
+
+                Canvas.InvalidateVisual();
+            }
+
+            draggedElement = 0;
+        }
+
+        private void SaveRule_Click(object sender, RoutedEventArgs e)
+        {
+            size = int.Parse(AppliedSize.Text);
+
+            if (countAreaPairStartCoordinates != null && countAreaPairEndCoordinates == null)
+            {
+                M("Count area pair end field has to be added.");
+                return;
+            }
+            else if (countAreaPairEndCoordinates != null && countAreaPairStartCoordinates == null)
+            {
+                M("Count area pair start field has to be added.");
+                return;
+            }
+            if (countAreaImpairStartCoordinates != null && countAreaImpairEndCoordinates == null)
+            {
+                M("Count area impair end field has to be added.");
+                return;
+            }
+            else if (countAreaImpairEndCoordinates != null && countAreaImpairStartCoordinates == null)
+            {
+                M("Count area impair start field has to be added.");
+                return;
+            }
+
+            // there has to be a taken or border field next to or across the count area end field 
+            if (countAreaPairStartCoordinates != null && countAreaPairEndCoordinates != null || countAreaImpairStartCoordinates != null && countAreaImpairEndCoordinates != null)
+            {
+                int distX, distY;
+
+                int[] countAreaStartCoordinates = (countAreaImpairStartCoordinates == null) ? countAreaPairStartCoordinates : countAreaImpairStartCoordinates;
+                int[] countAreaEndCoordinates = (countAreaImpairStartCoordinates == null) ? countAreaPairEndCoordinates : countAreaImpairEndCoordinates;
+                List<int[]> countAreaBorderCoordinates = (countAreaImpairStartCoordinates == null) ? countAreaPairBorderCoordinates : countAreaImpairBorderCoordinates;
+
+                bool found = false;
+                if (countAreaBorderCoordinates.Count > 0)
+                {
+                    foreach (int[] field in countAreaBorderCoordinates)
+                    {
+                        distX = field[0] - countAreaEndCoordinates[0];
+                        distY = field[1] - countAreaEndCoordinates[1];
+
+                        if (Math.Abs(distX) + Math.Abs(distY) == 1)
+                        {
+                            if (CheckTakenOrBorderNearEnd(countAreaEndCoordinates[0], countAreaEndCoordinates[1], distX, distY))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (Math.Abs(countAreaStartCoordinates[0] - countAreaEndCoordinates[0]) == 2 && countAreaStartCoordinates[1]== countAreaEndCoordinates[1] || Math.Abs(countAreaStartCoordinates[1] - countAreaEndCoordinates[1]) == 2 && countAreaStartCoordinates[0] == countAreaEndCoordinates[0])
+                {
+                    distX = (countAreaStartCoordinates[0] - countAreaEndCoordinates[0]) / 2;
+                    distY = (countAreaStartCoordinates[1] - countAreaEndCoordinates[1]) / 2;
+
+                    if (CheckTakenOrBorderNearEnd(countAreaEndCoordinates[0], countAreaEndCoordinates[1], distX, distY))
+                    {
+                        found = true;
+                    }
+                }
+                else if (Math.Abs(countAreaStartCoordinates[0] - countAreaEndCoordinates[0]) == 1 && countAreaStartCoordinates[1] == countAreaEndCoordinates[1] || Math.Abs(countAreaStartCoordinates[1] - countAreaEndCoordinates[1]) == 1 && countAreaStartCoordinates[0] == countAreaEndCoordinates[0])
+                {
+                    distX = countAreaStartCoordinates[0] - countAreaEndCoordinates[0];
+                    distY = countAreaStartCoordinates[1] - countAreaEndCoordinates[1];
+
+                    if (CheckTakenOrBorderNearEnd(countAreaEndCoordinates[0], countAreaEndCoordinates[1], distX, distY))
+                    {
+                        found = true;
+                    }
+                }
+                else
+                {
+                    M("There has to be count area border fields between the start end end fields.");
+                    return;
+                }
+
+                if (!found)
+                {
+                    M("There has to be a taken or border field next to the count area end.");
+                    return;
+                }
+            }
+
+            if (xSize > size || ySize > size)
+            {
+                M("The rule is larger than the applied size.");
+                return;
+            }
+            if (takenCoordinates.Count == 0)
+            {
+                M("Empty rule not saved.");
+                return;
+            }
+            if (RuleName.Text.Trim() == "")
+            {
+                M("Enter filename.");
+                return;
+            }
+            if (size % 2 == 0 || size < 5 || size > 21)
+            {
+                M("Applied size must be impair and between 5 and 21.");
+                return;
+            }
+            if (newRule.IndexOf("1 -->") == -1)
+            {
+                M("No live end added.");
+                return;
+            }
+            if (newRule.IndexOf("8 -->") == -1)
+            {
+                M("No forbidden fields added.");
+                return;
+            }
+            if (newRule.IndexOf("2 -->") == -1 && newRule.IndexOf("3 -->") == -1 && newRule.IndexOf("4 -->") == -1 && newRule.IndexOf("5 -->") == -1 && newRule.IndexOf("6 -->") == -1)
+            {
+                M("No conditions are added.");
+                return;
+            }
+            if (!Directory.Exists("rules/" + size))
+            {
+                Directory.CreateDirectory("rules/" + size);
+            }
+
+            string fileName = RuleName.Text + ".svg";
+            if (RuleName.Text.Length > 4)
+            {
+                fileName = RuleName.Text.Substring(RuleName.Text.Length - 4) == ".svg" ? RuleName.Text : RuleName.Text + ".svg";
+            }
+
+            string fullName = "rules/" + size + "/" + fileName;
+            if (File.Exists(fullName))
+            {
+                int i = 1;
+                while (File.Exists(fullName.Replace(".svg", "_" + i + ".svg")))
+                {
+                    i++;
+                }
+                fullName = fullName.Replace(".svg", "_" + i + ".svg");
+            }
+
+            T("Save: " + fullName);
+            File.Copy("newRule.svg", fullName);
+            ResetRule_Click(null, null);
+            LoadDir();
+        }
+
+        private bool CheckTakenOrBorderNearEnd(int countAreaEndX, int countAreaEndY, int distX, int distY)
+        {
+            int middleWallX, middleWallY, leftAcrossWallX, leftAcrossWallY, rightAcrossWallX, rightAcrossWallY;
+
+            middleWallX = countAreaEndX - distX;
+            middleWallY = countAreaEndY - distY;
+
+            int dir = FindDirection(distX, distY);
+            int leftDir = (dir == 0) ? 3 : dir - 1;
+            int rightDir = (dir == 3) ? 0 : dir + 1;
+
+            leftAcrossWallX = middleWallX + directions[leftDir][0];
+            leftAcrossWallY = middleWallY + directions[leftDir][1];
+            rightAcrossWallX = middleWallX + directions[rightDir][0];
+            rightAcrossWallY = middleWallY + directions[rightDir][1];
+
+            foreach (int[] takenField in takenCoordinates)
+            {
+                if (takenField[2] == 3 || takenField[2] == 4 &&
+                (takenField[0] == middleWallX && takenField[1] == middleWallY || takenField[0] == leftAcrossWallX && takenField[1] == leftAcrossWallY || takenField[0] == rightAcrossWallX && takenField[1] == rightAcrossWallY))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        // ----- Generate code -----
+
 
         private void LoadDir()
         {
@@ -132,9 +1095,12 @@ public Rules()
                     List<int[]> takenFields = new();
                     List<int[]> forbiddenFields = new();
                     int[]? noCornerField = null;
-                    int[]? countAreaStartField = null;
-                    int[]? countAreaEndField = null;
-                    List<int[]> countAreaBorderFields = new();
+                    int[]? countAreaPairStartField = null;
+                    int[]? countAreaPairEndField = null;
+                    List<int[]> countAreaPairBorderFields = new();
+                    int[]? countAreaImpairStartField = null;
+                    int[]? countAreaImpairEndField = null;
+                    List<int[]> countAreaImpairBorderFields = new();
 
                     while (true)
                     {
@@ -143,34 +1109,49 @@ public Rules()
                         lastPos = content.IndexOf(" -->", pos);
                         string codeLine = content.Substring(pos + 5, lastPos - pos - 5);
                         string[] arr = codeLine.Split(" ");
+                        int fieldX = int.Parse(arr[0]);
+                        int fieldY = int.Parse(arr[1]);
+                        int fieldCode = int.Parse(arr[2]);
                         if (pos < section1Pos)
                         {
-                            takenFields.Add(new int[] { int.Parse(arr[0]), int.Parse(arr[1]), int.Parse(arr[2]) });
+                            takenFields.Add(new int[] { fieldX, fieldY, fieldCode });
                         }
                         else if (pos < section2Pos)
                         {
-                            if (int.Parse(arr[2]) == 9)
+                            if (fieldCode == 9)
                             {
-                                countAreaStartField = new int[] { int.Parse(arr[0]), int.Parse(arr[1]) };
+                                countAreaPairStartField = new int[] { fieldX, fieldY };
                             }
-                            else if (int.Parse(arr[2]) == 10)
+                            else if (fieldCode == 10)
                             {
-                                countAreaEndField = new int[] { int.Parse(arr[0]), int.Parse(arr[1]) };
+                                countAreaPairEndField = new int[] { fieldX, fieldY };
                             }
-                            else
+                            else if (fieldCode == 11)
                             {
-                                countAreaBorderFields.Add(new int[] { int.Parse(arr[0]), int.Parse(arr[1]) });
+                                countAreaPairBorderFields.Add(new int[] { fieldX, fieldY });
+                            }
+                            if (fieldCode == 12)
+                            {
+                                countAreaImpairStartField = new int[] { fieldX, fieldY };
+                            }
+                            else if (fieldCode == 13)
+                            {
+                                countAreaImpairEndField = new int[] { fieldX, fieldY };
+                            }
+                            else if (fieldCode == 14)
+                            {
+                                countAreaImpairBorderFields.Add(new int[] { fieldX, fieldY });
                             }
                         }
                         else
                         {
-                            if (int.Parse(arr[2]) == 8)
+                            if (fieldCode == 8)
                             {
-                                forbiddenFields.Add(new int[] { int.Parse(arr[0]), int.Parse(arr[1]) });
+                                forbiddenFields.Add(new int[] { fieldX, fieldY });
                             }
                             else
                             {
-                                noCornerField = new int[] { int.Parse(arr[0]), int.Parse(arr[1]) };
+                                noCornerField = new int[] { fieldX, fieldY };
                             }
                         }
                         pos = lastPos;
@@ -198,7 +1179,7 @@ public Rules()
                         {
                             t.Text += " | Rotate counter-clockwise";
                         }
-                        if (countAreaStartField != null && countAreaEndField != null)
+                        if (countAreaPairStartField != null && countAreaPairEndField != null || countAreaImpairStartField != null && countAreaImpairEndField != null)
                         {
                             if (metaArr[2] == "True")
                             {
@@ -229,7 +1210,7 @@ public Rules()
                     yPos += int.Parse(sizes[1]) * 40 + 10;
 
                     
-                    codeString += GenerateCode(variableName, metaArr, takenFields, forbiddenFields, noCornerField, countAreaStartField, countAreaEndField, countAreaBorderFields);
+                    codeString += GenerateCode(variableName, metaArr, takenFields, forbiddenFields, noCornerField, countAreaPairStartField, countAreaPairEndField, countAreaPairBorderFields, countAreaImpairStartField, countAreaImpairEndField, countAreaImpairBorderFields);
                 }
                 codeString = codeString.Substring(0, codeString.Length - 1);
                 codeString += "\t\t\t}\n\n";
@@ -246,9 +1227,15 @@ public Rules()
             File.WriteAllText("PathRules.cs", codeString);
         }
 
-        private string GenerateCode(string variableName, string[] meta, List<int[]> takenFields, List<int[]> forbiddenFields, int[]? noCornerField, int[]? countAreaStartField, int[]? countAreaEndField, List<int[]> countAreaBorderFields)
+        private string GenerateCode(string variableName, string[] meta, List<int[]> takenFields, List<int[]> forbiddenFields, int[]? noCornerField, int[]? countAreaPairStartField, int[]? countAreaPairEndField, List<int[]> countAreaPairBorderFields, int[]? countAreaImpairStartField, int[]? countAreaImpairEndField, List<int[]> countAreaImpairBorderFields)
         {
             if (variableName == "CShape") return "\t\t\t\t// Embedded in Path.cs as the absolute checking functions need it.\n\n";
+
+            //currently, one count area field is allowed
+            int[]? countAreaStartField = (countAreaImpairStartField == null) ? countAreaPairStartField : countAreaImpairStartField;
+            int[]? countAreaEndField = (countAreaImpairEndField == null) ? countAreaPairEndField : countAreaImpairEndField;
+            List<int[]> countAreaBorderFields = (countAreaImpairBorderFields.Count == 0) ? countAreaPairBorderFields : countAreaImpairBorderFields;
+            bool areaPair = (countAreaImpairStartField == null) ? true : false;
 
             int startX = 0;
             int startY = 0;
@@ -434,7 +1421,7 @@ public Rules()
                     forbiddenStr = "\t\t\t" + forbiddenStr.Replace("\n", "\n\t\t\t") + "\n";
 
                     countAreaRule = "\t\tcircleDirectionLeft = (i == 0) ? " + circleDirectionLeft.ToString().ToLower() + " : " + (!circleDirectionLeft).ToString().ToLower() + ";\n" +
-                    "\t\tif (CountAreaRel(" + startRelX + ", " + startRelY + ", " + endRelX + ", " + endRelY + "))\n" +
+                    "\t\tif (" + (areaPair ? "" : "!") + "CountAreaRel(" + startRelX + ", " + startRelY + ", " + endRelX + ", " + endRelY + "))\n" +
                     "\t\t{\n" +
                     "\t\t\t" + variableName + " = true;\n" +
                     forbiddenStr +
@@ -446,7 +1433,7 @@ public Rules()
 
                     countAreaRule = "\t\tcircleDirectionLeft = (i == 0) ? " + circleDirectionLeft.ToString().ToLower() + " : " + (!circleDirectionLeft).ToString().ToLower() + ";\n" +
                     "\t\t" + countAreaBorderFieldsStr +
-                    "\t\tif (CountAreaRel(" + startRelX + ", " + startRelY + ", " + endRelX + ", " + endRelY + ", 0, 0, countAreaBorderFields))\n" +
+                    "\t\tif (" + (areaPair ? "" : "!") + "CountAreaRel(" + startRelX + ", " + startRelY + ", " + endRelX + ", " + endRelY + ", 0, 0, countAreaBorderFields))\n" +
                     "\t\t{\n" +
                     "\t\t\t" + variableName + " = true;\n" +
                     forbiddenStr +
@@ -578,337 +1565,10 @@ public Rules()
             return codeStr;
         }
 
-        private void CreateNew_Click(object sender, RoutedEventArgs e)
-        {
-            xSize = 1;
-            ySize = 1;
-            DrawGrid();
 
-            string singleGrid = "<svg xmlns =\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1 1\">\r\n\t<!---->\r\n" + grid + "</svg>";
-            if (!File.Exists("singleGrid.svg")) File.WriteAllText("singleGrid.svg", singleGrid);
+        // ----- Metadata settings -----
 
-            string color = "#ff0000";
-            string opacity = "0.15";
-            liveEnd = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
-                "\t<path d=\"M 0.5 1 v -0.5\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
-            string content = singleGrid.Replace("<!---->", liveEnd);
-            if (!File.Exists("liveEnd.svg")) File.WriteAllText("liveEnd.svg", content);
-
-            emptyField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"#dddddd\" fill-opacity=\"1\" />";
-            content = singleGrid.Replace("<!---->", emptyField);
-            if (!File.Exists("emptyField.svg")) File.WriteAllText("emptyField.svg", content);
-
-            color = "#ff0000";
-            opacity = "0.15";
-            takenField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
-            content = singleGrid.Replace("<!---->", takenField);
-            if (!File.Exists("takenField.svg")) File.WriteAllText("takenField.svg", content);
-
-            color = "#000000";
-            opacity = "0.5";
-            takenOrBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />";
-            content = singleGrid.Replace("<!---->", takenOrBorderField);
-            if (!File.Exists("takenOrBorderField.svg")) File.WriteAllText("takenOrBorderField.svg", content);
-
-            color = "#0000ff";
-            opacity = "0.15";
-            futureStartField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
-                "\t<path d=\"M 0.2 0.2 v 0.6 v -0.3 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
-            content = singleGrid.Replace("<!---->", futureStartField);
-            if (!File.Exists("futureStartField.svg")) File.WriteAllText("futureStartField.svg", content);
-
-            color = "#0000ff";
-            opacity = "0.15";
-
-            futureEndField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
-                "\t<path d=\"M 0.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2 l 0.2 -0.2 v 0.3 v -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
-            content = singleGrid.Replace("<!---->", futureEndField);
-            if (!File.Exists("futureEndField.svg")) File.WriteAllText("futureEndField.svg", content);
-
-            notCornerField = "<path d=\"M 0.3 0.2 v 0.5 h 0.5 h -0.2 a 0.3 0.3 0 0 0 -0.3 -0.3\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" /><circle cx=\"0.42\" cy=\"0.58\" r=\"0.05\" fill=\"red\" fill-opacity=\"1\" />";
-            content = singleGrid.Replace("<!---->", notCornerField);
-            if (!File.Exists("notCornerField.svg")) File.WriteAllText("notCornerField.svg", content);
-
-            forbiddenField = "<path d=\"M 0.2 0.2 l 0.6 0.6 M 0.2 0.8 l 0.6 -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
-            content = singleGrid.Replace("<!---->", forbiddenField);
-            if (!File.Exists("forbiddenField.svg")) File.WriteAllText("forbiddenField.svg", content);
-
-            countAreaStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
-            content = singleGrid.Replace("<!---->", countAreaStartField);
-            if (!File.Exists("countAreaStartField.svg")) File.WriteAllText("countAreaStartField.svg", content);
-
-            countAreaEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
-            content = singleGrid.Replace("<!---->", countAreaEndField);
-            if (!File.Exists("countAreaEndField.svg")) File.WriteAllText("countAreaEndField.svg", content);
-
-            countAreaBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />";
-            content = singleGrid.Replace("<!---->", countAreaBorderField);
-            if (!File.Exists("countAreaBorderField.svg")) File.WriteAllText("countAreaBorderField.svg", content);
-
-            svgName = "newRule.svg";            
-            
-            xSize = int.Parse(XSize.Text);
-            ySize = int.Parse(YSize.Text);
-
-            Canvas.Width = xSize * 40;
-            Canvas.Height = ySize * 40;
-
-            ResetRule_Click(null, null);
-
-            NewRuleGrid.Visibility = Visibility.Visible;
-            SaveRule.Visibility = Visibility.Visible;
-            ResetRule.Visibility = Visibility.Visible;
-            Cancel.Visibility = Visibility.Visible;
-
-            Canvas1.InvalidateVisual();
-            Canvas2.InvalidateVisual();
-            Canvas3.InvalidateVisual();
-            Canvas4.InvalidateVisual();
-            Canvas5.InvalidateVisual();
-            Canvas6.InvalidateVisual();
-            Canvas7.InvalidateVisual();
-            Canvas8.InvalidateVisual();
-            Canvas9.InvalidateVisual();
-            Canvas10.InvalidateVisual();
-            Canvas11.InvalidateVisual();
-        }
-
-        private void SaveRule_Click(object sender, RoutedEventArgs e)
-        {
-            size = int.Parse(AppliedSize.Text);
-
-            if (countAreaStartCoordinates != null && countAreaEndCoordinates == null)
-            {
-                M("Count area end field has to be added.");
-                return;
-            }
-            else if (countAreaEndCoordinates != null && countAreaStartCoordinates == null)
-            {
-                M("Count area start field has to be added.");
-                return;
-            }
-            /*else if (countAreaStartCoordinates != null && countAreaEndCoordinates != null)
-            {
-                int takenOrBorderX, takenOrBorderY;
-                if (Math.Abs(countAreaStartCoordinates[0] - countAreaEndCoordinates[0]) == 2)
-                {
-                    takenOrBorderX = countAreaEndCoordinates[0] - (countAreaStartCoordinates[0] - countAreaEndCoordinates[0]) / 2;
-                }
-                else
-                {
-                    takenOrBorderX = countAreaEndCoordinates[0] - (countAreaStartCoordinates[0] - countAreaEndCoordinates[0]);
-                }
-
-                if (Math.Abs(countAreaStartCoordinates[1] - countAreaEndCoordinates[1]) == 2)
-                {
-                    takenOrBorderY = countAreaEndCoordinates[1] - (countAreaStartCoordinates[1] - countAreaEndCoordinates[1]) / 2;
-                }
-                else
-                {
-                    takenOrBorderY = countAreaEndCoordinates[1] - (countAreaStartCoordinates[1] - countAreaEndCoordinates[1]);
-                }
-
-                if (newRule.IndexOf("<!-- " + takenOrBorderX + " " + takenOrBorderY + " 3 -->") == -1 && newRule.IndexOf("<!-- " + takenOrBorderX + " " + takenOrBorderY + " 4 -->") == -1)
-                {
-                    M("There has to be a taken or border field next to the count area end.");
-                    return;
-                }
-            }*/
-            if (xSize > size || ySize > size)
-            {
-                M("The rule is larger than the applied size.");
-                return;
-            }
-            if (takenCoordinates.Count == 0)
-            {
-                M("Empty rule not saved.");
-                return;
-            }
-            if (RuleName.Text.Trim() == "")
-            {
-                M("Enter filename.");
-                return;
-            }            
-            if (size%2 == 0 || size < 5 || size > 21)
-            {
-                M("Applied size must be impair and between 5 and 21.");
-                return;
-            }
-            if (newRule.IndexOf("1 -->") == -1)
-            {
-                M("No live end added.");
-                return;
-            }
-            if (newRule.IndexOf("8 -->") == -1)
-            {
-                M("No forbidden fields added.");
-                return;
-            }
-            if (newRule.IndexOf("2 -->") == -1 && newRule.IndexOf("3 -->") == -1 && newRule.IndexOf("4 -->") == -1 && newRule.IndexOf("5 -->") == -1 && newRule.IndexOf("6 -->") == -1)
-            {
-                M("No conditions are added.");
-                return;
-            }
-            if (!Directory.Exists("rules/" + size))
-            {
-                Directory.CreateDirectory("rules/" + size);
-            }
-
-            string fileName = RuleName.Text + ".svg";
-            if (RuleName.Text.Length > 4)
-            {
-                fileName = RuleName.Text.Substring(RuleName.Text.Length - 4) == ".svg" ? RuleName.Text : RuleName.Text + ".svg";
-            }
-
-            string fullName = "rules/" + size + "/" + fileName;
-            if (File.Exists(fullName))
-            {
-                int i = 1;
-                while (File.Exists(fullName.Replace(".svg", "_" + i + ".svg")))
-                {
-                    i++;
-                }
-                fullName = fullName.Replace(".svg", "_" + i + ".svg");
-            }
-
-            T("Save: " + fullName);
-            File.Copy("newRule.svg", fullName);
-            ResetRule_Click(null, null);
-            LoadDir();
-        }
-
-        private void ResetRule_Click(object sender, RoutedEventArgs e)
-        {
-            xSize = int.Parse(XSize.Text);
-            ySize = int.Parse(YSize.Text);
-
-            Canvas.Width = xSize * 40;
-            Canvas.Height = ySize * 40;
-
-            DrawGrid();
-
-            newRule = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + xSize + " " + ySize + "\">\r\n\t<!--1-->\r\n\t<!--2-->\r\n\t<!--3-->\r\n" + grid + "</svg>";
-            File.WriteAllText(svgName, newRule);
-            takenCoordinates = new();
-            forbiddenCoordinates = new();
-            noCornerCoordinates = null;
-            countAreaStartCoordinates = null;
-            countAreaEndCoordinates = null;
-            countAreaBorderCoordinates = new();
-
-            NewRuleGrid.Height = 198 + ySize * 40; // the dragged element will otherwise stretch it on the bottom, no other solution have been found.
-            RotateClockwise.IsChecked = false;
-            RotateCounterClockwise.IsChecked = false;
-            CircleDirectionLeft.IsChecked = false;
-            Canvas.InvalidateVisual();
-        }
-
-        private void ResizeGrid()
-        {
-            DrawGrid();
-
-            int pos = newRule.IndexOf("viewBox=\"0 0 ");
-            int lastPos = newRule.IndexOf("\"", pos + 13);
-            string sizeStr = newRule.Substring(pos + 13, lastPos - pos - 13);
-            newRule = newRule.Replace("viewBox=\"0 0 " + sizeStr, "viewBox=\"0 0 " + xSize + " " + ySize);
-
-            pos = newRule.IndexOf("<!--3-->");
-            newRule = newRule.Substring(0, pos + 8) + "\r\n" + grid + "</svg>";
-
-            // remove fields that are now outside the area
-
-            pos = 0;
-            do
-            {
-                pos = newRule.IndexOf("<!-- ", pos);
-                if (pos == -1) break;
-                lastPos = newRule.IndexOf(" -->", pos);
-                string areaCode = newRule.Substring(pos + 5, lastPos - pos - 5);
-
-                string[] codes = areaCode.Split(" ");
-                bool deleted = false;
-                if (int.Parse(codes[0]) > xSize || int.Parse(codes[1]) > ySize)
-                {
-                    int nextPos = newRule.IndexOf("<!--", lastPos);
-                    newRule = newRule.Substring(0, pos) + newRule.Substring(nextPos);
-                    deleted = true;
-                }
-                if (!deleted) pos++;
-                
-            } while (true);
-
-            File.WriteAllText(svgName, newRule);
-
-            NewRuleGrid.Height = 198 + ySize * 40;
-            Canvas.InvalidateVisual();
-        }
-
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            NewRuleGrid.Visibility = Visibility.Collapsed;
-            SaveRule.Visibility = Visibility.Collapsed;
-            ResetRule.Visibility = Visibility.Collapsed;
-            Cancel.Visibility = Visibility.Collapsed;
-        }
-
-        private void DrawGrid()
-        {
-            grid = "";
-
-            for (int i = 0; i <= xSize; i++)
-            {
-                float i2 = i;
-                if (i == 0)
-                {
-                    i2 = i + 0.01f;
-                }
-                else if (i == xSize)
-                {
-                    i2 = i - 0.01f;
-                }
-
-                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M " + i2 + " 0 v " + ySize + "\" />\r\n";                
-            }
-            for (int i = 0; i <= ySize; i++)
-            {
-                float i2 = i;
-                if (i == 0)
-                {
-                    i2 = i + 0.01f;
-                }
-                else if (i == ySize)
-                {
-                    i2 = i - 0.01f;
-                }
-
-                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M 0 " + i2 + " h " + xSize + "\" />\r\n";
-            }            
-        }
-
-        private void SKElement_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
-        {
-            string fileName = (string)((SKElement)sender).Tag + ".svg";
-            if (!File.Exists(fileName)) return;
-            var canvas = e.Surface.Canvas;
-            canvas.Clear(SKColors.White);
-
-            var svg = new SkiaSharp.Extended.Svg.SKSvg();
-            T("SKElement_PaintSurface Filename: " + fileName);
-            var picture = svg.Load(fileName);
-
-            var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
-            e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
-            e.Surface.Canvas.DrawPicture(picture);
-        }
-
-        private void SaveMeta()
-        {
-            if (newRule == null) return;
-            int pos = newRule.IndexOf("<svg");
-            newRule = "<!--|" + RotateClockwise.IsChecked + "|" + RotateCounterClockwise.IsChecked + "|" + CircleDirectionLeft.IsChecked + "|-->\r\n" + newRule.Substring(pos);
-            File.WriteAllText(svgName, newRule);
-        }
-
+        
         private void RotateClockwise_Click(object sender, RoutedEventArgs e)
         {
             if (RotateClockwise.IsChecked == null || (bool)RotateClockwise.IsChecked)
@@ -932,423 +1592,17 @@ public Rules()
             SaveMeta();
         }
 
-        private void XYSize_KeyDown(object sender, KeyEventArgs e)
+        private void SaveMeta()
         {
-            if (e.Key == Key.Enter)
-            {
-                xSize = int.Parse(XSize.Text);
-                ySize = int.Parse(YSize.Text);
-
-                Canvas.Width = xSize * 40;
-                Canvas.Height = ySize * 40;
-
-                ResizeGrid();
-            }
+            if (newRule == null) return;
+            int pos = newRule.IndexOf("<svg");
+            newRule = "<!--|" + RotateClockwise.IsChecked + "|" + RotateCounterClockwise.IsChecked + "|" + CircleDirectionLeft.IsChecked + "|-->\r\n" + newRule.Substring(pos);
+            File.WriteAllText(svgName, newRule);
         }
 
-        private void RuleGrid_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            T("Start mouse coordinates: " + e.GetPosition(RuleGrid).X + " " + e.GetPosition(RuleGrid).Y);
-            T("NewRuleGrid height " + NewRuleGrid.ActualHeight);
-            double x = e.GetPosition(RuleGrid).X;
-            double y = e.GetPosition(RuleGrid).Y;
-            startMouseX = x;
-            startMouseY = y;
-            if (y <= 90)
-            {
-                if (x >= 0 && x <= 40 && y <= 40) draggedElement = 1;
-                if (x >= 50 && x <= 90 && y <= 40) draggedElement = 2;
-                if (x >= 100 && x <= 140 && y <= 40) draggedElement = 3;
-                if (x >= 150 && x <= 190 && y <= 40) draggedElement = 4;
-                if (x >= 200 && x <= 240 && y <= 40) draggedElement = 5;
-                if (x >= 250 && x <= 290 && y <= 40) draggedElement = 6;
-                if (x >= 0 && x <= 40 && y >= 50 && y <= 90) draggedElement = 7;
-                if (x >= 50 && x <= 90 && y >= 50 && y <= 90) draggedElement = 8;
-                if (x >= 100 && x <= 140 && y >= 50 && y <= 90) draggedElement = 9;
-                if (x >= 150 && x <= 190 && y >= 50 && y <= 90) draggedElement = 10;
-                if (x >= 200 && x <= 240 && y >= 50 && y <= 90) draggedElement = 11;
-            }
 
-            draggedObj = (SKElement)RuleGrid.Children[draggedElement];
-            T("draggedObj " + draggedObj);
-            origMargin = draggedObj.Margin;
-            Panel.SetZIndex(draggedObj, RuleGrid.Children.Count);
-        }
+        // ----- Log and helper functions -----
 
-        private void RuleGrid_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (draggedElement == 0) return;
-            double x = e.GetPosition(RuleGrid).X;
-            double y = e.GetPosition(RuleGrid).Y;
-            draggedObj.Margin = new Thickness(x - startMouseX + 50 * ((draggedElement - 1) % 6), y - startMouseY + 50 * ((draggedElement - 1 - (draggedElement - 1) % 6) / 6), 0, 0);
-        }
-
-        private void RuleGrid_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (draggedElement == 0) return;
-            draggedObj.Margin = origMargin;
-            Panel.SetZIndex(draggedObj, draggedElement);
-            draggedElement = 0;
-
-        }
-
-        private void RuleGrid_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (draggedElement == 0) return;
-
-            double x = e.GetPosition(Canvas).X;
-            double y = e.GetPosition(Canvas).Y;
-
-            draggedObj.Margin = origMargin;
-            Panel.SetZIndex(draggedObj, draggedElement);
-            double centerX = x - startMouseX + 20 + 50 * ((draggedElement - 1) % 6);
-            double centerY = y - startMouseY + 20 + 50 * (draggedElement - 1 - (draggedElement - 1) % 6 ) / 6;
-
-            if (centerX < 0 || centerY < 0)
-            {
-                draggedElement = 0;
-                return;
-            }
-
-            T("centerX: " + centerX + " centerY: " + centerY);
-
-            int coordX = (int)(centerX - centerX % 40) / 40 + 1;
-            int coordY = (int)(centerY - centerY % 40) / 40 + 1;
-
-            T("coordX: " + coordX + " coordY: " + coordY);
-
-            if (coordX <= xSize && coordY <= ySize)
-            {
-                T("End in table: " + coordX + " " + coordY);
-
-                if (draggedElement == 7) // no corner
-                {
-                    if (!(noCornerCoordinates is null))
-                    {
-                        T("Corner already exists.");
-                        draggedElement = 0;
-                        return;
-                    }
-
-                    if (coordX > 2 && coordX < xSize - 1 && coordY > 2)
-                    {
-                        T("Corner misplaced.");
-                        draggedElement = 0;
-                        return;
-                    }
-
-                    foreach (int[] coord in forbiddenCoordinates)
-                    {
-                        if (coord[0] == coordX && coord[1] == coordY)
-                        {
-                            T("Corner cannot be forbidden.");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    noCornerCoordinates = new int[] { coordX, coordY };
-                }
-                else if (draggedElement == 8) // forbidden
-                {
-                    if (!(noCornerCoordinates is null) && coordX == noCornerCoordinates[0] && coordY == noCornerCoordinates[1])
-                    {
-                        T("Corner cannot be forbidden.");
-                        draggedElement = 0;
-                        return;
-                    }
-
-                    if (forbiddenCoordinates.Count == 2)
-                    {
-                        T("Too many forbidden.");
-                        draggedElement = 0;
-                        return;
-                    }
-
-                    foreach (int[] coord in forbiddenCoordinates)
-                    {
-                        if (coord[0] == coordX && coord[1] == coordY)
-                        {
-                            T("Found forbidden.");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    if (forbiddenCoordinates.Count == 1 && !(Math.Abs(coordX - forbiddenCoordinates[0][0]) == 2 && coordY == forbiddenCoordinates[0][1] || Math.Abs(coordX - forbiddenCoordinates[0][0]) == 1 && Math.Abs(coordY - forbiddenCoordinates[0][1]) == 1))
-                    {
-                        T("Existing forbidden dislocated.");
-                        draggedElement = 0;
-                        return;
-                    }
-
-                    foreach (int[] coord in takenCoordinates)
-                    {
-                        if (coord[2] == 1 && !(Math.Abs(coordX - coord[0]) == 1 && coordY == coord[1] || coordY - coord[1] == -1 && coordX == coord[0]))
-                        {
-                            T("Live end dislocated.");
-                            draggedElement = 0;
-                            return;
-                        }
-                        else if (coordX == coord[0] && coordY == coord[1] && coord[2] != 2 && coord[2] != 5)
-                        {
-                            T("Only empty, undetermined or future start field should be marked forbidden.");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    forbiddenCoordinates.Add(new int[] { coordX, coordY });
-                }
-                else if (draggedElement == 9) // count area start
-                {
-                    if (!(countAreaStartCoordinates is null))
-                    {
-                        T("Count area start already exists.");
-                        draggedElement = 0;
-                        return;
-                    }
-
-                    foreach (int[] coord in takenCoordinates)
-                    {
-                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
-                        {
-                            T("Count area start can only be placed on an empty field");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    foreach (int[] coord in countAreaBorderCoordinates)
-                    {
-                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
-                        {
-                            T("Count area start cannot be place on a count area border field.");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    countAreaStartCoordinates = new int[] { coordX, coordY };
-                    SaveMeta();
-                }
-                else if (draggedElement == 10) // count area end
-                {
-                    if (!(countAreaEndCoordinates is null))
-                    {
-                        T("Count area end already exists.");
-                        draggedElement = 0;
-                        return;
-                    }
-
-                    foreach (int[] coord in takenCoordinates)
-                    {
-                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
-                        {
-                            T("Count area end can only be placed on an empty field.");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    foreach (int[] coord in countAreaBorderCoordinates)
-                    {
-                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
-                        {
-                            T("Count area end cannot be place on a count area border field.");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    countAreaEndCoordinates = new int[] { coordX, coordY };
-                    SaveMeta();
-                }
-                else if (draggedElement == 11) // count area border
-                {
-                    if (!(countAreaStartCoordinates is null))
-                    {
-                        if (countAreaStartCoordinates[0] == coordX && countAreaStartCoordinates[1] == coordY)
-                        {
-                            T("Count area border cannot be placed on count area start field.");
-                            draggedElement = 0;
-                            return;
-                        }                         
-                    }
-                    if (!(countAreaEndCoordinates is null))
-                    {
-                        if (countAreaEndCoordinates[0] == coordX && countAreaEndCoordinates[1] == coordY)
-                        {
-                            T("Count area border cannot be placed on count area end field.");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    foreach (int[] coord in takenCoordinates)
-                    {
-                        if (coord[0] == coordX && coord[1] == coordY && coord[2] != 2)
-                        {
-                            T("Count area border can only be placed on an empty field");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    countAreaBorderCoordinates.Add(new int[] { coordX, coordY });
-                }
-                else
-                {
-                    if (draggedElement == 1)
-                    {
-                        if (forbiddenCoordinates.Count == 1)
-                        {
-                            if (!(Math.Abs(coordX - forbiddenCoordinates[0][0]) == 1 && coordY == forbiddenCoordinates[0][1] || coordY - forbiddenCoordinates[0][1] == 1 && coordX == forbiddenCoordinates[0][0])) {
-                                T("Forbidden field dislocated.");
-                                draggedElement = 0;
-                                return;
-                            }
-                        }
-                        else if (forbiddenCoordinates.Count == 2)
-                        {
-                            if (forbiddenCoordinates[0][1] == forbiddenCoordinates[1][1] && !(coordX == (forbiddenCoordinates[0][0] + forbiddenCoordinates[1][0]) / 2 && coordY == forbiddenCoordinates[0][1]))
-                            {
-                                T("Two forbidden fields in a row dislocated.");
-                                draggedElement = 0;
-                                return;
-                            }
-                            else if (forbiddenCoordinates[0][1] > forbiddenCoordinates[1][1] && !(coordX == forbiddenCoordinates[1][0] && coordY == forbiddenCoordinates[0][1]) || forbiddenCoordinates[1][1] > forbiddenCoordinates[0][1] && !(coordX == forbiddenCoordinates[0][0] && coordY == forbiddenCoordinates[1][1]))
-                            {
-                                T("Two forbidden fields across dislocated.");
-                                draggedElement = 0;
-                                return;
-                            }
-                        }
-                    }
-                    else if (draggedElement != 2)
-                    {
-                        foreach (int[] coord in forbiddenCoordinates)
-                        {
-                            if (coordX == coord[0] && coordY == coord[1])
-                            {
-                                T("Only empty or undetermined should be marked forbidden.");
-                                draggedElement = 0;
-                                return;
-                            }
-                        }
-                    }
-
-                    if (draggedElement != 2 && (countAreaStartCoordinates != null && coordX == countAreaStartCoordinates[0] && coordY == countAreaStartCoordinates[1] || countAreaEndCoordinates != null && coordX == countAreaEndCoordinates[0] && coordY == countAreaEndCoordinates[1]))
-                    {
-                        T("Only empty field can be count area start or end.");
-                        draggedElement = 0;
-                        return;
-                    }
-
-                    foreach (int[] coord in takenCoordinates)
-                    {
-                        if (draggedElement == 1 && coord[2] == 1)
-                        {
-                            T("Existing live end");
-                            draggedElement = 0;
-                            return;
-                        }
-                        else if (draggedElement == 5 && coord[2] == 5)
-                        {
-                            T("Existing future start");
-                            M("Only one future start field can be added.");
-                            draggedElement = 0;
-                            return;
-                        }
-                        else if (draggedElement == 6 && coord[2] == 6)
-                        {
-                            T("Existing future end");
-                            M("Only one future end field can be added.");
-                            draggedElement = 0;
-                            return;
-                        }
-
-                        if (draggedElement == 1 && coord[0] == coordX && coord[1] == coordY + 1)
-                        {
-                            T("Live end bottom taken.");
-                            draggedElement = 0;
-                            return;
-                        }
-                        else if (coord[0] == coordX && coord[1] == coordY)
-                        {
-                            T("Field taken.");
-                            draggedElement = 0;
-                            return;
-                        }
-                    }
-
-                    takenCoordinates.Add(new int[] { coordX, coordY, draggedElement });
-                }
-
-                string addField = "";
-
-                switch (draggedElement)
-                {
-                    case 1:
-                        addField = liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 1", "M " + (coordX - 0.5f) + " " + coordY);
-                        if (coordY != ySize)
-                        {
-                            addField += liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + coordY).Replace("M 0.5 1 v -0.5", "M " + (coordX - 0.5f) + " " + coordY + " v 0.5");
-                            takenCoordinates.Add(new int[] { coordX, coordY + 1, 0 });
-                        }
-                        break;
-                    case 2:
-                        addField = emptyField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
-                        break;
-                    case 3:
-                        addField = takenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 0.7f) + " " + (coordY - 0.5f)).Replace("M 0.5 0.3", "M " + (coordX - 0.5f) + " " + (coordY - 0.7f));
-                        break;
-                    case 4:
-                        addField = takenOrBorderField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
-                        break;
-                    case 5:
-                        addField = futureStartField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.2", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.2f));
-                        break;
-                    case 6:
-                        addField = futureEndField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.5", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.5f));
-                        break;
-                    case 7:
-                        addField = notCornerField.Replace("M 0.3 0.2", "M " + (coordX - 0.7f) + " " + (coordY - 0.8f)).Replace("0.42", (coordX - 0.58f).ToString()).Replace("0.58", (coordY - 0.42f).ToString());
-                        break;
-                    case 8:
-                        addField = forbiddenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.2", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.2f)).Replace("M 0.2 0.8", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.8f));
-                        break;
-                    case 9:
-                        addField = countAreaStartField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.3", "M " + (coordX - 1 + 0.3f) + " " + (coordY - 1 + 0.3f));
-                        break;
-                    case 10:
-                        addField = countAreaEndField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 1 + 0.3f) + " " + (coordY - 1 + 0.5f));
-                        break;
-                    case 11:
-                        addField = countAreaBorderField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
-                        break;
-                }
-
-                if (draggedElement == 7 || draggedElement == 8)
-                {
-                    newRule = newRule.Replace("<!--3-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--3-->");
-                }
-                else if (draggedElement == 9 || draggedElement == 10 || draggedElement == 11)
-                {
-                    newRule = newRule.Replace("<!--2-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--2-->");
-                }
-                else
-                {
-                    newRule = newRule.Replace("<!--1-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--1-->");
-                }
-                
-                File.WriteAllText(svgName, newRule);
-
-                Canvas.InvalidateVisual();
-            }
-
-            draggedElement = 0;
-        }
 
         private void T(object o)
         {
@@ -1370,6 +1624,22 @@ public Rules()
                 }
             }
             return 0;
+        }
+
+        private void SKElement_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        {
+            string fileName = (string)((SKElement)sender).Tag + ".svg";
+            if (!File.Exists(fileName)) return;
+            var canvas = e.Surface.Canvas;
+            canvas.Clear(SKColors.White);
+
+            var svg = new SkiaSharp.Extended.Svg.SKSvg();
+            T("SKElement_PaintSurface Filename: " + fileName);
+            var picture = svg.Load(fileName);
+
+            var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
+            e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
+            e.Surface.Canvas.DrawPicture(picture);
         }
     }
 }
