@@ -268,7 +268,10 @@ We have to create 2-distance rules, which take both sides into account.
 
 <img align="top" src="References/checknearfield/2 far mid across + across.svg" width="28.6%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/2 far side mid across + across down.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/checknearfield/2 far side mid across + across up.svg" width="19%"/>
 
-It would look like this. As far as programming concerned, all that is needed is checking the existence of the two separate rules.<br />
+These are just a few of the possible combinations.<br />
+Any of the far straight rules (straight, mid across and across as I call them, depending on the horizontal distance of the obstacle) on the left side can be combined with any of those on the right side when the enclosed area is going to the same direction - left for left side and right for right side.<br />
+And the same is true when the pattern is rotated to the left or right side.<br />
+As far as porgramming concerned, it just needed a rework of the universal rules, we didn't need to make completely new ones.
 
 ---
 

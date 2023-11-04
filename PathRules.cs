@@ -186,7 +186,7 @@ namespace OneWayLabyrinth
 				// Double C-Shape
 				for (int i = 0; i < 2; i++)
 				{
-					if ((InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(0,4) || InBorderRel(0,4)) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(2,0) && !InBorderRel(2,0) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(1,-1) && !InBorderRel(1,-1) && !InTakenRel(3,-1) && !InBorderRel(3,-1))
+					if ((InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(0,4) || InBorderRel(0,4)) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(2,0) && !InBorderRel(2,0) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(1,-1) && !InBorderRel(1,-1) && !InTakenRel(3,-1) && !InBorderRel(3,-1))
 					{
 						int middleIndex = InTakenIndexRel(2,4);
 						if (middleIndex != -1)

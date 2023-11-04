@@ -2137,7 +2137,6 @@ namespace OneWayLabyrinth
                                                 {
                                                     T("Near end: merged line connects to merged");
                                                     List<int> listMerge = merge.ToList();
-                                                    origListMerge.RemoveAt(0); //removes the path index
                                                     listMerge.AddRange(origListMerge);
                                                     futureSectionMerges[k] = listMerge.ToArray();
                                                     futureSectionMerges.RemoveAt(j);
@@ -2246,7 +2245,6 @@ namespace OneWayLabyrinth
                                                 {
                                                     T("Far end: merged line connects to merged");
                                                     List<int> listMerge = merge.ToList();
-                                                    listMerge.RemoveAt(0); //removes the path index
                                                     origListMerge.AddRange(listMerge);
                                                     futureSectionMerges[j] = origListMerge.ToArray();
                                                     futureSectionMerges.RemoveAt(k);

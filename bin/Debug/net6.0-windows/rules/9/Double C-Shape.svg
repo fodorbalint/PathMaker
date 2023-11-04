@@ -16,6 +16,8 @@
 	<path d="M 3 3 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />
 	<!-- 1 2 2 -->
 	<path d="M 0 1 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />
+	<!-- 1 4 2 -->
+	<path d="M 0 3 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />
 	<!-- 2 2 2 -->
 	<path d="M 1 1 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />
 	<!-- 2 3 2 -->
