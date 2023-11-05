@@ -186,52 +186,52 @@ namespace OneWayLabyrinth
 				// Double C-Shape
 				for (int i = 0; i < 2; i++)
 				{
-					if ((InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(0,4) || InBorderRel(0,4)) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(2,0) && !InBorderRel(2,0) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(1,-1) && !InBorderRel(1,-1) && !InTakenRel(3,-1) && !InBorderRel(3,-1))
+					if ((InTakenRel(0,4) || InBorderRel(0,4)) && (InTakenRel(-1,4) || InBorderRel(-1,4)) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(-1,2) && !InBorderRel(-1,2) && !InTakenRel(-1,1) && !InBorderRel(-1,1) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-2,2) && !InBorderRel(-2,2) && !InTakenRel(-2,1) && !InBorderRel(-2,1))
 					{
-						int middleIndex = InTakenIndexRel(2,4);
+						int middleIndex = InTakenIndexRel(-1,4);
 						if (middleIndex != -1)
 						{
-							if (InTakenRel(3,4))
+							if (InTakenRel(0,4))
 							{
-								int sideIndex = InTakenIndexRel(3,4);
-								if (sideIndex > middleIndex)
+								int sideIndex = InTakenIndexRel(0,4);
+								if (sideIndex < middleIndex)
 								{
-									circleDirectionLeft = (i == 0) ? true : false;
-									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {2,2}, new int[] {2,1}, new int[] {2,0}};
-									if (CountAreaRel(1, 0, 2, 3, 0, 0, countAreaBorderFields))
+									circleDirectionLeft = (i == 0) ? false : true;
+									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-1,2}, new int[] {-1,1}};
+									if (!CountAreaRel(-1, 0, -1, 3, 0, 0, countAreaBorderFields))
 									{
 										DoubleCShape = true;
-										forbidden.Add(new int[] { x + lx, y + ly });
+										forbidden.Add(new int[] { x - lx, y - ly });
 									}
 								}
 							}
 							else
 							{
-								int sideIndex = InTakenIndexRel(1,4);
-								if (sideIndex < middleIndex)
+								int sideIndex = InTakenIndexRel(-2,4);
+								if (sideIndex > middleIndex)
 								{
-									circleDirectionLeft = (i == 0) ? true : false;
-									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {2,2}, new int[] {2,1}, new int[] {2,0}};
-									if (CountAreaRel(1, 0, 2, 3, 0, 0, countAreaBorderFields))
+									circleDirectionLeft = (i == 0) ? false : true;
+									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-1,2}, new int[] {-1,1}};
+									if (!CountAreaRel(-1, 0, -1, 3, 0, 0, countAreaBorderFields))
 									{
 										DoubleCShape = true;
-										forbidden.Add(new int[] { x + lx, y + ly });
+										forbidden.Add(new int[] { x - lx, y - ly });
 									}
 								}
 							}
 						}
 						else
 						{
-							middleIndex = InBorderIndexRel(2,4);
-							int farSideIndex = InBorderIndexRel(1,4);
+							middleIndex = InBorderIndexRel(-1,4);
+							int farSideIndex = InBorderIndexRel(0,4);
 							if (farSideIndex > middleIndex)
 							{
-								circleDirectionLeft = (i == 0) ? true : false;
-								List<int[]> countAreaBorderFields = new List<int[]> { new int[] {2,2}, new int[] {2,1}, new int[] {2,0}};
-								if (CountAreaRel(1, 0, 2, 3, 0, 0, countAreaBorderFields))
+								circleDirectionLeft = (i == 0) ? false : true;
+								List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-1,2}, new int[] {-1,1}};
+								if (!CountAreaRel(-1, 0, -1, 3, 0, 0, countAreaBorderFields))
 								{
 									DoubleCShape = true;
-									forbidden.Add(new int[] { x + lx, y + ly });
+									forbidden.Add(new int[] { x - lx, y - ly });
 								}
 							}
 						}
@@ -417,10 +417,52 @@ namespace OneWayLabyrinth
 				// Square 4 x 2
 				for (int i = 0; i < 2; i++)
 				{
-					if (InTakenRel(0,3) && InTakenRel(3,3) && InTakenRel(3,0) && InTakenRel(4,2) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(2,0) && !InBorderRel(2,0) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(3,2) && !InBorderRel(3,2) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(4,1) && !InBorderRel(4,1))
+					if (InTakenRel(0,3) && InTakenRel(-3,3) && InTakenRel(-3,0) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && !InTakenRel(-2,2) && !InBorderRel(-2,2) && !InTakenRel(-2,1) && !InBorderRel(-2,1) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2))
 					{
-						Square4x2 = true;
-						forbidden.Add(new int[] { x + sx, y + sy });
+						int middleIndex = InTakenIndexRel(-3,3);
+						if (middleIndex != -1)
+						{
+							if (InTakenRel(-2,3))
+							{
+								int sideIndex = InTakenIndexRel(-2,3);
+								if (sideIndex > middleIndex)
+								{
+									circleDirectionLeft = (i == 0) ? true : false;
+									if (CountAreaLineRel(-2, 1, -2, 2))
+									{
+										Square4x2 = true;
+										forbidden.Add(new int[] { x + sx, y + sy });
+									}
+								}
+							}
+							else
+							{
+								int sideIndex = InTakenIndexRel(-4,3);
+								if (sideIndex < middleIndex)
+								{
+									circleDirectionLeft = (i == 0) ? true : false;
+									if (CountAreaLineRel(-2, 1, -2, 2))
+									{
+										Square4x2 = true;
+										forbidden.Add(new int[] { x + sx, y + sy });
+									}
+								}
+							}
+						}
+						else
+						{
+							middleIndex = InBorderIndexRel(-3,3);
+							int farSideIndex = InBorderIndexRel(-4,3);
+							if (farSideIndex > middleIndex)
+							{
+								circleDirectionLeft = (i == 0) ? true : false;
+								if (CountAreaLineRel(-2, 1, -2, 2))
+								{
+									Square4x2 = true;
+									forbidden.Add(new int[] { x + sx, y + sy });
+								}
+							}
+						}
 					}
 					lx = -lx;
 					ly = -ly;

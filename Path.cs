@@ -1155,6 +1155,109 @@ namespace OneWayLabyrinth
             return CountArea(x1, y1, x2, y2, x3, y3, absBorderFields);
         }
 
+        public bool CountAreaLineRel(int left1, int straight1, int left2, int straight2)
+        {
+            // left3 and straight 3 is the second start field in far across checking
+            T("CountAreaLineRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
+            int x1 = x + left1 * lx + straight1 * sx;
+            int y1 = y + left1 * ly + straight1 * sy;
+            int x2 = x + left2 * lx + straight2 * sx;
+            int y2 = y + left2 * ly + straight2 * sy;
+
+            return CountAreaLine(x1, y1, x2, y2);
+        }
+
+        private bool CountAreaLine(int startX, int startY, int endX, int endY) // only draw arealine in order to determine if it is an enclosed area, see 9:478361
+        {
+            areaLine = new List<int[]> { new int[] { startX, startY } };
+            int xDiff = startX - endX;
+            int yDiff = startY - endY;
+
+            List<int[]> directions;
+
+            if (circleDirectionLeft)
+            {
+                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
+            }
+            else
+            {
+                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { -1, 0 }, new int[] { 0, -1 }, new int[] { 1, 0 } };
+            }
+
+            int currentDirection = -1;
+            foreach (int[] direction in directions)
+            {
+                currentDirection++;
+                if (direction[0] == xDiff && direction[1] == yDiff)
+                {
+                    break;
+                }
+            }
+
+            int nextX = startX;
+            int nextY = startY;
+
+            if (InTaken(nextX + xDiff, nextY + yDiff))
+            {
+                currentDirection = currentDirection == 0 ? 3 : currentDirection - 1;
+            }
+            nextX += directions[currentDirection][0];
+            nextY += directions[currentDirection][1];
+            areaLine.Add(new int[] { nextX, nextY });
+
+            while (!(nextX == endX && nextY == endY))
+            {
+                int startDirection = currentDirection;
+                currentDirection = currentDirection == 3 ? 0 : currentDirection + 1;
+                int i = currentDirection;
+                int possibleNextX = nextX + directions[currentDirection][0];
+                int possibleNextY = nextY + directions[currentDirection][1];
+
+                while (InBorder(possibleNextX, possibleNextY) || InTaken(possibleNextX, possibleNextY))
+                {
+                    i = (i == 0) ? 3 : i - 1;
+                    possibleNextX = nextX + directions[i][0];
+                    possibleNextY = nextY + directions[i][1];
+                }
+
+                if (i != startDirection && (i - startDirection) % 2 == 0) // opposite direction. Can happen in 1006
+                {
+                    T("Error at " + startX + " " + startY + " " + endX + " " + endY);
+                    window.errorInWalkthrough = true;
+                    T("Single field in arealine.");
+                    window.M("Single field in arealine.", 1);
+                    return false;
+                }
+
+                currentDirection = i;
+
+                nextX = possibleNextX;
+                nextY = possibleNextY;
+
+                foreach (int[] field in areaLine)
+                {
+                    if (field[0] == nextX && field[1] == nextY)
+                    {
+                        T("Error at " + startX + " " + startY + " " + endX + " " + endY);
+                        window.errorInWalkthrough = true;
+                        T("Field exists in arealine.");
+                        window.M("Field exists in arealine.", 1);
+                        return false;
+                    }
+                }
+
+                if (nextX == size && nextY == size)
+                {
+                    areaLine = new();
+                    return false;
+                }
+
+                areaLine.Add(new int[] { nextX, nextY });
+            }
+
+            return true;
+        }
+
         private bool CountArea(int startX, int startY, int endX, int endY, int start2X = 0, int start2Y = 0, List<int[]> borderFields = null)
         {
             // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
@@ -1217,17 +1320,15 @@ namespace OneWayLabyrinth
                 directions = new List<int[]> { new int[] { 0, 1 }, new int[] { -1, 0 }, new int[] { 0, -1 }, new int[] { 1, 0 } };
             }
 
-			int currentDirection = -1;
-			int i = -1;
-			foreach (int[] direction in directions)
-			{
-				i++;
-				if (direction[0] == xDiff && direction[1] == yDiff)
-				{
-					currentDirection = i;
-					break;
-				}
-			}
+            int currentDirection = -1;
+            foreach (int[] direction in directions)
+            {
+                currentDirection++;
+                if (direction[0] == xDiff && direction[1] == yDiff)
+                {
+                    break;
+                }
+            }
 
             int nextX = startX;
             int nextY = startY;
@@ -1270,7 +1371,7 @@ namespace OneWayLabyrinth
 			{
                 int startDirection = currentDirection;
 				currentDirection = currentDirection == 3 ? 0 : currentDirection + 1;
-				i = currentDirection;
+				int i = currentDirection;
                 int possibleNextX = nextX + directions[currentDirection][0];
                 int possibleNextY = nextY + directions[currentDirection][1];
                 
@@ -1287,7 +1388,6 @@ namespace OneWayLabyrinth
                     window.errorInWalkthrough = true;
                     T("Single field in arealine.");
                     window.M("Single field in arealine.", 1);
-                    //window.StopAll("Single field in arealine.");
                     return false;
                 }
                 
@@ -1304,7 +1404,6 @@ namespace OneWayLabyrinth
                         window.errorInWalkthrough = true;
                         T("Field exists in arealine.");
                         window.M("Field exists in arealine.", 1);
-                        //window.StopAll("Field exists in arealine.");
                         return false;
                     }
                 }
@@ -1351,7 +1450,7 @@ namespace OneWayLabyrinth
             int[] endCandidate = new int[] { limitX, minY };
             int currentY = minY;
 
-            for (i = 1; i < areaLine.Count; i++)
+            for (int i = 1; i < areaLine.Count; i++)
             {
                 int index = startIndex + i;
                 if (index >= areaLine.Count)
@@ -1655,7 +1754,7 @@ namespace OneWayLabyrinth
                 return false;
             }
 
-            for (i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
                 area += endSquares[i][0] - startSquares[i][0] + 1;
             }

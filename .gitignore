@@ -7,5 +7,6 @@ obj/
 
 /bin/Debug/net6.0-windows/completedPaths.txt
 /bin/Debug/net6.0-windows/newRule.svg
+/bin/Debug/net6.0-windows/PathRules.cs
 /bin/Debug/net6.0-windows/completed/*.*
 /bin/Debug/net6.0-windows/checknearfield

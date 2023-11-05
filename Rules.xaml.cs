@@ -59,10 +59,63 @@ namespace OneWayLabyrinth
         {
             InitializeComponent();
             LoadDir();
-            XSize.Text = "6";
-            YSize.Text = "5";
-            AppliedSize.Text = "9";
+            LoadSizeSetting();           
         }
+
+        private void SaveSizeSetting()
+        {
+            xSize = int.Parse(XSize.Text);
+            ySize = int.Parse(YSize.Text);
+            size = int.Parse(AppliedSize.Text);
+
+            string[] lines = new string[] { "appliedSize: " + size, "ruleXSize: " + xSize, "ruleYSize: " + ySize };
+
+            string linesStr = string.Join("\n", lines);
+
+            string fileContent = File.ReadAllText("settings.txt");
+            int pos = fileContent.IndexOf("appliedSize");
+
+            if (pos != -1)
+            {
+                File.WriteAllText("settings.txt", fileContent.Substring(0, pos) + linesStr);
+            }
+            else
+            {
+                File.WriteAllText("settings.txt", fileContent + linesStr);
+            }
+        }
+
+        private void LoadSizeSetting()
+        {
+            string[] lines = File.ReadAllLines("settings.txt");
+
+            if (lines.Length > 8)
+            {
+                string[] arr = lines[8].Split(": ");
+                size = int.Parse(arr[1]);
+                AppliedSize.Text = arr[1];
+
+                arr = lines[9].Split(": ");
+                xSize = int.Parse(arr[1]);
+                XSize.Text = arr[1];
+
+                arr = lines[10].Split(": ");
+                ySize = int.Parse(arr[1]);
+                YSize.Text = arr[1];
+            }
+            else
+            {
+                size = 9;
+                AppliedSize.Text = "9";
+
+                xSize = 5;
+                XSize.Text = "5";
+
+                ySize = 5;
+                YSize.Text = "5";
+            }
+        }
+
 
         // ----- Generate grid and field types -----
 
@@ -179,8 +232,7 @@ namespace OneWayLabyrinth
 
         private void ResetRule_Click(object sender, RoutedEventArgs e)
         {
-            xSize = int.Parse(XSize.Text);
-            ySize = int.Parse(YSize.Text);
+            SaveSizeSetting();
 
             Canvas.Width = xSize * 40;
             Canvas.Height = ySize * 40;
@@ -244,13 +296,20 @@ namespace OneWayLabyrinth
         {
             if (e.Key == Key.Enter)
             {
-                xSize = int.Parse(XSize.Text);
-                ySize = int.Parse(YSize.Text);
+                SaveSizeSetting();
 
                 Canvas.Width = xSize * 40;
                 Canvas.Height = ySize * 40;
 
                 ResizeGrid();
+            }
+        }
+
+        private void AppliedSize_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                SaveSizeSetting();
             }
         }
 
@@ -846,7 +905,7 @@ namespace OneWayLabyrinth
 
         private void SaveRule_Click(object sender, RoutedEventArgs e)
         {
-            size = int.Parse(AppliedSize.Text);
+            SaveSizeSetting();
 
             if (countAreaPairStartCoordinates != null && countAreaPairEndCoordinates == null)
             {
@@ -1411,10 +1470,24 @@ namespace OneWayLabyrinth
 
                 if (diff1)
                 {
-                    forbiddenStr = "\t\t" + forbiddenStr.Replace("\n", "\n\t\t") + "\n";
+                    if (Math.Abs(countAreaStartField[0] - startX) <= 1 && Math.Abs(countAreaStartField[1] - startY) <= 1)
+                    { // only check direction of the taken field
+                        forbiddenStr = "\t\t" + forbiddenStr.Replace("\n", "\n\t\t") + "\n";
 
-                    countAreaRule = "\t\t" + variableName + " = true;\n" +
-                    forbiddenStr;
+                        countAreaRule = "\t\t" + variableName + " = true;\n" +
+                        forbiddenStr;
+                    }
+                    else //draw arealine to determine if the circle is an enclosed area
+                    {
+                        forbiddenStr = "\t\t\t" + forbiddenStr.Replace("\n", "\n\t\t\t") + "\n";
+
+                        countAreaRule = "\t\tcircleDirectionLeft = (i == 0) ? " + circleDirectionLeft.ToString().ToLower() + " : " + (!circleDirectionLeft).ToString().ToLower() + ";\n" +
+                    "\t\tif (CountAreaLineRel(" + startRelX + ", " + startRelY + ", " + endRelX + ", " + endRelY + "))\n" +
+                    "\t\t{\n" +
+                    "\t\t\t" + variableName + " = true;\n" +
+                    forbiddenStr +
+                    "\t\t}\n";
+                    }
                 }
                 else if (diff2)
                 {

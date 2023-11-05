@@ -35,7 +35,7 @@
                     <CheckBox x:Name="RotateClockwise" Content="Rotate clockwise" Click="RotateClockwise_Click" HorizontalAlignment="Left" Margin="0,21,0,0" VerticalAlignment="Top"/>
                     <CheckBox x:Name="RotateCounterClockwise" Content="Rotate counter-clockwise" Click="RotateCounterClockwise_Click" HorizontalAlignment="Left" Margin="120,21,0,0" VerticalAlignment="Top"/>
                     <CheckBox x:Name="CircleDirectionLeft" Content="Circle direction left" Click="CircleDirectionLeft_Click" HorizontalAlignment="Left" Margin="290,21,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="AppliedSize" HorizontalAlignment="Left" Margin="84,40,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30"/>
+                    <TextBox x:Name="AppliedSize" HorizontalAlignment="Left" Margin="84,40,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="AppliedSize_KeyDown" />
                     <TextBox x:Name="XSize" HorizontalAlignment="Left" Margin="55,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
                     <TextBox x:Name="YSize" HorizontalAlignment="Left" Margin="108,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
                     <Grid x:Name="RuleGrid" Grid.Column="0" Margin="0,83,0,0" MouseDown="RuleGrid_MouseDown" MouseMove="RuleGrid_MouseMove" MouseUp="RuleGrid_MouseUp" MouseLeave="RuleGrid_MouseLeave" VerticalAlignment="Top" HorizontalAlignment="Left">

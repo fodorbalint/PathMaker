@@ -593,7 +593,7 @@ namespace OneWayLabyrinth
 
             ReadDir();
 
-			string saveName = loadFile;
+            string saveName = (errorInWalkthrough) ? completedCount + ".txt" : loadFile;
 			if (saveName == "")
 			{
 				saveName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
@@ -813,9 +813,21 @@ namespace OneWayLabyrinth
             displayArea = (bool)DisplayAreaCheck.IsChecked;
             makeStats = (bool)MakeStatsCheck.IsChecked;
 
-            string[] lines = new string[] { "size: " + size, "loadFromFile: " + loadCheck, "saveOnCompletion: " + saveCheck, "continueOnCompletion: " + continueCheck, "keepLeft: " + keepLeftCheck, "displayFutureLines: " + displayFuture, "displayArea: " + displayArea, "makeStats: " + makeStats };
+            string[] lines = new string[] { "size: " + size, "loadFromFile: " + loadCheck, "saveOnCompletion: " + saveCheck, "continueOnCompletion: " + continueCheck, "keepLeft: " + keepLeftCheck, "displayFutureLines: " + displayFuture, "displayArea: " + displayArea, "makeStats: " + makeStats  };
 
-            File.WriteAllLines("settings.txt", lines);
+            string linesStr = string.Join("\n", lines);
+
+            string fileContent = File.ReadAllText("settings.txt");
+            int pos = fileContent.IndexOf("appliedSize");
+
+            if (pos!= -1)
+            {
+                File.WriteAllText("settings.txt", linesStr + "\n" + fileContent.Substring(pos));
+            }
+            else
+            {
+                File.WriteAllLines("settings.txt", lines);
+            }
         }
 
         private int Move(int directionIndex)
@@ -3936,7 +3948,7 @@ namespace OneWayLabyrinth
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
 
-			svgName = loadFile.Replace("txt", "svg");
+            svgName = (errorInWalkthrough) ? completedCount + ".svg" : loadFile.Replace("txt", "svg");
 			if (svgName == "")
 			{
 				svgName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".svg";

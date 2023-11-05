@@ -221,7 +221,7 @@ At 55 298, we get this:
 
 Let's analyze it! A double C-shape is created, because the line occupied the A field, and out of the B, C and D fields it exited the right-side area at C. It means, the area enclosed by the marked fields is pair. In this case, we shouldn't step right and the rule will therefore look like:
 
-<img align="top" src="References/Double C-Shape mirrored.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1022_1.svg" width="42.86%"/>
+<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/1022_1.svg" width="42.86%"/>
 
 But what if from the A position, we step upwards in another situation?<br />
 Compare these two on 11 x 11:
@@ -247,7 +247,7 @@ As we run the program further, we will discover this at 227 200:
 
 Intuitively, we can draw up the square, and let's mark the exit as well. There can be loops on the upper, lower and right side, they have no importance when tracing it back to the live end. There is only one way to go through.
 
-<img align="top" src="References/rules/9/Square 4 x 2.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/227200_1.svg" width="42.86%"/>
+<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/227200_1.svg" width="42.86%"/>
 
 233 810 will look like:
 
@@ -272,6 +272,32 @@ These are just a few of the possible combinations.<br />
 Any of the far straight rules (straight, mid across and across as I call them, depending on the horizontal distance of the obstacle) on the left side can be combined with any of those on the right side when the enclosed area is going to the same direction - left for left side and right for right side.<br />
 And the same is true when the pattern is rotated to the left or right side.<br />
 As far as porgramming concerned, it just needed a rework of the universal rules, we didn't need to make completely new ones.
+
+At 349 215, we find this:
+
+<img align="top" src="References/349215.svg" width="42.86%"/>
+
+Though a double C-shape has been created in backwards direction, it indicates that the area on the right cannot be filled either.
+We have made a similar rule previously. Now we need to simplify it.
+
+<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/>
+
+The area now has to be impair for the right direction to be forbidden. Essentially, we just added the three extra fields to the pair area.
+
+478 361 is similar to what we have seen before, only now there are a 2-wide path to exit the area:
+
+<img align="top" src="References/478361.svg" width="42.86%"/>
+
+We have to mark where the area has been created in another way.
+
+<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/rules/9/Square 4 x 2.svg" width="19%"/>
+
+The taken field in the upper right corner is now checked for direction, but it is not enough. It can go upwards, and the exit of the area can still be on the bottom edge, just look at the example and imagine the live end was at A with the pattern already drawn. (On 11 x 11, it is possible to draw it.)<br />
+In order to establish an enclosed area, we must not encounter the bottom-right corner of the grid when walking along the edge of it.
+
+626 071 is:
+
+<img align="top" src="References/626071.svg" width="42.86%"/><img src="References/spacer.svg" width="4.75%"/><img align="top" src="References/626071_1.svg" width="42.86%"/>
 
 ---
 
