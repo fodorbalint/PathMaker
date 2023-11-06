@@ -68,8 +68,7 @@
 	<rect width="1" height="1" x="3" y="5" fill="#000000" fill-opacity="0.1" />
 	<rect width="1" height="1" x="2" y="6" fill="#000000" fill-opacity="0.1" />
 	<rect width="1" height="1" x="2" y="4" fill="#000000" fill-opacity="0.1" />
-	<path d="M 3 6 v -1 h 0.25 v 0.75 h 0.75 v 0.25 z" fill="#008000" fill-opacity="0.25" />
-	<rect width="0.25" height="0.25" x="3" y="4.75" fill="#008000" fill-opacity="0.25" />
+	<rect width="1" height="0.25" x="3" y="4.75" fill="#008000" fill-opacity="0.25" />
 	<rect width="1" height="0.25" x="2" y="4.75" fill="#008000" fill-opacity="0.25" />
 	<path d="M 1 5 v -1 h 0.25 v 0.75 h 0.75 v 0.25 z" fill="#008000" fill-opacity="0.25" />
 	<rect width="0.25" height="1" x="1" y="3" fill="#008000" fill-opacity="0.25" />
@@ -78,10 +77,7 @@
 	<rect width="0.25" height="0.25" x="2.75" y="3" fill="#008000" fill-opacity="0.25" />
 	<rect width="1" height="0.25" x="3" y="3" fill="#008000" fill-opacity="0.25" />
 	<path d="M 5 3 v 1 h -0.25 v -0.75 h -0.75 v -0.25 z" fill="#008000" fill-opacity="0.25" />
-	<rect width="0.25" height="0.25" x="4.75" y="4" fill="#008000" fill-opacity="0.25" />
-	<path d="M 6 4 v 1 h -0.25 v -0.75 h -0.75 v -0.25 z" fill="#008000" fill-opacity="0.25" />
-	<path d="M 6 6 h -1 v -0.25 h 0.75 v -0.75 h 0.25 z" fill="#008000" fill-opacity="0.25" />
-	<rect width="1" height="0.25" x="4" y="5.75" fill="#008000" fill-opacity="0.25" />
+	<path d="M 5 5 h -1 v -0.25 h 0.75 v -0.75 h 0.25 z" fill="#008000" fill-opacity="0.25" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 9" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 1 h 9" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 9" />

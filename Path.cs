@@ -657,6 +657,8 @@ namespace OneWayLabyrinth
             lx = thisLx;
             ly = thisLy;
 
+            List<int[]> displayAreaLine = new();
+
             for (int i = 0; i < 2; i++) // A close rule may be true on one side, and a far rule on the other. Therefore we need to cycle through all close rules first.
             {
                 if (!closeStraight && !closeMidAcross && !closeAcross)
@@ -746,6 +748,7 @@ namespace OneWayLabyrinth
                                 forbidden.Add(new int[] { x + sx, y + sy });
                                 forbidden.Add(new int[] { x - lx, y - ly });
                             }
+                            //displayAreaLine = Copy(areaLine);
                         }
                         else
                         {
@@ -762,6 +765,8 @@ namespace OneWayLabyrinth
             }
             lx = thisLx;
             ly = thisLy;
+
+            //areaLine = displayAreaLine;
 
             if (farStraightLeft && farStraightRight) // 9:234256
             {
@@ -2074,5 +2079,15 @@ namespace OneWayLabyrinth
 		{
 			Trace.WriteLine(o.ToString());
 		}
-	}
+
+        private List<int[]> Copy(List<int[]> obj)
+        {
+            List<int[]> newObj = new();
+            foreach (int[] element in obj)
+            {
+                newObj.Add(element);
+            }
+            return newObj;
+        }
+    }
 }
