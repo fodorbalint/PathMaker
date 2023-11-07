@@ -1,6 +1,6 @@
-# One-way labyrinth generator
+# The one-way labyrinth algorithm
 
-This program aims to solve the following challenge:<br />
+This research aims to solve the following problem:<br />
 "Draw a line that goes through an n x n grid (where n is an odd number), passing through each field once. The line has to start from the field at the upper left corner (1,1) and end at (n,n). At any time it is allowed to move left, right, up or down, and it has to randomly choose between the available fields."
 
 At first sight it may look easy. But look at the following example:
@@ -9,12 +9,13 @@ At first sight it may look easy. But look at the following example:
 
 <!-- page 1 -->
 
-The program calculated the blue lines, they are necessary to go through in the future based on how the black line was drawn.<br />
-Do you see why the board is impossible to fill from now on?
+Based on the black line's movement, blue fragments were drawn to indicate a path we have to go through in the future in order to fill the board.<br />
+Do you see why the situation is impossible from now on?
 
 The question is, is there a single rule or a set of rules that will guarantee you can draw a labyrinth of any size? Or do the rules get infinitely complex?
 
-In the beginning of the project I let the program run on a 21 x 21 field, and whenever I noticed a trouble, I coded the solution into it. While you can discover many patterns this way, a gradual approach may be more effective.
+To assist with the research, I have written a computer program. In the beginning, I let it run on a 21 x 21 field, and whenever I noticed a trouble, I coded the solution into it. While you can discover many patterns this way, they will be random and do not help in gaining a fundemental understanding. At one point you will find things get too complex, and you are still far from solving the 21 x 21 board.<br />
+That's where a gradual approach comes in.
 
 A 3 x 3 area can only be filled in two ways, like this and mirrored:
 
@@ -29,7 +30,7 @@ Here are the things to consider on a grid of this size:
 
 <!-- page 2 -->
 
-<img src="References/rules/5/C-Shape.svg" width="19.05%" align="top" /><img src="References/spacer.svg" width="4.8%"/><img src="References/C-Shape example.svg" width="19.05%" align="top" />
+<img src="References/rules/5/C-Shape.svg" width="19.05%" align="top" /><img src="References/spacer.svg" width="4.8%"/><img src="References/C-Shape example.svg" width="23.8%" align="top" />
 
 - A single field next to the live end that is walled from two other sides (either by the border or the line) needs to be filled in the next step. I call it C-shape. The pattern is both mirrored and rotated, so that the empty field is straight ahead. To qualify for this rule, the empty field cannot be the end corner. If there is a C-shape, we don't need to check other rules.
 
@@ -134,11 +135,11 @@ We are not finished. Did you notice the example above is not covered by these ru
 <!-- page 9 -->
 
 <img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/>
-<img src="References/spacer.svg" height="23"/>
+<img src="References/spacer.svg" height="17"/>
 <img align="top" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far across right.svg" width="19%"/>
-<img src="References/spacer.svg" height="23"/>
+<img src="References/spacer.svg" height="17"/>
 <img align="top" src="References/checknearfield/far side mid across up.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far side mid across down.svg" width="19%"/>
-<img src="References/spacer.svg" height="23"/>
+<img src="References/spacer.svg" height="17"/>
 <img align="top" src="References/checknearfield/far side across up.svg" width="19%"/>
 
 When any of the straight 2-distance rules are present, we don't need to check the side rules or the area created with the border. This is not entirely proven, but take these 9 x 9 examples:

@@ -44,7 +44,7 @@
     </Window.Resources>
     <Grid x:Name="MainGrid">
         <Button x:Name="FocusButton" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Width="0" Height="0"/>
-        <Rectangle Fill="Gray" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,138,0,0" />
+        <!--<Rectangle Fill="Gray" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,138,0,0" />-->
         <skia:SKElement x:Name="Canvas" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Margin="0,140,0,0" MouseMove="Canvas_MouseMove" MouseEnter="Canvas_MouseEnter" MouseLeave="Canvas_MouseLeave" />
         <Label Content="Size: " HorizontalAlignment="Left" Margin="20,30,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="Size" IsTabStop="False" HorizontalAlignment="Left" Margin="60,34,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="38" MaxLines="1"/>

@@ -39,6 +39,8 @@
 	<path d="M 5 2 h -1 l 1 -1 v 1" fill="#0000ff" fill-opacity="0.3" />
 	<path d="M 5 3 h -1 l 1 -1 v 1" fill="#0000ff" fill-opacity="0.3" />
 	<path d="M 5 4 h -1 l 1 -1 v 1" fill="#0000ff" fill-opacity="0.3" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 5" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 0.01 h 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 1 h 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 5" />
@@ -47,6 +49,8 @@
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 3 h 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 4 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 4 h 5" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 4.99 0 v 5" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 4.99 h 5" />
 	<path d="M 0 0.5
 A 0.5 0.5 0 0 1 0.5 1
 L 0.5 2

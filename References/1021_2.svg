@@ -58,6 +58,8 @@
 	<rect width="1" height="1" x="3" y="2" fill="#0000ff" fill-opacity="0.15" />
 	<rect width="1" height="1" x="3" y="3" fill="#0000ff" fill-opacity="0.15" />
 	<rect width="1" height="1" x="3" y="4" fill="#000000" fill-opacity="0.1" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 9" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 0.01 h 9" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 9" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 1 h 9" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 9" />
@@ -74,6 +76,8 @@
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 7 h 9" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 8 0 v 9" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 8 h 9" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 8.99 0 v 9" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 8.99 h 9" />
 	<path d="M 0.5 0.5
 L 0.5 1
 L 0.5 2

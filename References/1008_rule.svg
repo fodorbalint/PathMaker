@@ -32,7 +32,9 @@
 	<!-- 2 2 7 -->
 	<path d="M 1.2 1.2 v 0.6 h 0.6 h -0.3 a 0.3 0.3 0 0 0 -0.3 -0.3" fill="white" fill-opacity="0" stroke="red" stroke-width="0.05" stroke-linecap="round" stroke-linejoin="round" /><circle cx="1.3199999" cy="1.6800001" r="0.05" fill="red" fill-opacity="1" />
 	<!--2-->
+		<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 5" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 0.01 h 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 3 0 v 5" />

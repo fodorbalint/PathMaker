@@ -45,7 +45,6 @@ namespace OneWayLabyrinth
 		int[] leftField = new int[] { };
 		int[] rightField = new int[] { };
 		List<int[]> directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } }; //down, right, up, left
-		int[] selectedDirection = new int[] { };
         int foundSectionStart, foundSectionEnd;
         bool CShape = false;
 
@@ -56,13 +55,16 @@ namespace OneWayLabyrinth
         //used only for displaying area
         public bool countAreaImpair = false;
         public List<int[]> areaLine = new();
+        public List<int[]> minAreaLine = new();
+        public int minAreaLineCount;
 
 
         public Path(MainWindow window, int size, List<int[]> path, List<int[]>? path2, bool isMain)
 		{
 			this.window = window;
-			this.size = size;
-			count = path.Count;
+			this.size = size;            
+
+            count = path.Count;
 			if (count > 0)
 			{
 				x = path[count - 1][0];
@@ -82,8 +84,9 @@ namespace OneWayLabyrinth
 		{
 			possible = new List<int[]>();
 			forbidden = new List<int[]>();
+            minAreaLineCount = size * size;
 
-			count = path.Count;
+            count = path.Count;
 			if (count < 2)
 			{
 				possible.Add(new int[] { 2, 1 });
@@ -129,8 +132,6 @@ namespace OneWayLabyrinth
 
                     if (x - x0 == sx && y - y0 == sy)
 					{
-                        selectedDirection = directions[i];
-
                         if (i == 0)
 						{
 							thisLx = lx = directions[1][0];
@@ -657,8 +658,6 @@ namespace OneWayLabyrinth
             lx = thisLx;
             ly = thisLy;
 
-            List<int[]> displayAreaLine = new();
-
             for (int i = 0; i < 2; i++) // A close rule may be true on one side, and a far rule on the other. Therefore we need to cycle through all close rules first.
             {
                 if (!closeStraight && !closeMidAcross && !closeAcross)
@@ -748,7 +747,6 @@ namespace OneWayLabyrinth
                                 forbidden.Add(new int[] { x + sx, y + sy });
                                 forbidden.Add(new int[] { x - lx, y - ly });
                             }
-                            //displayAreaLine = Copy(areaLine);
                         }
                         else
                         {
@@ -765,8 +763,6 @@ namespace OneWayLabyrinth
             }
             lx = thisLx;
             ly = thisLy;
-
-            //areaLine = displayAreaLine;
 
             if (farStraightLeft && farStraightRight) // 9:234256
             {
@@ -1260,6 +1256,11 @@ namespace OneWayLabyrinth
                 areaLine.Add(new int[] { nextX, nextY });
             }
 
+            if (areaLine.Count < minAreaLineCount)
+            {
+                minAreaLineCount = areaLine.Count;
+                minAreaLine = areaLine;
+            }
             return true;
         }
 
@@ -1441,13 +1442,19 @@ namespace OneWayLabyrinth
                 }
             }
 
+            if (areaLine.Count < minAreaLineCount)
+            {
+                minAreaLineCount = areaLine.Count;
+                minAreaLine = areaLine;
+            }
+
             /*T("minY " + minY + " limitX " + limitX);
             foreach (int[] a in areaLine)
 			{
 				T(a[0] + " " + a[1]);
 			}*/
 
-			//Special cases are not yet programmed in here as in MainWindow.xaml.cs. We take a gradual approach, starting from the cases that can happen on 7 x 7.
+            //Special cases are not yet programmed in here as in MainWindow.xaml.cs. We take a gradual approach, starting from the cases that can happen on 7 x 7.
 
             List<int[]> startSquares = new List<int[]>();
             List<int[]> endSquares = new List<int[]>();
@@ -1754,7 +1761,9 @@ namespace OneWayLabyrinth
                 {
                     T("endSquares " + f[0] + " " + f[1]);
                 }
-				window.errorInWalkthrough = true;
+                minAreaLineCount = 0;
+                minAreaLine = areaLine;
+                window.errorInWalkthrough = true;
                 window.StopAll("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
                 return false;
             }

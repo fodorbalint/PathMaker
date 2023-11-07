@@ -1132,7 +1132,7 @@ namespace OneWayLabyrinth
         {
             taken.x = x;
             taken.y = y;
-            taken.areaLine = new();
+            taken.minAreaLine = new();
 
             T("AddNextStep newX " + x + " newY " + y);
 
@@ -2553,7 +2553,7 @@ namespace OneWayLabyrinth
 			if (count < 2) return;
 
 			areaBackground = "";
-			taken.areaLine = new();
+			taken.minAreaLine = new();
 
 
             int removeX = taken.path[count - 1][0];
@@ -3139,10 +3139,20 @@ namespace OneWayLabyrinth
         {
             grid = "";
 
-            for (int i = 1; i < size; i++)
+            for (int i = 0; i <= size; i++)
             {
-                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M " + i + " 0 v " + size + "\" />\r\n";
-                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M 0 " + i + " h " + size + "\" />\r\n";
+                float i2 = i;
+                if (i == 0)
+                {
+                    i2 = i + 0.01f;
+                }
+                else if (i == size)
+                {
+                    i2 = i - 0.01f;
+                }
+
+                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M " + i2 + " 0 v " + size + "\" />\r\n";
+                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M 0 " + i2 + " h " + size + "\" />\r\n";
             }
         }
 
@@ -3789,16 +3799,16 @@ namespace OneWayLabyrinth
 				path = path.Substring(0, path.Length - 2);
 			}
 
-            if (taken.areaLine.Count != 0 && displayArea)
+            if (taken.minAreaLine.Count != 0 && displayArea)
 			{
 				string color = taken.countAreaImpair ? "#808000" : "#008000";
 				taken.countAreaImpair = false;
 
                 int i = 0;
-				foreach (int[] field in taken.areaLine)
+				foreach (int[] field in taken.minAreaLine)
 				{
-					int[] prevField = taken.areaLine[i == 0 ? taken.areaLine.Count - 1 : i - 1];
-                    int[] nextField = taken.areaLine[i == taken.areaLine.Count - 1 ? 0 : i + 1];
+					int[] prevField = taken.minAreaLine[i == 0 ? taken.minAreaLine.Count - 1 : i - 1];
+                    int[] nextField = taken.minAreaLine[i == taken.minAreaLine.Count - 1 ? 0 : i + 1];
 
 					if (taken.circleDirectionLeft)
 					{
