@@ -43,7 +43,9 @@
 	<!-- 2 5 8 -->
 	<path d="M 1.2 4.2 l 0.6 0.6 M 1.2 4.8 l 0.6 -0.6" fill="white" fill-opacity="0" stroke="red" stroke-width="0.05" stroke-linecap="round" />
 	<!--3-->
+		<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 5" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 0.01 h 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2.99 0 v 5" />

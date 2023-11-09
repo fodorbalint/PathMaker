@@ -286,11 +286,15 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 
-				// Future 2 x 3 Start End 9
-				for (int i = 0; i < 2; i++)
+                
+                // Future 2 x 3 Start End 9
+                for (int i = 0; i < 2; i++)
 				{
+                    T("Future2x3StartEnd9 precondition 0 " + InTakenRel(1, -2) + InTakenRel(3, 1) + InTakenRel(2, 1) + InTakenRel(1, -1));
+                    
 					if ((InTakenRel(1,-2) || InBorderRel(1,-2)) && InTakenRel(3,1) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,-1) && !InBorderRel(1,-1))
 					{
+						T("Future2x3StartEnd9 precondition");
 						int middleIndex = InTakenIndexRel(3,1);
 						if (middleIndex != -1)
 						{
@@ -305,7 +309,8 @@ namespace OneWayLabyrinth
 							}
 							else
 							{
-								int sideIndex = InTakenIndexRel(3,2);
+                                T("Future2x3StartEnd9 precondition 2");
+                                int sideIndex = InTakenIndexRel(3,2);
 								if (sideIndex > middleIndex)
 								{
 									Future2x3StartEnd9 = true;
@@ -417,28 +422,45 @@ namespace OneWayLabyrinth
 				// Square 4 x 2
 				for (int i = 0; i < 2; i++)
 				{
-					if (InTakenRel(0,3) && InTakenRel(-3,3) && InTakenRel(-3,0) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && !InTakenRel(-2,2) && !InBorderRel(-2,2) && !InTakenRel(-2,1) && !InBorderRel(-2,1) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2))
+					for (int j = 0; j < 2; j++)
 					{
-						int middleIndex = InTakenIndexRel(-3,3);
-						if (middleIndex != -1)
+						if (InTakenRel(0,3) && InTakenRel(-3,3) && InTakenRel(-3,0) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && !InTakenRel(-2,2) && !InBorderRel(-2,2) && !InTakenRel(-2,1) && !InBorderRel(-2,1) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2))
 						{
-							if (InTakenRel(-2,3))
+							int middleIndex = InTakenIndexRel(-3,3);
+							if (middleIndex != -1)
 							{
-								int sideIndex = InTakenIndexRel(-2,3);
-								if (sideIndex > middleIndex)
+								if (InTakenRel(-2,3))
 								{
-									circleDirectionLeft = (i == 0) ? true : false;
-									if (CountAreaLineRel(-2, 1, -2, 2))
+									int sideIndex = InTakenIndexRel(-2,3);
+									if (sideIndex > middleIndex)
 									{
-										Square4x2 = true;
-										forbidden.Add(new int[] { x + sx, y + sy });
+										circleDirectionLeft = (i == 0) ? true : false;
+										if (CountAreaLineRel(-2, 1, -2, 2))
+										{
+											Square4x2 = true;
+											forbidden.Add(new int[] { x + sx, y + sy });
+										}
+									}
+								}
+								else
+								{
+									int sideIndex = InTakenIndexRel(-4,3);
+									if (sideIndex < middleIndex)
+									{
+										circleDirectionLeft = (i == 0) ? true : false;
+										if (CountAreaLineRel(-2, 1, -2, 2))
+										{
+											Square4x2 = true;
+											forbidden.Add(new int[] { x + sx, y + sy });
+										}
 									}
 								}
 							}
 							else
 							{
-								int sideIndex = InTakenIndexRel(-4,3);
-								if (sideIndex < middleIndex)
+								middleIndex = InBorderIndexRel(-3,3);
+								int farSideIndex = InBorderIndexRel(-4,3);
+								if (farSideIndex > middleIndex)
 								{
 									circleDirectionLeft = (i == 0) ? true : false;
 									if (CountAreaLineRel(-2, 1, -2, 2))
@@ -449,24 +471,20 @@ namespace OneWayLabyrinth
 								}
 							}
 						}
-						else
-						{
-							middleIndex = InBorderIndexRel(-3,3);
-							int farSideIndex = InBorderIndexRel(-4,3);
-							if (farSideIndex > middleIndex)
-							{
-								circleDirectionLeft = (i == 0) ? true : false;
-								if (CountAreaLineRel(-2, 1, -2, 2))
-								{
-									Square4x2 = true;
-									forbidden.Add(new int[] { x + sx, y + sy });
-								}
-							}
-						}
+						int l0 = lx;
+						int l1 = ly;
+						lx = -sx;
+						ly = -sy;
+						sx = l0;
+						sy = l1;
 					}
-					lx = -lx;
-					ly = -ly;
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
 				}
+				sx = thisSx;
+				sy = thisSy;
 				lx = thisLx;
 				ly = thisLy;
 			}

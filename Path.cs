@@ -747,6 +747,10 @@ namespace OneWayLabyrinth
                                 forbidden.Add(new int[] { x + sx, y + sy });
                                 forbidden.Add(new int[] { x - lx, y - ly });
                             }
+                            else if (InTakenRel(1, 4) && !InTakenRel(1, 3))
+                            {
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                            }
                         }
                         else
                         {
@@ -893,6 +897,10 @@ namespace OneWayLabyrinth
                                 if (!CountAreaRel(1, 1, 2, 1))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                                else if (InTakenRel(4, 1) && !InTakenRel(3, 1))
+                                {
+                                    forbidden.Add(new int[] { x + sx, y + sy });
                                 }
                             }
                         }

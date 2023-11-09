@@ -10,7 +10,8 @@
 </style>
 <style>
     .a5 {
-        border-spacing: 0px;        
+        border-spacing: 0px;  
+        margin-top: -8px;
     }
     .a5 td {
         border: 0px solid #CCCCCC;  
@@ -83,7 +84,6 @@
         box-shadow: inset 0 0 0 30px gray;        
     }
 </style>
-<!-- <div style="box-shadow: inset 0 0 0 1000px red; height: 10px;" /> -->
 <table class="a5" width="1050" align="center" style="font-family: Segoe UI; font-size: 14px;">
 <?php
     $content = str_replace("\r", "", str_replace("<br />", "", file_get_contents("README.md")));

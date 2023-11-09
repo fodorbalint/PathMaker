@@ -2,10 +2,10 @@ size: 9
 loadFromFile: True
 saveOnCompletion: True
 continueOnCompletion: True
-keepLeft: False
+keepLeft: True
 displayFutureLines: True
 displayArea: True
-makeStats: True
+makeStats: False
 appliedSize: 9
-ruleXSize: 4
+ruleXSize: 5
 ruleYSize: 4

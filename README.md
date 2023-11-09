@@ -258,8 +258,8 @@ Compare these two on 11 x 11:
 
 <!-- page 18 -->
 
-<img align="top" src="References/1022_2.svg" width="52.4%"/>
-<img src="References/spacer.svg" height="23"/>
+<img align="top" src="References/1022_2.svg" width="52.4%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/1022_3.svg" width="52.4%"/>
 
 If the area we started with is pair, then the other will be impair. We can only enter the area at the light-gray field and will exit at A. From there we must go through B, C and D, and then a double C-shape is again created.
@@ -331,7 +331,7 @@ The area now has to be impair for the right direction to be forbidden. Essential
 
 <!-- page 25 -->
 
-478 361 is similar to what we have seen before, only now there are a 2-wide path to exit the area:
+478 361 is similar to what we have seen before, only now there is a 2-wide path to exit the area:
 
 <img align="top" src="References/478361.svg" width="42.86%"/>
 
@@ -347,6 +347,14 @@ In order to establish an enclosed area, we must not encounter the bottom-right c
 626 071 is:
 
 <img align="top" src="References/626071.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/626071_1.svg" width="42.86%"/>
+
+With the marked area being pair, if we enter the area by stepping left, we will exit at A. But we can only get there from B; if we entered from the top, nothing would fill B, and we cannot enter and exit it after we left the area - subtracting 1 from the area would make it impair, so then we couldn't have exited at A.<br />
+The taken field C creates a C-shape, which we need to step into from B.<br />
+The universal far across rule have to be extended. By default, we disable the option to step straight or right if the counted area is impair. When it is pair, we need to disable the left field.
+
+<img align="bottom" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="bottom" src="References/checknearfield/far across left C.svg" width="23.8%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img align="bottom" src="References/checknearfield/far side across up.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="bottom" src="References/checknearfield/far side across up C.svg" width="23.8%"/>
 
 <!-- page 27 -->
 
