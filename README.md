@@ -352,11 +352,30 @@ With the marked area being pair, if we enter the area by stepping left, we will 
 The taken field C creates a C-shape, which we need to step into from B.<br />
 The universal far across rule have to be extended. By default, we disable the option to step straight or right if the counted area is impair. When it is pair, we need to disable the left field.
 
-<img align="bottom" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="bottom" src="References/checknearfield/far across left C.svg" width="23.8%"/><br />
+<img align="bottom" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="bottom" src="References/checknearfield/far across left end C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img align="bottom" src="References/checknearfield/far side across up.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="bottom" src="References/checknearfield/far side across up C.svg" width="23.8%"/>
+<img align="bottom" src="References/checknearfield/far side across up.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="bottom" src="References/checknearfield/far side across up end C.svg" width="23.8%"/>
 
 <!-- page 27 -->
+
+The same concept we encounter at 635 301, only the C-shape is created when we enter an area, on the other side of it.
+
+<img align="top" src="References/635301.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/635301_1.svg" width="42.86%"/>
+
+We have seen this in the third 9 x 9 rule. There the taken field next to the exit was in middle across position, and now it is across. And we also need to think about an obstacle straight ahead. Here are the original universal rules and their modifications:
+
+<img src="References/checknearfield/far straight left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far straight left start C.svg" width="23.8%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far mid across left start C.svg" width="23.8%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across left start C.svg" width="28.6%"/>
+
+<!-- page 28 -->
+
+<img src="References/checknearfield/far side up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side up start C.svg" align="top" width="19%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+
+<!-- page 29 -->
 
 ---
 

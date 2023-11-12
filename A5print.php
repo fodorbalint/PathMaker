@@ -1,5 +1,15 @@
 <?php
-    $normalOrder = false;
+    if (isset($_GET["order"])) {
+        if ($_GET["order"] == 0) {
+            $normalOrder = true;        
+        }
+        else {
+            $normalOrder = false;
+        }
+    }
+    else {
+        $normalOrder = true;    
+    }
     ob_start();
 ?>
 <style type="text/css" media="print">
@@ -9,12 +19,19 @@
 }
 </style>
 <style>
-    .a5 {
+    .a5, .a5_1 {
         border-spacing: 0px;  
         margin-top: -8px;
     }
     .a5 td {
         border: 0px solid #CCCCCC;  
+        width: 525px;    
+        height: 725px;  
+        vertical-align: top;
+        position: relative;
+    }
+    .a5_1 td {
+        border: 1px solid #808080;  
         width: 525px;    
         height: 725px;  
         vertical-align: top;
@@ -84,7 +101,7 @@
         box-shadow: inset 0 0 0 30px gray;        
     }
 </style>
-<table class="a5" width="1050" align="center" style="font-family: Segoe UI; font-size: 14px;">
+<table class="<?php $normalOrder == true ? print "a5_1" : print "a5" ?>" width="1050" align="center" style="font-family: Segoe UI; font-size: 14px;">
 <?php
     $content = str_replace("\r", "", str_replace("<br />", "", file_get_contents("README.md")));
     $pos1 = strpos($content, "#");
@@ -103,26 +120,31 @@
         for($i = 0; $i < count($matches[0]); $i++) {
             $pos = strpos($content, $matches[0][$i]);
     
-            if ($i % 2 == 0) {
-                $output.= "<tr><td class=\"left\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div>\n";
-            }
+            if ($i % 2 == 0) {                
+                $output.= "<tr><td class=\"left\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td>\n";
+            }            
             else {
-                $output.= "<td class=\"right\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td></tr>";
+                $output.= "<td class=\"right\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td></tr>\n";
             }
             $startPos = $pos + strlen($matches[0][$i]);
         }
         if ($i % 2 == 1) {
-            $output.= "<td class=\"right\"></td></tr>";
+            $output.= "<td class=\"right\"></td></tr>\n";
         }
     }
     else { // 4 1 2 3, for printing on A4 paper on both sides
         $pages = array();
         
         for($i = 0; $i < count($matches[0]); $i++) {
-            $pos = strpos($content, $matches[0][$i]);
-    
+            $pos = strpos($content, $matches[0][$i]);    
+
             if ($i % 2 == 1) {
-                $pages[] = "<tr><td class=\"left\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
+                if ($i % 4 == 1) {
+                    $pages[] = "<tr><td class=\"left\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
+                }
+                else {
+                    $pages[] = "<tr><td class=\"left\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td>\n";
+                }
             }
             else {
                 $pages[] = "<td class=\"right\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td></tr>";
@@ -130,16 +152,16 @@
             $startPos = $pos + strlen($matches[0][$i]);
         }
         if ($i % 4 == 1) {
-            $pages[] = "";
-            $pages[] = ""; 
-            $pages[] = "<tr><td class=\"left\"></td>";
+            $pages[] = "<tr><td class=\"left\"><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
+            $pages[] = "<td class=\"right\"></td></tr>\n";
+            $pages[] = "<tr><td class=\"left\"></td>\n";
         }
         else if ($i % 4 == 2) {
-            $pages[] = "<td class=\"right\"></td></tr>";
-            $pages[] = "<tr><td class=\"left\"></td>";
+            $pages[] = "<td class=\"right\"></td></tr>\n";
+            $pages[] = "<tr><td class=\"left\"></td>\n";
         }
         else if ($i % 4 == 3) {
-            $pages[] = "<tr><td class=\"left\"></td>";
+            $pages[] = "<tr><td class=\"left\"></td>\n";
         }
 
         $pageNum = count($pages) / 4;
@@ -147,8 +169,7 @@
         for ($i = 1; $i <= $pageNum; $i++) {
             $output.= $pages[$i*4 - 1].$pages[$i*4-4].$pages[$i*4-3].$pages[$i*4-2];
         }
-    }
-    
+    }    
     print $output;
 ?> 
 </table>

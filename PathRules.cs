@@ -289,12 +289,9 @@ namespace OneWayLabyrinth
                 
                 // Future 2 x 3 Start End 9
                 for (int i = 0; i < 2; i++)
-				{
-                    T("Future2x3StartEnd9 precondition 0 " + InTakenRel(1, -2) + InTakenRel(3, 1) + InTakenRel(2, 1) + InTakenRel(1, -1));
-                    
+				{                    
 					if ((InTakenRel(1,-2) || InBorderRel(1,-2)) && InTakenRel(3,1) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,-1) && !InBorderRel(1,-1))
 					{
-						T("Future2x3StartEnd9 precondition");
 						int middleIndex = InTakenIndexRel(3,1);
 						if (middleIndex != -1)
 						{
