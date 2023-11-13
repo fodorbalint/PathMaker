@@ -43,6 +43,9 @@ Create inferface for disabling/enabling rules. Find out why it is not equal:
 - Amount of walkthroughs before getting stuck at the first rule, plus further walkthroughs until the second rule.
 Becaouse of 1027, we cannot rotate Future 2 x 2 Start End 9 and Future 2 x 2 Start End. Future 3 x 3 Start End cannot be applied on 9 x 9 (not even necessary) 
 
+Needed printed fields: 2 arrows, 1 count area pair/impair start/end with gray background. 2 forbidden fields with gray background
+6 border or taken fields, 1 no-corner field with gray background
+
 ----- 11 x 11 -----
 
 3x3 countarea rule can be rotated counter-clockwise too, but it may only be actual on 11 x 11 (1010_2)

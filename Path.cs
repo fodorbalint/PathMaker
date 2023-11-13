@@ -913,7 +913,11 @@ namespace OneWayLabyrinth
                             int sideIndex = InTakenIndexRel(3, -3);
                             if (sideIndex < middleIndex) // area up
                             {
-                                // area was calculated in the previous step as far side mid across down
+                                circleDirectionLeft = i == 0 ? false : true;
+                                if (CountAreaRel(1, 0, 2, -1, 0, 0, new List<int[]> { new int[] { 2, 0 } } ))
+                                {
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
                             }
                             else
                             {
