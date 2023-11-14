@@ -136,7 +136,7 @@ We are not finished. Did you notice the example above is not covered by these ru
 
 <img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/>
 <img src="References/spacer.svg" height="17"/>
-<img align="top" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far across right.svg" width="19%"/>
+<img align="top" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far across right_0.svg" width="19%"/>
 <img src="References/spacer.svg" height="17"/>
 <img align="top" src="References/checknearfield/far side mid across up.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far side mid across down.svg" width="19%"/>
 <img src="References/spacer.svg" height="17"/>
@@ -368,23 +368,29 @@ We have seen this in the third 9 x 9 rule. There the taken field next to the exi
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far mid across left start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across left start C.svg" width="28.6%"/>
+<img src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across left start C.svg" width="28.6%"/><br />
 
 <!-- page 28 -->
 
+<img src="References/checknearfield/far straight right.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far straight right start C.svg" width="23.8%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img src="References/checknearfield/far mid across right.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far mid across right start C.svg" width="19%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img src="References/checknearfield/far across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across right start C.svg" width="23.8%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far side up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far side down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side down start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far side mid across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side mid across up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
+
+<!-- page 29 -->
+
 <img src="References/checknearfield/far side mid across down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side mid across down start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far side across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side across up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-
-<!-- page 29 -->
-
 <img src="References/checknearfield/far side across down.svg" align="bottom" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side across down start C.svg" align="bottom" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 

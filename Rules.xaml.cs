@@ -603,6 +603,177 @@ namespace OneWayLabyrinth
                         }
                     }
 
+                    // find taken field next to the count area end, find second taken field and mark the direction.
+                    int dir = -1;
+                    int[] nextToField, nextToLeftField, nextToRightField, nextToLeft2Field, nextToRight2Field;
+                    
+                    if (!(countAreaPairStartCoordinates is null))
+                    {
+                        int cStartX = countAreaPairStartCoordinates[0];
+                        int cStartY = countAreaPairStartCoordinates[1];
+
+                        if (coordX == cStartX)
+                        {
+                            T((coordY - cStartY) / Math.Abs(coordY - cStartY));
+                            dir = FindDirection(0, (coordY - cStartY) / Math.Abs(coordY - cStartY));
+                        }
+                        else if (coordY == cStartY)
+                        {
+                            dir = FindDirection((coordX - cStartX) / Math.Abs(coordX - cStartX), 0);
+                        }
+                        else if (countAreaPairBorderCoordinates.Count != 0)
+                        {
+                            foreach (int[] coord in countAreaPairBorderCoordinates)
+                            {
+                                if (coordX == coord[0] && Math.Abs(coordY - coord[1]) == 1 || coordY == coord[1] && Math.Abs(coordX - coord[0]) == 1)
+                                {
+                                    dir = FindDirection(coordX - coord[0], coordY - coord[1]);                             
+                                }
+                            }
+                        }                        
+                    }
+                    else if (countAreaPairBorderCoordinates.Count != 0)
+                    {
+                        foreach (int[] coord in countAreaPairBorderCoordinates)
+                        {
+                            if (coordX == coord[0] && Math.Abs(coordY - coord[1]) == 1 || coordY == coord[1] && Math.Abs(coordX - coord[0]) == 1)
+                            {
+                                dir = FindDirection(coordX - coord[0], coordY - coord[1]);
+                            }
+                        }
+                        
+                    }
+
+                    if (dir != -1)
+                    {
+                        int leftDir = dir == 3 ? 0 : dir + 1;
+                        int rightDir = dir == 0 ? 3 : dir - 1;
+
+                        nextToField = new int[] { coordX + directions[dir][0], coordY + directions[dir][1] };
+                        nextToLeftField = new int[] { nextToField[0] + directions[leftDir][0], nextToField[1] + directions[leftDir][1] };
+                        nextToRightField = new int[] { nextToField[0] + directions[rightDir][0], nextToField[1] + directions[rightDir][1] };
+                        nextToLeft2Field = new int[] { nextToField[0] + 2 * directions[leftDir][0], nextToField[1] + 2 * directions[leftDir][1] };
+                        nextToRight2Field = new int[] { nextToField[0] + 2 * directions[rightDir][0], nextToField[1] + 2 * directions[rightDir][1] };
+
+                        bool straightFound = false;
+                        bool midAcrossFound = false;
+                        bool acrossFound = false;
+                        int pos, endPos;
+                        foreach (int[] coord in takenCoordinates)
+                        {                           
+                            if (coord[2] == 3 && coord[0] == nextToLeftField[0] && coord[1] == nextToLeftField[1])
+                            {
+                                foreach (int[] coord2 in takenCoordinates)
+                                {
+                                    if (coord2[2] == 3 && coord2[0] == nextToField[0] && coord2[1] == nextToField[1])
+                                    {
+                                        pos = newRule.IndexOf("<!-- " + coord[0] + " " + coord[1] + " 3 -->");
+                                        pos = newRule.IndexOf("<path", pos);
+                                        pos = newRule.IndexOf("<path", pos + 1);
+                                        endPos = newRule.IndexOf("/>", pos);
+                                        newRule = newRule.Substring(0, pos - 3) + newRule.Substring(endPos + 2);
+
+                                        pos = newRule.IndexOf("<!-- " + coord2[0] + " " + coord2[1] + " 3 -->");
+                                        pos = newRule.IndexOf("<path", pos);
+                                        pos = newRule.IndexOf("<path", pos + 1);
+                                        endPos = newRule.IndexOf("/>", pos);
+                                        newRule = newRule.Substring(0, pos - 3) + newRule.Substring(endPos + 2);
+
+                                        if (CircleDirectionLeft.IsChecked == true) // arrow from middle to left
+                                        {
+                                            newRule = newRule.Replace("</svg>", "\n\t<path d=\"" + DrawArrow(nextToField[0], nextToField[1], nextToLeftField[0], nextToLeftField[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>");
+                                        }
+                                        else
+                                        {
+                                            newRule = newRule.Replace("</svg>", "\n\t<path d=\"" + DrawArrow(nextToLeftField[0], nextToLeftField[1], nextToField[0], nextToField[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>");
+                                        }
+                                        break;
+                                    }
+                                    else if (coord2[2] == 3 && coord2[0] == nextToLeft2Field[0] && coord2[1] == nextToLeft2Field[1])
+                                    {
+                                        pos = newRule.IndexOf("<!-- " + coord[0] + " " + coord[1] + " 3 -->");
+                                        pos = newRule.IndexOf("<path", pos);
+                                        pos = newRule.IndexOf("<path", pos + 1);
+                                        endPos = newRule.IndexOf("/>", pos);
+                                        newRule = newRule.Substring(0, pos - 3) + newRule.Substring(endPos + 2);
+
+                                        pos = newRule.IndexOf("<!-- " + coord2[0] + " " + coord2[1] + " 3 -->");
+                                        pos = newRule.IndexOf("<path", pos);
+                                        pos = newRule.IndexOf("<path", pos + 1);
+                                        endPos = newRule.IndexOf("/>", pos);
+                                        newRule = newRule.Substring(0, pos - 3) + newRule.Substring(endPos + 2);
+
+                                        if (CircleDirectionLeft.IsChecked == true) // arrow from middle to left
+                                        {
+                                            newRule = newRule.Replace("</svg>", "\n\t<path d=\"" + DrawArrow(nextToLeftField[0], nextToLeftField[1], nextToLeft2Field[0], nextToLeft2Field[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>");
+                                        }
+                                        else
+                                        {
+                                            newRule = newRule.Replace("</svg>", "\n\t<path d=\"" + DrawArrow(nextToLeft2Field[0], nextToLeft2Field[1], nextToLeftField[0], nextToLeftField[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>");
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                            if (coord[2] == 3 && coord[0] == nextToRightField[0] && coord[1] == nextToRightField[1])
+                            {
+                                //straightFound = true;
+
+                                foreach (int[] coord2 in takenCoordinates)
+                                {
+                                    if (coord2[2] == 3 && coord2[0] == nextToField[0] && coord2[1] == nextToField[1])
+                                    {
+                                        pos = newRule.IndexOf("<!-- " + coord[0] + " " + coord[1] + " 3 -->");
+                                        pos = newRule.IndexOf("<path", pos);
+                                        pos = newRule.IndexOf("<path", pos + 1);
+                                        endPos = newRule.IndexOf("/>", pos);
+                                        newRule = newRule.Substring(0, pos - 3) + newRule.Substring(endPos + 2);
+
+                                        pos = newRule.IndexOf("<!-- " + coord2[0] + " " + coord2[1] + " 3 -->");
+                                        pos = newRule.IndexOf("<path", pos);
+                                        pos = newRule.IndexOf("<path", pos + 1);
+                                        endPos = newRule.IndexOf("/>", pos);
+                                        newRule = newRule.Substring(0, pos - 3) + newRule.Substring(endPos + 2);
+
+                                        if (CircleDirectionLeft.IsChecked == true) // arrow from middle to left
+                                        {
+                                            newRule = newRule.Replace("</svg>", "\n\t<path d=\"" + DrawArrow(nextToRightField[0], nextToRightField[1], nextToField[0], nextToField[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>");
+                                        }
+                                        else
+                                        {
+                                            newRule = newRule.Replace("</svg>", "\n\t<path d=\"" + DrawArrow(nextToField[0], nextToField[1], nextToRightField[0], nextToRightField[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>");
+                                        }
+                                        break;
+                                    }
+                                    else if (coord2[2] == 3 && coord2[0] == nextToRight2Field[0] && coord2[1] == nextToRight2Field[1])
+                                    {
+                                        pos = newRule.IndexOf("<!-- " + coord[0] + " " + coord[1] + " 3 -->");
+                                        pos = newRule.IndexOf("<path", pos);
+                                        pos = newRule.IndexOf("<path", pos + 1);
+                                        endPos = newRule.IndexOf("/>", pos);
+                                        newRule = newRule.Substring(0, pos - 3) + newRule.Substring(endPos + 2);
+
+                                        pos = newRule.IndexOf("<!-- " + coord2[0] + " " + coord2[1] + " 3 -->");
+                                        pos = newRule.IndexOf("<path", pos);
+                                        pos = newRule.IndexOf("<path", pos + 1);
+                                        endPos = newRule.IndexOf("/>", pos);
+                                        newRule = newRule.Substring(0, pos - 3) + newRule.Substring(endPos + 2);
+
+                                        if (CircleDirectionLeft.IsChecked == true) // arrow from middle to left
+                                        {
+                                            newRule = newRule.Replace("</svg>", "\n\t<path d=\"" + DrawArrow(nextToRight2Field[0], nextToRight2Field[1], nextToRightField[0], nextToRightField[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>");
+                                        }
+                                        else
+                                        {
+                                            newRule = newRule.Replace("</svg>", "\n\t<path d=\"" + DrawArrow(nextToRightField[0], nextToRightField[1], nextToRight2Field[0], nextToRight2Field[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>");
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     countAreaPairEndCoordinates = new int[] { coordX, coordY };
                     SaveMeta();
                 }
@@ -901,6 +1072,34 @@ namespace OneWayLabyrinth
             }
 
             draggedElement = 0;
+        }
+
+        private string DrawArrow(int startX, int startY, int endX, int endY)
+        {
+            // M 0.33 0.5 h 1.33 l -0.25 -0.25 m 0.25 0.25 l -0.25 0.25
+
+            if (startY == endY)
+            {
+                if (startX < endX)
+                {
+                    return "M " + (startX - 0.67) + " " + (startY - 0.5) + " h 1.33 l -0.25 -0.25 m 0.25 0.25 l -0.25 0.25";
+                }
+                else
+                {
+                    return "M " + (startX - 0.33) + " " + (startY - 0.5) + " h -1.33 l 0.25 -0.25 m -0.25 0.25 l 0.25 0.25";
+                }
+            }
+            else
+            {
+                if (startY < endY)
+                {
+                    return "M " + (startX - 0.5) + " " + (startY - 0.67) + " v 1.33 l -0.25 -0.25 m 0.25 0.25 l 0.25 -0.25";
+                }
+                else
+                {
+                    return "M " + (startX - 0.5) + " " + (startY - 0.33) + " v -1.33 l -0.25 0.25 m 0.25 -0.25 l 0.25 0.25";
+                }
+            }
         }
 
         private void SaveRule_Click(object sender, RoutedEventArgs e)
