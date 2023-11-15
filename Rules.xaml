@@ -6,7 +6,7 @@
         xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
         xmlns:local="clr-namespace:OneWayLabyrinth"
         mc:Ignorable="d"
-        Title="Rules" Height="851" Width="770" Left="735" Top="0" >
+        Title="Rules" Height="851" Width="780" Left="725" Top="0" >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />

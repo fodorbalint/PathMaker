@@ -45,10 +45,9 @@ Becaouse of 1027, we cannot rotate Future 2 x 2 Start End 9 and Future 2 x 2 Sta
 
 Needed printed fields: 2 arrows, 1 count area pair/impair start/end with gray background. 2 forbidden fields with gray background
 6 border or taken fields, 1 no-corner field with gray background
-Draw arrow in rule editor:
-- also for impair areas
-- when adding taken field after the area start and end are laid
-- modify arrow when clicking circle direction checkbox
+Draw arrow in rule editor when adding taken field after the area start and end are laid
+Reset farStraight = false; and farMidAcross = false; within 2-cycle?
+
 
 ----- 11 x 11 -----
 

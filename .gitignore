@@ -6,6 +6,7 @@
 obj/
 
 /bin/Debug/net6.0-windows/completedPaths.txt
+/bin/Debug/net6.0-windows/log.txt
 /bin/Debug/net6.0-windows/newRule.svg
 /bin/Debug/net6.0-windows/PathRules.cs
 /bin/Debug/net6.0-windows/completed/*.*

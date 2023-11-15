@@ -362,39 +362,53 @@ The same concept we encounter at 635 301, only the C-shape is created when we en
 
 <img align="top" src="References/635301.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/635301_1.svg" width="42.86%"/>
 
-We have seen this in the third 9 x 9 rule. There the taken field next to the exit was in middle across position, and now it is across. And we also need to think about an obstacle straight ahead. Here are the original universal rules and their modifications:
+We have seen this in the third 9 x 9 rule. There the taken field next to the exit was in middle across position, and now it is across. And we also need to think about an obstacle straight ahead. Here are the original universal rules and their modifications.<br />
+Straight, circle direction left:
 
 <img src="References/checknearfield/far straight left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far straight left start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far mid across left start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across left start C.svg" width="28.6%"/><br />
+<img src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across left start C.svg" width="28.6%"/>
 
 <!-- page 28 -->
+
+Circle direction right:
 
 <img src="References/checknearfield/far straight right.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far straight right start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far mid across right.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far mid across right start C.svg" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across right start C.svg" width="23.8%"/><br />
-<img src="References/spacer.svg" height="23"/><br />
+<img src="References/checknearfield/far across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across right start C.svg" width="23.8%"/>
+
+Side, with taken fields above and below:
+
 <img src="References/checknearfield/far side up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far side down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side down start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far side mid across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side mid across up start C.svg" align="top" width="19%"/><br />
-<img src="References/spacer.svg" height="23"/><br />
 
 <!-- page 29 -->
 
+<img src="References/checknearfield/far side mid across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side mid across up start C.svg" align="top" width="19%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far side mid across down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side mid across down start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far side across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side across up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far side across down.svg" align="bottom" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side across down start C.svg" align="bottom" width="19%"/><br />
-<img src="References/spacer.svg" height="23"/><br />
+
+I have made some changes by adding some empty fields in side positions, so they are the same as the straight rules, just rotated.<br />
+Also, I have added the side across down rule and changed the straight across rule accordingly. Not only fields next to each other can define an area, they can be across too. In that case, if the area originally was marked impair, now it has to be pair.<br />
+Notice that in side rules, when the taken field that would create the C-shape is below the obstacle creating the area, it can be a border field too. We have seen an example of that previously.
 
 <!-- page 30 -->
+
+This is 641 019:
+
+<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/>
+
+<!-- page 31 -->
 
 ---
 
