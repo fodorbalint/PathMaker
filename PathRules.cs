@@ -11,7 +11,6 @@ namespace OneWayLabyrinth
 		public bool CountAreaAcrossBorderC = false;
 		public bool DoubleCShape = false;
 		public bool Future2x2StartEnd9 = false;
-		public bool Future2x3StartEnd9 = false;
 		public bool Future3x3StartEnd9 = false;
 		public bool FutureL9 = false;
 		public bool Square4x2 = false;
@@ -25,7 +24,6 @@ namespace OneWayLabyrinth
 			CountAreaAcrossBorderC = false;
 			DoubleCShape = false;
 			Future2x2StartEnd9 = false;
-			Future2x3StartEnd9 = false;
 			Future3x3StartEnd9 = false;
 			FutureL9 = false;
 			Square4x2 = false;
@@ -286,52 +284,6 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 
-                
-                // Future 2 x 3 Start End 9
-                for (int i = 0; i < 2; i++)
-				{                    
-					if ((InTakenRel(1,-2) || InBorderRel(1,-2)) && InTakenRel(3,1) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,-1) && !InBorderRel(1,-1))
-					{
-						int middleIndex = InTakenIndexRel(3,1);
-						if (middleIndex != -1)
-						{
-							if (InTakenRel(3,0))
-							{
-								int sideIndex = InTakenIndexRel(3,0);
-								if (sideIndex < middleIndex)
-								{
-									Future2x3StartEnd9 = true;
-									forbidden.Add(new int[] { x + lx, y + ly });
-								}
-							}
-							else
-							{
-                                T("Future2x3StartEnd9 precondition 2");
-                                int sideIndex = InTakenIndexRel(3,2);
-								if (sideIndex > middleIndex)
-								{
-									Future2x3StartEnd9 = true;
-									forbidden.Add(new int[] { x + lx, y + ly });
-								}
-							}
-						}
-						else
-						{
-							middleIndex = InBorderIndexRel(3,1);
-							int farSideIndex = InBorderIndexRel(3,0);
-							if (farSideIndex > middleIndex)
-							{
-								Future2x3StartEnd9 = true;
-								forbidden.Add(new int[] { x + lx, y + ly });
-							}
-						}
-					}
-					lx = -lx;
-					ly = -ly;
-				}
-				lx = thisLx;
-				ly = thisLy;
-
 				// Future 3 x 3 Start End 9
 				for (int i = 0; i < 2; i++)
 				{
@@ -485,7 +437,7 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 			}
-			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountAreaAcrossBorderC: " + CountAreaAcrossBorderC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Future2x2StartEnd9: " + Future2x2StartEnd9 + "\n" + "Future2x3StartEnd9: " + Future2x3StartEnd9 + "\n" + "Future3x3StartEnd9: " + Future3x3StartEnd9 + "\n" + "FutureL9: " + FutureL9 + "\n" + "Square4x2: " + Square4x2);
+			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountAreaAcrossBorderC: " + CountAreaAcrossBorderC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Future2x2StartEnd9: " + Future2x2StartEnd9 + "\n" + "Future3x3StartEnd9: " + Future3x3StartEnd9 + "\n" + "FutureL9: " + FutureL9 + "\n" + "Square4x2: " + Square4x2);
 		}
 	}
 }

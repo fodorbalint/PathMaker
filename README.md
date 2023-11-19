@@ -154,12 +154,10 @@ And these are the rest of the rules:
 
 - This is what I started the 7 x 7 introduction with. I will call it Future L.
 
-<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/>
-<img src="References/spacer.svg" height="23"/>
-<img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="14.3%"/><img src="References/spacer.svg" width="19.05%"/><img align="top" src="References/Future 2 x 3 Start End 465.svg" width="33.3%"/>
-
-<!-- page 11 -->
-
+<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="28.57%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="14.3%"/><img src="References/spacer.svg" width="19.05%"/><img align="top" src="References/Future 2 x 3 Start End 465.svg" width="33.3%"/><br />
+<img src="References/spacer.svg" height="23"/><br /><!-- page 11 -->
 <img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/Future 3 x 3 Start End 1861.svg" width="33.3%"/>
 
 - And these are the remaining size-specific rules. Future 2 x 2 Start End, Future 2 x 3 Start End and Future 3 x 3 Start End.
@@ -404,9 +402,13 @@ Notice that in side rules, when the taken field that would create the C-shape is
 
 <!-- page 30 -->
 
-This is 641 019:
+Now what if both the start and end C-conditions are true? We can construct this on 13 x 13:
 
-<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/>
+<img align="top" src="References/1119.svg" width="61.9%"/>
+
+<!--This is 641 019:
+
+<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/>-->
 
 <!-- page 31 -->
 

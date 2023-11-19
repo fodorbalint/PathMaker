@@ -47,6 +47,7 @@ Needed printed fields: 2 arrows, 1 count area pair/impair start/end with gray ba
 6 border or taken fields, 1 no-corner field with gray background
 Draw arrow in rule editor when adding taken field after the area start and end are laid
 Reset farStraight = false; and farMidAcross = false; within 2-cycle?
+Example of count area start and end C simultaneously: 1119. In 1119_1, area is impair. Without considering the future lines, we could step left.
 
 
 ----- 11 x 11 -----
@@ -528,6 +529,7 @@ namespace OneWayLabyrinth
 
             HideMessage();
             messageCode = -1;
+            errorInWalkthrough = false;
 
             exits = new List<int[]>();
             exitIndex = new List<int>();
@@ -599,7 +601,8 @@ namespace OneWayLabyrinth
 
             ReadDir();
 
-            string saveName = (errorInWalkthrough) ? completedCount + ".txt" : loadFile;
+            //only give completedCount if we have been in a fast run. In normal run, upon an error, errorInWalkthrough remains through until we clicked the OK button.
+            string saveName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".txt" : loadFile;
 			if (saveName == "")
 			{
 				saveName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
@@ -3964,7 +3967,7 @@ namespace OneWayLabyrinth
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
 
-            svgName = (errorInWalkthrough) ? completedCount + ".svg" : loadFile.Replace("txt", "svg");
+            svgName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".svg" : loadFile.Replace("txt", "svg");
 			if (svgName == "")
 			{
 				svgName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".svg";
@@ -4200,6 +4203,7 @@ namespace OneWayLabyrinth
 			switch (messageCode)
 			{
 				case 0:
+                    errorInWalkthrough = false;
 					break;
                 case 3:
                     MessageLine.Visibility = Visibility.Visible;
