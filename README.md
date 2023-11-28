@@ -406,11 +406,30 @@ Now what if both the start and end C-conditions are true? We can construct this 
 
 <img align="top" src="References/1119.svg" width="61.9%"/>
 
-<!--This is 641 019:
-
-<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/>-->
+Several walkthrough attempts will leave you thinking why you cannot fill the area once obstacle responsible for the start C-shape is created (A). The area enclosed by A, B and C is pair. So when you enter it at A or B (obviously C is not a possibility), in order to exit at C, you need to leave out an impair amount of fields from the area. In case of entering at B, you cannot leave out A, but when you enter at A, you can leave out B, and no more than that. Now the area will be impair.<br />
+The minimal area would be stepping left from A, left again, up and up to get to C. You have covered 5 fields.<br />
+In order to make a walkthroughable area, you would need to extend it by pairs of fields next to each other, like D and E. One will be filled at a pair amount of steps, the other at an impair amount.<br />
 
 <!-- page 31 -->
+
+Let's mark the original example as a checkerboard.
+
+<img align="top" src="References/1119_2.svg" width="61.9%"/>
+
+We enter at a black field and exit at black too, so the number of black fields should be one more than the number of white fields.
+Here there are 14 black fields and 15 white. That's why the area cannot be filled. The up and right directions need to be disabled, so we can only step left.
+
+<!-- page 32 -->
+
+And now the walkthrough is possible.
+
+<img align="top" src="References/1119_3.svg" width="61.9%"/>
+
+Continuing the 9 x 9 program, we get this at 641 019:
+
+<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/>
+
+<!-- page 33 -->
 
 ---
 

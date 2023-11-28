@@ -169,8 +169,6 @@ A 0.5 0.5 0 0 1 5 5.5
 L 4.5 5.5
 " fill="white" fill-opacity="0" stroke="blue" stroke-width="0.05" stroke-linecap="round" />
 	<text x="3.25" y="4.75" style="font: 0.7px sans-serif;">A</text>
-" fill="white" fill-opacity="0" stroke="blue" stroke-width="0.05" stroke-linecap="round" />
 	<text x="4.25" y="4.75" style="font: 0.7px sans-serif;">B</text>
-" fill="white" fill-opacity="0" stroke="blue" stroke-width="0.05" stroke-linecap="round" />
 	<text x="6.25" y="4.75" style="font: 0.7px sans-serif;">C</text>
 </svg>

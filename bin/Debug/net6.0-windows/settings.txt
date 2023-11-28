@@ -6,6 +6,6 @@ keepLeft: False
 displayFutureLines: True
 displayArea: True
 makeStats: False
-appliedSize: 9
-ruleXSize: 4
+appliedSize: 13
+ruleXSize: 6
 ruleYSize: 5

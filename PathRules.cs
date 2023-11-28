@@ -14,6 +14,7 @@ namespace OneWayLabyrinth
 		public bool Future3x3StartEnd9 = false;
 		public bool FutureL9 = false;
 		public bool Square4x2 = false;
+		public bool Acrosspair3 = false;
 
 		public void RunRules()
 		{
@@ -27,6 +28,7 @@ namespace OneWayLabyrinth
 			Future3x3StartEnd9 = false;
 			FutureL9 = false;
 			Square4x2 = false;
+			Acrosspair3 = false;
 
 			if (size == 5)
 			{
@@ -437,7 +439,72 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 			}
-			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountAreaAcrossBorderC: " + CountAreaAcrossBorderC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Future2x2StartEnd9: " + Future2x2StartEnd9 + "\n" + "Future3x3StartEnd9: " + Future3x3StartEnd9 + "\n" + "FutureL9: " + FutureL9 + "\n" + "Square4x2: " + Square4x2);
+
+			if (size >= 13)
+			{
+				// Across pair 3
+				for (int i = 0; i < 2; i++)
+				{
+					if (!InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(4,3) && !InBorderRel(4,3) && InTakenRel(4,4) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(1,1) && !InBorderRel(1,1))
+					{
+						int middleIndex = InTakenIndexRel(4,4);
+						if (middleIndex != -1)
+						{
+							if (InTakenRel(5,4))
+							{
+								int sideIndex = InTakenIndexRel(5,4);
+								if (sideIndex > middleIndex)
+								{
+									circleDirectionLeft = (i == 0) ? true : false;
+									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {2,2}, new int[] {2,1}, new int[] {1,1}};
+									if (CountAreaRel(1, 0, 3, 3, 0, 0, countAreaBorderFields))
+									{
+										Acrosspair3 = true;
+										forbidden.Add(new int[] { x - lx, y - ly });
+										forbidden.Add(new int[] { x + sx, y + sy });
+									}
+								}
+							}
+							else
+							{
+								int sideIndex = InTakenIndexRel(3,4);
+								if (sideIndex < middleIndex)
+								{
+									circleDirectionLeft = (i == 0) ? true : false;
+									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {2,2}, new int[] {2,1}, new int[] {1,1}};
+									if (CountAreaRel(1, 0, 3, 3, 0, 0, countAreaBorderFields))
+									{
+										Acrosspair3 = true;
+										forbidden.Add(new int[] { x - lx, y - ly });
+										forbidden.Add(new int[] { x + sx, y + sy });
+									}
+								}
+							}
+						}
+						else
+						{
+							middleIndex = InBorderIndexRel(4,4);
+							int farSideIndex = InBorderIndexRel(3,4);
+							if (farSideIndex > middleIndex)
+							{
+								circleDirectionLeft = (i == 0) ? true : false;
+								List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {2,2}, new int[] {2,1}, new int[] {1,1}};
+								if (CountAreaRel(1, 0, 3, 3, 0, 0, countAreaBorderFields))
+								{
+									Acrosspair3 = true;
+									forbidden.Add(new int[] { x - lx, y - ly });
+									forbidden.Add(new int[] { x + sx, y + sy });
+								}
+							}
+						}
+					}
+					lx = -lx;
+					ly = -ly;
+				}
+				lx = thisLx;
+				ly = thisLy;
+			}
+			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountAreaAcrossBorderC: " + CountAreaAcrossBorderC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Future2x2StartEnd9: " + Future2x2StartEnd9 + "\n" + "Future3x3StartEnd9: " + Future3x3StartEnd9 + "\n" + "FutureL9: " + FutureL9 + "\n" + "Square4x2: " + Square4x2 + "\n" + "Acrosspair3: " + Acrosspair3);
 		}
 	}
 }
