@@ -1733,7 +1733,7 @@ namespace OneWayLabyrinth
 
                     countAreaRule = "\t\tcircleDirectionLeft = (i == 0) ? " + circleDirectionLeft.ToString().ToLower() + " : " + (!circleDirectionLeft).ToString().ToLower() + ";\n" +
                     "\t\t" + countAreaBorderFieldsStr +
-                    "\t\tif (" + (areaPair ? "" : "!") + "CountAreaRel(" + startRelX + ", " + startRelY + ", " + endRelX + ", " + endRelY + ", 0, 0, countAreaBorderFields))\n" +
+                    "\t\tif (" + (areaPair ? "" : "!") + "CountAreaRel(" + startRelX + ", " + startRelY + ", " + endRelX + ", " + endRelY + ", countAreaBorderFields))\n" +
                     "\t\t{\n" +
                     "\t\t\t" + variableName + " = true;\n" +
                     forbiddenStr +

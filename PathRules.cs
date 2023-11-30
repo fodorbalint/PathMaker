@@ -14,7 +14,7 @@ namespace OneWayLabyrinth
 		public bool Future3x3StartEnd9 = false;
 		public bool FutureL9 = false;
 		public bool Square4x2 = false;
-		public bool Acrosspair3 = false;
+		public bool Across3impair = false;
 
 		public void RunRules()
 		{
@@ -28,7 +28,7 @@ namespace OneWayLabyrinth
 			Future3x3StartEnd9 = false;
 			FutureL9 = false;
 			Square4x2 = false;
-			Acrosspair3 = false;
+			Across3impair = false;
 
 			if (size == 5)
 			{
@@ -139,7 +139,7 @@ namespace OneWayLabyrinth
 								{
 									circleDirectionLeft = (i == 0) ? true : false;
 									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-2,1}};
-									if (!CountAreaRel(-1, 1, -2, 2, 0, 0, countAreaBorderFields))
+									if (!CountAreaRel(-1, 1, -2, 2, countAreaBorderFields))
 									{
 										CountAreaAcrossBorderC = true;
 										forbidden.Add(new int[] { x - lx, y - ly });
@@ -153,7 +153,7 @@ namespace OneWayLabyrinth
 								{
 									circleDirectionLeft = (i == 0) ? true : false;
 									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-2,1}};
-									if (!CountAreaRel(-1, 1, -2, 2, 0, 0, countAreaBorderFields))
+									if (!CountAreaRel(-1, 1, -2, 2, countAreaBorderFields))
 									{
 										CountAreaAcrossBorderC = true;
 										forbidden.Add(new int[] { x - lx, y - ly });
@@ -169,7 +169,7 @@ namespace OneWayLabyrinth
 							{
 								circleDirectionLeft = (i == 0) ? true : false;
 								List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-2,1}};
-								if (!CountAreaRel(-1, 1, -2, 2, 0, 0, countAreaBorderFields))
+								if (!CountAreaRel(-1, 1, -2, 2, countAreaBorderFields))
 								{
 									CountAreaAcrossBorderC = true;
 									forbidden.Add(new int[] { x - lx, y - ly });
@@ -198,7 +198,7 @@ namespace OneWayLabyrinth
 								{
 									circleDirectionLeft = (i == 0) ? false : true;
 									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-1,2}, new int[] {-1,1}};
-									if (!CountAreaRel(-1, 0, -1, 3, 0, 0, countAreaBorderFields))
+									if (!CountAreaRel(-1, 0, -1, 3, countAreaBorderFields))
 									{
 										DoubleCShape = true;
 										forbidden.Add(new int[] { x - lx, y - ly });
@@ -212,7 +212,7 @@ namespace OneWayLabyrinth
 								{
 									circleDirectionLeft = (i == 0) ? false : true;
 									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-1,2}, new int[] {-1,1}};
-									if (!CountAreaRel(-1, 0, -1, 3, 0, 0, countAreaBorderFields))
+									if (!CountAreaRel(-1, 0, -1, 3, countAreaBorderFields))
 									{
 										DoubleCShape = true;
 										forbidden.Add(new int[] { x - lx, y - ly });
@@ -228,7 +228,7 @@ namespace OneWayLabyrinth
 							{
 								circleDirectionLeft = (i == 0) ? false : true;
 								List<int[]> countAreaBorderFields = new List<int[]> { new int[] {-1,2}, new int[] {-1,1}};
-								if (!CountAreaRel(-1, 0, -1, 3, 0, 0, countAreaBorderFields))
+								if (!CountAreaRel(-1, 0, -1, 3, countAreaBorderFields))
 								{
 									DoubleCShape = true;
 									forbidden.Add(new int[] { x - lx, y - ly });
@@ -442,10 +442,10 @@ namespace OneWayLabyrinth
 
 			if (size >= 13)
 			{
-				// Across pair 3
+				// Across 3 impair
 				for (int i = 0; i < 2; i++)
 				{
-					if (!InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(4,3) && !InBorderRel(4,3) && InTakenRel(4,4) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(1,1) && !InBorderRel(1,1))
+					if (InTakenRel(4,4) && !InTakenRel(4,3) && !InBorderRel(4,3) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(4,1) && !InBorderRel(4,1))
 					{
 						int middleIndex = InTakenIndexRel(4,4);
 						if (middleIndex != -1)
@@ -456,12 +456,12 @@ namespace OneWayLabyrinth
 								if (sideIndex > middleIndex)
 								{
 									circleDirectionLeft = (i == 0) ? true : false;
-									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {2,2}, new int[] {2,1}, new int[] {1,1}};
-									if (CountAreaRel(1, 0, 3, 3, 0, 0, countAreaBorderFields))
+									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {3,1}, new int[] {2,1}};
+									if (!CountAreaRel(1, 1, 3, 3, countAreaBorderFields))
 									{
-										Acrosspair3 = true;
-										forbidden.Add(new int[] { x - lx, y - ly });
+										Across3impair = true;
 										forbidden.Add(new int[] { x + sx, y + sy });
+										forbidden.Add(new int[] { x - lx, y - ly });
 									}
 								}
 							}
@@ -471,12 +471,12 @@ namespace OneWayLabyrinth
 								if (sideIndex < middleIndex)
 								{
 									circleDirectionLeft = (i == 0) ? true : false;
-									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {2,2}, new int[] {2,1}, new int[] {1,1}};
-									if (CountAreaRel(1, 0, 3, 3, 0, 0, countAreaBorderFields))
+									List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {3,1}, new int[] {2,1}};
+									if (!CountAreaRel(1, 1, 3, 3, countAreaBorderFields))
 									{
-										Acrosspair3 = true;
-										forbidden.Add(new int[] { x - lx, y - ly });
+										Across3impair = true;
 										forbidden.Add(new int[] { x + sx, y + sy });
+										forbidden.Add(new int[] { x - lx, y - ly });
 									}
 								}
 							}
@@ -488,12 +488,12 @@ namespace OneWayLabyrinth
 							if (farSideIndex > middleIndex)
 							{
 								circleDirectionLeft = (i == 0) ? true : false;
-								List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {2,2}, new int[] {2,1}, new int[] {1,1}};
-								if (CountAreaRel(1, 0, 3, 3, 0, 0, countAreaBorderFields))
+								List<int[]> countAreaBorderFields = new List<int[]> { new int[] {3,2}, new int[] {3,1}, new int[] {2,1}};
+								if (!CountAreaRel(1, 1, 3, 3, countAreaBorderFields))
 								{
-									Acrosspair3 = true;
-									forbidden.Add(new int[] { x - lx, y - ly });
+									Across3impair = true;
 									forbidden.Add(new int[] { x + sx, y + sy });
+									forbidden.Add(new int[] { x - lx, y - ly });
 								}
 							}
 						}
@@ -504,7 +504,7 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 			}
-			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountAreaAcrossBorderC: " + CountAreaAcrossBorderC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Future2x2StartEnd9: " + Future2x2StartEnd9 + "\n" + "Future3x3StartEnd9: " + Future3x3StartEnd9 + "\n" + "FutureL9: " + FutureL9 + "\n" + "Square4x2: " + Square4x2 + "\n" + "Acrosspair3: " + Acrosspair3);
+			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountAreaAcrossBorderC: " + CountAreaAcrossBorderC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Future2x2StartEnd9: " + Future2x2StartEnd9 + "\n" + "Future3x3StartEnd9: " + Future3x3StartEnd9 + "\n" + "FutureL9: " + FutureL9 + "\n" + "Square4x2: " + Square4x2 + "\n" + "Across3impair: " + Across3impair);
 		}
 	}
 }
