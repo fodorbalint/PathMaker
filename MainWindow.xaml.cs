@@ -3810,8 +3810,16 @@ namespace OneWayLabyrinth
 
             if (taken.minAreaLine.Count != 0 && displayArea)
 			{
-				string color = taken.countAreaImpair ? "#808000" : "#008000";
-				taken.countAreaImpair = false;
+                string color;
+
+                if (!taken.countAreaImpair)
+                {
+                    color = "#008000";
+                }
+                else
+                {
+                    color = taken.countAreaDetermined ? "#FF4000" : "#808000";
+                }
 
                 int i = 0;
 				foreach (int[] field in taken.minAreaLine)

@@ -54,6 +54,7 @@ namespace OneWayLabyrinth
 
         //used only for displaying area
         public bool countAreaImpair = false;
+        public bool countAreaDetermined = false;
         public List<int[]> areaLine = new();
         public List<int[]> minAreaLine = new();
         public int minAreaLineCount;
@@ -783,7 +784,7 @@ namespace OneWayLabyrinth
                         }
                         else // area on right
                         {
-                            if (!InTakenRel(-1, 1) && !InTakenRel(2, 2))
+                            if (!InTakenRel(-1, 1) && !InTakenRel(-1, 3) && !InTakenRel(2, 2)) // -1,3: 1201
                             {
                                 circleDirectionLeft = i == 0 ? false : true;
                                 if (CountAreaRel(0, 1, 1, 2, new List<int[]> { new int[] { 0, 2 } }))
@@ -1212,7 +1213,19 @@ namespace OneWayLabyrinth
 
         // Check functions end here
 
-        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]> borderFields = null)
+        public bool CountAreaLineRel(int left1, int straight1, int left2, int straight2)
+        {
+            // left3 and straight 3 is the second start field in far across checking
+            T("CountAreaLineRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
+            int x1 = x + left1 * lx + straight1 * sx;
+            int y1 = y + left1 * ly + straight1 * sy;
+            int x2 = x + left2 * lx + straight2 * sx;
+            int y2 = y + left2 * ly + straight2 * sy;
+
+            return CountAreaLine(x1, y1, x2, y2);
+        }
+
+        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]> borderFields = null, bool compareColors = false)
         {
             // left3 and straight 3 is the second start field in far across checking
             T("CountAreaRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
@@ -1229,20 +1242,8 @@ namespace OneWayLabyrinth
                     absBorderFields.Add(new int[] { x + field[0] * lx + field[1] * sx, y + field[0] * ly + field[1] * sy });
                 }
             }
-            
-            return CountArea(x1, y1, x2, y2, absBorderFields);
-        }
 
-        public bool CountAreaLineRel(int left1, int straight1, int left2, int straight2)
-        {
-            // left3 and straight 3 is the second start field in far across checking
-            T("CountAreaLineRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
-            int x1 = x + left1 * lx + straight1 * sx;
-            int y1 = y + left1 * ly + straight1 * sy;
-            int x2 = x + left2 * lx + straight2 * sx;
-            int y2 = y + left2 * ly + straight2 * sy;
-
-            return CountAreaLine(x1, y1, x2, y2);
+            return CountArea(x1, y1, x2, y2, absBorderFields, compareColors);
         }
 
         private bool CountAreaLine(int startX, int startY, int endX, int endY) // only draw arealine in order to determine if it is an enclosed area, see 9:478361
@@ -1341,7 +1342,8 @@ namespace OneWayLabyrinth
             return true;
         }
 
-        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]> borderFields = null)
+        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]> borderFields = null, bool compareColors = false)
+        // compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more than the other color.
         {
             // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
             int minY = startY;
@@ -1509,8 +1511,10 @@ namespace OneWayLabyrinth
                 }
             }
 
+            bool areaLess = false;
             if (areaLine.Count < minAreaLineCount)
             {
+                areaLess = true;
                 minAreaLineCount = areaLine.Count;
                 minAreaLine = areaLine;
             }
@@ -1790,48 +1794,75 @@ namespace OneWayLabyrinth
             T("Count area: " + area);
             if (area % 2 == 1)
             {
-                countAreaImpair = true; // used for displaying arealine color
+                if (areaLess)
+                {
+                    countAreaImpair = true; // used for displaying arealine color
+                }                   
 
                 //Check that the number of black cells are one more than the number of white ones in a checkered pattern. The black color is where we enter and exit the area.
 
-                int pairCount = 0, impairCount = 0;
-                
-                foreach (int[] field in startSquares)
+                if (compareColors)
                 {
-                    int x = field[0];
-                    int y = field[1];
-                    
-                    //without having open peaks, the first start square should match the last end square. Open peaks offset it, but it is most efficient to start cycling endSquares backwards in any case. Also, with an open peak at the bottom, there are two sections at the same vertical height. The first find will be the correct section ending.
-                    for (int i = endSquares.Count - 1; i >= 0; i--)
+                    if (areaLess)
                     {
-                        if (endSquares[i][1] == y && endSquares[i][0] > x)
+                        countAreaDetermined = true;
+                    }
+                    int pairCount = 0, impairCount = 0;
+
+                    foreach (int[] field in startSquares)
+                    {
+                        int x = field[0];
+                        int y = field[1];
+
+                        //without having open peaks, the first start square should match the last end square. Open peaks offset it, but it is most efficient to start cycling endSquares backwards in any case. Also, with an open peak at the bottom, there are two sections at the same vertical height. The first find will be the correct section ending.
+                        for (int i = endSquares.Count - 1; i >= 0; i--)
                         {
-                            int span = endSquares[i][0] - x + 1;
-                            if ((x + y) % 2 == 0)
+                            if (endSquares[i][1] == y && endSquares[i][0] > x)
                             {
-                                pairCount += (span + span % 2) / 2;
-                                impairCount += (span - span % 2) / 2;
+                                int span = endSquares[i][0] - x + 1;
+                                if ((x + y) % 2 == 0)
+                                {
+                                    pairCount += (span + span % 2) / 2;
+                                    impairCount += (span - span % 2) / 2;
+                                }
+                                else
+                                {
+                                    impairCount += (span + span % 2) / 2;
+                                    pairCount += (span - span % 2) / 2;
+                                }
+                                break;
                             }
-                            else
-                            {
-                                impairCount += (span + span % 2) / 2;
-                                pairCount += (span - span % 2) / 2;
-                            }
-                            break;
                         }
                     }
-                }
 
-                T("pair " + pairCount + ", impair " + impairCount);
-                if ((startX + startY) % 2 == 0 && pairCount != impairCount + 1 || (startX + startY) % 2 == 1 && impairCount != pairCount + 1)
+                    T("pair " + pairCount + ", impair " + impairCount);
+                    if ((startX + startY) % 2 == 0 && pairCount != impairCount + 1 || (startX + startY) % 2 == 1 && impairCount != pairCount + 1)
+                    {
+                        // imbalance in colors, forbidden fields in the rule apply
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
                 {
-                    T("Error");
+                    if (areaLess)
+                    {
+                        countAreaDetermined = false;
+                    }
+                    return false;
                 }
-
-                return false;
             }
-
-            return true;
+            else
+            {
+                if (areaLess)
+                {
+                    countAreaImpair = false;
+                }
+                return true;
+            }
         }
 
         // ----- Check functions start -----

@@ -419,6 +419,11 @@ Let's mark the original example as a checkerboard.
 We enter at a black field and exit at black too, so the number of black fields should be one more than the number of white fields.
 Here there are 14 black fields and 15 white. That's why the area cannot be filled. The up and right directions need to be disabled, so we can only step left.
 
+This is the rule representation. The reddish arealine now means the arealine is impair, and we know that the entry and exit points are the arealine start and end fields.
+
+<img align="top" src="References/rules/13/Across 3 impair determined.svg" width="28.6%"/>
+
+
 <!-- page 32 -->
 
 And now the walkthrough is possible.
