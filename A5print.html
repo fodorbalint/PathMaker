@@ -250,7 +250,7 @@ It is the picture on the left. Since the yellow-bordered area is impair, adding 
 <br />
 We can define a rule by marking the following fields and counting the area from the fields in front of the main line to the right:<br />
 <br />
-<img align="top" src="References/rules/9/Future 3 x 3 Start End 9.svg" width="28.57%"/><br />
+<img align="top" src="References/rules/9_old/Future 3 x 3 Start End 9.svg" width="28.57%"/><br />
 <br />
 Start_1 field is (4,3) and Start_2 field is (4,4) in the actual example. End field is (4,2). Direction of the circle: right (counter-clockwise). If the area is pair, we cannot step straight.<br />
 <br />
@@ -274,7 +274,7 @@ It would be a mistake to disable the right field.<br />
 <br />
 So we need to check if an enclosed has been created on that side, but counting the area is unnecessary. Nevertheless, we can represent the rule this way, setting the circle direction to right:<br />
 <br />
-<img align="top" src="References/rules/9/Future 2 x 2 Start End 9.svg" width="23.8%"/><br />
+<img align="top" src="References/rules/9_old/Future 2 x 2 Start End 9.svg" width="23.8%"/><br />
 <br />
 The code generator will examine if the count area start and end fields are 1 or 2 distance apart. In the first case, it will only determine in which direction the taken field straight ahead is going to, and if it is right, the forbidden field will take effect.<br />
 You may ask, why that field is "taken", not "taken or border". From what I found through some examples, if that field is border, the enclosed area on the right is impair, so the line cannot step in the other direction anyway. But it needs further examination.</div></td></tr>
@@ -284,7 +284,7 @@ You may ask, why that field is "taken", not "taken or border". From what I found
 <br />
 We need to take a few steps back, and then we can create the rule. It is similar to the universal 2-distance rule on the side, it just checks the field 2 behind and 1 to the side too. Even though the area counted is pair, now stepping to the right is disabled.<br />
 <br />
-<img align="top" src="References/rules/9/Future 2 x 3 Start End 9.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1013_2.svg" width="42.86%"/></div></td>
+<img align="top" src="References/rules/9_old/Future 2 x 3 Start End 9.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1013_2.svg" width="42.86%"/></div></td>
 <td class="right"><div>At 55 298, we get this:<br />
 <br />
 <img align="top" src="References/1022.svg" width="42.86%"/><br />
@@ -323,7 +323,7 @@ Once we step to A, it is unavoidable to get to B before entering the outlined ar
 The area is impair, therefore we cannot complete it starting in C and ending in D.<br />
 As with many of the previous rules, the C-shape created with the border is to blame and therefore we need to represent it.<br />
 <br />
-<img align="top" src="References/rules/9/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/233810_1.svg" width="42.86%"/></div></td>
+<img align="top" src="References/rules/9_old/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/233810_1.svg" width="42.86%"/></div></td>
 <td class="right"><div>234 256 has at first sight something to do with future lines.<br />
 <br />
 <img align="top" src="References/234256.svg" width="42.86%"/><br />
@@ -344,7 +344,7 @@ As far as porgramming concerned, it just needed a rework of the universal rules,
 Though a double C-shape has been created in backwards direction, it indicates that the area on the right cannot be filled either.<br />
 We have made a similar rule previously. Now we need to simplify it.<br />
 <br />
-<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/><br />
+<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9_old/Double C-Shape.svg" width="14.3%"/><br />
 <br />
 The area now has to be impair for the right direction to be forbidden. Essentially, we just added the three extra fields to the pair area.</div></td>
 <td class="right"><div>478 361 is similar to what we have seen before, only now there is a 2-wide path to exit the area:<br />
@@ -353,7 +353,7 @@ The area now has to be impair for the right direction to be forbidden. Essential
 <br />
 We have to mark where the area has been created in another way.<br />
 <br />
-<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9/Square 4 x 2.svg" width="19%"/><br />
+<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9_old/Square 4 x 2.svg" width="19%"/><br />
 <br />
 The taken field in the upper right corner is now checked for direction, but it is not enough. It can go upwards, and the exit of the area can still be on the bottom edge, just look at the example and imagine the live end was at A with the pattern already drawn. (On 11 x 11, it is possible to draw it.)<br />
 In order to establish an enclosed area, we must not encounter the bottom-right corner of the grid when walking along the edge of it.</div></td></tr>
@@ -428,7 +428,29 @@ This is the rule representation. The reddish arealine now means the arealine is 
 <br />
 Continuing the 9 x 9 program, we get this at 641 019:<br />
 <br />
-<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/></div></td>
+<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/><br />
+<br />
+If you enter the pair area straight ahead, you will exit at A, and you need to turn towards B because of the C-shape. Now you cannot go in and out of the area enclosed by C, and the situation would be the same if that obstacle was in D.</div></td>
+<td class="right"><div>To mark the two areas, each one has to be given a directional obstacle next to the count area end field. In this case, it represents a taken field, but we don't go wrong if we include the border as well.<br />
+<br />
+<img align="top" src="References/rules/9/Double Area C-Shape.svg" width="23.8%"/><br />
+<br />
+And with this marking system, we can correct the rules prevously made. All rules featuring future line start and end fields have to be rewritten, to start with.<br />
+So we get the 2-distance across rules, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.<br />
+<br />
+<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2.svg" width="19%"/><br />
+<br />
+Let's return to the last example and make a modification:<br />
+<br />
+<img align="top" src="References/641019_2.svg" width="42.86%"/></div></td></tr>
+<tr><td class="left"><div>The field previously marked with B is now empty. But we still need to step in that direction, due to the area enclosed by A, which obstacle could as well be in B.<br />
+The rule will be now symmetrical. It is now very similar to the square obstacle pattern.<br />
+<br />
+<img align="top" src="References/rules/9/Triple Area.svg" width="23.8%"/><br />
+<br />
+The same concept we encounter at 725 325. We have seen this prevously, just with C-shape, not an area.<br />
+<br />
+<img align="top" src="References/725325_1.svg" width="42.86%"/></div></td>
 <td class="right"></td></tr>
  
 </table>

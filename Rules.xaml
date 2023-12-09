@@ -31,10 +31,9 @@
                     <TextBlock Text="Area size:" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,61,0,0" />
                     <TextBlock Margin="90,61,0,0" Text="by" VerticalAlignment="Top" HorizontalAlignment="Left" />
 
-                    <TextBox x:Name="RuleName" HorizontalAlignment="Left" Margin="41,0,0,0" TextWrapping="NoWrap" Text="Rule 1" VerticalAlignment="Top" Width="120"/>
+                    <TextBox x:Name="RuleName" HorizontalAlignment="Left" Margin="41,0,0,0" TextWrapping="NoWrap" Text="Rule 1" VerticalAlignment="Top" Width="200"/>
                     <CheckBox x:Name="RotateClockwise" Content="Rotate clockwise" Click="RotateClockwise_Click" HorizontalAlignment="Left" Margin="0,21,0,0" VerticalAlignment="Top"/>
                     <CheckBox x:Name="RotateCounterClockwise" Content="Rotate counter-clockwise" Click="RotateCounterClockwise_Click" HorizontalAlignment="Left" Margin="120,21,0,0" VerticalAlignment="Top"/>
-                    <CheckBox x:Name="CircleDirectionLeft" Content="Circle direction left" Click="CircleDirectionLeft_Click" HorizontalAlignment="Left" Margin="290,21,0,0" VerticalAlignment="Top"/>
                     <TextBox x:Name="AppliedSize" HorizontalAlignment="Left" Margin="84,40,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="AppliedSize_KeyDown" />
                     <TextBox x:Name="XSize" HorizontalAlignment="Left" Margin="55,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
                     <TextBox x:Name="YSize" HorizontalAlignment="Left" Margin="108,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>

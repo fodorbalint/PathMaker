@@ -196,7 +196,7 @@ It is the picture on the left. Since the yellow-bordered area is impair, adding 
 
 We can define a rule by marking the following fields and counting the area from the fields in front of the main line to the right:
 
-<img align="top" src="References/rules/9/Future 3 x 3 Start End 9.svg" width="28.57%"/>
+<img align="top" src="References/rules/9_old/Future 3 x 3 Start End 9.svg" width="28.57%"/>
 
 Start_1 field is (4,3) and Start_2 field is (4,4) in the actual example. End field is (4,2). Direction of the circle: right (counter-clockwise). If the area is pair, we cannot step straight.
 
@@ -226,7 +226,7 @@ It would be a mistake to disable the right field.
 
 So we need to check if an enclosed has been created on that side, but counting the area is unnecessary. Nevertheless, we can represent the rule this way, setting the circle direction to right:
 
-<img align="top" src="References/rules/9/Future 2 x 2 Start End 9.svg" width="23.8%"/>
+<img align="top" src="References/rules/9_old/Future 2 x 2 Start End 9.svg" width="23.8%"/>
 
 The code generator will examine if the count area start and end fields are 1 or 2 distance apart. In the first case, it will only determine in which direction the taken field straight ahead is going to, and if it is right, the forbidden field will take effect.<br />
 You may ask, why that field is "taken", not "taken or border". From what I found through some examples, if that field is border, the enclosed area on the right is impair, so the line cannot step in the other direction anyway. But it needs further examination.
@@ -239,7 +239,7 @@ The next error, at 14 004 has something to with how I defined the universal rule
 
 We need to take a few steps back, and then we can create the rule. It is similar to the universal 2-distance rule on the side, it just checks the field 2 behind and 1 to the side too. Even though the area counted is pair, now stepping to the right is disabled.
 
-<img align="top" src="References/rules/9/Future 2 x 3 Start End 9.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1013_2.svg" width="42.86%"/>
+<img align="top" src="References/rules/9_old/Future 2 x 3 Start End 9.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1013_2.svg" width="42.86%"/>
 
 <!-- page 17 -->
 
@@ -296,7 +296,7 @@ Once we step to A, it is unavoidable to get to B before entering the outlined ar
 The area is impair, therefore we cannot complete it starting in C and ending in D.<br />
 As with many of the previous rules, the C-shape created with the border is to blame and therefore we need to represent it.
 
-<img align="top" src="References/rules/9/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/233810_1.svg" width="42.86%"/>
+<img align="top" src="References/rules/9_old/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/233810_1.svg" width="42.86%"/>
 
 <!-- page 23 -->
 
@@ -323,7 +323,7 @@ At 349 215, we find this:
 Though a double C-shape has been created in backwards direction, it indicates that the area on the right cannot be filled either.
 We have made a similar rule previously. Now we need to simplify it.
 
-<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/>
+<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9_old/Double C-Shape.svg" width="14.3%"/>
 
 The area now has to be impair for the right direction to be forbidden. Essentially, we just added the three extra fields to the pair area.
 
@@ -335,7 +335,7 @@ The area now has to be impair for the right direction to be forbidden. Essential
 
 We have to mark where the area has been created in another way.
 
-<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9/Square 4 x 2.svg" width="19%"/>
+<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9_old/Square 4 x 2.svg" width="19%"/>
 
 The taken field in the upper right corner is now checked for direction, but it is not enough. It can go upwards, and the exit of the area can still be on the bottom edge, just look at the example and imagine the live end was at A with the pattern already drawn. (On 11 x 11, it is possible to draw it.)<br />
 In order to establish an enclosed area, we must not encounter the bottom-right corner of the grid when walking along the edge of it.
@@ -434,7 +434,35 @@ Continuing the 9 x 9 program, we get this at 641 019:
 
 <img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/>
 
+If you enter the pair area straight ahead, you will exit at A, and you need to turn towards B because of the C-shape. Now you cannot go in and out of the area enclosed by C, and the situation would be the same if that obstacle was in D. 
+
 <!-- page 33 -->
+
+To mark the two areas, each one has to be given a directional obstacle next to the count area end field. In this case, it represents a taken field, but we don't go wrong if we include the border as well.
+
+<img align="top" src="References/rules/9/Double Area C-Shape.svg" width="23.8%"/>
+
+And with this marking system, we can correct the rules prevously made. All rules featuring future line start and end fields have to be rewritten to start with.<br />
+So we get the 2-distance across rules, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.
+
+<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2.svg" width="19%"/>
+
+Let's return to the last example and make a modification:
+
+<img align="top" src="References/641019_2.svg" width="42.86%"/>
+
+<!-- page 34 -->
+
+The field previously marked with B is now empty. But we still need to step in that direction, due to the area enclosed by A, which obstacle could as well be in B.<br />
+The rule will be now symmetrical. It is similar to the square obstacle pattern.
+
+<img align="top" src="References/rules/9/Triple Area.svg" width="23.8%"/>
+
+The same concept we encounter at 725 325. We have seen this prevously, just with C-shape, not an area.
+
+<img align="top" src="References/725325_1.svg" width="42.86%"/>
+
+<!-- page 35 -->
 
 ---
 

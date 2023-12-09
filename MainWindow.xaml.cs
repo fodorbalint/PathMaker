@@ -115,8 +115,7 @@ namespace OneWayLabyrinth
 		string loadFile = "";
 		string svgName = "";
 		string savePath = "";
-		int size = 0;		
-		string areaBackground = "";
+		int size = 0;
 		List<int[]> directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } }; //down, right, up, left
 		DispatcherTimer timer;
 		int messageCode = -1;
@@ -282,7 +281,7 @@ namespace OneWayLabyrinth
                 content = arr[1];
             }
 
-            if (content.IndexOf(":") != -1)
+            /*if (content.IndexOf(":") != -1)
             {
                 string[] sections = content.Split(":");
                 loadPath = sections[0].Split(";");
@@ -300,15 +299,15 @@ namespace OneWayLabyrinth
                 }
             }
             else
-            {
+            {*/
                 loadPath = content.Split(";");
-            }
+            //}
 
             taken = new Path(this, size, new List<int[]>(), null, true);
             possibleDirections = new List<int[]>();
             InitializeFuture();
 
-            taken.circleDirectionLeft = circleDirectionLeft;
+            //taken.circleDirectionLeft = circleDirectionLeft;
 
             if (content.IndexOf("-") != -1) // normal mode, with possibilities
             {
@@ -531,9 +530,8 @@ namespace OneWayLabyrinth
             messageCode = -1;
             errorInWalkthrough = false;
 
-            exits = new List<int[]>();
-            exitIndex = new List<int>();
-            areaBackground = "";
+            //exits = new List<int[]>();
+            //exitIndex = new List<int>();
 
             int oldSize = size;
             size = int.Parse(Size.Text);
@@ -964,9 +962,8 @@ namespace OneWayLabyrinth
                 }
                 else if (continueCheck == true || isTaskRunning)
                 {
-                    exits = new List<int[]>();
-                    exitIndex = new List<int>();
-                    areaBackground = "";
+                    //exits = new List<int[]>();
+                    //exitIndex = new List<int>();
 
                     InitializeList();
                     if (!(isTaskRunning)) DrawPath();
@@ -1141,11 +1138,8 @@ namespace OneWayLabyrinth
         {
             taken.x = x;
             taken.y = y;
-            taken.minAreaLine = new();
 
             T("AddNextStep newX " + x + " newY " + y);
-
-            areaBackground = "";
 
             taken.path.Add(new int[] { x, y });
 
@@ -1555,7 +1549,7 @@ namespace OneWayLabyrinth
                                 // But the previous function extends and connect to the section on the right side befure this function is called. Condition of !InFutureRel2(1, 1) is not needed in this example.
                                 // If !InFutureRel2(1, 0) is omitted, this will go wrong: 0916_2, upper line will extend even though field below is filled with a future line.
 
-                                T("Left/right to 2 future start valid at x " + x + " y " + y);
+                                T("Left/right to 2 future start valid at x " + x + " y " + y + ", start x " + (x + lx) + " y " + (y + ly));
 
                                 int addIndex = futureSections[foundSection][0] + 1;
                                 future.path.Insert(addIndex, new int[] { x + lx, y + ly });
@@ -2561,9 +2555,9 @@ namespace OneWayLabyrinth
 			int count = taken.path.Count;
 			if (count < 2) return;
 
-			areaBackground = "";
-			taken.minAreaLine = new();
-
+			taken.areaLines = new();
+            taken.areaLineTypes = new();
+            taken.areaLineDirections = new();
 
             int removeX = taken.path[count - 1][0];
 			int removeY = taken.path[count - 1][1];
@@ -3782,7 +3776,7 @@ namespace OneWayLabyrinth
 			}
 			savePath = savePath.Substring(0, savePath.Length - 1);
 
-			if (exits.Count > 0)
+			/*if (exits.Count > 0)
 			{
 				savePath += ":";
 
@@ -3801,175 +3795,22 @@ namespace OneWayLabyrinth
 				}
 
 				savePath = savePath.Substring(0, savePath.Length - 1) + "," + taken.circleDirectionLeft;
-			}
+			}*/
 
 			if (path != "")
 			{
 				path = path.Substring(0, path.Length - 2);
 			}
 
-            if (taken.minAreaLine.Count != 0 && displayArea)
+            string areaBackground = "";
+            if (taken.areaLines.Count != 0 && displayArea)
 			{
-                string color;
-
-                if (!taken.countAreaImpair)
+                for(int i = 0; i < taken.areaLines.Count; i++)
                 {
-                    color = "#008000";
-                }
-                else
-                {
-                    color = taken.countAreaDetermined ? "#FF4000" : "#808000";
-                }
-
-                int i = 0;
-				foreach (int[] field in taken.minAreaLine)
-				{
-					int[] prevField = taken.minAreaLine[i == 0 ? taken.minAreaLine.Count - 1 : i - 1];
-                    int[] nextField = taken.minAreaLine[i == taken.minAreaLine.Count - 1 ? 0 : i + 1];
-
-					if (taken.circleDirectionLeft)
-					{
-                        if (field[0] == prevField[0] && field[0] == nextField[0]) // straight vertical
-                        {
-                            if (field[1] < nextField[1]) // down
-                            {
-                                areaBackground += "\t<rect width=\"0.25\" height=\"1\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                            else // up
-                            {
-                                areaBackground += "\t<rect width=\"0.25\" height=\"1\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                        else if (field[1] == prevField[1] && field[1] == nextField[1]) // straight horizontal
-                        {
-                            if (field[0] < nextField[0]) // right
-                            {
-                                areaBackground += "\t<rect width=\"1\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                            else // left
-                            {
-                                areaBackground += "\t<rect width=\"1\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                        else if (field[1] < prevField[1]) // up
-						{
-							if (field[0] > nextField[0]) // turn left
-							{
-								areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-							}
-							else // turn right
-							{
-								areaBackground += "\t<path d=\"M " + (field[0] - 1) + " " + (field[1] - 1) + " h 1 v 0.25 h -0.75 v 0.75 h -0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-							}
-						}
-						else if (field[1] > prevField[1]) // down
-                        {
-							if (field[0] < nextField[0]) // turn left
-							{
-								areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-							}
-							else // turn right
-							{
-								areaBackground += "\t<path d=\"M " + field[0] + " " + field[1] + " h -1 v -0.25 h 0.75 v -0.75 h 0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-							}
-						}
-                        else if (field[0] < prevField[0]) // left
-                        {
-                            if (field[1] < nextField[1]) // turn left
-                            {
-                                areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                            else // turn right
-                            {
-                                areaBackground += "\t<path d=\"M " + (field[0] - 1) + " " + field[1] + " v -1 h 0.25 v 0.75 h 0.75 v 0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                        else if (field[0] > prevField[0]) // right
-                        {
-                            if (field[1] > nextField[1]) // turn left
-                            {
-                                areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                            else // turn right
-                            {
-                                areaBackground += "\t<path d=\"M " + field[0] + " " + (field[1] - 1) + " v 1 h -0.25 v -0.75 h -0.75 v -0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                    }
-                    else // circle direction right
-                    {
-                        if (field[0] == prevField[0] && field[0] == nextField[0]) // straight vertical
-                        {
-							if (field[1] < nextField[1]) // down
-							{
-                                areaBackground += "\t<rect width=\"0.25\" height=\"1\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-							else // up
-							{
-                                areaBackground += "\t<rect width=\"0.25\" height=\"1\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }                            
-                        }
-                        else if (field[1] == prevField[1] && field[1] == nextField[1]) // straight horizontal
-                        {
-                            if (field[0] < nextField[0]) // right
-							{
-                                areaBackground += "\t<rect width=\"1\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-							else // left
-							{
-                                areaBackground += "\t<rect width=\"1\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                        else if (field[1] < prevField[1]) // up
-                        {
-                            if (field[0] > nextField[0]) // turn left
-                            {
-                                areaBackground += "\t<path d=\"M " + (field[0]) + " " + (field[1] - 1) + " v 1 h -0.25 v -0.75 h -0.75 v -0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                                
-                            }
-                            else // turn right
-                            {
-                                areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                        else if (field[1] > prevField[1]) // down
-                        {
-							if (field[0] < nextField[0]) // turn left
-							{
-								areaBackground += "\t<path d=\"M " + (field[0] - 1) + " " + field[1] + " v -1 h 0.25 v 0.75 h 0.75 v 0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-							}
-							else // turn right
-							{
-								areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                        else if (field[0] < prevField[0]) // left
-                        {
-                            if (field[1] < nextField[1]) // turn left
-                            {
-                                areaBackground += "\t<path d=\"M " + (field[0] - 1) + " " + (field[1] - 1) + " h 1 v 0.25 h -0.75 v 0.75 h -0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";                      
-                            }
-                            else // turn right
-                            {
-                                areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                        else if (field[0] > prevField[0]) // right
-                        {
-                            if (field[1] > nextField[1]) // turn left
-                            {
-                                areaBackground += "\t<path d=\"M " + field[0] + " " + field[1] + " h -1 v -0.25 h 0.75 v -0.75 h 0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";                     
-                            }
-                            else // turn right
-                            {
-                                areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
-                            }
-                        }
-                    }
-
-					i++;
-                }
+                    areaBackground += DrawAreaLine(taken.areaLines[i], taken.areaLineTypes[i], taken.areaLineDirections[i]);
+                }                
             }
+
 			string content = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + size + " " + size + "\">\r\n\t<path d=\"M0,0 h" + size + " v" + size + " h-" + size + " z\" fill=\"#dddddd\" />\r\n" + backgrounds + futureBackgrounds + possibles + areaBackground + grid +
 				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n" +
 				futurePath + "</svg>";
@@ -3987,6 +3828,175 @@ namespace OneWayLabyrinth
 			}
 			Canvas.InvalidateVisual();
 		}
+
+        private string DrawAreaLine(List<int[]> areaLine, int type, bool directionLeft)
+        {
+            string color = "", areaBackground = "";
+
+            switch (type)
+            {
+                case 0:
+                    color = "#008000";
+                    break;
+                case 1:
+                    color = "#808000";
+                    break;
+                case 2:
+                    color = "#FF4000";
+                    break;
+            }
+
+            int i = 0;
+            foreach (int[] field in areaLine)
+            {
+                int[] prevField = areaLine[i == 0 ? areaLine.Count - 1 : i - 1];
+                int[] nextField = areaLine[i == areaLine.Count - 1 ? 0 : i + 1];
+
+                if (directionLeft)
+                {
+                    if (field[0] == prevField[0] && field[0] == nextField[0]) // straight vertical
+                    {
+                        if (field[1] < nextField[1]) // down
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"1\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // up
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"1\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[1] == prevField[1] && field[1] == nextField[1]) // straight horizontal
+                    {
+                        if (field[0] < nextField[0]) // right
+                        {
+                            areaBackground += "\t<rect width=\"1\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // left
+                        {
+                            areaBackground += "\t<rect width=\"1\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[1] < prevField[1]) // up
+                    {
+                        if (field[0] > nextField[0]) // turn left
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // turn right
+                        {
+                            areaBackground += "\t<path d=\"M " + (field[0] - 1) + " " + (field[1] - 1) + " h 1 v 0.25 h -0.75 v 0.75 h -0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[1] > prevField[1]) // down
+                    {
+                        if (field[0] < nextField[0]) // turn left
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // turn right
+                        {
+                            areaBackground += "\t<path d=\"M " + field[0] + " " + field[1] + " h -1 v -0.25 h 0.75 v -0.75 h 0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[0] < prevField[0]) // left
+                    {
+                        if (field[1] < nextField[1]) // turn left
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // turn right
+                        {
+                            areaBackground += "\t<path d=\"M " + (field[0] - 1) + " " + field[1] + " v -1 h 0.25 v 0.75 h 0.75 v 0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[0] > prevField[0]) // right
+                    {
+                        if (field[1] > nextField[1]) // turn left
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // turn right
+                        {
+                            areaBackground += "\t<path d=\"M " + field[0] + " " + (field[1] - 1) + " v 1 h -0.25 v -0.75 h -0.75 v -0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                }
+                else // circle direction right
+                {
+                    if (field[0] == prevField[0] && field[0] == nextField[0]) // straight vertical
+                    {
+                        if (field[1] < nextField[1]) // down
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"1\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // up
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"1\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[1] == prevField[1] && field[1] == nextField[1]) // straight horizontal
+                    {
+                        if (field[0] < nextField[0]) // right
+                        {
+                            areaBackground += "\t<rect width=\"1\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // left
+                        {
+                            areaBackground += "\t<rect width=\"1\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[1] < prevField[1]) // up
+                    {
+                        if (field[0] > nextField[0]) // turn left
+                        {
+                            areaBackground += "\t<path d=\"M " + (field[0]) + " " + (field[1] - 1) + " v 1 h -0.25 v -0.75 h -0.75 v -0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+
+                        }
+                        else // turn right
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[1] > prevField[1]) // down
+                    {
+                        if (field[0] < nextField[0]) // turn left
+                        {
+                            areaBackground += "\t<path d=\"M " + (field[0] - 1) + " " + field[1] + " v -1 h 0.25 v 0.75 h 0.75 v 0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // turn right
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[0] < prevField[0]) // left
+                    {
+                        if (field[1] < nextField[1]) // turn left
+                        {
+                            areaBackground += "\t<path d=\"M " + (field[0] - 1) + " " + (field[1] - 1) + " h 1 v 0.25 h -0.75 v 0.75 h -0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // turn right
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 0.25) + "\" y=\"" + (field[1] - 1) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                    else if (field[0] > prevField[0]) // right
+                    {
+                        if (field[1] > nextField[1]) // turn left
+                        {
+                            areaBackground += "\t<path d=\"M " + field[0] + " " + field[1] + " h -1 v -0.25 h 0.75 v -0.75 h 0.25 z\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                        else // turn right
+                        {
+                            areaBackground += "\t<rect width=\"0.25\" height=\"0.25\" x=\"" + (field[0] - 1) + "\" y=\"" + (field[1] - 0.25) + "\" fill=\"" + color + "\" fill-opacity=\"0.25\" />\r\n";
+                        }
+                    }
+                }
+
+                i++;
+            }
+
+            return areaBackground;
+        }
 
 		private void SKElement_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
 		{

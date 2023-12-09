@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Diagnostics.Metrics;
@@ -29,7 +30,6 @@ namespace OneWayLabyrinth
 		public int count;
 		public List<int[]> possible = new List<int[]>(); //field coordinates
 		List<int[]> forbidden = new List<int[]>();
-		public bool circleDirectionLeft = true;
 		public int x, y, x2, y2;
         public int sx = 0; //straight, left and right coordinates
         public int sy = 0;
@@ -53,12 +53,9 @@ namespace OneWayLabyrinth
         bool closeAcross = false;
 
         //used only for displaying area
-        public bool countAreaImpair = false;
-        public bool countAreaDetermined = false;
-        public List<int[]> areaLine = new();
-        public List<int[]> minAreaLine = new();
-        public int minAreaLineCount;
-
+        public List<List<int[]>> areaLines = new();
+        public List<int> areaLineTypes = new();
+        public List<bool> areaLineDirections = new();
 
         public Path(MainWindow window, int size, List<int[]> path, List<int[]>? path2, bool isMain)
 		{
@@ -85,7 +82,9 @@ namespace OneWayLabyrinth
 		{
 			possible = new List<int[]>();
 			forbidden = new List<int[]>();
-            minAreaLineCount = size * size;
+            areaLines = new();
+            areaLineTypes = new();
+            areaLineDirections = new();
 
             count = path.Count;
 			if (count < 2)
@@ -244,8 +243,6 @@ namespace OneWayLabyrinth
                         }
                         else
                         {
-                            countAreaImpair = false; 
-                            
                             CheckCShape();
 
                             if (!CShape)
@@ -499,8 +496,7 @@ namespace OneWayLabyrinth
             if (x == 3 && straightField[0] == 2 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(rightField) && !InTaken(1, y))
             {
                 T("CheckArea left");
-                circleDirectionLeft = false;
-                if (!CountArea(2, y - 1, 1, y - 1))
+                if (CountArea(2, y - 1, 1, y - 1, null, false, 1, false))
                 {
                     forbidden.Add(straightField);
                     forbidden.Add(leftField);
@@ -509,8 +505,7 @@ namespace OneWayLabyrinth
             else if (y == 3 && straightField[1] == 2 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(leftField) && !InTaken(x, 1))
             {
                 T("CheckArea up");
-                circleDirectionLeft = true;
-                if (!CountArea(x - 1, 2, x - 1, 1))
+                if (CountArea(x - 1, 2, x - 1, 1, null, true, 1, false))
                 {
                     forbidden.Add(straightField);
                     forbidden.Add(rightField);
@@ -519,8 +514,7 @@ namespace OneWayLabyrinth
             else if (x == size - 2 && y >= 2 && straightField[0] == size - 1 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(leftField) && !InTaken(size, y))
             {
                 T("CheckArea right");
-                circleDirectionLeft = true;
-                if (!CountArea(size - 1, y - 1, size, y - 1))
+                if (CountArea(size - 1, y - 1, size, y - 1, null, true, 1, false))
                 {
                     forbidden.Add(straightField);
                     forbidden.Add(rightField);
@@ -529,8 +523,7 @@ namespace OneWayLabyrinth
             else if (y == size - 2 && x >= 2 && straightField[1] == size - 1 && !InTakenAbs(straightField) && !InFutureAbs(straightField) && !InTakenAbs(rightField) && !InTaken(x, size))
             {
                 T("CheckArea down");
-                circleDirectionLeft = false;
-                if (!CountArea(x - 1, size - 1, x - 1, size))
+                if (CountArea(x - 1, size - 1, x - 1, size, null, false, 1, false))
                 {
                     forbidden.Add(straightField);
                     forbidden.Add(leftField);
@@ -539,8 +532,7 @@ namespace OneWayLabyrinth
             else if (x == 3 && y >= 4 && leftField[0] == 2 && !InTaken(3, y - 1) && !InTaken(1, y)) //straight and left field cannot be taken, but it is enough we check the most left field on border.
             {
                 T("CheckArea left side");
-                circleDirectionLeft = false;
-                if (!CountArea(2, y - 1, 1, y - 1))
+                if (CountArea(2, y - 1, 1, y - 1, null, false, 1, false))
                 {
                     forbidden.Add(leftField);
                 }
@@ -548,8 +540,7 @@ namespace OneWayLabyrinth
             else if (y == 3 && x >= 4 && rightField[1] == 2 && !InTaken(x - 1, 3) && !InTaken(x, 1))
             {
                 T("CheckArea up side");
-                circleDirectionLeft = true;
-                if (!CountArea(x - 1, 2, x - 1, 1))
+                if (CountArea(x - 1, 2, x - 1, 1, null, true, 1, false))
                 {
                     forbidden.Add(rightField);
                 }
@@ -557,8 +548,7 @@ namespace OneWayLabyrinth
             else if (x == size - 2 && y >= 3 && rightField[0] == size - 1 && !InTaken(size - 2, y - 1) && !InTaken(size, y))
             {
                 T("CheckArea right side");
-                circleDirectionLeft = true;
-                if (!CountArea(size - 1, y - 1, size, y - 1))
+                if (CountArea(size - 1, y - 1, size, y - 1, null, true, 1, false))
                 {
                     forbidden.Add(rightField);
                 }
@@ -566,8 +556,7 @@ namespace OneWayLabyrinth
             else if (y == size - 2 && x >= 3 && leftField[1] == size - 1 && !InTaken(x - 1, size - 2) && !InTaken(x, size))
             {
                 T("CheckArea down side");
-                circleDirectionLeft = false;
-                if (!CountArea(x - 1, size - 1, x - 1, size))
+                if (CountArea(x - 1, size - 1, x - 1, size, null, false, 1, false))
                 {
                     forbidden.Add(leftField);
                 }
@@ -677,8 +666,9 @@ namespace OneWayLabyrinth
                             if (!InTakenRel(1, 1) && !InTakenRel(2, 1)) // 1,1: 1019_4, 2,1: 1019_5
                             {
                                 if (i == 0) farStraightLeft = true; else farStraightRight = true;
-                                circleDirectionLeft = i == 0 ? true : false;
-                                if (!CountAreaRel(1, 1, 1, 2))
+
+                                bool circleDirectionLeft = i == 0 ? true : false;
+                                if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1, false))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x - lx, y - ly });
@@ -693,8 +683,8 @@ namespace OneWayLabyrinth
                         {
                             if (!InTakenRel(-1, 1) && !InTakenRel(-2, 1)) // -1, 1: 1019_6, -2, 1: 1019_7
                             {
-                                circleDirectionLeft = i == 0 ? false : true;
-                                if (!CountAreaRel(-1, 1, -1, 2))
+                                bool circleDirectionLeft = i == 0 ? false : true;
+                                if (CountAreaRel(-1, 1, -1, 2, null, circleDirectionLeft, 1, false))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x + lx, y + ly });
@@ -721,8 +711,8 @@ namespace OneWayLabyrinth
                             if (!InTakenRel(2, 1)) // 1019
                             {
                                 if (i == 0) farStraightLeft = true; else farStraightRight = true;
-                                circleDirectionLeft = i == 0 ? true : false;
-                                if (!CountAreaRel(1, 1, 1, 2))
+                                bool circleDirectionLeft = i == 0 ? true : false;
+                                if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1, false))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x - lx, y - ly });
@@ -737,8 +727,8 @@ namespace OneWayLabyrinth
                         {
                             if (!InTakenRel(-1, 1)) // 1019_1
                             {
-                                circleDirectionLeft = i == 0 ? false : true;
-                                if (!CountAreaRel(0, 1, 0, 2))
+                                bool circleDirectionLeft = i == 0 ? false : true;
+                                if (CountAreaRel(0, 1, 0, 2, null, circleDirectionLeft, 1, false))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x + lx, y + ly });
@@ -763,8 +753,8 @@ namespace OneWayLabyrinth
                             if (!InTakenRel(2, 1))
                             {
                                 if (i == 0) farStraightLeft = true; else farStraightRight = true;
-                                circleDirectionLeft = i == 0 ? true : false;
-                                if (!CountAreaRel(1, 1, 1, 2))
+                                bool circleDirectionLeft = i == 0 ? true : false;
+                                if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1, false))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x - lx, y - ly });
@@ -786,8 +776,8 @@ namespace OneWayLabyrinth
                         {
                             if (!InTakenRel(-1, 1) && !InTakenRel(-1, 3) && !InTakenRel(2, 2)) // -1,3: 1201
                             {
-                                circleDirectionLeft = i == 0 ? false : true;
-                                if (CountAreaRel(0, 1, 1, 2, new List<int[]> { new int[] { 0, 2 } }))
+                                bool circleDirectionLeft = i == 0 ? false : true;
+                                if (CountAreaRel(0, 1, 1, 2, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 0, false))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x + lx, y + ly });
@@ -825,6 +815,7 @@ namespace OneWayLabyrinth
                     farSideStraightDown = false;
                     farSideMidAcrossUp = false;
                     farSideMidAcrossDown = false;
+                    bool circleDirectionLeft = i == 0 ? false : true;
 
                     if (InTakenRel(2, 0) && !InTakenRel(1, 0))
                     {
@@ -855,8 +846,8 @@ namespace OneWayLabyrinth
                                 if (sideIndex > middleIndex) // area up
                                 {
                                     farSideUp = true;
-                                    circleDirectionLeft = i == 0 ? false : true;
-                                    if (!CountAreaRel(1, 1, 2, 1))
+
+                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1, false))
                                     {
                                         forbidden.Add(new int[] { x + lx, y + ly });
                                     }
@@ -874,8 +865,7 @@ namespace OneWayLabyrinth
                                 int sideIndex = InTakenIndexRel(3, -1);
                                 if (sideIndex < middleIndex) // area up
                                 {
-                                    circleDirectionLeft = i == 0 ? false : true;
-                                    if (!CountAreaRel(1, 1, 2, 1))
+                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1, false))
                                     {
                                         forbidden.Add(new int[] { x + lx, y + ly });
                                     }
@@ -904,8 +894,8 @@ namespace OneWayLabyrinth
                             if (sideIndex > middleIndex) // area up
                             {
                                 farSideUp = true;
-                                circleDirectionLeft = i == 0 ? false : true;
-                                if (!CountAreaRel(1, 1, 2, 1))
+
+                                if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1, false))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
@@ -924,9 +914,8 @@ namespace OneWayLabyrinth
                             int middleIndex = InTakenIndexRel(3, -1);
                             int sideIndex = InTakenIndexRel(3, -2);
                             if (sideIndex < middleIndex) // area up
-                            {
-                                circleDirectionLeft = i == 0 ? false : true;
-                                if (!CountAreaRel(1, 0, 2, 0))
+                            {                                
+                                if (CountAreaRel(1, 0, 2, 0, null, circleDirectionLeft, 1, false))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
@@ -953,8 +942,8 @@ namespace OneWayLabyrinth
                             if (sideIndex > middleIndex) // area up
                             {
                                 farSideUp = true;
-                                circleDirectionLeft = i == 0 ? false : true;
-                                if (!CountAreaRel(1, 1, 2, 1))
+
+                                if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1, false))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
@@ -982,8 +971,7 @@ namespace OneWayLabyrinth
                             T(sideIndex + " " + middleIndex);
                             if (sideIndex < middleIndex) // area up
                             {
-                                circleDirectionLeft = i == 0 ? false : true;
-                                if (CountAreaRel(1, 0, 2, -1, new List<int[]> { new int[] { 2, 0 } } ))
+                                if (CountAreaRel(1, 0, 2, -1, new List<int[]> { new int[] { 2, 0 }}, circleDirectionLeft, 0, false))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
@@ -1213,19 +1201,7 @@ namespace OneWayLabyrinth
 
         // Check functions end here
 
-        public bool CountAreaLineRel(int left1, int straight1, int left2, int straight2)
-        {
-            // left3 and straight 3 is the second start field in far across checking
-            T("CountAreaLineRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
-            int x1 = x + left1 * lx + straight1 * sx;
-            int y1 = y + left1 * ly + straight1 * sy;
-            int x2 = x + left2 * lx + straight2 * sx;
-            int y2 = y + left2 * ly + straight2 * sy;
-
-            return CountAreaLine(x1, y1, x2, y2);
-        }
-
-        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]> borderFields = null, bool compareColors = false)
+        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]> borderFields, bool circleDirectionLeft, int circleType, bool displayArea = true)
         {
             // left3 and straight 3 is the second start field in far across checking
             T("CountAreaRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
@@ -1233,6 +1209,7 @@ namespace OneWayLabyrinth
             int y1 = y + left1 * ly + straight1 * sy;
             int x2 = x + left2 * lx + straight2 * sx;
             int y2 = y + left2 * ly + straight2 * sy;
+
             List<int[]>? absBorderFields = null;
             if (!(borderFields is null))
             {
@@ -1243,106 +1220,10 @@ namespace OneWayLabyrinth
                 }
             }
 
-            return CountArea(x1, y1, x2, y2, absBorderFields, compareColors);
+            return CountArea(x1, y1, x2, y2, absBorderFields, circleDirectionLeft, circleType, displayArea);
         }
 
-        private bool CountAreaLine(int startX, int startY, int endX, int endY) // only draw arealine in order to determine if it is an enclosed area, see 9:478361
-        {
-            areaLine = new List<int[]> { new int[] { startX, startY } };
-            int xDiff = startX - endX;
-            int yDiff = startY - endY;
-
-            List<int[]> directions;
-
-            if (circleDirectionLeft)
-            {
-                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
-            }
-            else
-            {
-                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { -1, 0 }, new int[] { 0, -1 }, new int[] { 1, 0 } };
-            }
-
-            int currentDirection = -1;
-            foreach (int[] direction in directions)
-            {
-                currentDirection++;
-                if (direction[0] == xDiff && direction[1] == yDiff)
-                {
-                    break;
-                }
-            }
-
-            int nextX = startX;
-            int nextY = startY;
-
-            if (InTaken(nextX + xDiff, nextY + yDiff))
-            {
-                currentDirection = currentDirection == 0 ? 3 : currentDirection - 1;
-            }
-            nextX += directions[currentDirection][0];
-            nextY += directions[currentDirection][1];
-            areaLine.Add(new int[] { nextX, nextY });
-
-            while (!(nextX == endX && nextY == endY))
-            {
-                int startDirection = currentDirection;
-                currentDirection = currentDirection == 3 ? 0 : currentDirection + 1;
-                int i = currentDirection;
-                int possibleNextX = nextX + directions[currentDirection][0];
-                int possibleNextY = nextY + directions[currentDirection][1];
-
-                while (InBorder(possibleNextX, possibleNextY) || InTaken(possibleNextX, possibleNextY))
-                {
-                    i = (i == 0) ? 3 : i - 1;
-                    possibleNextX = nextX + directions[i][0];
-                    possibleNextY = nextY + directions[i][1];
-                }
-
-                if (i != startDirection && (i - startDirection) % 2 == 0) // opposite direction. Can happen in 1006
-                {
-                    T("Error at " + startX + " " + startY + " " + endX + " " + endY);
-                    window.errorInWalkthrough = true;
-                    T("Single field in arealine.");
-                    window.M("Single field in arealine.", 1);
-                    return false;
-                }
-
-                currentDirection = i;
-
-                nextX = possibleNextX;
-                nextY = possibleNextY;
-
-                foreach (int[] field in areaLine)
-                {
-                    if (field[0] == nextX && field[1] == nextY)
-                    {
-                        T("Error at " + startX + " " + startY + " " + endX + " " + endY);
-                        window.errorInWalkthrough = true;
-                        T("Field exists in arealine.");
-                        window.M("Field exists in arealine.", 1);
-                        return false;
-                    }
-                }
-
-                if (nextX == size && nextY == size)
-                {
-                    areaLine = new();
-                    return false;
-                }
-
-                areaLine.Add(new int[] { nextX, nextY });
-            }
-
-            if (areaLine.Count < minAreaLineCount)
-            {
-                minAreaLineCount = areaLine.Count;
-                minAreaLine = areaLine;
-            }
-            return true;
-        }
-
-        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]> borderFields = null, bool compareColors = false)
+        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]> borderFields, bool circleDirectionLeft, int circleType, bool displayArea = true)
         // compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more than the other color.
         {
             // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
@@ -1351,6 +1232,7 @@ namespace OneWayLabyrinth
             int startIndex = 0;
 
             int xDiff, yDiff;
+            List<int[]> areaLine;
 
             if (borderFields == null)
             {
@@ -1462,7 +1344,14 @@ namespace OneWayLabyrinth
                     T("Error at " + startX + " " + startY + " " + endX + " " + endY);
                     window.errorInWalkthrough = true;
                     T("Single field in arealine.");
+                    foreach (int[] field in areaLine)
+                    {
+                        T(field[0] + " " + field[1]);
+                    }
+
+                    T(startDirection + " " + i);
                     window.M("Single field in arealine.", 1);
+
                     return false;
                 }
                 
@@ -1471,15 +1360,28 @@ namespace OneWayLabyrinth
 				nextX = possibleNextX;
 				nextY = possibleNextY;
 
+                // We may go through the same field twice as in 1208 side across down checking, but that field is a count area border field.
                 foreach (int[] field in areaLine)
                 {
                     if (field[0] == nextX && field[1] == nextY)
                     {
-                        T("Error at " + startX + " " + startY + " " + endX + " " + endY);
-                        window.errorInWalkthrough = true;
-                        T("Field exists in arealine.");
-                        window.M("Field exists in arealine.", 1);
-                        return false;
+                        bool found = false;
+                        foreach (int[] field2 in borderFields)
+                        {
+                            if (field2[0] == nextX && field2[1] == nextY)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            T("Error at " + startX + " " + startY + " " + endX + " " + endY);
+                            window.errorInWalkthrough = true;
+                            T("Field exists in arealine.");
+                            window.M("Field exists in arealine.", 1);
+                            return false;
+                        }
                     }
                 }
                 areaLine.Add(new int[] { nextX, nextY });
@@ -1509,14 +1411,6 @@ namespace OneWayLabyrinth
                         }
                     }
                 }
-            }
-
-            bool areaLess = false;
-            if (areaLine.Count < minAreaLineCount)
-            {
-                areaLess = true;
-                minAreaLineCount = areaLine.Count;
-                minAreaLine = areaLine;
             }
 
             /*T("minY " + minY + " limitX " + limitX);
@@ -1779,8 +1673,7 @@ namespace OneWayLabyrinth
                 {
                     T("endSquares " + f[0] + " " + f[1]);
                 }
-                minAreaLineCount = 0;
-                minAreaLine = areaLine;
+
                 window.errorInWalkthrough = true;
                 window.StopAll("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
                 return false;
@@ -1792,77 +1685,88 @@ namespace OneWayLabyrinth
             }
 
             T("Count area: " + area);
-            if (area % 2 == 1)
+
+            if (displayArea)
             {
-                if (areaLess)
-                {
-                    countAreaImpair = true; // used for displaying arealine color
-                }                   
-
-                //Check that the number of black cells are one more than the number of white ones in a checkered pattern. The black color is where we enter and exit the area.
-
-                if (compareColors)
-                {
-                    if (areaLess)
+                areaLines.Add(areaLine);
+                areaLineTypes.Add(area % 2);
+                areaLineDirections.Add(circleDirectionLeft);
+            }
+            
+            switch (circleType)
+            {
+                case 0:
+                    if (area % 2 == 0)
                     {
-                        countAreaDetermined = true;
+                        return true;
                     }
-                    int pairCount = 0, impairCount = 0;
-
-                    foreach (int[] field in startSquares)
+                    else
                     {
-                        int x = field[0];
-                        int y = field[1];
-
-                        //without having open peaks, the first start square should match the last end square. Open peaks offset it, but it is most efficient to start cycling endSquares backwards in any case. Also, with an open peak at the bottom, there are two sections at the same vertical height. The first find will be the correct section ending.
-                        for (int i = endSquares.Count - 1; i >= 0; i--)
-                        {
-                            if (endSquares[i][1] == y && endSquares[i][0] > x)
-                            {
-                                int span = endSquares[i][0] - x + 1;
-                                if ((x + y) % 2 == 0)
-                                {
-                                    pairCount += (span + span % 2) / 2;
-                                    impairCount += (span - span % 2) / 2;
-                                }
-                                else
-                                {
-                                    impairCount += (span + span % 2) / 2;
-                                    pairCount += (span - span % 2) / 2;
-                                }
-                                break;
-                            }
-                        }
+                        return false;
                     }
-
-                    T("pair " + pairCount + ", impair " + impairCount);
-                    if ((startX + startY) % 2 == 0 && pairCount != impairCount + 1 || (startX + startY) % 2 == 1 && impairCount != pairCount + 1)
+                    break;
+                case 1:
+                    if (area % 2 == 0)
                     {
-                        // imbalance in colors, forbidden fields in the rule apply
                         return false;
                     }
                     else
                     {
                         return true;
                     }
-                }
-                else
-                {
-                    if (areaLess)
+                    break;
+                case 2:
+                    if (area % 2 == 0)
                     {
-                        countAreaDetermined = false;
+                        return false;
                     }
-                    return false;
-                }
+                    else
+                    {
+                        //Check that the number of black cells are one more than the number of white ones in a checkered pattern.The black color is where we enter and exit the area.
+
+                        int pairCount = 0, impairCount = 0;
+
+                        foreach (int[] field in startSquares)
+                        {
+                            int x = field[0];
+                            int y = field[1];
+
+                            //without having open peaks, the first start square should match the last end square. Open peaks offset it, but it is most efficient to start cycling endSquares backwards in any case. Also, with an open peak at the bottom, there are two sections at the same vertical height. The first find will be the correct section ending.
+                            for (int i = endSquares.Count - 1; i >= 0; i--)
+                            {
+                                if (endSquares[i][1] == y && endSquares[i][0] > x)
+                                {
+                                    int span = endSquares[i][0] - x + 1;
+                                    if ((x + y) % 2 == 0)
+                                    {
+                                        pairCount += (span + span % 2) / 2;
+                                        impairCount += (span - span % 2) / 2;
+                                    }
+                                    else
+                                    {
+                                        impairCount += (span + span % 2) / 2;
+                                        pairCount += (span - span % 2) / 2;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+
+                        T("pair " + pairCount + ", impair " + impairCount);
+                        if ((startX + startY) % 2 == 0 && pairCount != impairCount + 1 || (startX + startY) % 2 == 1 && impairCount != pairCount + 1)
+                        {
+                            // imbalance in colors, forbidden fields in the rule apply
+                            if (displayArea) areaLineTypes[areaLineTypes.Count - 1] = 2;
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+
             }
-            else
-            {
-                if (areaLess)
-                {
-                    countAreaImpair = false;
-                }
-                return true;
-            }
+            return false;
         }
 
         // ----- Check functions start -----
