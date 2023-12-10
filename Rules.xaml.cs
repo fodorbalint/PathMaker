@@ -1596,17 +1596,25 @@ namespace OneWayLabyrinth
                             circleCount++;
                             string countAreaCodeSection = "";
 
-                            bool diff1 = false;
+                            bool noCount = false;
                             int distX = 0, distY = 0;
 
-                            if (Math.Abs(ex - sx) == 1 && Math.Abs(ey - sy) == 0 || Math.Abs(ey - sy) == 1 && Math.Abs(ex - sx) == 0)
+                            if (Math.Abs(ex - sx) == 1 && ey == sy || Math.Abs(ey - sy) == 1 && ex == sx)
                             {
-                                // only check direction of the taken field, counting area is not necessary, and often the arra would only be 2.
+                                // if the area is next to the live end, count it. Otherwise, only check direction of the taken field, counting area is not necessary, and often it would only be 2.
                                 correctEnd = true;
                                
                                 distX = sx - ex;
                                 distY = sy - ey;
-                                diff1 = true;
+
+                                if (Math.Abs(startX - sx) <= 1 && Math.Abs(startY - sy) <= 1)
+                                {
+                                    countAreaCodeSection += "CountAreaRel(" + (startX - sx) + "," + (startY - sy) + "," + (startX - ex) + "," + (startY - ey) + ",null,";
+                                }
+                                else
+                                {
+                                    noCount = true;
+                                }
                             }
                             else
                             {
@@ -1658,7 +1666,7 @@ namespace OneWayLabyrinth
 
                             directionLeft = GetCircleDirection(ex, ey, distX, distY, takenFields);
                             countAreaCodeStart += variableName + "_circle" + circleCount + " && ";
-                            if (!diff1)
+                            if (!noCount)
                             {
                                 countAreaCodeEnd += countAreaCodeSection + "i==0?" + directionLeft.ToString().ToLower() + ":!" + directionLeft.ToString().ToLower() + "," + ((stype - stype % 3) / 3 - 4) + ") && ";
                             }

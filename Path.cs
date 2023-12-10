@@ -765,10 +765,10 @@ namespace OneWayLabyrinth
                                     {
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                     }
-                                    if (InTakenRel(1, 4) && !InTakenRel(1, 3)) // end C
+                                    /*if (InTakenRel(1, 4) && !InTakenRel(1, 3)) // end C, there is a separate rule for that now
                                     {
                                         forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
+                                    }*/
                                 }
                             }                            
                         }
@@ -952,11 +952,11 @@ namespace OneWayLabyrinth
                                     if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
                                     {
                                         forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                    if (InTakenRel(4, 1) && !InTakenRel(3, 1)) // end C
+                                    }                                    
+                                    /*if (InTakenRel(4, 1) && !InTakenRel(3, 1)) // end C
                                     {
                                         forbidden.Add(new int[] { x + sx, y + sy });
-                                    }
+                                    }*/
                                 }
                             }
                         }
@@ -1294,6 +1294,12 @@ namespace OneWayLabyrinth
             {
                 currentDirection = turnedDirection;
             }
+
+            //In case of an area of 2
+            if (InTaken(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]))
+            {
+                currentDirection = currentDirection == 0 ? 3 : currentDirection - 1;
+            }
             nextX += directions[currentDirection][0];
             nextY += directions[currentDirection][1];
             areaLine.Add(new int[] { nextX, nextY });
@@ -1341,7 +1347,7 @@ namespace OneWayLabyrinth
 
                 if (i != startDirection && (i - startDirection) % 2 == 0) // opposite direction. Can happen in 1006
                 {
-                    T("Error at " + startX + " " + startY + " " + endX + " " + endY);
+                    T("Error at " + startX + " " + startY + " " + endX + " " + endY + " " + possibleNextX + " " + possibleNextY);
                     window.errorInWalkthrough = true;
                     T("Single field in arealine.");
                     foreach (int[] field in areaLine)
@@ -1421,105 +1427,173 @@ namespace OneWayLabyrinth
 
             //Special cases are not yet programmed in here as in MainWindow.xaml.cs. We take a gradual approach, starting from the cases that can happen on 7 x 7.
 
+            int area = 0;
             List<int[]> startSquares = new List<int[]>();
             List<int[]> endSquares = new List<int[]>();
-            int[] startCandidate = new int[] { limitX, minY };
-            int[] endCandidate = new int[] { limitX, minY };
-            int currentY = minY;
 
-            for (int i = 1; i < areaLine.Count; i++)
+            if (areaLine.Count > 2)
             {
-                int index = startIndex + i;
-                if (index >= areaLine.Count)
-                {
-                    index -= areaLine.Count;
-                }
-                int[] field = areaLine[index];
-                int fieldX = field[0];
-                int fieldY = field[1];
+                int[] startCandidate = new int[] { limitX, minY };
+                int[] endCandidate = new int[] { limitX, minY };
+                int currentY = minY;
 
-                //T(" currentY " + currentY + " fieldX " + fieldX + " fieldY " + fieldY + " startCandidate " + startCandidate[0] + " " + startCandidate[1] + " endCandidate " + endCandidate[0] + " " + endCandidate[1]);
-
-                if (fieldY > currentY)
+                for (int i = 1; i < areaLine.Count; i++)
                 {
-                    if (circleDirectionLeft)
+                    int index = startIndex + i;
+                    if (index >= areaLine.Count)
                     {
-                        //in the case where where the previous row was a closed peak, but an open dip was preceding it: the previous end field should have the same y and lower x
-                        if (endSquares.Count > 0)
-                        {
-                            int[] square = endSquares[endSquares.Count - 1];
-                            int x = square[0];
-                            int y = square[1];
+                        index -= areaLine.Count;
+                    }
+                    int[] field = areaLine[index];
+                    int fieldX = field[0];
+                    int fieldY = field[1];
 
-                            if (y == fieldY - 1 && x < fieldX)
+                    //T(" currentY " + currentY + " fieldX " + fieldX + " fieldY " + fieldY + " startCandidate " + startCandidate[0] + " " + startCandidate[1] + " endCandidate " + endCandidate[0] + " " + endCandidate[1]);
+
+                    if (fieldY > currentY)
+                    {
+                        if (circleDirectionLeft)
+                        {
+                            //in the case where where the previous row was a closed peak, but an open dip was preceding it: the previous end field should have the same y and lower x
+                            if (endSquares.Count > 0)
                             {
-                                startSquares.Add(startCandidate);
-                                endSquares.Add(endCandidate);
-                                startCandidate = endCandidate = field;
-                                currentY = fieldY;
-                                continue;
+                                int[] square = endSquares[endSquares.Count - 1];
+                                int x = square[0];
+                                int y = square[1];
+
+                                if (y == fieldY - 1 && x < fieldX)
+                                {
+                                    startSquares.Add(startCandidate);
+                                    endSquares.Add(endCandidate);
+                                    startCandidate = endCandidate = field;
+                                    currentY = fieldY;
+                                    continue;
+                                }
                             }
-                        }
 
-                        if (startSquares.Count > 0)
-                        {
-                            int[] square = startSquares[startSquares.Count - 1];
-                            int x = square[0];
-                            int y = square[1];
-
-                            if (y == fieldY)
+                            if (startSquares.Count > 0)
                             {
-                                //the previous row was a closed peak
-                                if (x < fieldX)
+                                int[] square = startSquares[startSquares.Count - 1];
+                                int x = square[0];
+                                int y = square[1];
+
+                                if (y == fieldY)
+                                {
+                                    //the previous row was a closed peak
+                                    if (x < fieldX)
+                                    {
+                                        endSquares.Add(endCandidate);
+                                        startSquares.Add(startCandidate);
+                                    }
+                                    // else: open peak, no start and end should be marked
+                                }
+                                else // stair down right or left, any possible start field is higher up
                                 {
                                     endSquares.Add(endCandidate);
-                                    startSquares.Add(startCandidate);
                                 }
-                                // else: open peak, no start and end should be marked
                             }
-                            else // stair down right or left, any possible start field is higher up
+                            else // stair, no start fields exist
                             {
                                 endSquares.Add(endCandidate);
                             }
                         }
-                        else // stair, no start fields exist
+                        else
                         {
-                            endSquares.Add(endCandidate);
+                            if (startSquares.Count > 0)
+                            {
+                                int[] square = startSquares[startSquares.Count - 1];
+                                int x = square[0];
+                                int y = square[1];
+
+                                if (y == fieldY - 1 && x > fieldX)
+                                {
+                                    startSquares.Add(startCandidate);
+                                    endSquares.Add(endCandidate);
+                                    startCandidate = endCandidate = field;
+                                    currentY = fieldY;
+                                    continue;
+                                }
+                            }
+
+                            if (endSquares.Count > 0)
+                            {
+                                int[] square = endSquares[endSquares.Count - 1];
+                                int x = square[0];
+                                int y = square[1];
+
+                                if (y == fieldY)
+                                {
+                                    //the previous row was a closed peak
+                                    if (x > fieldX)
+                                    {
+                                        startSquares.Add(startCandidate);
+                                        endSquares.Add(endCandidate);
+                                    }
+                                    // else: open peak, no start and end should be marked
+                                }
+                                else
+                                {
+                                    startSquares.Add(startCandidate);
+                                }
+                            }
+                            else
+                            {
+                                startSquares.Add(startCandidate);
+                            }
+                        }
+                        startCandidate = endCandidate = field;
+                    }
+                    else if (fieldY == currentY)
+                    {
+                        if (fieldX < startCandidate[0])
+                        {
+                            startCandidate = field;
+                        }
+                        else if (fieldX > endCandidate[0])
+                        {
+                            endCandidate = field;
                         }
                     }
                     else
                     {
-                        if (startSquares.Count > 0)
+                        if (circleDirectionLeft)
                         {
-                            int[] square = startSquares[startSquares.Count - 1];
-                            int x = square[0];
-                            int y = square[1];
-
-                            if (y == fieldY - 1 && x > fieldX)
+                            if (startSquares.Count > 0)
                             {
-                                startSquares.Add(startCandidate);
-                                endSquares.Add(endCandidate);
-                                startCandidate = endCandidate = field;
-                                currentY = fieldY;
-                                continue;
-                            }
-                        }
+                                int[] square = startSquares[startSquares.Count - 1];
+                                int x = square[0];
+                                int y = square[1];
 
-                        if (endSquares.Count > 0)
-                        {
-                            int[] square = endSquares[endSquares.Count - 1];
-                            int x = square[0];
-                            int y = square[1];
-
-                            if (y == fieldY)
-                            {
-                                //the previous row was a closed peak
-                                if (x > fieldX)
+                                if (y == fieldY + 1 && x > fieldX)
                                 {
                                     startSquares.Add(startCandidate);
                                     endSquares.Add(endCandidate);
+                                    startCandidate = endCandidate = field;
+                                    currentY = fieldY;
+                                    continue;
                                 }
-                                // else: open peak, no start and end should be marked
+                            }
+
+                            if (endSquares.Count > 0)
+                            {
+                                int[] square = endSquares[endSquares.Count - 1];
+                                int x = square[0];
+                                int y = square[1];
+
+                                if (y == fieldY)
+                                {
+                                    //the previous row was a closed peak
+                                    if (x > fieldX)
+                                    {
+                                        startSquares.Add(startCandidate);
+                                        endSquares.Add(endCandidate);
+                                    }
+                                    // else: open peak, no start and end should be marked
+                                }
+                                else
+                                {
+                                    startSquares.Add(startCandidate);
+                                }
                             }
                             else
                             {
@@ -1528,165 +1602,102 @@ namespace OneWayLabyrinth
                         }
                         else
                         {
-                            startSquares.Add(startCandidate);
+                            if (endSquares.Count > 0)
+                            {
+                                int[] square = endSquares[endSquares.Count - 1];
+                                int x = square[0];
+                                int y = square[1];
+
+                                if (y == fieldY + 1 && x < fieldX)
+                                {
+                                    startSquares.Add(startCandidate);
+                                    endSquares.Add(endCandidate);
+                                    startCandidate = endCandidate = field;
+                                    currentY = fieldY;
+                                    continue;
+                                }
+                            }
+
+                            if (startSquares.Count > 0)
+                            {
+                                int[] square = startSquares[startSquares.Count - 1];
+                                int x = square[0];
+                                int y = square[1];
+
+                                if (y == fieldY)
+                                {
+                                    //the previous row was a closed peak
+                                    if (x < fieldX)
+                                    {
+                                        endSquares.Add(endCandidate);
+                                        startSquares.Add(startCandidate);
+                                    }
+                                    // else: open peak, no start and end should be marked
+                                }
+                                else
+                                {
+                                    endSquares.Add(endCandidate);
+                                }
+                            }
+                            else
+                            {
+                                endSquares.Add(endCandidate);
+                            }
                         }
+                        startCandidate = endCandidate = field;
                     }
-                    startCandidate = endCandidate = field;
+                    currentY = fieldY;
+
+                    /*foreach (int[] sfield in startSquares)
+                    {
+                        T("startsquare: " + sfield[0] + " " + sfield[1]);
+                    }
+                    foreach (int[] efield in endSquares)
+                    {
+                        T("endsquare: " + efield[0] + " " + efield[1]);
+                    }*/
                 }
-                else if (fieldY == currentY)
+
+                //add last field
+                if (circleDirectionLeft)
                 {
-                    if (fieldX < startCandidate[0])
-                    {
-                        startCandidate = field;
-                    }
-                    else if (fieldX > endCandidate[0])
-                    {
-                        endCandidate = field;
-                    }
+                    startSquares.Add(startCandidate);
                 }
                 else
                 {
-                    if (circleDirectionLeft)
+                    endSquares.Add(endCandidate);
+                }
+
+                count = endSquares.Count;
+
+                // it should never happen if the above algorithm is bug-free.
+                if (startSquares.Count != count)
+                {
+                    T("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
+                    foreach (int[] f in startSquares)
                     {
-                        if (startSquares.Count > 0)
-                        {
-                            int[] square = startSquares[startSquares.Count - 1];
-                            int x = square[0];
-                            int y = square[1];
-
-                            if (y == fieldY + 1 && x > fieldX)
-                            {
-                                startSquares.Add(startCandidate);
-                                endSquares.Add(endCandidate);
-                                startCandidate = endCandidate = field;
-                                currentY = fieldY;
-                                continue;
-                            }
-                        }
-
-                        if (endSquares.Count > 0)
-                        {
-                            int[] square = endSquares[endSquares.Count - 1];
-                            int x = square[0];
-                            int y = square[1];
-
-                            if (y == fieldY)
-                            {
-                                //the previous row was a closed peak
-                                if (x > fieldX)
-                                {
-                                    startSquares.Add(startCandidate);
-                                    endSquares.Add(endCandidate);
-                                }
-                                // else: open peak, no start and end should be marked
-                            }
-                            else
-                            {
-                                startSquares.Add(startCandidate);
-                            }
-                        }
-                        else
-                        {
-                            startSquares.Add(startCandidate);
-                        }
+                        T("startSquares " + f[0] + " " + f[1]);
                     }
-                    else
+                    foreach (int[] f in endSquares)
                     {
-                        if (endSquares.Count > 0)
-                        {
-                            int[] square = endSquares[endSquares.Count - 1];
-                            int x = square[0];
-                            int y = square[1];
-
-                            if (y == fieldY + 1 && x < fieldX)
-                            {
-                                startSquares.Add(startCandidate);
-                                endSquares.Add(endCandidate);
-                                startCandidate = endCandidate = field;
-                                currentY = fieldY;
-                                continue;
-                            }
-                        }
-
-                        if (startSquares.Count > 0)
-                        {
-                            int[] square = startSquares[startSquares.Count - 1];
-                            int x = square[0];
-                            int y = square[1];
-
-                            if (y == fieldY)
-                            {
-                                //the previous row was a closed peak
-                                if (x < fieldX)
-                                {
-                                    endSquares.Add(endCandidate);
-                                    startSquares.Add(startCandidate);
-                                }
-                                // else: open peak, no start and end should be marked
-                            }
-                            else
-                            {
-                                endSquares.Add(endCandidate);
-                            }
-                        }
-                        else
-                        {
-                            endSquares.Add(endCandidate);
-                        }
+                        T("endSquares " + f[0] + " " + f[1]);
                     }
-                    startCandidate = endCandidate = field;
-                }
-                currentY = fieldY;
 
-                /*foreach (int[] sfield in startSquares)
-                {
-                    T("startsquare: " + sfield[0] + " " + sfield[1]);
-                }
-                foreach (int[] efield in endSquares)
-                {
-                    T("endsquare: " + efield[0] + " " + efield[1]);
-                }*/
-            }
-
-			//add last field
-            if (circleDirectionLeft)
-            {
-                startSquares.Add(startCandidate);
-            }
-            else
-            {
-                endSquares.Add(endCandidate);
-            }
-
-            count = endSquares.Count;
-            int area = 0;
-
-            // it should never happen if the above algorithm is bug-free.
-            if (startSquares.Count != count)
-            {
-                T("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
-                foreach (int[] f in startSquares)
-                {
-                    T("startSquares " + f[0] + " " + f[1]);
-                }
-                foreach (int[] f in endSquares)
-                {
-                    T("endSquares " + f[0] + " " + f[1]);
+                    window.errorInWalkthrough = true;
+                    window.StopAll("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
+                    return false;
                 }
 
-                window.errorInWalkthrough = true;
-                window.StopAll("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
-                return false;
+                for (int i = 0; i < count; i++)
+                {
+                    area += endSquares[i][0] - startSquares[i][0] + 1;
+                }
             }
-
-            for (int i = 0; i < count; i++)
-            {
-                area += endSquares[i][0] - startSquares[i][0] + 1;
-            }
+            else area = 2;
 
             T("Count area: " + area);
 
-            if (displayArea)
+            if (displayArea && area > 2)
             {
                 areaLines.Add(areaLine);
                 areaLineTypes.Add(area % 2);

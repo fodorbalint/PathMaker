@@ -114,7 +114,7 @@ The 5 x 5 requires much more consideration. Whenever it is possible to draw futu
 <br />
 By August 21, 2023 all 5 x 5 scenarios were discovered. The number of walkthroughs are 104.<br />
 Here are the things to consider on a grid of this size:</div></td></tr>
-<tr><td class="left"><div><img src="References/rules/5/C-Shape.svg" width="19.05%" align="top" /><img src="References/spacer.svg" width="4.8%"/><img src="References/C-Shape example.svg" width="23.8%" align="top" /><br />
+<tr><td class="left"><div><img src="References/rules/5/C-Shape.svg" width="19.05%" align="top" /><img src="References/spacer.svg" width="4.76%"/><img src="References/C-Shape example.svg" width="23.8%" align="top" /><br />
 <br />
 - A single field next to the live end that is walled from two other sides (either by the border or the line) needs to be filled in the next step. I call it C-shape. The pattern is both mirrored and rotated, so that the empty field is straight ahead. To qualify for this rule, the empty field cannot be the end corner. If there is a C-shape, we don't need to check other rules.<br />
 <br />
@@ -129,14 +129,14 @@ Here are the things to consider on a grid of this size:</div></td></tr>
 <br />
 - A 2 x 2 empty area next to the live end that is walled by three sides (2-2-2 long) will have a future line going through along the walls. In this example, the far end is already extended by one step as it had only one option to move.<br />
 <br />
-<img src="References/1019_9.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/1019_10.svg" width="23.8%"/><br />
+<img src="References/1019_9.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/1019_10.svg" width="23.8%"/><br />
 <br />
 - Future line extension when we step on a future line: The far can be extended if it was 2 distance away from the near end. It can now fill the C-shape.<br />
 <br />
-<img src="References/1021_4.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/1021_5.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/1021_6.svg" width="23.8%"/><br />
+<img src="References/1021_4.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/1021_5.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/1021_6.svg" width="23.8%"/><br />
 <br />
 The same goes with 1 x- and y-distance. A C-Shape is not always created in this case.</div></td></tr>
-<tr><td class="left"><div><img src="References/1019_11.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/1019_12.svg" width="23.8%"/><br />
+<tr><td class="left"><div><img src="References/1019_11.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/1019_12.svg" width="23.8%"/><br />
 <br />
 If the far end was near the end corner, it has to choose the other empty field.<br />
 <br />
@@ -144,10 +144,10 @@ If the far end was near the end corner, it has to choose the other empty field.<
 <br />
 - Future line extension when stepping away: If there was a near end where the main line was in the previous step, it now may have only one choice to move, so it can be extended.<br />
 <br />
-<img src="References/future connection.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/0821_4.svg" width="23.8%"/><br />
+<img src="References/future connection.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/0821_4.svg" width="23.8%"/><br />
 <br />
 - Future line connection: In this case, the line being stepped on extends until the far end has two options. (When the end corner is one of them, it has to be removed.) Then, the line on the left extends and now has no other option than to connect to the line on the right.</div></td>
-<td class="right"><div><img src="References/0930.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/0930_0_1.svg" width="23.8%"/><br />
+<td class="right"><div><img src="References/0930.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/0930_0_1.svg" width="23.8%"/><br />
 <br />
 - When we are two distance away from the edge, we need to check if stepping towards it is possible.<br />
 It is because if we do so, an enclosed area is created, with one way to go out of it. If that area has an impair amount of cells, it cannot be filled, so we cannot take that step.<br />
@@ -159,22 +159,22 @@ In the example, you can also say that we cannot step right, because there is a f
 <br />
 - Future line extension: When a near end is at 2 distance left or right from the live end, it will fill the field between them if the live end steps elsewhere. That's what happened in the 5 x 5 example above before the line failed.<br />
 <br />
-<img src="References/0911.svg" width="33.3%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/0911_0_1.svg" width="33.3%"/><br />
+<img src="References/0911.svg" width="33.3%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/0911_0_1.svg" width="33.3%"/><br />
 <br />
 In other situations, there is a 1-thin future line next to the live end that can be extended if its far end is at the corner. Though disabling this rule does not affect the total amount of walkthroughs on a 7 x 7 grid, I chose to include it in the project on the basis that if a future line can be extended, we should do it. It can make a considerable difference. The left picture is without the rule, the right is with it.<br />
 <br />
 <img src="References/0901.svg" width="33.3%"/><br />
 <br />
 - Just like moving near the edge, we need to disable some fields if we are approaching an older section of the main line. In order to determine on which side the enclosed area is created, we need to examine the direction of the line at the connection point.</div></td>
-<td class="right"><div><img src="References/checknearfield/close straight left right.svg" width="9.5%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/close straight left left.svg" width="14.3%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/close straight right right.svg" width="14.3%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/close straight right left.svg" width="9.5%"/><br />
+<td class="right"><div><img src="References/checknearfield/close straight left right.svg" width="9.5%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/close straight left left.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/close straight right right.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/close straight right left.svg" width="9.5%"/><br />
 <br />
 The gray square means empty field. When the field 2 to straight is taken, its left or right side will be taken too.<br />
 <br />
-<img src="References/checknearfield/close mid across right.svg" width="14.3%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/close mid across left.svg" width="19%"/><br />
+<img src="References/checknearfield/close mid across right.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/close mid across left.svg" width="19%"/><br />
 <br />
 These will only be checked if one of the above 4 situations were not present. (They have to be mirrored, too.)<br />
 <br />
-<img src="References/checknearfield/close across right.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/close across left.svg" width="23.8%"/><br />
+<img src="References/checknearfield/close across right.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/close across left.svg" width="23.8%"/><br />
 <br />
 Likewise, these will be not be checked if the previous rules were true.<br />
 <br />
@@ -183,42 +183,42 @@ And when none of the 1-distance situations are valid, we check for 2-distance.<b
 <img src="References/0929_1.svg" width="33.3%"/><br />
 <br />
 Impair areas can now happen inside the grid, not just on the edge, and the following rules have to be applied:</div></td></tr>
-<tr><td class="left"><div><img src="References/checknearfield/far straight left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far straight right.svg" width="19%"/><br />
+<tr><td class="left"><div><img src="References/checknearfield/far straight left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far straight right.svg" width="19%"/><br />
 <br />
 The procedure is similar to the the straight 2-distance rule. The only difference is that we count the area starting and ending at the marked fields. In the first, the direction of the circle is left, in the second right.<br />
 Besides mirroring them, we also have to rotate them both counter-clockwise and clockwise.<br />
 But we do not need 12 of such rules. Taking the first, the live end cannot come from the left, because the area parity was already checked in the previous step, and now we just added 2 fields to it. It can come from the right, and then there is naturally only one field we might have to disable.<br />
 Here are the representations of the two scenarios for the left side:<br />
 <br />
-<img align="top" src="References/checknearfield/far side down.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far side up.svg" width="19%"/><br />
+<img align="top" src="References/checknearfield/far side down.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far side up.svg" width="19%"/><br />
 <br />
 Similarly to the straight rules, these will only apply if there is no wall 2 distance to the left or right. Let's construct these preconditions.<br />
 <br />
-<img align="top" src="References/checknearfield/close side straight.svg" width="14.3%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/close side mid across up.svg" width="14.3%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/close side mid across down.svg" width="14.3%"/><br />
+<img align="top" src="References/checknearfield/close side straight.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/close side mid across up.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/close side mid across down.svg" width="14.3%"/><br />
 <br />
 We are not finished. Did you notice the example above is not covered by these rules? We have to move the taken fields 1 and 2 steps to the side, both in straight and side direction.</div></td>
-<td class="right"><div><img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/><br />
+<td class="right"><div><img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/><br />
 <img src="References/spacer.svg" height="17"/><br />
-<img align="top" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far across right_0.svg" width="19%"/><br />
+<img align="top" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far across right_0.svg" width="19%"/><br />
 <img src="References/spacer.svg" height="17"/><br />
-<img align="top" src="References/checknearfield/far side mid across up.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/far side mid across down.svg" width="19%"/><br />
+<img align="top" src="References/checknearfield/far side mid across up.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far side mid across down.svg" width="19%"/><br />
 <img src="References/spacer.svg" height="17"/><br />
 <img align="top" src="References/checknearfield/far side across up.svg" width="19%"/><br />
 <br />
 When any of the straight 2-distance rules are present, we don't need to check the side rules or the area created with the border. This is not entirely proven, but take these 9 x 9 examples:<br />
 <br />
-<img src="References/1019_8.svg" width="42.9%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1021_2.svg" width="42.9%"/></div></td></tr>
+<img src="References/1019_8.svg" width="42.9%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1021_2.svg" width="42.9%"/></div></td></tr>
 <tr><td class="left"><div>And these are the rest of the rules:<br />
 <br />
-<img align="top" src="References/rules/7/Future L.svg" width="19.05%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/Future L 65.svg" width="33.3%"/><br />
+<img align="top" src="References/rules/7/Future L.svg" width="19.05%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/Future L 65.svg" width="33.3%"/><br />
 <br />
 - This is what I started the 7 x 7 introduction with. I will call it Future L.<br />
 <br />
-<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="28.57%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/><br />
+<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="14.3%"/><img src="References/spacer.svg" width="19.05%"/><img align="top" src="References/Future 2 x 3 Start End 465.svg" width="33.3%"/><br />
 <img src="References/spacer.svg" height="23"/></div></td>
-<td class="right"><div><img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/Future 3 x 3 Start End 1861.svg" width="33.3%"/><br />
+<td class="right"><div><img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/Future 3 x 3 Start End 1861.svg" width="33.3%"/><br />
 <br />
 - And these are the remaining size-specific rules. Future 2 x 2 Start End, Future 2 x 3 Start End and Future 3 x 3 Start End.<br />
 <br />
@@ -243,7 +243,7 @@ I have made statistics about how many random walkthroughs you can complete on di
 <br />
 Let's simplify the pattern. Which will be impossible to fill?<br />
 <br />
-<img align="top" src="References/1008.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1008_1.svg" width="42.86%"/><br />
+<img align="top" src="References/1008.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1008_1.svg" width="42.86%"/><br />
 <br />
 It is the picture on the left. Since the yellow-bordered area is impair, adding the (4,2) (4,3) (4,4) fields will be pair. We enter the area at (4,4), so we will exit at (4,3). Now we enter the 3 x 3 area in the top left corner at its side, (3,3) and will exit at (2,4). The results is two C-shapes on each side:</div></td>
 <td class="right"><div><img align="top" src="References/1008_2.svg" width="42.86%"/><br />
@@ -265,7 +265,7 @@ This will probably be another rule, because in this case it is not necessary to 
 <br />
 Now let's run the program further up to number 13 992:<!-- (from stepping back + 142 (with first rule disabled) / 158 = 13 984) why? --><br />
 <br />
-<img align="top" src="References/1010_4_error.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1010_4.svg" width="42.86%"/><br />
+<img align="top" src="References/1010_4_error.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1010_4.svg" width="42.86%"/><br />
 <br />
 It is also just like the 7 x 7 rule, just with the extension of the area on the opposite side of the future line ends. But we can't simply remove the two taken fields on that side, because the line might continue in that direction, as it is the case here:</div></td>
 <td class="right"><div><img align="top" src="References/1013.svg" width="33.3%"/><br />
@@ -284,14 +284,14 @@ You may ask, why that field is "taken", not "taken or border". From what I found
 <br />
 We need to take a few steps back, and then we can create the rule. It is similar to the universal 2-distance rule on the side, it just checks the field 2 behind and 1 to the side too. Even though the area counted is pair, now stepping to the right is disabled.<br />
 <br />
-<img align="top" src="References/rules/9_old/Future 2 x 3 Start End 9.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1013_2.svg" width="42.86%"/></div></td>
+<img align="top" src="References/rules/9_old/Future 2 x 3 Start End 9.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1013_2.svg" width="42.86%"/></div></td>
 <td class="right"><div>At 55 298, we get this:<br />
 <br />
 <img align="top" src="References/1022.svg" width="42.86%"/><br />
 <br />
 Let's analyze it! A double C-shape is created, because the line occupied the A field, and out of the B, C and D fields it exited the right-side area at C. It means, the area enclosed by the marked fields is pair. In this case, we shouldn't step right and the rule will therefore look like:<br />
 <br />
-<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1022_1.svg" width="42.86%"/><br />
+<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1022_1.svg" width="42.86%"/><br />
 <br />
 But what if from the A position, we step upwards in another situation?<br />
 Compare these two on 11 x 11:</div></td></tr>
@@ -302,7 +302,7 @@ Compare these two on 11 x 11:</div></td></tr>
 If the area we started with is pair, then the other will be impair. We can only enter the area at the light-gray field and will exit at A. From there we must go through B, C and D, and then a double C-shape is again created.</div></td>
 <td class="right"><div>One certain situation reveals the incorrectness of the 7-rules when it comes to a 9-grid. In the following example, when I apply a rule rotated, it will disable a field that would otherwise be viable.<br />
 <br />
-<img align="top" src="References/Future 2 x 2 Start End rotated.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/1027.svg" width="42.86%"/><br />
+<img align="top" src="References/Future 2 x 2 Start End rotated.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1027.svg" width="42.86%"/><br />
 <br />
 Rotating was not necessary to start with on 7 x 7, because no such situation occurred.<br />
 <br />
@@ -314,7 +314,7 @@ We can see that defining a rule with future line starts and ends does not tell u
 <br />
 Intuitively, we can draw up the square, and let's mark the exit as well. There can be loops on the upper, lower and right side, they have no importance when tracing it back to the live end. There is only one way to go through.<br />
 <br />
-<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/227200_1.svg" width="42.86%"/></div></td></tr>
+<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/227200_1.svg" width="42.86%"/></div></td></tr>
 <tr><td class="left"><div>233 810 will look like:<br />
 <br />
 <img align="top" src="References/233810.svg" width="42.86%"/><br />
@@ -323,7 +323,7 @@ Once we step to A, it is unavoidable to get to B before entering the outlined ar
 The area is impair, therefore we cannot complete it starting in C and ending in D.<br />
 As with many of the previous rules, the C-shape created with the border is to blame and therefore we need to represent it.<br />
 <br />
-<img align="top" src="References/rules/9_old/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/233810_1.svg" width="42.86%"/></div></td>
+<img align="top" src="References/rules/9_old/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/233810_1.svg" width="42.86%"/></div></td>
 <td class="right"><div>234 256 has at first sight something to do with future lines.<br />
 <br />
 <img align="top" src="References/234256.svg" width="42.86%"/><br />
@@ -331,7 +331,7 @@ As with many of the previous rules, the C-shape created with the border is to bl
 But it is more than that. Notice that enclosed areas has been created on both sides simultaneously. Because of the universal rules for approaching an older section of the line, now we have no option to move. The areas can be filled individually, but we cannot step to left and right at the same time.<br />
 We have to create 2-distance rules, which take both sides into account.<br />
 <br />
-<img align="top" src="References/checknearfield/2 far mid across across.svg" width="28.6%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/2 far side mid across across down.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/checknearfield/2 far side mid across across up.svg" width="19%"/><br />
+<img align="top" src="References/checknearfield/2 far mid across across.svg" width="28.6%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/2 far side mid across across down.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/2 far side mid across across up.svg" width="19%"/><br />
 <br />
 These are just a few of the possible combinations.<br />
 Any of the far straight rules (straight, mid across and across as I call them, depending on the horizontal distance of the obstacle) on the left side can be combined with any of those on the right side when the enclosed area is going to the same direction - left for left side and right for right side.<br />
@@ -344,7 +344,7 @@ As far as porgramming concerned, it just needed a rework of the universal rules,
 Though a double C-shape has been created in backwards direction, it indicates that the area on the right cannot be filled either.<br />
 We have made a similar rule previously. Now we need to simplify it.<br />
 <br />
-<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9_old/Double C-Shape.svg" width="14.3%"/><br />
+<img align="top" src="References/Double C-Shape orig.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Double C-Shape.svg" width="14.3%"/><br />
 <br />
 The area now has to be impair for the right direction to be forbidden. Essentially, we just added the three extra fields to the pair area.</div></td>
 <td class="right"><div>478 361 is similar to what we have seen before, only now there is a 2-wide path to exit the area:<br />
@@ -353,54 +353,54 @@ The area now has to be impair for the right direction to be forbidden. Essential
 <br />
 We have to mark where the area has been created in another way.<br />
 <br />
-<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9_old/Square 4 x 2.svg" width="19%"/><br />
+<img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Square 4 x 2.svg" width="19%"/><br />
 <br />
 The taken field in the upper right corner is now checked for direction, but it is not enough. It can go upwards, and the exit of the area can still be on the bottom edge, just look at the example and imagine the live end was at A with the pattern already drawn. (On 11 x 11, it is possible to draw it.)<br />
 In order to establish an enclosed area, we must not encounter the bottom-right corner of the grid when walking along the edge of it.</div></td></tr>
 <tr><td class="left"><div>626 071 is:<br />
 <br />
-<img align="top" src="References/626071.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/626071_1.svg" width="42.86%"/><br />
+<img align="top" src="References/626071.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/626071_1.svg" width="42.86%"/><br />
 <br />
 With the marked area being pair, if we enter the area by stepping left, we will exit at A. But we can only get there from B; if we entered from the top, nothing would fill B, and we cannot enter and exit it after we left the area - subtracting 1 from the area would make it impair, so then we couldn't have exited at A.<br />
 The taken field C creates a C-shape, which we need to step into from B.<br />
 The universal far across rule have to be extended. By default, we disable the option to step straight or right if the counted area is impair. When it is pair, we need to disable the left field.<br />
 <br />
-<img align="bottom" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img align="bottom" src="References/checknearfield/far across left end C.svg" width="23.8%"/><br />
+<img align="bottom" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="bottom" src="References/checknearfield/far across left end C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img align="bottom" src="References/checknearfield/far side across up.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img align="bottom" src="References/checknearfield/far side across up end C.svg" width="23.8%"/></div></td>
+<img align="bottom" src="References/checknearfield/far side across up.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="bottom" src="References/checknearfield/far side across up end C.svg" width="23.8%"/></div></td>
 <td class="right"><div>The same concept we encounter at 635 301, only the C-shape is created when we enter an area, on the other side of it.<br />
 <br />
-<img align="top" src="References/635301.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/635301_1.svg" width="42.86%"/><br />
+<img align="top" src="References/635301.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/635301_1.svg" width="42.86%"/><br />
 <br />
 We have seen this in the third 9 x 9 rule. There the taken field next to the exit was in middle across position, and now it is across. And we also need to think about an obstacle straight ahead. Here are the original universal rules and their modifications.<br />
 Straight, circle direction left:<br />
 <br />
-<img src="References/checknearfield/far straight left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far straight left start C.svg" width="23.8%"/><br />
+<img src="References/checknearfield/far straight left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far straight left start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far mid across left start C.svg" width="23.8%"/><br />
+<img src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far mid across left start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across left start C.svg" width="28.6%"/></div></td></tr>
+<img src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far across left start C.svg" width="28.6%"/></div></td></tr>
 <tr><td class="left"><div>Circle direction right:<br />
 <br />
-<img src="References/checknearfield/far straight right.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far straight right start C.svg" width="23.8%"/><br />
+<img src="References/checknearfield/far straight right.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far straight right start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far mid across right.svg" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far mid across right start C.svg" width="19%"/><br />
+<img src="References/checknearfield/far mid across right.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far mid across right start C.svg" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far across right start C.svg" width="23.8%"/><br />
+<img src="References/checknearfield/far across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far across right start C.svg" width="23.8%"/><br />
 <br />
 Side, with taken fields above and below:<br />
 <br />
-<img src="References/checknearfield/far side up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side up start C.svg" align="top" width="19%"/><br />
+<img src="References/checknearfield/far side up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far side up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far side down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side down start C.svg" align="top" width="19%"/><br />
+<img src="References/checknearfield/far side down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far side down start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/></div></td>
-<td class="right"><div><img src="References/checknearfield/far side mid across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side mid across up start C.svg" align="top" width="19%"/><br />
+<td class="right"><div><img src="References/checknearfield/far side mid across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far side mid across up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far side mid across down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side mid across down start C.svg" align="top" width="19%"/><br />
+<img src="References/checknearfield/far side mid across down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far side mid across down start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far side across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side across up start C.svg" align="top" width="19%"/><br />
+<img src="References/checknearfield/far side across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far side across up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far side across down.svg" align="bottom" width="19%"/><img src="References/spacer.svg" width="4.8%"/><img src="References/checknearfield/far side across down start C.svg" align="bottom" width="19%"/><br />
+<img src="References/checknearfield/far side across down.svg" align="bottom" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far side across down start C.svg" align="bottom" width="19%"/><br />
 <br />
 I have made some changes by adding some empty fields in side positions, so they are the same as the straight rules, just rotated.<br />
 Also, I have added the side across down rule and changed the straight across rule accordingly. Not only fields next to each other can define an area, they can be across too. In that case, if the area originally was marked impair, now it has to be pair.<br />
@@ -428,29 +428,35 @@ This is the rule representation. The reddish arealine now means the arealine is 
 <br />
 Continuing the 9 x 9 program, we get this at 641 019:<br />
 <br />
-<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/641019_1.svg" width="42.86%"/><br />
+<img align="top" src="References/641019.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/641019_1.svg" width="42.86%"/><br />
 <br />
 If you enter the pair area straight ahead, you will exit at A, and you need to turn towards B because of the C-shape. Now you cannot go in and out of the area enclosed by C, and the situation would be the same if that obstacle was in D.</div></td>
 <td class="right"><div>To mark the two areas, each one has to be given a directional obstacle next to the count area end field. In this case, it represents a taken field, but we don't go wrong if we include the border as well.<br />
 <br />
 <img align="top" src="References/rules/9/Double Area C-Shape.svg" width="23.8%"/><br />
 <br />
-And with this marking system, we can correct the rules prevously made. All rules featuring future line start and end fields have to be rewritten, to start with.<br />
+And with this marking system, we can correct the rules prevously made. All rules featuring future line start and end fields have to be rewritten to start with.<br />
 So we get the 2-distance across rules, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.<br />
 <br />
-<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.8%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2.svg" width="19%"/><br />
+<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2.svg" width="19%"/><br />
 <br />
 Let's return to the last example and make a modification:<br />
 <br />
 <img align="top" src="References/641019_2.svg" width="42.86%"/></div></td></tr>
 <tr><td class="left"><div>The field previously marked with B is now empty. But we still need to step in that direction, due to the area enclosed by A, which obstacle could as well be in B.<br />
-The rule will be now symmetrical. It is now very similar to the square obstacle pattern.<br />
+The rule will be now symmetrical. It is similar to the square obstacle pattern.<br />
 <br />
 <img align="top" src="References/rules/9/Triple Area.svg" width="23.8%"/><br />
 <br />
 The same concept we encounter at 725 325. We have seen this prevously, just with C-shape, not an area.<br />
 <br />
-<img align="top" src="References/725325_1.svg" width="42.86%"/></div></td>
-<td class="right"></td></tr>
+<img align="top" src="References/725325_1.svg" width="42.86%"/><br />
+<br />
+The rule will now look like this. It is valid for the previous situation, too.<br />
+<br />
+<img align="top" src="References/rules/9/Straight Across End Area.svg" width="19%"/></div></td>
+<td class="right"><div>740 039 is a slight modification.<br />
+<br />
+<img align="top" src="References/740039.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/740039_1.svg" width="42.86%"/></div></td></tr>
  
 </table>

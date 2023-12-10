@@ -3816,6 +3816,7 @@ namespace OneWayLabyrinth
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
 
+            ReadDir();
             svgName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".svg" : loadFile.Replace("txt", "svg");
 			if (svgName == "")
 			{
