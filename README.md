@@ -472,7 +472,18 @@ The rule will now look like this. It is valid for the previous situation, too.
 
 <img align="top" src="References/740039.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/740039_1.svg" width="42.86%"/>
 
+The only difference is, that the obstacle is 3-distance away. With the area being impair, if we enter at A, we must exit at C.<br />
+What if we omit D from the area? Then the area will be pair, so we must exit at B, and the only way to get there is from C. And if D is included, we can only step to C from there. Either way, we step away from the area beyond D, so the rule will be:
+
+<img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="19%"/>
+
 <!-- page 36 -->
+
+811 808:
+
+<img align="top" src="References/811808.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/811808_1.svg" width="42.86%"/>
+
+<!-- page 37 -->
 
 ---
 
