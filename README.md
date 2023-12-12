@@ -445,7 +445,7 @@ To mark the two areas, each one has to be given a directional obstacle next to t
 And with this marking system, we can correct the rules prevously made. All rules featuring future line start and end fields have to be rewritten to start with.<br />
 So we get the 2-distance across rules, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.
 
-<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2.svg" width="19%"/>
+<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Square 4 x 2_2.svg" width="19%"/>
 
 Let's return to the last example and make a modification:
 
@@ -462,7 +462,7 @@ The same concept we encounter at 725 325. We have seen this prevously, just with
 
 <img align="top" src="References/725325_1.svg" width="42.86%"/>
 
-The rule will now look like this. It is valid for the previous situation, too.
+The rule will now look like this.
 
 <img align="top" src="References/rules/9/Straight Across End Area.svg" width="19%"/>
 
@@ -483,7 +483,21 @@ What if we omit D from the area? Then the area will be pair, so we must exit at 
 
 <img align="top" src="References/811808.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/811808_1.svg" width="42.86%"/>
 
+Recognize it is a variation of the square obstacle pattern where instead of an area, there is a C-shape at the rule's upper edge. 
+
+<img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="19%"/>
+
+1 261 580:
+
+<img align="top" src="References/1261580.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1261580_1.svg" width="42.86%"/>
+
 <!-- page 37 -->
+
+Again, same pattern with area. The upper obstacle is now moved, but it will satisfy the previous examples too. The rule replaces the old one.
+
+<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="19%"/>
+
+<!-- page 38 -->
 
 ---
 

@@ -34,31 +34,18 @@ using SkiaSharp.Views.Desktop;
 
 In 1-thin future line extension rule, it is not necessary that the far end is at the corner. We are in a closed loop where the far end cannot have effect on the near end, unless the field 2 to left is part of the same future line which took a U-turn.
 Write about counting area start end field rules
-Can it happen that two different checknearfield rules are true on opposite sides, and one of them is cancelled due to preconditions?
-1021_9: Causes error of field exists in arealine, but we shouldn't come here to start with
-1021_10: Causes error of single field in arealine, but we shouldn't come here to start with
 Show arealine upon loading from file
+
 Create inferface for disabling/enabling rules. Find out why it is not equal:
 - Amount of walkthroughs before getting stuck at the second rule
 - Amount of walkthroughs before getting stuck at the first rule, plus further walkthroughs until the second rule.
-Becaouse of 1027, we cannot rotate Future 2 x 2 Start End 9 and Future 2 x 2 Start End. Future 3 x 3 Start End cannot be applied on 9 x 9 (not even necessary) 
 
-Needed printed fields: 2 arrows, 1 count area pair/impair start/end with gray background. 2 forbidden fields with gray background
-6 border or taken fields, 1 no-corner field with gray background
-Draw arrow in rule editor when adding taken field after the area start and end are laid
+Needed printed fields: 2 arrows, 1 count area pair/impair start/end with gray background. 2 forbidden fields with gray background, 6 border or taken fields, 1 no-corner field with gray background
+
 Reset farStraight = false; and farMidAcross = false; within 2-cycle?
-Example of count area start and end C simultaneously: 1119. In 1119_1, area is impair. Without considering the future lines, we could step left.
-
-
------ 11 x 11 -----
-
-3x3 countarea rule can be rotated counter-clockwise too, but it may only be actual on 11 x 11 (1010_2)
 
 ----- 21 x 21 -----
 
-0829: it is right that we cannot step straight or right, but the C-shape condition is not correct, because it only takes into consideration to the field 2 left. The previous step is already impossible. The near end should be extended, and then the main line has no choice.
-0829_1: Stepping left will make a loop in the future line to the left. The situation is still impossible, but it is not clear when it became impossible.
-0327_2: Draw future line when entering a circle with 1 line to come out from and 3 spaces at the exit (impossible)
 0413: Path.CheckFutureSide: check case when both sides are true simultaneously, draw future line on left side to start with. See 0430_2
 0415_1: Future line start can be extended, but there is mistakenly no possibilities because of right across check.
 	Right now, forbidden fields only apply on the main line when the across field goes up. Are all across checks invalid for future line?
@@ -71,12 +58,15 @@ CountArea needs to be implemented upon closed loop with future ?
 0430: When we step on the right field, future line cannot be completed. It is right, but not because of C shape left and straight. The straight C shape is not right, because the field 2 ahead is a section start. We should also consider that the actual end to the right cannot go anywhere else.
 0425: Challenge to complete
 
+----- 25 x 25 -----
+
+1212: Stepped on future, other end cannot be completed.
+
 ----- UNKNOWN SIZE -----
 
 1x2, 1x3 future line: check section merge after finding an example
 CheckFutureL: find a case when both sides are true
 Find out the minimum size for Check1x3 when far end of a future line extends
-Countarea is not needed when a future line has completely filled the area.
 
 */
 
@@ -2428,6 +2418,10 @@ namespace OneWayLabyrinth
             T("NextStepPossibilities main, inFuture: " + inFuture + " inFutureIndex: " + inFutureIndex + " errorInWalkthrough " + errorInWalkthrough);
             if (inFuture)
             {
+                taken.areaLines = new();
+                taken.areaLineTypes = new();
+                taken.areaLineDirections = new();
+
                 int[] futureField = future.path[inFutureIndex];
                 T("Possible: " + futureField[0] + " " + futureField[1]);
                 taken.possible = new List<int[]> { new int[] { futureField[0], futureField[1] } };

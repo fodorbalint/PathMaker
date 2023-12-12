@@ -13,9 +13,11 @@ namespace OneWayLabyrinth
 		public bool CountArea2Across = false;
 		public bool DoubleAreaCShape = false;
 		public bool DoubleCShape = false;
-		public bool Square4x2 = false;
+		public bool Square4x2Area = false;
+		public bool Square4x2CShape = false;
 		public bool StraightAcross3EndArea = false;
 		public bool StraightAcrossEndArea = false;
+		public bool StraightAcrossEndC = false;
 		public bool TripleArea = false;
 		public bool Across3ImpairDetermined = false;
 
@@ -29,9 +31,11 @@ namespace OneWayLabyrinth
 			CountArea2Across = false;
 			DoubleAreaCShape = false;
 			DoubleCShape = false;
-			Square4x2 = false;
+			Square4x2Area = false;
+			Square4x2CShape = false;
 			StraightAcross3EndArea = false;
 			StraightAcrossEndArea = false;
+			StraightAcrossEndC = false;
 			TripleArea = false;
 			Across3ImpairDetermined = false;
 
@@ -405,76 +409,14 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 
-				// Square 4 x 2
+				// Square 4 x 2 Area
 				for (int i = 0; i < 2; i++)
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(0,3) || InBorderRel(0,3)) && (InTakenRel(-3,3) || InBorderRel(-3,3)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && !InTakenRel(-1,0) && !InBorderRel(-1,0))
+						if ((InTakenRel(0,3) || InBorderRel(0,3)) && (InTakenRel(-3,4) || InBorderRel(-3,4)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-2,0) && !InBorderRel(-2,0))
 						{
-							bool Square4x2_circle1 = false;
-							directionFieldIndex = InTakenIndexRel(0,3);
-							if (directionFieldIndex != -1)
-							{
-								if (InTakenRel(1,3))
-								{
-									int leftIndex = InTakenIndexRel(1,3);
-									if (leftIndex > directionFieldIndex)
-									{
-										Square4x2_circle1 = true;
-									}
-								}
-								else
-								{
-									int rightIndex = InTakenIndexRel(-1,3);
-									if (rightIndex < directionFieldIndex)
-									{
-										Square4x2_circle1 = true;
-									}
-								}
-							}
-							else
-							{
-								directionFieldIndex = InBorderIndexRel(0,3);
-								int farSideIndex = InBorderIndexRel(-1,3);
-								if (farSideIndex > directionFieldIndex)
-								{
-									Square4x2_circle1 = true;
-								}
-							}
-							
-							bool Square4x2_circle2 = false;
-							directionFieldIndex = InTakenIndexRel(-3,3);
-							if (directionFieldIndex != -1)
-							{
-								if (InTakenRel(-3,4))
-								{
-									int leftIndex = InTakenIndexRel(-3,4);
-									if (leftIndex > directionFieldIndex)
-									{
-										Square4x2_circle2 = true;
-									}
-								}
-								else
-								{
-									int rightIndex = InTakenIndexRel(-3,2);
-									if (rightIndex < directionFieldIndex)
-									{
-										Square4x2_circle2 = true;
-									}
-								}
-							}
-							else
-							{
-								directionFieldIndex = InBorderIndexRel(-3,3);
-								int farSideIndex = InBorderIndexRel(-3,2);
-								if (farSideIndex > directionFieldIndex)
-								{
-									Square4x2_circle2 = true;
-								}
-							}
-							
-							bool Square4x2_circle3 = false;
+							bool Square4x2Area_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(-3,0);
 							if (directionFieldIndex != -1)
 							{
@@ -483,7 +425,7 @@ namespace OneWayLabyrinth
 									int leftIndex = InTakenIndexRel(-3,1);
 									if (leftIndex < directionFieldIndex)
 									{
-										Square4x2_circle3 = true;
+										Square4x2Area_circle1 = true;
 									}
 								}
 								else
@@ -491,7 +433,7 @@ namespace OneWayLabyrinth
 									int rightIndex = InTakenIndexRel(-3,-1);
 									if (rightIndex > directionFieldIndex)
 									{
-										Square4x2_circle3 = true;
+										Square4x2Area_circle1 = true;
 									}
 								}
 							}
@@ -501,13 +443,167 @@ namespace OneWayLabyrinth
 								int farSideIndex = InBorderIndexRel(-3,1);
 								if (farSideIndex > directionFieldIndex)
 								{
-									Square4x2_circle3 = true;
+									Square4x2Area_circle1 = true;
 								}
 							}
 							
-							if (Square4x2_circle1 && Square4x2_circle2 && Square4x2_circle3 && CountAreaRel(0,1,0,2,null,i==0?true:!true,0) && CountAreaRel(-1,0,-2,0,null,i==0?false:!false,0))
+							bool Square4x2Area_circle2 = false;
+							directionFieldIndex = InTakenIndexRel(0,3);
+							if (directionFieldIndex != -1)
 							{
-								Square4x2 = true;
+								if (InTakenRel(1,3))
+								{
+									int leftIndex = InTakenIndexRel(1,3);
+									if (leftIndex > directionFieldIndex)
+									{
+										Square4x2Area_circle2 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(-1,3);
+									if (rightIndex < directionFieldIndex)
+									{
+										Square4x2Area_circle2 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(0,3);
+								int farSideIndex = InBorderIndexRel(-1,3);
+								if (farSideIndex > directionFieldIndex)
+								{
+									Square4x2Area_circle2 = true;
+								}
+							}
+							
+							bool Square4x2Area_circle3 = false;
+							directionFieldIndex = InTakenIndexRel(-3,4);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(-3,5))
+								{
+									int leftIndex = InTakenIndexRel(-3,5);
+									if (leftIndex > directionFieldIndex)
+									{
+										Square4x2Area_circle3 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(-3,3);
+									if (rightIndex < directionFieldIndex)
+									{
+										Square4x2Area_circle3 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(-3,4);
+								int farSideIndex = InBorderIndexRel(-3,3);
+								if (farSideIndex > directionFieldIndex)
+								{
+									Square4x2Area_circle3 = true;
+								}
+							}
+							
+							if (Square4x2Area_circle1 && Square4x2Area_circle2 && Square4x2Area_circle3 && CountAreaRel(-1,0,-2,0,null,i==0?false:!false,0) && CountAreaRel(0,1,0,2,null,i==0?true:!true,0))
+							{
+								Square4x2Area = true;
+								forbidden.Add(new int[] { x + sx, y + sy });
+							}
+						}
+						int l0 = lx;
+						int l1 = ly;
+						lx = -sx;
+						ly = -sy;
+						sx = l0;
+						sy = l1;
+					}
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
+				}
+				sx = thisSx;
+				sy = thisSy;
+				lx = thisLx;
+				ly = thisLy;
+
+				// Square 4 x 2 C-Shape
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if ((InTakenRel(0,3) || InBorderRel(0,3)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && InTakenRel(-1,4) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && !InTakenRel(-1,0) && !InBorderRel(-1,0))
+						{
+							bool Square4x2CShape_circle1 = false;
+							directionFieldIndex = InTakenIndexRel(0,3);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(1,3))
+								{
+									int leftIndex = InTakenIndexRel(1,3);
+									if (leftIndex > directionFieldIndex)
+									{
+										Square4x2CShape_circle1 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(-1,3);
+									if (rightIndex < directionFieldIndex)
+									{
+										Square4x2CShape_circle1 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(0,3);
+								int farSideIndex = InBorderIndexRel(-1,3);
+								if (farSideIndex > directionFieldIndex)
+								{
+									Square4x2CShape_circle1 = true;
+								}
+							}
+							
+							bool Square4x2CShape_circle2 = false;
+							directionFieldIndex = InTakenIndexRel(-3,0);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(-3,1))
+								{
+									int leftIndex = InTakenIndexRel(-3,1);
+									if (leftIndex < directionFieldIndex)
+									{
+										Square4x2CShape_circle2 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(-3,-1);
+									if (rightIndex > directionFieldIndex)
+									{
+										Square4x2CShape_circle2 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(-3,0);
+								int farSideIndex = InBorderIndexRel(-3,1);
+								if (farSideIndex > directionFieldIndex)
+								{
+									Square4x2CShape_circle2 = true;
+								}
+							}
+							
+							if (Square4x2CShape_circle1 && Square4x2CShape_circle2 && CountAreaRel(0,1,0,2,null,i==0?true:!true,0) && CountAreaRel(-1,0,-2,0,null,i==0?false:!false,0))
+							{
+								Square4x2CShape = true;
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
 						}
@@ -712,6 +808,67 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 
+				// Straight Across End C
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if ((InTakenRel(2,3) || InBorderRel(2,3)) && !InTakenRel(1,3) && !InBorderRel(1,3) && InTakenRel(1,4) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,1) && !InBorderRel(2,1))
+						{
+							bool StraightAcrossEndC_circle1 = false;
+							directionFieldIndex = InTakenIndexRel(2,3);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(3,3))
+								{
+									int leftIndex = InTakenIndexRel(3,3);
+									if (leftIndex > directionFieldIndex)
+									{
+										StraightAcrossEndC_circle1 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(1,3);
+									if (rightIndex < directionFieldIndex)
+									{
+										StraightAcrossEndC_circle1 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(2,3);
+								int farSideIndex = InBorderIndexRel(1,3);
+								if (farSideIndex > directionFieldIndex)
+								{
+									StraightAcrossEndC_circle1 = true;
+								}
+							}
+							
+							if (StraightAcrossEndC_circle1 && CountAreaRel(1,1,1,2,null,i==0?true:!true,0))
+							{
+								StraightAcrossEndC = true;
+								forbidden.Add(new int[] { x + lx, y + ly });
+							}
+						}
+						int s0 = sx;
+						int s1 = sy;
+						sx = -lx;
+						sy = -ly;
+						lx = s0;
+						ly = s1;
+					}
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
+				}
+				sx = thisSx;
+				sy = thisSy;
+				lx = thisLx;
+				ly = thisLy;
+
 				// Triple Area
 				for (int i = 0; i < 2; i++)
 				{
@@ -887,7 +1044,7 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 			}
-			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Square4x2: " + Square4x2 + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "TripleArea: " + TripleArea + "\n" + "Across3ImpairDetermined: " + Across3ImpairDetermined);
+			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "Square4x2Area: " + Square4x2Area + "\n" + "Square4x2CShape: " + Square4x2CShape + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "StraightAcrossEndC: " + StraightAcrossEndC + "\n" + "TripleArea: " + TripleArea + "\n" + "Across3ImpairDetermined: " + Across3ImpairDetermined);
 		}
 	}
 }
