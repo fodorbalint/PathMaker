@@ -50,12 +50,12 @@
                 - live end<LineBreak />
                 - empty field<LineBreak />
                 - taken field<LineBreak />
-                - taken or border field<LineBreak />
+                - taken or border fields, arrows indicate direction<LineBreak />
                 - future start field<LineBreak />
                 - future end field<LineBreak />
                 - a field that is not the end corner<LineBreak />
                 - forbidden field<LineBreak />
-                - count area field start, end and border fields for pair (green) and impair (yellow) areas<LineBreak />
+                - count area field start, end and border fields for pair (green) and impair (yellow) areas; red areas are impair too, and have an imbalance in the pair and impair fields.<LineBreak />
                 <LineBreak />
                 The rules are automatically mirrored, so you only have to create it on one side, but you choose to include them rotated clockwise or counter-clockwise too.<LineBreak />
                 A file named PathRules.cs is generated, which you have to move into the directory of the source files and rebuild the program with Visual Studio.

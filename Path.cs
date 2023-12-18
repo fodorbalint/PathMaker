@@ -645,14 +645,9 @@ namespace OneWayLabyrinth
                         }
                     }
                 }
-                lx = -lx;
-                ly = -ly;
-            }
-            lx = thisLx;
-            ly = thisLy;
 
-            for (int i = 0; i < 2; i++) // A close rule may be true on one side, and a far rule on the other. Therefore we need to cycle through all close rules first.
-            {
+                // A close rule may be true on one side, but on the other side there can be a far rule, see 1307639
+
                 if (!closeStraight && !closeMidAcross && !closeAcross)
                 {
                     if (InTakenRel(0, 3) && InTakenRel(1, 3) && !InTakenRel(0, 1)) // 0,1: 1019_3
@@ -681,7 +676,7 @@ namespace OneWayLabyrinth
                         }
                         else // area on right
                         {
-                            if (!InTakenRel(-1, 1) && !InTakenRel(-2, 1)) // -1, 1: 1019_6, -2, 1: 1019_7
+                            if (!InTakenRel(-1, 1) && !InTakenRel(-2, 1) && !InTakenRel(-2, 2)) // -1, 1: 1019_6, -2, 1: 1019_7, -2, 2: 1317297 (due to close mid across on the other side)
                             {
                                 bool circleDirectionLeft = i == 0 ? false : true;
                                 if (CountAreaRel(-1, 1, -1, 2, null, circleDirectionLeft, 1, false))
@@ -725,7 +720,7 @@ namespace OneWayLabyrinth
                         }
                         else // area on right
                         {
-                            if (!InTakenRel(-1, 1)) // 1019_1
+                            if (!InTakenRel(-1, 1) && !InTakenRel(-2, 2)) // 1019_1, -2, 2: 1215
                             {
                                 bool circleDirectionLeft = i == 0 ? false : true;
                                 if (CountAreaRel(0, 1, 0, 2, null, circleDirectionLeft, 1, false))
@@ -774,7 +769,7 @@ namespace OneWayLabyrinth
                         }
                         else // area on right
                         {
-                            if (!InTakenRel(-1, 1) && !InTakenRel(-1, 3) && !InTakenRel(2, 2)) // -1,3: 1201
+                            if (!InTakenRel(-1, 1) && !InTakenRel(2, 2) && !InTakenRel(-2, 2)) // -2, 2: 1215_1
                             {
                                 bool circleDirectionLeft = i == 0 ? false : true;
                                 if (CountAreaRel(0, 1, 1, 2, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 0, false))
@@ -1372,14 +1367,18 @@ namespace OneWayLabyrinth
                     if (field[0] == nextX && field[1] == nextY)
                     {
                         bool found = false;
-                        foreach (int[] field2 in borderFields)
+                        if (borderFields != null)
                         {
-                            if (field2[0] == nextX && field2[1] == nextY)
+                            foreach (int[] field2 in borderFields)
                             {
-                                found = true;
-                                break;
+                                if (field2[0] == nextX && field2[1] == nextY)
+                                {
+                                    found = true;
+                                    break;
+                                }
                             }
                         }
+                        
                         if (!found)
                         {
                             T("Error at " + startX + " " + startY + " " + endX + " " + endY);
@@ -1741,25 +1740,30 @@ namespace OneWayLabyrinth
                         {
                             int x = field[0];
                             int y = field[1];
+                            int minX = size;
 
-                            //without having open peaks, the first start square should match the last end square. Open peaks offset it, but it is most efficient to start cycling endSquares backwards in any case. Also, with an open peak at the bottom, there are two sections at the same vertical height. The first find will be the correct section ending.
+                            //without having open peaks, the first start square should match the last end square. Otherwise, we need to find the ending that is closest to the start field in the row.
                             for (int i = endSquares.Count - 1; i >= 0; i--)
                             {
                                 if (endSquares[i][1] == y && endSquares[i][0] > x)
                                 {
-                                    int span = endSquares[i][0] - x + 1;
-                                    if ((x + y) % 2 == 0)
+                                    if (endSquares[i][0] < minX)
                                     {
-                                        pairCount += (span + span % 2) / 2;
-                                        impairCount += (span - span % 2) / 2;
-                                    }
-                                    else
-                                    {
-                                        impairCount += (span + span % 2) / 2;
-                                        pairCount += (span - span % 2) / 2;
-                                    }
-                                    break;
+                                        minX = endSquares[i][0];
+                                    }                                    
                                 }
+                            }
+
+                            int span = minX - x + 1;
+                            if ((x + y) % 2 == 0)
+                            {
+                                pairCount += (span + span % 2) / 2;
+                                impairCount += (span - span % 2) / 2;
+                            }
+                            else
+                            {
+                                impairCount += (span + span % 2) / 2;
+                                pairCount += (span - span % 2) / 2;
                             }
                         }
 

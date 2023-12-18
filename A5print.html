@@ -384,9 +384,9 @@ Straight, circle direction left:<br />
 <br />
 <img src="References/checknearfield/far straight right.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far straight right start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far mid across right.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far mid across right start C.svg" width="19%"/><br />
+<img src="References/checknearfield/far mid across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far mid across right start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far across right start C.svg" width="23.8%"/><br />
+<img src="References/checknearfield/far across right.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far across right start C.svg" width="28.57%"/><br />
 <br />
 Side, with taken fields above and below:<br />
 <br />
@@ -452,7 +452,7 @@ The same concept we encounter at 725 325. We have seen this prevously, just with
 <br />
 <img align="top" src="References/725325_1.svg" width="42.86%"/><br />
 <br />
-The rule will now look like this. It is valid for the previous situation, too.<br />
+The rule will now look like this:<br />
 <br />
 <img align="top" src="References/rules/9/Straight Across End Area.svg" width="19%"/></div></td>
 <td class="right"><div>740 039 is a slight modification.<br />
@@ -469,13 +469,37 @@ What if we omit D from the area? Then the area will be pair, so we must exit at 
 <br />
 Recognize it is a variation of the square obstacle pattern where instead of an area, there is a C-shape at the rule's upper edge. <br />
 <br />
-<img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="19%"/><br />
+<img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="23.8%"/><br />
 <br />
 1 261 580:<br />
 <br />
 <img align="top" src="References/1261580.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1261580_1.svg" width="42.86%"/></div></td>
 <td class="right"><div>Again, same pattern with area. The upper obstacle is now moved, but it will satisfy the previous examples too. The rule replaces the old one.<br />
 <br />
-<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="19%"/></div></td></tr>
+<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="19%"/><br />
+<br />
+2 022 337 is getting stuck because of the stair-shaped walls that force the future line along them. Therefore, an area is created with only one field to go in and out of it. What is the solution?<br />
+<br />
+<img align="top" src="References/2022337.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2022337_1.svg" width="42.86%"/><br />
+<br />
+Though not as universal as we want it to be, this will solve this specific situation:<br />
+<br />
+<img align="top" src="References/rules/9/Double Area Stair.svg" width="28.57%"/></div></td></tr>
+<tr><td class="left"><div>And soon we will encounter a similar one:<br />
+<br />
+<img align="top" src="References/2022773.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2022773_1.svg" width="42.86%"/><br />
+<br />
+<img align="top" src="References/rules/9/Double Area Stair 2.svg" width="23.8%"/></div></td>
+<td class="right"><div>On 17 x 17 we can construct a situation where the obstacle across the stair is 2 behind and 2 to right. As the table size increases, the stair-obstacle narrowing can move to infinite distance away from the live end. That's why it is important to group these rules as one.<br />
+<br />
+<img align="top" src="References/1218_1.svg" width="80.95%"/></div></td></tr>
+<tr><td class="left"><div>We have all the tools to handle 2 034 575.<br />
+<br />
+<img align="top" src="References/2034575.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2034575_1.svg" width="42.86%"/><br />
+<br />
+It is an impair area where the number of the starting field's color is less than the other color.<br />
+<br />
+<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/></div></td>
+<td class="right"></td></tr>
  
 </table>

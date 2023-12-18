@@ -590,11 +590,8 @@ namespace OneWayLabyrinth
             ReadDir();
 
             //only give completedCount if we have been in a fast run. In normal run, upon an error, errorInWalkthrough remains through until we clicked the OK button.
-            string saveName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".txt" : loadFile;
-			if (saveName == "")
-			{
-				saveName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
-			}
+            string saveName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".txt" : DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
+
 			File.WriteAllText(saveName, savePath);
 		}
 
@@ -3276,6 +3273,7 @@ namespace OneWayLabyrinth
                 savePath = savePath.Substring(0, savePath.Length - 1) + "," + taken.circleDirectionLeft;
             }*/
 
+            ReadDir();
             if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedCount + "_" + completedPathCode + ".txt", savePath);
         }
 
@@ -3809,15 +3807,13 @@ namespace OneWayLabyrinth
 				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n" +
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
+                        
+            svgName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".svg" : DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".svg";
+
+			File.WriteAllText(svgName, content);
 
             ReadDir();
-            svgName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".svg" : loadFile.Replace("txt", "svg");
-			if (svgName == "")
-			{
-				svgName = DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".svg";
-			}
-			File.WriteAllText(svgName, content);
-			if (completedPathCode != "")
+            if (completedPathCode != "")
 			{
 				if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedPathCode + ".txt", savePath);
 			}

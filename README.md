@@ -375,9 +375,9 @@ Circle direction right:
 
 <img src="References/checknearfield/far straight right.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far straight right start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far mid across right.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far mid across right start C.svg" width="19%"/><br />
+<img src="References/checknearfield/far mid across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far mid across right start C.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img src="References/checknearfield/far across right.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far across right start C.svg" width="23.8%"/>
+<img src="References/checknearfield/far across right.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far across right start C.svg" width="28.57%"/>
 
 Side, with taken fields above and below:
 
@@ -462,7 +462,7 @@ The same concept we encounter at 725 325. We have seen this prevously, just with
 
 <img align="top" src="References/725325_1.svg" width="42.86%"/>
 
-The rule will now look like this.
+The rule will now look like this:
 
 <img align="top" src="References/rules/9/Straight Across End Area.svg" width="19%"/>
 
@@ -485,7 +485,7 @@ What if we omit D from the area? Then the area will be pair, so we must exit at 
 
 Recognize it is a variation of the square obstacle pattern where instead of an area, there is a C-shape at the rule's upper edge. 
 
-<img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="19%"/>
+<img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="23.8%"/>
 
 1 261 580:
 
@@ -497,11 +497,49 @@ Again, same pattern with area. The upper obstacle is now moved, but it will sati
 
 <img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="19%"/>
 
+2 022 337 is getting stuck because of the stair-shaped walls that force the future line along them. Therefore, an area is created with only one field to go in and out of it. What is the solution?
+
+<img align="top" src="References/2022337.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2022337_1.svg" width="42.86%"/>
+
+Though not as universal as we want it to be, this will solve this specific situation:
+
+<img align="top" src="References/rules/9/Double Area Stair.svg" width="28.57%"/>
+
 <!-- page 38 -->
+
+And soon we will encounter a similar one:
+
+<img align="top" src="References/2022773.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2022773_1.svg" width="42.86%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img align="top" src="References/rules/9/Double Area Stair 2.svg" width="23.8%"/>
+
+<!-- page 39 -->
+
+On 17 x 17, we can construct a situation where the obstacle across the stair is 2 behind and 2 to right. As the table size increases, the stair-obstacle narrowing can move infinite distance away from the live end. That's why it is important to group these rules as one.
+
+<img align="top" src="References/1218_1.svg" width="80.95%"/>
+
+<!-- page 40 -->
+
+We have all the tools to handle 2 034 575.
+
+<img align="top" src="References/2034575.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2034575_1.svg" width="42.86%"/>
+
+It is an impair area where the number of the starting field's color is less than the other color.
+
+<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/>
+
+<!-- page 41 -->
 
 ---
 
 The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".
+
+Screenshots:
+
+<img align="top" src="References/screenshot_main.png" width="100%"/><br />
+<img src="References/spacer.svg" height="54"/><br />
+<img align="top" src="References/screenshot_rules.png" width="100%"/>
 
 ---
 

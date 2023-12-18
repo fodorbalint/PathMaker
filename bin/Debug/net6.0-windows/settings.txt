@@ -7,5 +7,5 @@ displayFutureLines: True
 displayArea: True
 makeStats: False
 appliedSize: 9
-ruleXSize: 3
+ruleXSize: 4
 ruleYSize: 5
