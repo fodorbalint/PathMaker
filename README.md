@@ -134,7 +134,7 @@ We are not finished. Did you notice the example above is not covered by these ru
 
 <!-- page 9 -->
 
-<img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/>
+<img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="23.8%"/>
 <img src="References/spacer.svg" height="17"/>
 <img align="top" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far across right_0.svg" width="19%"/>
 <img src="References/spacer.svg" height="17"/>
@@ -495,7 +495,7 @@ Recognize it is a variation of the square obstacle pattern where instead of an a
 
 Again, same pattern with area. The upper obstacle is now moved, but it will satisfy the previous examples too. The rule replaces the old one.
 
-<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="19%"/>
+<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="23.8%"/>
 
 2 022 337 is getting stuck because of the stair-shaped walls that force the future line along them. Therefore, an area is created with only one field to go in and out of it. What is the solution?
 
@@ -530,6 +530,22 @@ It is an impair area where the number of the starting field's color is less than
 <img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/>
 
 <!-- page 41 -->
+
+Next stop is at 3 224 847.
+
+<img align="top" src="References/3224847.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/3224847_1.svg" width="42.86%"/>
+
+A pair area is created with the obstacle 3 distance away, so if we step into it, we will exit at the middle, but because of an area, we cannot step there.
+
+<img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="19%"/>
+
+<!-- page 42 -->
+
+From our experience, the area can be substituted with C-shape.
+
+<img align="top" src="References/1219.svg" width="52.4%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Mid Across 3 End C.svg" width="9.5%"/>
+
+<!-- page 43 -->
 
 ---
 

@@ -21,6 +21,8 @@ namespace OneWayLabyrinth
 		public bool StraightAcross3EndArea = false;
 		public bool StraightAcrossEndArea = false;
 		public bool StraightAcrossEndC = false;
+		public bool StraightMidAcross3EndArea = false;
+		public bool StraightMidAcross3EndC = false;
 		public bool TripleArea = false;
 		public bool Across3ImpairDetermined = false;
 
@@ -42,6 +44,8 @@ namespace OneWayLabyrinth
 			StraightAcross3EndArea = false;
 			StraightAcrossEndArea = false;
 			StraightAcrossEndC = false;
+			StraightMidAcross3EndArea = false;
+			StraightMidAcross3EndC = false;
 			TripleArea = false;
 			Across3ImpairDetermined = false;
 
@@ -668,7 +672,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(0,3) || InBorderRel(0,3)) && (InTakenRel(-3,4) || InBorderRel(-3,4)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-2,0) && !InBorderRel(-2,0))
+						if ((InTakenRel(0,3) || InBorderRel(0,3)) && (InTakenRel(-3,4) || InBorderRel(-3,4)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && !InTakenRel(-2,4) && !InBorderRel(-2,4) && !InTakenRel(-1,4) && !InBorderRel(-1,4) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && !InTakenRel(0,2) && !InBorderRel(0,2))
 						{
 							bool Square4x2Area_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(-3,0);
@@ -767,6 +771,7 @@ namespace OneWayLabyrinth
 							{
 								Square4x2Area = true;
 								forbidden.Add(new int[] { x + sx, y + sy });
+								forbidden.Add(new int[] { x + lx, y + ly });
 							}
 						}
 						int l0 = lx;
@@ -791,7 +796,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(0,3) || InBorderRel(0,3)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && InTakenRel(-1,4) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-2,0) && !InBorderRel(-2,0))
+						if ((InTakenRel(0,3) || InBorderRel(0,3)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && InTakenRel(-1,4) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-2,0) && !InBorderRel(-2,0))
 						{
 							bool Square4x2CShape_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(0,3);
@@ -976,7 +981,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(2,3) || InBorderRel(2,3)) && (InTakenRel(-1,4) || InBorderRel(-1,4)) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(0,1) && !InBorderRel(0,1))
+						if ((InTakenRel(2,3) || InBorderRel(2,3)) && (InTakenRel(-1,4) || InBorderRel(-1,4)) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(0,1) && !InBorderRel(0,1))
 						{
 							bool StraightAcrossEndArea_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(-1,4);
@@ -1068,7 +1073,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(2,3) || InBorderRel(2,3)) && !InTakenRel(1,3) && !InBorderRel(1,3) && InTakenRel(1,4) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,1) && !InBorderRel(2,1))
+						if ((InTakenRel(2,3) || InBorderRel(2,3)) && !InTakenRel(1,3) && !InBorderRel(1,3) && InTakenRel(1,4) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1))
 						{
 							bool StraightAcrossEndC_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(2,3);
@@ -1124,12 +1129,167 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 
+				// Straight Mid Across 3 End Area
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if ((InTakenRel(1,4) || InBorderRel(1,4)) && (InTakenRel(-2,5) || InBorderRel(-2,5)) && !InTakenRel(0,4) && !InBorderRel(0,4) && !InTakenRel(-1,4) && !InBorderRel(-1,4) && !InTakenRel(-1,5) && !InBorderRel(-1,5) && !InTakenRel(0,5) && !InBorderRel(0,5) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(1,3) && !InBorderRel(1,3))
+						{
+							bool StraightMidAcross3EndArea_circle1 = false;
+							directionFieldIndex = InTakenIndexRel(-2,5);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(-2,6))
+								{
+									int leftIndex = InTakenIndexRel(-2,6);
+									if (leftIndex > directionFieldIndex)
+									{
+										StraightMidAcross3EndArea_circle1 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(-2,4);
+									if (rightIndex < directionFieldIndex)
+									{
+										StraightMidAcross3EndArea_circle1 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(-2,5);
+								int farSideIndex = InBorderIndexRel(-2,4);
+								if (farSideIndex > directionFieldIndex)
+								{
+									StraightMidAcross3EndArea_circle1 = true;
+								}
+							}
+							
+							bool StraightMidAcross3EndArea_circle2 = false;
+							directionFieldIndex = InTakenIndexRel(1,4);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(2,4))
+								{
+									int leftIndex = InTakenIndexRel(2,4);
+									if (leftIndex > directionFieldIndex)
+									{
+										StraightMidAcross3EndArea_circle2 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(0,4);
+									if (rightIndex < directionFieldIndex)
+									{
+										StraightMidAcross3EndArea_circle2 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(1,4);
+								int farSideIndex = InBorderIndexRel(0,4);
+								if (farSideIndex > directionFieldIndex)
+								{
+									StraightMidAcross3EndArea_circle2 = true;
+								}
+							}
+							
+							if (StraightMidAcross3EndArea_circle1 && StraightMidAcross3EndArea_circle2 && CountAreaRel(0,1,0,3,new List<int[]> {new int[] {0,2}},i==0?true:!true,0))
+							{
+								StraightMidAcross3EndArea = true;
+								forbidden.Add(new int[] { x + sx, y + sy });
+								forbidden.Add(new int[] { x + lx, y + ly });
+							}
+						}
+						int l0 = lx;
+						int l1 = ly;
+						lx = -sx;
+						ly = -sy;
+						sx = l0;
+						sy = l1;
+					}
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
+				}
+				sx = thisSx;
+				sy = thisSy;
+				lx = thisLx;
+				ly = thisLy;
+
+				// Straight Mid Across 3 End C
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if ((InTakenRel(1,4) || InBorderRel(1,4)) && InTakenRel(0,5) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(0,4) && !InBorderRel(0,4))
+						{
+							bool StraightMidAcross3EndC_circle1 = false;
+							directionFieldIndex = InTakenIndexRel(1,4);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(2,4))
+								{
+									int leftIndex = InTakenIndexRel(2,4);
+									if (leftIndex > directionFieldIndex)
+									{
+										StraightMidAcross3EndC_circle1 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(0,4);
+									if (rightIndex < directionFieldIndex)
+									{
+										StraightMidAcross3EndC_circle1 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(1,4);
+								int farSideIndex = InBorderIndexRel(0,4);
+								if (farSideIndex > directionFieldIndex)
+								{
+									StraightMidAcross3EndC_circle1 = true;
+								}
+							}
+							
+							if (StraightMidAcross3EndC_circle1 && CountAreaRel(0,1,0,3,new List<int[]> {new int[] {0,2}},i==0?true:!true,0))
+							{
+								StraightMidAcross3EndC = true;
+								forbidden.Add(new int[] { x + sx, y + sy });
+								forbidden.Add(new int[] { x + lx, y + ly });
+							}
+						}
+						int l0 = lx;
+						int l1 = ly;
+						lx = -sx;
+						ly = -sy;
+						sx = l0;
+						sy = l1;
+					}
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
+				}
+				sx = thisSx;
+				sy = thisSy;
+				lx = thisLx;
+				ly = thisLy;
+
 				// Triple Area
 				for (int i = 0; i < 2; i++)
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if (!InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && (InTakenRel(0,4) || InBorderRel(0,4)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && (InTakenRel(-3,4) || InBorderRel(-3,4)) && !InTakenRel(-1,4) && !InBorderRel(-1,4) && !InTakenRel(-2,4) && !InBorderRel(-2,4))
+						if (!InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && (InTakenRel(0,4) || InBorderRel(0,4)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && !InTakenRel(-2,0) && !InBorderRel(-2,0) && (InTakenRel(-3,4) || InBorderRel(-3,4)) && !InTakenRel(-1,4) && !InBorderRel(-1,4) && !InTakenRel(-2,4) && !InBorderRel(-2,4))
 						{
 							bool TripleArea_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(0,4);
@@ -1299,7 +1459,7 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 			}
-			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleAreaStair2: " + DoubleAreaStair2 + "\n" + "DoubleAreaStair: " + DoubleAreaStair + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "MidAcross3ImpairDetermined: " + MidAcross3ImpairDetermined + "\n" + "Square4x2Area: " + Square4x2Area + "\n" + "Square4x2CShape: " + Square4x2CShape + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "StraightAcrossEndC: " + StraightAcrossEndC + "\n" + "TripleArea: " + TripleArea + "\n" + "Across3ImpairDetermined: " + Across3ImpairDetermined);
+			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleAreaStair2: " + DoubleAreaStair2 + "\n" + "DoubleAreaStair: " + DoubleAreaStair + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "MidAcross3ImpairDetermined: " + MidAcross3ImpairDetermined + "\n" + "Square4x2Area: " + Square4x2Area + "\n" + "Square4x2CShape: " + Square4x2CShape + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "StraightAcrossEndC: " + StraightAcrossEndC + "\n" + "StraightMidAcross3EndArea: " + StraightMidAcross3EndArea + "\n" + "StraightMidAcross3EndC: " + StraightMidAcross3EndC + "\n" + "TripleArea: " + TripleArea + "\n" + "Across3ImpairDetermined: " + Across3ImpairDetermined);
 		}
 	}
 }

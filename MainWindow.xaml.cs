@@ -2439,6 +2439,7 @@ namespace OneWayLabyrinth
                 T("isTaskRunning " + isTaskRunning + " makeStats " + makeStats + " keepLeftCheck " + keepLeftCheck);
                 if (!(isTaskRunning && makeStats && !keepLeftCheck))
                 {
+                    taken.possible = newPossible;
                     possibleDirections.Add(possibleFields.ToArray());
                     Dispatcher.Invoke(() =>
                     {

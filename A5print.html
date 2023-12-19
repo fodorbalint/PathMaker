@@ -197,7 +197,7 @@ Similarly to the straight rules, these will only apply if there is no wall 2 dis
 <img align="top" src="References/checknearfield/close side straight.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/close side mid across up.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/close side mid across down.svg" width="14.3%"/><br />
 <br />
 We are not finished. Did you notice the example above is not covered by these rules? We have to move the taken fields 1 and 2 steps to the side, both in straight and side direction.</div></td>
-<td class="right"><div><img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="19%"/><br />
+<td class="right"><div><img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="23.8%"/><br />
 <img src="References/spacer.svg" height="17"/><br />
 <img align="top" src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far across right_0.svg" width="19%"/><br />
 <img src="References/spacer.svg" height="17"/><br />
@@ -476,7 +476,7 @@ Recognize it is a variation of the square obstacle pattern where instead of an a
 <img align="top" src="References/1261580.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1261580_1.svg" width="42.86%"/></div></td>
 <td class="right"><div>Again, same pattern with area. The upper obstacle is now moved, but it will satisfy the previous examples too. The rule replaces the old one.<br />
 <br />
-<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="19%"/><br />
+<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="23.8%"/><br />
 <br />
 2 022 337 is getting stuck because of the stair-shaped walls that force the future line along them. Therefore, an area is created with only one field to go in and out of it. What is the solution?<br />
 <br />
@@ -488,9 +488,9 @@ Though not as universal as we want it to be, this will solve this specific situa
 <tr><td class="left"><div>And soon we will encounter a similar one:<br />
 <br />
 <img align="top" src="References/2022773.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2022773_1.svg" width="42.86%"/><br />
-<br />
+<img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/rules/9/Double Area Stair 2.svg" width="23.8%"/></div></td>
-<td class="right"><div>On 17 x 17 we can construct a situation where the obstacle across the stair is 2 behind and 2 to right. As the table size increases, the stair-obstacle narrowing can move to infinite distance away from the live end. That's why it is important to group these rules as one.<br />
+<td class="right"><div>On 17 x 17, we can construct a situation where the obstacle across the stair is 2 behind and 2 to right. As the table size increases, the stair-obstacle narrowing can move infinite distance away from the live end. That's why it is important to group these rules as one.<br />
 <br />
 <img align="top" src="References/1218_1.svg" width="80.95%"/></div></td></tr>
 <tr><td class="left"><div>We have all the tools to handle 2 034 575.<br />
@@ -500,6 +500,16 @@ Though not as universal as we want it to be, this will solve this specific situa
 It is an impair area where the number of the starting field's color is less than the other color.<br />
 <br />
 <img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/></div></td>
+<td class="right"><div>Next stop is at 3 224 847.<br />
+<br />
+<img align="top" src="References/3224847.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/3224847_1.svg" width="42.86%"/><br />
+<br />
+A pair area is created with the obstacle 3 distance away, so if we step into it, we will exit at the middle, but because of an area, we cannot step there.<br />
+<br />
+<img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="19%"/></div></td></tr>
+<tr><td class="left"><div>From our experience, the area can be substituted with C-shape.<br />
+<br />
+<img align="top" src="References/1219.svg" width="52.4%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Mid Across 3 End C.svg" width="9.5%"/></div></td>
 <td class="right"></td></tr>
  
 </table>
