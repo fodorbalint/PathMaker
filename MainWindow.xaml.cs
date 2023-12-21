@@ -1123,6 +1123,10 @@ namespace OneWayLabyrinth
 
         private bool AddNextStep(int x, int y)
         {
+            taken.areaLines = new();
+            taken.areaLineTypes = new();
+            taken.areaLineDirections = new();
+
             taken.x = x;
             taken.y = y;
 
@@ -2414,11 +2418,7 @@ namespace OneWayLabyrinth
         {
             T("NextStepPossibilities main, inFuture: " + inFuture + " inFutureIndex: " + inFutureIndex + " errorInWalkthrough " + errorInWalkthrough);
             if (inFuture)
-            {
-                taken.areaLines = new();
-                taken.areaLineTypes = new();
-                taken.areaLineDirections = new();
-
+            {   
                 int[] futureField = future.path[inFutureIndex];
                 T("Possible: " + futureField[0] + " " + futureField[1]);
                 taken.possible = new List<int[]> { new int[] { futureField[0], futureField[1] } };

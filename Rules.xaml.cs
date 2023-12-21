@@ -36,8 +36,8 @@ namespace OneWayLabyrinth
         int xSize;
         int ySize;
         string grid;
-        string[] ruleElements = new string[] { "liveEnd", "emptyField", "takenField", "takenLeftField", "takenRightField", "takenUpField", "takenDownField", "takenOrBorderField", "futureStartField", "futureEndField", "notCornerField", "forbiddenField", "countAreaPairStartField", "countAreaPairEndField", "countAreaPairBorderField", "countAreaImpairStartField", "countAreaImpairEndField", "countAreaImpairBorderField", "countAreaImpairDeterminedStartField", "countAreaImpairDeterminedEndField", "countAreaImpairDeterminedBorderField" };      
-        string liveEnd, emptyField, takenField, takenLeftField, takenRightField, takenUpField, takenDownField, takenOrBorderField, futureStartField, futureEndField, forbiddenField, notCornerField, countAreaPairStartField, countAreaPairEndField, countAreaPairBorderField, countAreaImpairStartField, countAreaImpairEndField, countAreaImpairBorderField, countAreaImpairDeterminedStartField, countAreaImpairDeterminedEndField, countAreaImpairDeterminedBorderField;
+        string[] ruleElements = new string[] { "liveEnd", "emptyField", "takenField", "takenLeftField", "takenRightField", "takenUpField", "takenDownField", "takenOrBorderField", "futureStartField", "futureEndField", "notCornerField", "forbiddenField", "countAreaPairStartField", "countAreaPairEndField", "countAreaPairBorderField", "countAreaImpairStartField", "countAreaImpairEndField", "countAreaImpairBorderField", "countAreaImpairDeterminedStartField", "countAreaImpairDeterminedEndField", "countAreaImpairDeterminedBorderField", "countAreaImpairDeterminedEntryField" };      
+        string liveEnd, emptyField, takenField, takenLeftField, takenRightField, takenUpField, takenDownField, takenOrBorderField, futureStartField, futureEndField, forbiddenField, notCornerField, countAreaPairStartField, countAreaPairEndField, countAreaPairBorderField, countAreaImpairStartField, countAreaImpairEndField, countAreaImpairBorderField, countAreaImpairDeterminedStartField, countAreaImpairDeterminedEndField, countAreaImpairDeterminedBorderField, countAreaImpairDeterminedEntryField;
         int elementsInRow = 8;
 
         string newRule;
@@ -240,6 +240,10 @@ namespace OneWayLabyrinth
             countAreaImpairDeterminedBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedBorderField);
             if (!File.Exists("countAreaImpairDeterminedBorderField.svg")) File.WriteAllText("countAreaImpairDeterminedBorderField.svg", content);
+
+            countAreaImpairDeterminedEntryField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\r\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            content = singleGrid.Replace("<!---->", countAreaImpairDeterminedEntryField);
+            if (!File.Exists("countAreaImpairDeterminedEntryField.svg")) File.WriteAllText("countAreaImpairDeterminedEntryField.svg", content);
 
             if (RuleGrid.Children.Count == 1)
             {
@@ -611,6 +615,10 @@ namespace OneWayLabyrinth
                 {   
                     countAreaBorderCoordinates.Add(new int[] { coordX, coordY, draggedElement - 12 });                
                 }
+                else if (draggedElement == 22)
+                {
+                    countAreaBorderCoordinates.Add(new int[] { coordX, coordY, draggedElement - 12 });
+                }
                 else
                 {
                     if (draggedElement == 1)
@@ -789,6 +797,9 @@ namespace OneWayLabyrinth
                         break;
                     case 21:
                         addField = countAreaImpairDeterminedBorderField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
+                        break;
+                    case 22:
+                        addField = countAreaImpairDeterminedEntryField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 0.7f) + " " + (coordY - 0.5f)).Replace("M 0.5 0.3", "M " + (coordX - 0.5f) + " " + (coordY - 0.7f));
                         break;
                 }
 
@@ -1101,6 +1112,7 @@ namespace OneWayLabyrinth
                 int stype = coord[2];
 
                 bool foundEnd = false;
+                int entryCount = 0;
 
                 foreach (int[] coord1 in countAreaEndCoordinates)
                 {
@@ -1132,13 +1144,23 @@ namespace OneWayLabyrinth
                                     int by = coord2[1];
                                     int btype = coord2[2];
 
-                                    if (btype == stype + 2 && (Math.Abs(sx - bx) + Math.Abs(sy - by) == i))
+                                    if ((btype == stype + 2 || btype == stype + 3) && (Math.Abs(sx - bx) + Math.Abs(sy - by) == i))
                                     {
                                         foundDist = true;
                                         if (i == dist - 1)
                                         {
                                             distX = bx - ex;
                                             distY = by - ey;
+                                        }
+
+                                        if (btype == stype + 3)
+                                        {
+                                            if ((bx + by) % 2 == (sx + sy) % 2)
+                                            {
+                                                M("Entry point cannot be of same type as the count area start field.");
+                                                return false;
+                                            }
+                                            entryCount++;
                                         }
                                         break;
                                     }
@@ -1158,6 +1180,11 @@ namespace OneWayLabyrinth
                         }
                         else
                         {
+                            if (entryCount > 1)
+                            {
+                                M("There cannot be more than one entry point.");
+                                return false;
+                            }
                             foundEnd = true;
                         }
 
@@ -1351,7 +1378,6 @@ namespace OneWayLabyrinth
                     int pos = content.IndexOf("viewBox=\"0 0 ");
                     int lastPos = content.IndexOf("\"", pos + 13);
                     string sizeStr = content.Substring(pos + 13, lastPos - pos - 13);
-                    T("sizeStr " + sizeStr);
                     string[] sizes = sizeStr.Split(" ");
 
                     string ruleName = rule.Replace(size + "\\", "").Replace(".svg","");
@@ -1399,7 +1425,7 @@ namespace OneWayLabyrinth
                             {
                                 countAreaEndFields.Add(new int[] { fieldX, fieldY, fieldCode });
                             }
-                            else if (fieldCode == 15 || fieldCode == 18 || fieldCode == 21)
+                            else if (fieldCode == 15 || fieldCode == 18 || fieldCode == 21 || fieldCode == 22)
                             {
                                 countAreaBorderFields.Add(new int[] { fieldX, fieldY, fieldCode });
                             }
@@ -1582,6 +1608,7 @@ namespace OneWayLabyrinth
                     int sx = coord[0];
                     int sy = coord[1];
                     int stype = coord[2];
+                    int foundEntry = 0;
 
                     foreach (int[] coord1 in countAreaEndFields)
                     {
@@ -1632,7 +1659,7 @@ namespace OneWayLabyrinth
                                         int by = coord2[1];
                                         int btype = coord2[2];
 
-                                        if (btype == stype + 2 && (Math.Abs(sx - bx) + Math.Abs(sy - by) == i))
+                                        if ((btype == stype + 2 || btype == stype + 3) && (Math.Abs(sx - bx) + Math.Abs(sy - by) == i))
                                         {
                                             foundDist = true;
                                             countAreaCodeSection += "new int[] {" + (startX - bx) + "," + (startY - by) + "},";
@@ -1642,6 +1669,12 @@ namespace OneWayLabyrinth
                                                 distX = bx - ex;
                                                 distY = by - ey;
                                             }
+
+                                            if (btype == stype + 3)
+                                            {
+                                                foundEntry = 1;
+                                            }
+
                                             break;
                                         }
                                     }
@@ -1668,7 +1701,7 @@ namespace OneWayLabyrinth
                             countAreaCodeStart += variableName + "_circle" + circleCount + " && ";
                             if (!noCount)
                             {
-                                countAreaCodeEnd += countAreaCodeSection + "i==0?" + directionLeft.ToString().ToLower() + ":!" + directionLeft.ToString().ToLower() + "," + ((stype - stype % 3) / 3 - 4) + ") && ";
+                                countAreaCodeEnd += countAreaCodeSection + "i==0?" + directionLeft.ToString().ToLower() + ":!" + directionLeft.ToString().ToLower() + "," + ((stype - stype % 3) / 3 - 4 + foundEntry) + ") && ";
                             }
 
                             // countAreaRule.Replace("\t\t", "\t\t\t") +

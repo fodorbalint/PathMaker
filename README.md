@@ -545,7 +545,34 @@ From our experience, the area can be substituted with C-shape.
 
 <img align="top" src="References/1219.svg" width="52.4%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Mid Across 3 End C.svg" width="9.5%"/>
 
+3 225 432 is a variation of the impair area imbalance rules we have seen before.
+
+<img align="top" src="References/3225432.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/3225432_1.svg" width="42.86%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="23.8%"/>
+
 <!-- page 43 -->
+
+8 076 012 builds upon the existing rule where C-shapes are created on both sides if we enter an impair area.
+
+<img align="top" src="References/8076012.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/8076012_1.svg" width="42.86%"/>
+
+Here, a C-shape at the start would force the line to enter the area.
+
+<img align="top" src="References/rules/9/Double C-Shape Start C.svg" width="14.28%"/>
+
+<!-- page 44 -->
+
+Soon we get a similar situation, only here it is the imbalance of pair and impair fields that is to blame.
+
+<img align="top" src="References/8076044.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/8076044_1.svg" width="42.86%"/>
+
+If we step to A, we cannot step left and therefure must continue to B (or right). From B, the only possibility is C, but the 5 x 3 area is not just impair, there is less of the C-parity field than the other.<br />
+In the rule, I introduced a new field that indicates the entry point; this has always been the start field until now.
+
+<img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
+
+<!-- page 45 -->
 
 ---
 
