@@ -155,18 +155,18 @@ namespace OneWayLabyrinth
 						leftField = new int[] { x + lx, y + ly };
 						rightField = new int[] { x + rx, y + ry };
 
-                        if (!InTakenAbs(straightField) && !InBorderAbs(straightField) && !InFutureAbs(straightField))
+                        if (!InTakenAbs(straightField) && !InBorderAbs(straightField)) // && !InFutureAbs(straightField))
 						{
 							T("possible straight");
 							possible.Add(straightField);
 						}
-						if (!InTakenAbs(rightField) && !InBorderAbs(rightField) && !InFutureAbs(rightField))
-						{
+						if (!InTakenAbs(rightField) && !InBorderAbs(rightField)) // && !InFutureAbs(rightField))
+                        {
 							T("possible right");
 							possible.Add(rightField);
 						}
-						if (!InTakenAbs(leftField) && !InBorderAbs(leftField) && !InFutureAbs(leftField))
-						{
+						if (!InTakenAbs(leftField) && !InBorderAbs(leftField)) // && !InFutureAbs(leftField))
+                        {
 							T("possible left");
 							possible.Add(leftField);
 						}
@@ -201,7 +201,7 @@ namespace OneWayLabyrinth
 								possible.Add(leftField);
 							}
 						}
-                        else
+                        /*else
                         {
                             if (InFutureStartAbs(straightField))
                             {
@@ -218,7 +218,7 @@ namespace OneWayLabyrinth
                                 T("possible future start left");
                                 possible.Add(leftField);
                             }
-                        }
+                        }*/
 
 						//if the only possible field is a future field, we don't need to check more. This will prevent unnecessary exits, as in 0804.
 
@@ -561,9 +561,7 @@ namespace OneWayLabyrinth
         }
 
         public void CheckNearField()
-        {
-            bool farStraight = false;
-            bool farMidAcross = false;
+        {            
             bool farSideStraightUp = false;
             bool farSideStraightDown = false;
             bool farSideMidAcrossUp = false;
@@ -594,6 +592,8 @@ namespace OneWayLabyrinth
                 // close straight on one side will disable far rules on the other side, we don't need a local variable.
                 bool closeMidAcrossLocal = false;
                 bool closeAcrossLocal = false;
+                bool farStraight = false;
+                bool farMidAcross = false;
 
                 if (InTakenRel(0, 2) && InTakenRel(1, 2) && !InTakenRel(0, 1))
                 {

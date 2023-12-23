@@ -97,15 +97,15 @@ namespace OneWayLabyrinth
 
             if (lines.Length > 8)
             {
-                string[] arr = lines[8].Split(": ");
+                string[] arr = lines[9].Split(": ");
                 size = int.Parse(arr[1]);
                 AppliedSize.Text = arr[1];
 
-                arr = lines[9].Split(": ");
+                arr = lines[10].Split(": ");
                 xSize = int.Parse(arr[1]);
                 XSize.Text = arr[1];
 
-                arr = lines[10].Split(": ");
+                arr = lines[11].Split(": ");
                 ySize = int.Parse(arr[1]);
                 YSize.Text = arr[1];
             }
@@ -1324,7 +1324,8 @@ namespace OneWayLabyrinth
             childIndex = 0;
             string[] listOfSizes = Directory.GetDirectories("rules");            
             int yTotalPos = 0;
-            string codeString = "namespace OneWayLabyrinth\n{\n\tusing System.Collections.Generic;\n\n\tpublic partial class Path\n\t{\n\t\tint directionFieldIndex = 0;\n[conditionVariablesDeclare]\n\t\tpublic void RunRules()\n\t\t{\n[conditionVariablesReset]\n";
+            string codeString = "namespace OneWayLabyrinth\n{\n\tusing System.Collections.Generic;\n\n\tpublic partial class Path\n\t{\n\t\tint directionFieldIndex = 0;\n\t\tList<string> activeRules;\n\t\tList<int[]> activeRuleSizes;\n[conditionVariablesDeclare]\n\t\tpublic void RunRules()\n\t\t{" +
+                "\n\t\t\tactiveRules = new List<string>();\n\t\t\tactiveRuleSizes = new List<int[]>();\n[conditionVariablesReset]\n";
             string conditionVariablesDeclare = "";
             string conditionVariablesReset = "";
             string conditionVariablesSet = "T(";
@@ -1486,7 +1487,7 @@ namespace OneWayLabyrinth
                     yPos += int.Parse(sizes[1]) * 40 + 10;
 
                     
-                    codeString += GenerateCode(variableName, metaArr, takenFields, forbiddenFields, noCornerField, countAreaStartFields, countAreaEndFields, countAreaBorderFields);
+                    codeString += GenerateCode(variableName, metaArr, takenFields, forbiddenFields, noCornerField, countAreaStartFields, countAreaEndFields, countAreaBorderFields, ruleName, int.Parse(sizes[0]), int.Parse(sizes[1]));
                 }
                 codeString = codeString.Substring(0, codeString.Length - 1);
                 codeString += "\t\t\t}\n\n";
@@ -1499,7 +1500,7 @@ namespace OneWayLabyrinth
 
             if (conditionVariablesSet.Length != 2)
             {
-                codeString += "\t\t\t" + conditionVariablesSet.Substring(0, conditionVariablesSet.Length - 10) + ");\n\t\t}\n\t}\n}";
+                codeString += "\t\t\t" + conditionVariablesSet.Substring(0, conditionVariablesSet.Length - 10) + ");\n\t\t\twindow.ShowActiveRules(activeRules,activeRuleSizes);\n\t\t}\n\t}\n}";
             }
             else
             {
@@ -1511,7 +1512,7 @@ namespace OneWayLabyrinth
             File.WriteAllText("PathRules.cs", codeString);
         }
 
-        private string GenerateCode(string variableName, string[] meta, List<int[]> takenFields, List<int[]> forbiddenFields, int[]? noCornerField, List<int[]> countAreaStartFields, List<int[]> countAreaEndFields, List<int[]> countAreaBorderFields)
+        private string GenerateCode(string variableName, string[] meta, List<int[]> takenFields, List<int[]> forbiddenFields, int[]? noCornerField, List<int[]> countAreaStartFields, List<int[]> countAreaEndFields, List<int[]> countAreaBorderFields, string ruleName, int xSize, int ySize)
         {
             if (variableName == "CShape") return "\t\t\t\t// Embedded in Path.cs as the absolute checking functions need it.\n\n";
 
@@ -1760,12 +1761,17 @@ namespace OneWayLabyrinth
                 ruleCore = areaConditionsCode + countAreaCodeStart + countAreaCodeEnd +
                     "{\n" +
                     "\t" + variableName + " = true;\n" +
+                    "\tactiveRules.Add(\"" + ruleName + "\");\n" +
+                    "\tactiveRuleSizes.Add(new int[] {" + xSize + "," + ySize + "});\n" +
                     forbiddenStr +
                     "}";
             }
             else
             {
-                ruleCore = variableName + " = true;\n" + forbiddenStr;
+                ruleCore = variableName + " = true;\n" +
+                    "activeRules.Add(\"" + ruleName + "\");\n" +
+                    "activeRuleSizes.Add(new int[] {" + xSize + "," + ySize + "});\n" +
+                    forbiddenStr;
             }
 
             //ruleCore = variableName + " = true;\n" + forbiddenStr;

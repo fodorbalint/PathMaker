@@ -507,7 +507,7 @@ Though not as universal as we want it to be, this will solve this specific situa
 
 <!-- page 38 -->
 
-And soon we will encounter a similar one:
+And soon, at 2 022 773 we encounter a similar one:
 
 <img align="top" src="References/2022773.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2022773_1.svg" width="42.86%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
@@ -573,6 +573,15 @@ In the rule, I introduced a new field that indicates the entry point; this has a
 <img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
 
 <!-- page 45 -->
+
+19 718 148 is a slight modification of 2 022 773 where there is an area instead of a C-shape straight ahead.
+
+<img align="top" src="References/19718148.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/19718148_1.svg" width="42.86%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img align="top" src="References/rules/9/Double Area Stair 2.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area Stair Area.svg" width="23.8%"/>
+
+
+<!-- page 46 -->
 
 ---
 

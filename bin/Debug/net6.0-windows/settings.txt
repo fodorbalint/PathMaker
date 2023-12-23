@@ -5,7 +5,8 @@ continueOnCompletion: True
 keepLeft: True
 displayFutureLines: True
 displayArea: True
-makeStats: False
+makeStats: True
+activeRules: True
 appliedSize: 9
-ruleXSize: 3
+ruleXSize: 5
 ruleYSize: 6

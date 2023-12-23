@@ -27,6 +27,7 @@ using System.Xml.Linq;
 using OpenTK.Graphics.ES11;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
+using SkiaSharp.Views.WPF;
 
 /*
 
@@ -44,6 +45,9 @@ Needed printed fields: 2 arrows, 1 count area pair/impair start/end with gray ba
 
 Reset farStraight = false; and farMidAcross = false; within 2-cycle?
 
+Write about creating future line at the corner
+
+Decide possibilities without relying on future lines, new rules will be necessary, as in 19717655
 ----- 21 x 21 -----
 
 0413: Path.CheckFutureSide: check case when both sides are true simultaneously, draw future line on left side to start with. See 0430_2
@@ -126,6 +130,7 @@ namespace OneWayLabyrinth
         bool displayFuture = true;
         bool displayArea = true;
 		public bool makeStats;
+        bool activeRules = false;
         bool displayExits = true;
 		bool settingsOpen = false;
         int numberOfRuns = 0;
@@ -172,6 +177,8 @@ namespace OneWayLabyrinth
                 arr = lines[7].Split(": ");
                 MakeStatsCheck.IsChecked = bool.Parse(arr[1]);
                 makeStats = (bool)MakeStatsCheck.IsChecked;
+                ShowActiveRulesCheck.IsChecked = bool.Parse(arr[1]);
+                activeRules = (bool)ShowActiveRulesCheck.IsChecked;
 
                 CheckSize();
 				Size.Text = size.ToString();
@@ -194,7 +201,11 @@ namespace OneWayLabyrinth
                 displayArea = true;
                 MakeStatsCheck.IsChecked = false;
                 makeStats = false;
+                ShowActiveRulesCheck.IsChecked = false;
+                activeRules = false;
             }
+
+            SetActiveRules();
 			
 			exits = new List<int[]>();
 			exitIndex = new List<int>();
@@ -237,6 +248,66 @@ namespace OneWayLabyrinth
 			}
             DrawPath();
 			CL();
+        }
+
+        private void SetActiveRules()
+        {
+            if (activeRules)
+            {
+                ContainerWindow.Width = 988;
+                MainGrid.ColumnDefinitions[1].Width = new GridLength(300);
+            }
+            else
+            {
+                ContainerWindow.Width = 688;
+                MainGrid.ColumnDefinitions[1].Width = new GridLength(0);
+            }
+        }
+
+
+        public void ClearActiveRules()
+        {
+            while (ActiveRuleGrid.Children.Count > 1)
+            {
+                ActiveRuleGrid.Children.RemoveAt(ActiveRuleGrid.Children.Count - 1);
+            }
+        }
+
+        public void ShowActiveRules(List<string> rules, List<int[]> sizes)
+        {
+            if (isTaskRunning) return;
+
+            ClearActiveRules();
+
+            int yPos = 50;
+            int i = 0;
+            foreach (string ruleName in rules)
+            {
+                TextBlock t = new();
+                t.Text = ruleName;
+                t.Margin = new Thickness(20, yPos, 0, 0);
+                t.HorizontalAlignment = HorizontalAlignment.Left;
+                t.VerticalAlignment = VerticalAlignment.Top;
+
+                ActiveRuleGrid.Children.Add(t);
+                    
+                yPos+=21;
+
+                SKElement c = new();
+                c.IgnorePixelScaling = true;
+                c.Tag = ruleName;
+                c.PaintSurface += SKElement_PaintSurface2;
+                c.Width = sizes[i][0] * 40;
+                c.Height = sizes[i][1] * 40;
+                c.Margin = new Thickness(20, yPos, 0, 0);
+                c.HorizontalAlignment = HorizontalAlignment.Left;
+                c.VerticalAlignment = VerticalAlignment.Top;
+                ActiveRuleGrid.Children.Add(c);
+
+                yPos += sizes[i][1] * 40 + 10;
+
+                i++;
+            }            
         }
 
         private void ReadDir()
@@ -365,15 +436,6 @@ namespace OneWayLabyrinth
             }
             else lastDirection = 0;
 
-            if (taken.x == size && taken.y == size)
-            {
-                lineFinished = true;
-            }
-            else
-            {
-                lineFinished = false;
-            }
-
             if (loadFile.IndexOf("_") != -1)
             {
                 string[] arr = loadFile.Split("_");
@@ -383,11 +445,20 @@ namespace OneWayLabyrinth
             CurrentCoords.Content = taken.x + " " + taken.y;
             PossibleCoords.Text = "";
 
-            taken.possible = new List<int[]>();
-            foreach (int direction in possibleDirections[possibleDirections.Count - 1])
+            if (taken.x == size && taken.y == size)
             {
-                PossibleCoords.Text += taken.x + directions[direction][0] + " " + (taken.y + directions[direction][1]) + "\n";
-                taken.possible.Add(new int[] { taken.x + directions[direction][0], taken.y + directions[direction][1] });
+                lineFinished = true;
+            }
+            else
+            {
+                lineFinished = false;
+
+                taken.possible = new List<int[]>();
+                foreach (int direction in possibleDirections[possibleDirections.Count - 1])
+                {
+                    PossibleCoords.Text += taken.x + directions[direction][0] + " " + (taken.y + directions[direction][1]) + "\n";
+                    taken.possible.Add(new int[] { taken.x + directions[direction][0], taken.y + directions[direction][1] });
+                }
             }
         }
 
@@ -806,8 +877,11 @@ namespace OneWayLabyrinth
             displayFuture = (bool)DisplayFutureCheck.IsChecked;
             displayArea = (bool)DisplayAreaCheck.IsChecked;
             makeStats = (bool)MakeStatsCheck.IsChecked;
+            activeRules = (bool)ShowActiveRulesCheck.IsChecked;
 
-            string[] lines = new string[] { "size: " + size, "loadFromFile: " + loadCheck, "saveOnCompletion: " + saveCheck, "continueOnCompletion: " + continueCheck, "keepLeft: " + keepLeftCheck, "displayFutureLines: " + displayFuture, "displayArea: " + displayArea, "makeStats: " + makeStats  };
+            SetActiveRules();
+
+            string[] lines = new string[] { "size: " + size, "loadFromFile: " + loadCheck, "saveOnCompletion: " + saveCheck, "continueOnCompletion: " + continueCheck, "keepLeft: " + keepLeftCheck, "displayFutureLines: " + displayFuture, "displayArea: " + displayArea, "makeStats: " + makeStats, "activeRules: " + activeRules };
 
             string linesStr = string.Join("\n", lines);
 
@@ -1358,7 +1432,7 @@ namespace OneWayLabyrinth
                         int lx = taken.lx;
                         int ly = taken.ly;
 
-                        if (InFutureStartRel(1, 0) && (InTakenRel(2, 0) || InBorderRel(2, 0) || InFutureRel(2, 0)) && !InTakenRel(1, 1) && !InBorderRel(1, 1) && !InFutureRel(1, 1))
+                        if (InFutureStartRel(1, 0) && (InTakenRel(2, 0) || InBorderRel(2, 0) || (InFutureRel(2, 0) && !InFutureEndRel(2, 0))) && !InFutureEndRel(1, -1) && !InTakenRel(1, 1) && !InBorderRel(1, 1) && !InFutureRel(1, 1))
                         {
                             T("1-thin future line valid at " + taken.x + " " + taken.y);
 
@@ -1447,7 +1521,7 @@ namespace OneWayLabyrinth
 
                         // Future lines does not always extend from a 2x2 shape. 0901_2 has a one-wide line.
                         // Checking InFutureEndRel2(2, 0) gets important in 0928
-                        if (InFutureStartRel2(1, 0) && (InTakenRel2(2, 0) || InBorderRel2(2, 0) || (InFutureRel2(2, 0) && (!InFutureEndRel2(2, 0) || InFutureEndRel2(2, 0) && foundSectionStart == foundSectionEnd))) && (InFutureRel2(1, -1) || InBorderRel2(1, -1) || InTakenRel2(1, -1)))
+                        if (InFutureStartRel2(1, 0) && (InTakenRel2(2, 0) || InBorderRel2(2, 0) || (InFutureRel2(2, 0) && (!InFutureEndRel2(2, 0) || InFutureEndRel2(2, 0) && foundSectionStart == foundSectionEnd))) && (InTakenRel2(1, -1) ||  InBorderRel2(1, -1) || (InFutureRel2(1, -1) && !InFutureEndRel2(1, -1))))
                         {
                             T("Left/right future start valid at x " + x + " y " + y + ", start x " + (x + lx) + " y " + (y + ly));
 
@@ -1609,6 +1683,76 @@ namespace OneWayLabyrinth
                     taken.lx = taken.thisLx;
                     taken.ly = taken.thisLy;
                 }
+            }
+
+            // add corner when passing it
+
+            taken.sx = taken.x - taken.path[count - 2][0];
+            taken.sy = taken.y - taken.path[count - 2][1];
+
+            for (int i = 0; i < 4; i++)
+            {
+                if (directions[i][0] == taken.sx && directions[i][1] == taken.sy)
+                {
+                    int newIndex = (i == 3) ? 0 : i + 1;
+                    taken.lx = directions[newIndex][0];
+                    taken.ly = directions[newIndex][1];
+                }
+            }
+
+            taken.thisSx = taken.sx;
+            taken.thisSy = taken.sy;
+            taken.thisLx = taken.lx;
+            taken.thisLy = taken.ly;
+
+            for (int i = 0; i < 2; i++)
+            {
+                int lx = taken.lx;
+                int ly = taken.ly;
+                int sx = taken.sx;
+                int sy = taken.sy;
+
+                // at the lower right corner future line shouldn't be drawn
+                // !InFutureRel2(1, 0) is to exclude a previously drawn 1x3 future line if we afterwards turned towards the middle
+
+                if (!InFutureRel(1, 0) && !InFutureRel(1, -1) && InCornerRel(1, -1)) // if 1, 0 is taken by a future line, it will be extended by the 1-thin rule
+                {
+                    T("Corner future valid at x " + x + " y " + y);
+
+                    future.path.Add(new int[] { x + lx, y + ly });                    
+                    future.path.Add(new int[] { x + lx + sx, y + ly + sy });
+
+                    for (int k = 0; k < 2; k++)
+                    {
+                        futureIndex.Add(count - 1);
+                        futureActive.Add(true);
+                    }
+                    futureSections.Add(new int[] { future.path.Count - 1, future.path.Count - 2 });
+                    
+                    
+                    int selectedExtSection = futureSections.Count - 1;
+
+                    future.path2 = taken.path;
+
+                    nearExtDone = false;
+                    farExtDone = true;
+                    nearEndDone = false;
+                    farEndDone = true;
+
+                    if (!ExtendFutureLine(true, future.path.Count - 1, future.path.Count - 2, selectedExtSection, selectedExtSection, false))
+                    {
+                        //when making a c shape 3 distance across from the border in the corner, it cannot be completed
+                        possibleDirections.Add(new int[] { });
+                        T("Corner future line cannot be completed.");
+                        M("Corner future line cannot be completed.", 2);
+                        return false;
+                    }                
+                }
+                //mirror directions
+                taken.sx = taken.thisSx;
+                taken.sy = taken.thisSy;
+                taken.lx = -taken.thisLx;
+                taken.ly = -taken.thisLy;
             }
 
             taken.x2 = x;
@@ -2343,6 +2487,7 @@ namespace OneWayLabyrinth
                 }
             } while (future.possible.Count == 1);
 
+            T("future.possible.Count " + future.possible.Count);
             if (future.possible.Count == 0)
             {
                 T("Possible count: 0");
@@ -2475,7 +2620,27 @@ namespace OneWayLabyrinth
                 }
                 else
                 {
-                    int futureFieldIndex = future.InTakenIndex(fx, fy);
+                    if (future.InTaken(fx, fy) && !InFutureStart(fx, fy))
+                    {
+                        M("Possible field in future.", 0);
+                    }
+
+                    if (!isTaskRunning) PossibleCoords.Text += fx + " " + fy + "\n";
+                    newPossible.Add(field);
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        //last movement: down, right, up, left
+                        int dx = directions[i][0];
+                        int dy = directions[i][1];
+
+                        if (fx - taken.x == dx && fy - taken.y == dy)
+                        {
+                            possibleFields.Add(i);
+                        }
+                    }
+
+                    /*int futureFieldIndex = future.InTakenIndex(fx, fy);
 
                     //T("NextStepPossibilities not inFuture, futureFieldIndex: " + futureFieldIndex + " fx " + fx + " fy " + fy);
                     //can only step on an empty field or the near end of a visible future line (newer lines might have already been stepped on)
@@ -2505,7 +2670,7 @@ namespace OneWayLabyrinth
                                 possibleFields.Add(i);
                             }
                         }
-                    }
+                    }*/
                 }
             }
 
@@ -2550,6 +2715,7 @@ namespace OneWayLabyrinth
 			taken.areaLines = new();
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
+            ClearActiveRules();
 
             int removeX = taken.path[count - 1][0];
 			int removeY = taken.path[count - 1][1];
@@ -2869,6 +3035,14 @@ namespace OneWayLabyrinth
 			return false;
         }
 
+        public bool InCornerRel(int left, int straight)
+        {
+            int x = taken.x + left * taken.lx + straight * taken.sx;
+            int y = taken.y + left * taken.ly + straight * taken.sy;
+            if (x == size && y == size) return true;
+            return false;
+        }
+
         public bool InCornerRel2(int left, int straight)
         {
             int x = taken.x2 + left * taken.lx + straight * taken.sx;
@@ -3004,6 +3178,14 @@ namespace OneWayLabyrinth
             }
 
             return false;
+        }
+
+        public bool InFutureEndRel(int left, int straight)
+        {
+            int x = taken.x + left * taken.lx + straight * taken.sx;
+            int y = taken.y + left * taken.ly + straight * taken.sy;
+
+            return InFutureEnd(x, y);
         }
 
         public bool InFutureEndRel2(int left, int straight)
@@ -3808,8 +3990,11 @@ namespace OneWayLabyrinth
 				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n" +
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
-                        
-            svgName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".svg" : DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".svg";
+
+            string tag = (errorInWalkthrough && completedCount > 0) ? completedCount + ".svg" : DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00");
+
+            Canvas.Tag = tag;
+            svgName =  tag + ".svg";
 
 			File.WriteAllText(svgName, content);
 
@@ -3990,18 +4175,36 @@ namespace OneWayLabyrinth
             return areaBackground;
         }
 
-		private void SKElement_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
-		{
-			var canvas = e.Surface.Canvas;
-			canvas.Clear(SKColors.White);
+        private void SKElement_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        {
+            string fileName = (string)((SKElement)sender).Tag + ".svg";
+            if (!File.Exists(fileName)) return;
+            var canvas = e.Surface.Canvas;
+            canvas.Clear(SKColors.White);
 
-			var svg = new SkiaSharp.Extended.Svg.SKSvg();
-			var picture = svg.Load(svgName);
+            var svg = new SkiaSharp.Extended.Svg.SKSvg();
+            var picture = svg.Load(fileName);
 
-			var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
-			e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
-			e.Surface.Canvas.DrawPicture(picture);
-		}
+            var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
+            e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
+            e.Surface.Canvas.DrawPicture(picture);
+        }
+
+        private void SKElement_PaintSurface2(object sender, SKPaintSurfaceEventArgs e)
+        {
+            string fileName = "rules/" + size + "/" + (string)((SKElement)sender).Tag + ".svg";
+            T("paintsurface" + fileName);
+            if (!File.Exists(fileName)) return;
+            var canvas = e.Surface.Canvas;
+            canvas.Clear(SKColors.White);
+
+            var svg = new SkiaSharp.Extended.Svg.SKSvg();
+            var picture = svg.Load(fileName);
+
+            var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
+            e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
+            e.Surface.Canvas.DrawPicture(picture);
+        }
 
 
         // ----- UI interaction -----
@@ -4119,8 +4322,10 @@ namespace OneWayLabyrinth
             double posY = e.GetPosition(Canvas).Y;
             double gridX = e.GetPosition(MainGrid).X;
             double gridY = e.GetPosition(MainGrid).Y;
-            CoordinateLabel.Content = Math.Ceiling(posX / Canvas.ActualWidth * size) + " " + Math.Ceiling(posY / Canvas.ActualHeight * size);
-            double right = MainGrid.ActualWidth - gridX;
+
+            double w = (activeRules) ? MainGrid.ActualWidth - 300 : MainGrid.ActualWidth;
+            CoordinateLabel.Content = Math.Ceiling(posX / w * size) + " " + Math.Ceiling(posY / Canvas.ActualHeight * size);
+            double right = w - gridX;
             double bottom = MainGrid.ActualHeight - gridY;
             if (posX < CoordinateLabel.ActualWidth)
             {
