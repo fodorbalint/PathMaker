@@ -1200,6 +1200,7 @@ namespace OneWayLabyrinth
             taken.areaLines = new();
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
+            if (!isTaskRunning) ClearActiveRules();
 
             taken.x = x;
             taken.y = y;
@@ -2715,7 +2716,7 @@ namespace OneWayLabyrinth
 			taken.areaLines = new();
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
-            ClearActiveRules();
+            if (!isTaskRunning) ClearActiveRules();
 
             int removeX = taken.path[count - 1][0];
 			int removeY = taken.path[count - 1][1];
@@ -3991,7 +3992,7 @@ namespace OneWayLabyrinth
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
 
-            string tag = (errorInWalkthrough && completedCount > 0) ? completedCount + ".svg" : DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00");
+            string tag = (errorInWalkthrough && completedCount > 0) ? completedCount.ToString() : DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00");
 
             Canvas.Tag = tag;
             svgName =  tag + ".svg";

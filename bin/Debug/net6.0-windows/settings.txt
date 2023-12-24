@@ -8,5 +8,5 @@ displayArea: True
 makeStats: True
 activeRules: True
 appliedSize: 9
-ruleXSize: 5
-ruleYSize: 6
+ruleXSize: 7
+ruleYSize: 5

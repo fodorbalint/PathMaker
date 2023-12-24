@@ -574,14 +574,49 @@ In the rule, I introduced a new field that indicates the entry point; this has a
 
 <!-- page 45 -->
 
+At 19 717 655 the program stops.
+
+<img align="top" src="References/19717655.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/19717655_1.svg" width="42.86%"/>
+
+Obvously, we cannot step straight, but had we extended the future line until the end corner, the situation would not have occurred and we would have just got this:
+
+<img align="top" src="References/19717655_2.svg" width="42.86%"/>
+
+Though the algorithm including the reliance on the future lines is just as solvable, we miss patterns and therefore narrow the spectrum of the discoverable rules. We would eventually discover the patterns as we increase the table, but why not gain the most out of the 9 x 9 study? From now on, future lines are treated as a visible aid, but they do not play a role in deciding which fields are available for the next move. When a possible field is within the body of a future line, the program should stop. 
+
+<!-- page 46 -->
+
+<img align="top" src="References/19717655_3.svg" width="42.86%"/>
+
+It is not the only thing. So far, when we entered a future line, the program just followed it without checking the possibilities for the next step.
+This behaviour needs to be changed too, and we should restart the 9 x 9 walkthroughs.
+
+For now, here is the solution to this and the next cases:
+
+<img align="top" src="References/rules/9/Triple Area Stair.svg" width="33.3%"/>
+
+<!-- page 47 -->
+
 19 718 148 is a slight modification of 2 022 773 where there is an area instead of a C-shape straight ahead.
 
 <img align="top" src="References/19718148.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/19718148_1.svg" width="42.86%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/rules/9/Double Area Stair 2.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area Stair Area.svg" width="23.8%"/>
 
+We encounter a new constellation of 3 areas in 23 310 321 where the exit is next to the live end.
 
-<!-- page 46 -->
+<img align="top" src="References/23310321.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/23310321_1.svg" width="42.86%"/>
+
+<!-- page 48 -->
+
+The two empty fields in the middle will not be filled if the don't enter the impair area now.
+
+<img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.6%"/>
+
+<!-- page 49 -->
+
+
+
 
 ---
 

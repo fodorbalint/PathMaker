@@ -1272,7 +1272,7 @@ namespace OneWayLabyrinth
                 areaLine = new();
                 foreach (int[] field in borderFields)
                 {
-                    areaLine.Add(new int[] { field[0], field[1] });                
+                    areaLine.Add(new int[] { field[0], field[1] });
                 }
                 xDiff = startX - borderFields[borderFields.Count - 1][0];
                 yDiff = startY - borderFields[borderFields.Count - 1][1];
@@ -1311,13 +1311,21 @@ namespace OneWayLabyrinth
                 currentDirection = turnedDirection;
             }
 
-            //In case of an area of 2
+            //In case of an area of 2 or 3
             if (InTaken(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]))
             {
                 currentDirection = currentDirection == 0 ? 3 : currentDirection - 1;
             }
             nextX += directions[currentDirection][0];
             nextY += directions[currentDirection][1];
+
+            // if the impair area is only 3 fields, we will now encounter the count area border field.
+            if (borderFields != null && borderFields.Count == 1 && nextX == borderFields[0][0] && nextY == borderFields[0][1])
+            {
+                nextX = endX;
+                nextY = endY;
+            }
+
             areaLine.Add(new int[] { nextX, nextY });
 
             if (nextY < minY)
@@ -1411,6 +1419,7 @@ namespace OneWayLabyrinth
                     }
                 }
                 areaLine.Add(new int[] { nextX, nextY });
+                T("Adding " + nextX + " " + nextY + " count " + areaLine.Count);
 
                 if (nextY < minY)
                 {
@@ -1439,6 +1448,8 @@ namespace OneWayLabyrinth
                 }
             }
 
+            T("------- areaLineCount " + areaLine.Count);
+
             /*T("minY " + minY + " limitX " + limitX);
             foreach (int[] a in areaLine)
 			{
@@ -1451,7 +1462,7 @@ namespace OneWayLabyrinth
             List<int[]> startSquares = new List<int[]>();
             List<int[]> endSquares = new List<int[]>();
 
-            if (areaLine.Count > 2)
+            if (areaLine.Count > 3)
             {
                 int[] startCandidate = new int[] { limitX, minY };
                 int[] endCandidate = new int[] { limitX, minY };
@@ -1713,11 +1724,11 @@ namespace OneWayLabyrinth
                     area += endSquares[i][0] - startSquares[i][0] + 1;
                 }
             }
-            else area = 2;
+            else area = areaLine.Count;
 
             T("Count area: " + area);
 
-            if (displayArea && area > 2)
+            if (displayArea && area > 3)
             {
                 areaLines.Add(areaLine);
                 areaLineTypes.Add(area % 2);

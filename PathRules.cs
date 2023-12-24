@@ -29,6 +29,8 @@ namespace OneWayLabyrinth
 		public bool StraightAcrossEndC = false;
 		public bool StraightMidAcross3EndArea = false;
 		public bool StraightMidAcross3EndC = false;
+		public bool TripleAreaExitDown = false;
+		public bool TripleAreaStair = false;
 		public bool TripleArea = false;
 		public bool Across3ImpairDetermined = false;
 
@@ -58,6 +60,8 @@ namespace OneWayLabyrinth
 			StraightAcrossEndC = false;
 			StraightMidAcross3EndArea = false;
 			StraightMidAcross3EndC = false;
+			TripleAreaExitDown = false;
+			TripleAreaStair = false;
 			TripleArea = false;
 			Across3ImpairDetermined = false;
 
@@ -1648,6 +1652,258 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 
+				// Triple Area Exit Down
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if ((InTakenRel(4,0) || InBorderRel(4,0)) && (InTakenRel(4,3) || InBorderRel(4,3)) && (InTakenRel(0,3) || InBorderRel(0,3)) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(2,0) && !InBorderRel(2,0) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(4,1) && !InBorderRel(4,1) && !InTakenRel(4,2) && !InBorderRel(4,2) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,2) && !InBorderRel(1,2) && !InTakenRel(1,1) && !InBorderRel(1,1))
+						{
+							bool TripleAreaExitDown_circle1 = false;
+							directionFieldIndex = InTakenIndexRel(4,0);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(4,-1))
+								{
+									int leftIndex = InTakenIndexRel(4,-1);
+									if (leftIndex > directionFieldIndex)
+									{
+										TripleAreaExitDown_circle1 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(4,1);
+									if (rightIndex < directionFieldIndex)
+									{
+										TripleAreaExitDown_circle1 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(4,0);
+								int farSideIndex = InBorderIndexRel(4,1);
+								if (farSideIndex > directionFieldIndex)
+								{
+									TripleAreaExitDown_circle1 = true;
+								}
+							}
+							
+							bool TripleAreaExitDown_circle2 = false;
+							directionFieldIndex = InTakenIndexRel(4,3);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(5,3))
+								{
+									int leftIndex = InTakenIndexRel(5,3);
+									if (leftIndex > directionFieldIndex)
+									{
+										TripleAreaExitDown_circle2 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(3,3);
+									if (rightIndex < directionFieldIndex)
+									{
+										TripleAreaExitDown_circle2 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(4,3);
+								int farSideIndex = InBorderIndexRel(3,3);
+								if (farSideIndex > directionFieldIndex)
+								{
+									TripleAreaExitDown_circle2 = true;
+								}
+							}
+							
+							bool TripleAreaExitDown_circle3 = false;
+							directionFieldIndex = InTakenIndexRel(0,3);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(0,4))
+								{
+									int leftIndex = InTakenIndexRel(0,4);
+									if (leftIndex > directionFieldIndex)
+									{
+										TripleAreaExitDown_circle3 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(0,2);
+									if (rightIndex < directionFieldIndex)
+									{
+										TripleAreaExitDown_circle3 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(0,3);
+								int farSideIndex = InBorderIndexRel(0,2);
+								if (farSideIndex > directionFieldIndex)
+								{
+									TripleAreaExitDown_circle3 = true;
+								}
+							}
+							
+							if (TripleAreaExitDown_circle1 && TripleAreaExitDown_circle2 && TripleAreaExitDown_circle3 && CountAreaRel(1,0,3,0,new List<int[]> {new int[] {2,0}},i==0?true:!true,1) && CountAreaRel(3,3,1,3,new List<int[]> {new int[] {2,3}},i==0?true:!true,1))
+							{
+								TripleAreaExitDown = true;
+								activeRules.Add("Triple Area Exit Down");
+								activeRuleSizes.Add(new int[] {6,4});
+								forbidden.Add(new int[] { x - lx, y - ly });
+								forbidden.Add(new int[] { x + sx, y + sy });
+							}
+						}
+						int s0 = sx;
+						int s1 = sy;
+						sx = -lx;
+						sy = -ly;
+						lx = s0;
+						ly = s1;
+					}
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
+				}
+				sx = thisSx;
+				sy = thisSy;
+				lx = thisLx;
+				ly = thisLy;
+
+				// Triple Area Stair
+				for (int i = 0; i < 2; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if ((InTakenRel(-5,-1) || InBorderRel(-5,-1)) && InTakenRel(-4,2) && InTakenRel(-1,-1) && !InTakenRel(-3,2) && !InBorderRel(-3,2) && (InTakenRel(-3,3) || InBorderRel(-3,3)) && (InTakenRel(0,3) || InBorderRel(0,3)) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(-4,1) && !InBorderRel(-4,1) && !InTakenRel(-4,0) && !InBorderRel(-4,0))
+						{
+							bool TripleAreaStair_circle1 = false;
+							directionFieldIndex = InTakenIndexRel(0,3);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(1,3))
+								{
+									int leftIndex = InTakenIndexRel(1,3);
+									if (leftIndex > directionFieldIndex)
+									{
+										TripleAreaStair_circle1 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(-1,3);
+									if (rightIndex < directionFieldIndex)
+									{
+										TripleAreaStair_circle1 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(0,3);
+								int farSideIndex = InBorderIndexRel(-1,3);
+								if (farSideIndex > directionFieldIndex)
+								{
+									TripleAreaStair_circle1 = true;
+								}
+							}
+							
+							bool TripleAreaStair_circle2 = false;
+							directionFieldIndex = InTakenIndexRel(-3,3);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(-3,4))
+								{
+									int leftIndex = InTakenIndexRel(-3,4);
+									if (leftIndex > directionFieldIndex)
+									{
+										TripleAreaStair_circle2 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(-3,2);
+									if (rightIndex < directionFieldIndex)
+									{
+										TripleAreaStair_circle2 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(-3,3);
+								int farSideIndex = InBorderIndexRel(-3,2);
+								if (farSideIndex > directionFieldIndex)
+								{
+									TripleAreaStair_circle2 = true;
+								}
+							}
+							
+							bool TripleAreaStair_circle3 = false;
+							directionFieldIndex = InTakenIndexRel(-5,-1);
+							if (directionFieldIndex != -1)
+							{
+								if (InTakenRel(-6,-1))
+								{
+									int leftIndex = InTakenIndexRel(-6,-1);
+									if (leftIndex > directionFieldIndex)
+									{
+										TripleAreaStair_circle3 = true;
+									}
+								}
+								else
+								{
+									int rightIndex = InTakenIndexRel(-4,-1);
+									if (rightIndex < directionFieldIndex)
+									{
+										TripleAreaStair_circle3 = true;
+									}
+								}
+							}
+							else
+							{
+								directionFieldIndex = InBorderIndexRel(-5,-1);
+								int farSideIndex = InBorderIndexRel(-4,-1);
+								if (farSideIndex > directionFieldIndex)
+								{
+									TripleAreaStair_circle3 = true;
+								}
+							}
+							
+							if (TripleAreaStair_circle1 && TripleAreaStair_circle2 && TripleAreaStair_circle3 && CountAreaRel(0,1,0,2,null,i==0?true:!true,0))
+							{
+								TripleAreaStair = true;
+								activeRules.Add("Triple Area Stair");
+								activeRuleSizes.Add(new int[] {7,5});
+								forbidden.Add(new int[] { x + sx, y + sy });
+								forbidden.Add(new int[] { x + lx, y + ly });
+							}
+						}
+						int l0 = lx;
+						int l1 = ly;
+						lx = -sx;
+						ly = -sy;
+						sx = l0;
+						sy = l1;
+					}
+					sx = thisSx;
+					sy = thisSy;
+					lx = -thisLx;
+					ly = -thisLy;
+				}
+				sx = thisSx;
+				sy = thisSy;
+				lx = thisLx;
+				ly = thisLy;
+
 				// Triple Area
 				for (int i = 0; i < 2; i++)
 				{
@@ -1827,7 +2083,7 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 			}
-			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleAreaStair2: " + DoubleAreaStair2 + "\n" + "DoubleAreaStairArea: " + DoubleAreaStairArea + "\n" + "DoubleAreaStair: " + DoubleAreaStair + "\n" + "DoubleCShapeDetermined: " + DoubleCShapeDetermined + "\n" + "DoubleCShapeStartC: " + DoubleCShapeStartC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "MidAcross3ImpairDetermined: " + MidAcross3ImpairDetermined + "\n" + "MidMidAcross3Determined: " + MidMidAcross3Determined + "\n" + "Square4x2Area: " + Square4x2Area + "\n" + "Square4x2CShape: " + Square4x2CShape + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "StraightAcrossEndC: " + StraightAcrossEndC + "\n" + "StraightMidAcross3EndArea: " + StraightMidAcross3EndArea + "\n" + "StraightMidAcross3EndC: " + StraightMidAcross3EndC + "\n" + "TripleArea: " + TripleArea + "\n" + "Across3ImpairDetermined: " + Across3ImpairDetermined);
+			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleAreaStair2: " + DoubleAreaStair2 + "\n" + "DoubleAreaStairArea: " + DoubleAreaStairArea + "\n" + "DoubleAreaStair: " + DoubleAreaStair + "\n" + "DoubleCShapeDetermined: " + DoubleCShapeDetermined + "\n" + "DoubleCShapeStartC: " + DoubleCShapeStartC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "MidAcross3ImpairDetermined: " + MidAcross3ImpairDetermined + "\n" + "MidMidAcross3Determined: " + MidMidAcross3Determined + "\n" + "Square4x2Area: " + Square4x2Area + "\n" + "Square4x2CShape: " + Square4x2CShape + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "StraightAcrossEndC: " + StraightAcrossEndC + "\n" + "StraightMidAcross3EndArea: " + StraightMidAcross3EndArea + "\n" + "StraightMidAcross3EndC: " + StraightMidAcross3EndC + "\n" + "TripleAreaExitDown: " + TripleAreaExitDown + "\n" + "TripleAreaStair: " + TripleAreaStair + "\n" + "TripleArea: " + TripleArea + "\n" + "Across3ImpairDetermined: " + Across3ImpairDetermined);
 			window.ShowActiveRules(activeRules,activeRuleSizes);
 		}
 	}
