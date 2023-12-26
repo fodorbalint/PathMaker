@@ -445,13 +445,15 @@ To mark the two areas, each one has to be given a directional obstacle next to t
 And with this marking system, we can correct the rules prevously made. All rules featuring future line start and end fields have to be rewritten to start with.<br />
 So we get the 2-distance across rules, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.
 
-<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Square 4 x 2_2.svg" width="19%"/>
+<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="28.6%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img align="top" src="References/rules/9_old/Square 4 x 2_2.svg" width="19%"/>
 
 Let's return to the last example and make a modification:
 
-<img align="top" src="References/641019_2.svg" width="42.86%"/>
-
 <!-- page 34 -->
+
+<img align="top" src="References/641019_2.svg" width="42.86%"/>
 
 The field previously marked with B is now empty. But we still need to step in that direction, due to the area enclosed by A, which obstacle could as well be in B.<br />
 The rule will be now symmetrical. It is similar to the square obstacle pattern.
@@ -462,11 +464,11 @@ The same concept we encounter at 725 325. We have seen this prevously, just with
 
 <img align="top" src="References/725325_1.svg" width="42.86%"/>
 
+<!-- page 35 -->
+
 The rule will now look like this:
 
 <img align="top" src="References/rules/9/Straight Across End Area.svg" width="19%"/>
-
-<!-- page 35 -->
 
 740 039 is a slight modification.
 

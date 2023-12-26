@@ -79,7 +79,7 @@
             <Grid x:Name="SettingsGrid" Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80FFFFFF" Visibility="Hidden" >
                 <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid x:Name="SettingsContentGrid" Background="#FFFFFF">
-                        <CheckBox x:Name="DisplayFutureCheck" Content="Display future lines" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,10,10,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <CheckBox x:Name="DisplayFutureCheck" Content="Calculate and display future lines (change requires reload)" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,10,10,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                         <CheckBox x:Name="DisplayAreaCheck" Content="Display area" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,31,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <CheckBox x:Name="MakeStatsCheck" Content="Make statistics in random fast run" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,52,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <CheckBox x:Name="ShowActiveRulesCheck" Content="Show active rules" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,73,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />

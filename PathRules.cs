@@ -6,7 +6,9 @@ namespace OneWayLabyrinth
 	{
 		int directionFieldIndex = 0;
 		List<string> activeRules;
+		List<List<int[]>> activeRulesForbiddenFields;
 		List<int[]> activeRuleSizes;
+		List<int[]> startForbiddenFields;
 		public bool Future2x2StartEnd = false;
 		public bool Future2x3StartEnd = false;
 		public bool Future3x3StartEnd = false;
@@ -36,8 +38,10 @@ namespace OneWayLabyrinth
 
 		public void RunRules()
 		{
-			activeRules = new List<string>();
-			activeRuleSizes = new List<int[]>();
+			activeRules = new();
+			activeRulesForbiddenFields = new();
+			activeRuleSizes = new();
+			startForbiddenFields = Copy(forbidden);
 			Future2x2StartEnd = false;
 			Future2x3StartEnd = false;
 			Future3x3StartEnd = false;
@@ -80,6 +84,7 @@ namespace OneWayLabyrinth
 					{
 						Future2x2StartEnd = true;
 						activeRules.Add("Future 2 x 2 Start End");
+						activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + lx, y + ly }});
 						activeRuleSizes.Add(new int[] {6,4});
 						forbidden.Add(new int[] { x + lx, y + ly });
 					}
@@ -96,6 +101,7 @@ namespace OneWayLabyrinth
 					{
 						Future2x3StartEnd = true;
 						activeRules.Add("Future 2 x 3 Start End");
+						activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + lx, y + ly }});
 						activeRuleSizes.Add(new int[] {3,4});
 						forbidden.Add(new int[] { x + lx, y + ly });
 					}
@@ -114,6 +120,7 @@ namespace OneWayLabyrinth
 						{
 							Future3x3StartEnd = true;
 							activeRules.Add("Future 3 x 3 Start End");
+							activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 							activeRuleSizes.Add(new int[] {5,5});
 							forbidden.Add(new int[] { x + sx, y + sy });
 						}
@@ -143,6 +150,7 @@ namespace OneWayLabyrinth
 						{
 							FutureL = true;
 							activeRules.Add("Future L");
+							activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
 							activeRuleSizes.Add(new int[] {4,3});
 							forbidden.Add(new int[] { x + sx, y + sy });
 							forbidden.Add(new int[] { x - lx, y - ly });
@@ -172,7 +180,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(-2,1) || InBorderRel(-2,1)) && !InTakenRel(-1,1) && !InBorderRel(-1,1) && (InTakenRel(3,3) || InBorderRel(3,3)) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(3,2) && !InBorderRel(3,2) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(1,0) && !InBorderRel(1,0) && InTakenRel(-1,0))
+						if ((InTakenRel(-2,1) || InBorderRel(-2,1)) && !InTakenRel(-1,1) && !InBorderRel(-1,1) && (InTakenRel(3,3) || InBorderRel(3,3)) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(3,2) && !InBorderRel(3,2) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(1,0) && !InBorderRel(1,0) && InTakenRel(-1,0))
 						{
 							bool CountArea2AcrossC_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(3,3);
@@ -209,6 +217,7 @@ namespace OneWayLabyrinth
 							{
 								CountArea2AcrossC = true;
 								activeRules.Add("Count Area 2 Across C");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {6,4});
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
@@ -235,7 +244,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(3,3) || InBorderRel(3,3)) && !InTakenRel(3,2) && !InBorderRel(3,2) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(1,0) && !InBorderRel(1,0))
+						if ((InTakenRel(3,3) || InBorderRel(3,3)) && !InTakenRel(3,2) && !InBorderRel(3,2) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(1,0) && !InBorderRel(1,0))
 						{
 							bool CountArea2Across_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(3,3);
@@ -272,6 +281,7 @@ namespace OneWayLabyrinth
 							{
 								CountArea2Across = true;
 								activeRules.Add("Count Area 2 Across");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
 								activeRuleSizes.Add(new int[] {5,4});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x - lx, y - ly });
@@ -299,7 +309,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(-1,4) || InBorderRel(-1,4)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-2,0) && !InBorderRel(-2,0))
+						if ((InTakenRel(-1,4) || InBorderRel(-1,4)) && (InTakenRel(-3,0) || InBorderRel(-3,0)) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(-2,0) && !InBorderRel(-2,0))
 						{
 							bool DoubleAreaCShape_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(-1,4);
@@ -367,6 +377,7 @@ namespace OneWayLabyrinth
 							{
 								DoubleAreaCShape = true;
 								activeRules.Add("Double Area C-Shape");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {5,5});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
@@ -462,6 +473,7 @@ namespace OneWayLabyrinth
 							{
 								DoubleAreaStair2 = true;
 								activeRules.Add("Double Area Stair 2");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
 								activeRuleSizes.Add(new int[] {5,6});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x - lx, y - ly });
@@ -588,6 +600,7 @@ namespace OneWayLabyrinth
 							{
 								DoubleAreaStairArea = true;
 								activeRules.Add("Double Area Stair Area");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {5,6});
 								forbidden.Add(new int[] { x - lx, y - ly });
 								forbidden.Add(new int[] { x + sx, y + sy });
@@ -683,6 +696,7 @@ namespace OneWayLabyrinth
 							{
 								DoubleAreaStair = true;
 								activeRules.Add("Double Area Stair");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {6,5});
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
@@ -746,6 +760,7 @@ namespace OneWayLabyrinth
 							{
 								DoubleCShapeDetermined = true;
 								activeRules.Add("Double C-Shape Determined");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {3,6});
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
@@ -809,6 +824,7 @@ namespace OneWayLabyrinth
 							{
 								DoubleCShapeStartC = true;
 								activeRules.Add("Double C-Shape Start C");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {3,6});
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
@@ -835,24 +851,24 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if (!InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,2) && !InBorderRel(1,2) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(1,0) && !InBorderRel(1,0) && (InTakenRel(0,4) || InBorderRel(0,4)))
+						if ((InTakenRel(4,0) || InBorderRel(4,0)) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(3,2) && !InBorderRel(3,2) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(1,2) && !InBorderRel(1,2) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(2,1) && !InBorderRel(2,1))
 						{
 							bool DoubleCShape_circle1 = false;
-							directionFieldIndex = InTakenIndexRel(0,4);
+							directionFieldIndex = InTakenIndexRel(4,0);
 							if (directionFieldIndex != -1)
 							{
-								if (InTakenRel(1,4))
+								if (InTakenRel(4,-1))
 								{
-									int leftIndex = InTakenIndexRel(1,4);
-									if (leftIndex > directionFieldIndex)
+									int leftIndex = InTakenIndexRel(4,-1);
+									if (leftIndex < directionFieldIndex)
 									{
 										DoubleCShape_circle1 = true;
 									}
 								}
 								else
 								{
-									int rightIndex = InTakenIndexRel(-1,4);
-									if (rightIndex < directionFieldIndex)
+									int rightIndex = InTakenIndexRel(4,1);
+									if (rightIndex > directionFieldIndex)
 									{
 										DoubleCShape_circle1 = true;
 									}
@@ -860,20 +876,22 @@ namespace OneWayLabyrinth
 							}
 							else
 							{
-								directionFieldIndex = InBorderIndexRel(0,4);
-								int farSideIndex = InBorderIndexRel(-1,4);
+								directionFieldIndex = InBorderIndexRel(4,0);
+								int farSideIndex = InBorderIndexRel(4,-1);
 								if (farSideIndex > directionFieldIndex)
 								{
 									DoubleCShape_circle1 = true;
 								}
 							}
 							
-							if (DoubleCShape_circle1 && CountAreaRel(1,1,1,3,new List<int[]> {new int[] {1,2}},i==0?true:!true,1))
+							if (DoubleCShape_circle1 && CountAreaRel(1,1,3,1,new List<int[]> {new int[] {2,1}},i==0?false:!false,1))
 							{
 								DoubleCShape = true;
 								activeRules.Add("Double C-Shape");
-								activeRuleSizes.Add(new int[] {3,5});
-								forbidden.Add(new int[] { x + lx, y + ly });
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
+								activeRuleSizes.Add(new int[] {6,3});
+								forbidden.Add(new int[] { x + sx, y + sy });
+								forbidden.Add(new int[] { x - lx, y - ly });
 							}
 						}
 						int s0 = sx;
@@ -935,6 +953,7 @@ namespace OneWayLabyrinth
 							{
 								MidAcross3ImpairDetermined = true;
 								activeRules.Add("Mid Across 3 Impair Determined");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
 								activeRuleSizes.Add(new int[] {4,5});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x - lx, y - ly });
@@ -962,7 +981,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(3,4) || InBorderRel(3,4)) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(2,0) && !InBorderRel(2,0))
+						if ((InTakenRel(3,4) || InBorderRel(3,4)) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(2,0) && !InBorderRel(2,0))
 						{
 							bool MidMidAcross3Determined_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(3,4);
@@ -999,6 +1018,7 @@ namespace OneWayLabyrinth
 							{
 								MidMidAcross3Determined = true;
 								activeRules.Add("Mid Mid Across 3 Determined");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {5,5});
 								forbidden.Add(new int[] { x - lx, y - ly });
 								forbidden.Add(new int[] { x + sx, y + sy });
@@ -1125,6 +1145,7 @@ namespace OneWayLabyrinth
 							{
 								Square4x2Area = true;
 								activeRules.Add("Square 4 x 2 Area");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {5,5});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
@@ -1220,6 +1241,7 @@ namespace OneWayLabyrinth
 							{
 								Square4x2CShape = true;
 								activeRules.Add("Square 4 x 2 C-Shape");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {5,5});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
@@ -1247,7 +1269,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(-1,4) || InBorderRel(-1,4)) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,4) && !InBorderRel(1,4) && !InTakenRel(0,4) && !InBorderRel(0,4) && !InTakenRel(1,0) && !InBorderRel(1,0))
+						if ((InTakenRel(2,4) || InBorderRel(2,4)) && (InTakenRel(-1,4) || InBorderRel(-1,4)) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,2) && !InBorderRel(1,2) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,4) && !InBorderRel(1,4) && !InTakenRel(0,4) && !InBorderRel(0,4) && !InTakenRel(1,0) && !InBorderRel(1,0))
 						{
 							bool StraightAcross3EndArea_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(-1,4);
@@ -1315,6 +1337,7 @@ namespace OneWayLabyrinth
 							{
 								StraightAcross3EndArea = true;
 								activeRules.Add("Straight Across 3 End Area");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {4,5});
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -1341,7 +1364,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(2,3) || InBorderRel(2,3)) && (InTakenRel(-1,4) || InBorderRel(-1,4)) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(0,1) && !InBorderRel(0,1))
+						if ((InTakenRel(2,3) || InBorderRel(2,3)) && (InTakenRel(-1,4) || InBorderRel(-1,4)) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(0,3) && !InBorderRel(0,3) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(1,4) && !InBorderRel(1,4) && !InTakenRel(0,4) && !InBorderRel(0,4))
 						{
 							bool StraightAcrossEndArea_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(-1,4);
@@ -1409,6 +1432,7 @@ namespace OneWayLabyrinth
 							{
 								StraightAcrossEndArea = true;
 								activeRules.Add("Straight Across End Area");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {4,5});
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -1435,7 +1459,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(2,3) || InBorderRel(2,3)) && !InTakenRel(1,3) && !InBorderRel(1,3) && InTakenRel(1,4) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1))
+						if ((InTakenRel(2,3) || InBorderRel(2,3)) && !InTakenRel(1,3) && !InBorderRel(1,3) && InTakenRel(1,4) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,0) && !InBorderRel(1,0))
 						{
 							bool StraightAcrossEndC_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(2,3);
@@ -1472,6 +1496,7 @@ namespace OneWayLabyrinth
 							{
 								StraightAcrossEndC = true;
 								activeRules.Add("Straight Across End C");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {3,5});
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -1566,6 +1591,7 @@ namespace OneWayLabyrinth
 							{
 								StraightMidAcross3EndArea = true;
 								activeRules.Add("Straight Mid Across 3 End Area");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {4,6});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
@@ -1630,6 +1656,7 @@ namespace OneWayLabyrinth
 							{
 								StraightMidAcross3EndC = true;
 								activeRules.Add("Straight Mid Across 3 End C");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {2,6});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
@@ -1657,7 +1684,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(4,0) || InBorderRel(4,0)) && (InTakenRel(4,3) || InBorderRel(4,3)) && (InTakenRel(0,3) || InBorderRel(0,3)) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(2,0) && !InBorderRel(2,0) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(4,1) && !InBorderRel(4,1) && !InTakenRel(4,2) && !InBorderRel(4,2) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,2) && !InBorderRel(1,2) && !InTakenRel(1,1) && !InBorderRel(1,1))
+						if ((InTakenRel(4,0) || InBorderRel(4,0)) && (InTakenRel(4,3) || InBorderRel(4,3)) && (InTakenRel(0,3) || InBorderRel(0,3)) && !InTakenRel(2,0) && !InBorderRel(2,0) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(4,1) && !InBorderRel(4,1) && !InTakenRel(4,2) && !InBorderRel(4,2) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(1,3) && !InBorderRel(1,3) && !InTakenRel(1,2) && !InBorderRel(1,2) && !InTakenRel(1,1) && !InBorderRel(1,1))
 						{
 							bool TripleAreaExitDown_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(4,0);
@@ -1756,6 +1783,7 @@ namespace OneWayLabyrinth
 							{
 								TripleAreaExitDown = true;
 								activeRules.Add("Triple Area Exit Down");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {6,4});
 								forbidden.Add(new int[] { x - lx, y - ly });
 								forbidden.Add(new int[] { x + sx, y + sy });
@@ -1783,7 +1811,7 @@ namespace OneWayLabyrinth
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if ((InTakenRel(-5,-1) || InBorderRel(-5,-1)) && InTakenRel(-4,2) && InTakenRel(-1,-1) && !InTakenRel(-3,2) && !InBorderRel(-3,2) && (InTakenRel(-3,3) || InBorderRel(-3,3)) && (InTakenRel(0,3) || InBorderRel(0,3)) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(0,1) && !InBorderRel(0,1) && !InTakenRel(-4,1) && !InBorderRel(-4,1) && !InTakenRel(-4,0) && !InBorderRel(-4,0))
+						if ((InTakenRel(-5,-1) || InBorderRel(-5,-1)) && InTakenRel(-4,2) && InTakenRel(-1,-1) && !InTakenRel(-3,2) && !InBorderRel(-3,2) && (InTakenRel(-3,3) || InBorderRel(-3,3)) && (InTakenRel(0,3) || InBorderRel(0,3)) && !InTakenRel(-2,3) && !InBorderRel(-2,3) && !InTakenRel(-1,0) && !InBorderRel(-1,0) && !InTakenRel(-1,3) && !InBorderRel(-1,3) && !InTakenRel(0,2) && !InBorderRel(0,2) && !InTakenRel(-4,1) && !InBorderRel(-4,1) && !InTakenRel(-4,0) && !InBorderRel(-4,0))
 						{
 							bool TripleAreaStair_circle1 = false;
 							directionFieldIndex = InTakenIndexRel(0,3);
@@ -1882,6 +1910,7 @@ namespace OneWayLabyrinth
 							{
 								TripleAreaStair = true;
 								activeRules.Add("Triple Area Stair");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {7,5});
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
@@ -2008,6 +2037,7 @@ namespace OneWayLabyrinth
 							{
 								TripleArea = true;
 								activeRules.Add("Triple Area");
+								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {5,5});
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
@@ -2035,7 +2065,7 @@ namespace OneWayLabyrinth
 				// Across 3 Impair Determined
 				for (int i = 0; i < 2; i++)
 				{
-					if ((InTakenRel(4,4) || InBorderRel(4,4)) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(4,1) && !InBorderRel(4,1) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(4,3) && !InBorderRel(4,3))
+					if ((InTakenRel(4,4) || InBorderRel(4,4)) && !InTakenRel(3,2) && !InBorderRel(3,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(4,1) && !InBorderRel(4,1) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(4,3) && !InBorderRel(4,3))
 					{
 						bool Across3ImpairDetermined_circle1 = false;
 						directionFieldIndex = InTakenIndexRel(4,4);
@@ -2072,6 +2102,7 @@ namespace OneWayLabyrinth
 						{
 							Across3ImpairDetermined = true;
 							activeRules.Add("Across 3 Impair Determined");
+							activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
 							activeRuleSizes.Add(new int[] {6,5});
 							forbidden.Add(new int[] { x - lx, y - ly });
 							forbidden.Add(new int[] { x + sx, y + sy });
@@ -2084,7 +2115,7 @@ namespace OneWayLabyrinth
 				ly = thisLy;
 			}
 			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleAreaStair2: " + DoubleAreaStair2 + "\n" + "DoubleAreaStairArea: " + DoubleAreaStairArea + "\n" + "DoubleAreaStair: " + DoubleAreaStair + "\n" + "DoubleCShapeDetermined: " + DoubleCShapeDetermined + "\n" + "DoubleCShapeStartC: " + DoubleCShapeStartC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "MidAcross3ImpairDetermined: " + MidAcross3ImpairDetermined + "\n" + "MidMidAcross3Determined: " + MidMidAcross3Determined + "\n" + "Square4x2Area: " + Square4x2Area + "\n" + "Square4x2CShape: " + Square4x2CShape + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "StraightAcrossEndC: " + StraightAcrossEndC + "\n" + "StraightMidAcross3EndArea: " + StraightMidAcross3EndArea + "\n" + "StraightMidAcross3EndC: " + StraightMidAcross3EndC + "\n" + "TripleAreaExitDown: " + TripleAreaExitDown + "\n" + "TripleAreaStair: " + TripleAreaStair + "\n" + "TripleArea: " + TripleArea + "\n" + "Across3ImpairDetermined: " + Across3ImpairDetermined);
-			window.ShowActiveRules(activeRules,activeRuleSizes);
+			window.ShowActiveRules(activeRules,activeRulesForbiddenFields,startForbiddenFields,activeRuleSizes);
 		}
 	}
 }

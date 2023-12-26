@@ -88,8 +88,8 @@ namespace OneWayLabyrinth
 
 		List<int> futureIndex = new List<int>();
 		public static List<bool> futureActive = new List<bool>();
-		List<int> futureLoop = new List<int>();
-		List<int> futureLoopSelectedSection = new List<int>();
+		//List<int> futureLoop = new List<int>();
+		//List<int> futureLoopSelectedSection = new List<int>();
 		public static List<int[]> futureSections = new List<int[]>();
 		public static List<int[]> futureSectionMerges = new List<int[]>();
         public static List<List<object>> futureSectionMergesHistory = new List<List<object>>();
@@ -138,6 +138,8 @@ namespace OneWayLabyrinth
         int saveFrequency = 10000;
         bool saveConcise = false; // save only routes without their possibilities in one file
 
+        public bool calculateFuture = false; // does not allow a future line body or end to be a possibility. Stepped on future lines are followed through without checking possibilities on the way.
+
 
         // ----- Initialize -----
 
@@ -177,6 +179,7 @@ namespace OneWayLabyrinth
                 arr = lines[7].Split(": ");
                 MakeStatsCheck.IsChecked = bool.Parse(arr[1]);
                 makeStats = (bool)MakeStatsCheck.IsChecked;
+                arr = lines[8].Split(": ");
                 ShowActiveRulesCheck.IsChecked = bool.Parse(arr[1]);
                 activeRules = (bool)ShowActiveRulesCheck.IsChecked;
 
@@ -214,7 +217,9 @@ namespace OneWayLabyrinth
 
 			ReadDir();
 
-			if ((bool)loadCheck && loadFile != "")
+            calculateFuture = displayFuture;
+
+            if ((bool)loadCheck && loadFile != "")
 			{
 				LoadFromFile();
 			}
@@ -273,14 +278,109 @@ namespace OneWayLabyrinth
             }
         }
 
-        public void ShowActiveRules(List<string> rules, List<int[]> sizes)
+        public void ShowActiveRules(List<string> rules, List<List<int[]>> forbiddenFields, List<int[]> startForbiddenFields, List<int[]> sizes)
         {
-            if (isTaskRunning) return;
+            if (rules.Count == 0) return;
+
+            int i;
+
+            if (isTaskRunning) // only record new rule when its forbidden fields were not created by other rules. More complicated rules can be true together with simpler rules that already added the necessary forbiden fields, like in 349170
+            {
+                forbiddenFields.Add(startForbiddenFields);
+                int ruleNo = 0;
+
+                if (File.Exists("log_rules.txt"))
+                {
+                    List<string> arr = File.ReadAllLines("log_rules.txt").ToList();
+                    int startCount = arr.Count;
+                    
+                    foreach (string rule in rules)
+                    {                        
+                        bool found = false;
+
+                        foreach (string line in arr)
+                        {
+                            string[] split = line.Split(": ");
+                            if (split[1] == rule) found = true;
+                        }
+
+                        if (!found)
+                        {
+                            List<int[]> newRuleForbiddenFields = forbiddenFields[ruleNo];
+
+                            for (i = 0; i < forbiddenFields.Count; i++)
+                            {
+                                if (i != ruleNo)
+                                {
+                                    foreach (int[] field in forbiddenFields[i])
+                                    {
+                                        for (int j = newRuleForbiddenFields.Count - 1; j >= 0 ; j--)
+                                        {
+                                            int[] newField = newRuleForbiddenFields[j];
+                                            if (field[0] == newField[0] && field[1] == newField[1])
+                                            {
+                                                newRuleForbiddenFields.RemoveAt(j);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (newRuleForbiddenFields.Count != 0) // it has unique forbidden field
+                            {
+                                arr.Add(completedCount + ": " + rule);
+                                SavePath(false);
+                            }
+                        }
+
+                        ruleNo++;
+                    }
+
+                    if (arr.Count > startCount) File.WriteAllLines("log_rules.txt", arr);
+                }
+                else
+                {
+                    List<string> arr = new();
+                    foreach (string rule in rules)
+                    {
+                        List<int[]> newRuleForbiddenFields = forbiddenFields[ruleNo];
+
+                        for (i = 0; i < forbiddenFields.Count; i++)
+                        {
+                            if (i != ruleNo)
+                            {
+                                foreach (int[] field in forbiddenFields[i])
+                                {
+                                    for (int j = newRuleForbiddenFields.Count - 1; j >= 0; j--)
+                                    {
+                                        int[] newField = newRuleForbiddenFields[j];
+                                        if (field[0] == newField[0] && field[1] == newField[1])
+                                        {
+                                            newRuleForbiddenFields.RemoveAt(j);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (newRuleForbiddenFields.Count != 0)
+                        {
+                            arr.Add(completedCount + ": " + rule);
+                            SavePath(false);
+                        }
+
+                        ruleNo++;
+                    }
+                    File.WriteAllLines("log_rules.txt", arr);
+                }
+
+                return;
+            }
 
             ClearActiveRules();
 
             int yPos = 50;
-            int i = 0;
+            i = 0;
             foreach (string ruleName in rules)
             {
                 TextBlock t = new();
@@ -317,7 +417,7 @@ namespace OneWayLabyrinth
             foreach (string file in files)
             {
                 string fileName = file.Substring(2);
-                if (fileName != "settings.txt" && fileName != "log.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
+                if (fileName != "settings.txt" && fileName != "log.txt" && fileName != "log_rules.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
                 {
                     T(fileName);
                     loadFile = fileName;
@@ -386,7 +486,7 @@ namespace OneWayLabyrinth
                         taken.x = x;
                         taken.y = y;
 
-                        CheckFutureLine(x, y);
+                        if (calculateFuture) CheckFutureLine(x, y);
                     }
                 }
             }
@@ -408,7 +508,7 @@ namespace OneWayLabyrinth
                     startX = x;
                     startY = y;
 
-                    CheckFutureLine(x, y);
+                    if (calculateFuture) CheckFutureLine(x, y);
                 }
                 possibleDirections.Add(new int[] { });
             }
@@ -498,8 +598,8 @@ namespace OneWayLabyrinth
             future = new Path(this, size, new List<int[]>(), null, false);
             futureIndex = new List<int>();
             futureActive = new List<bool>();
-            futureLoop = new List<int>();
-            futureLoopSelectedSection = new List<int>();
+            //futureLoop = new List<int>();
+            //futureLoopSelectedSection = new List<int>();
             futureSections = new List<int[]>();
             futureSectionMerges = new List<int[]>();
             futureSectionMergesHistory = new List<List<object>>();
@@ -603,6 +703,9 @@ namespace OneWayLabyrinth
             }
 
             ReadDir();
+            ClearActiveRules();
+
+            calculateFuture = displayFuture;
 
             if (loadCheck == true && loadFile != "")
             {
@@ -636,7 +739,7 @@ namespace OneWayLabyrinth
             {
                 M("Error in file", 0);
                 return;
-            }
+            }            
 
             DrawPath();
         }
@@ -1211,7 +1314,9 @@ namespace OneWayLabyrinth
 
             if (!isTaskRunning) CurrentCoords.Content = x + " " + y;
 
-            return CheckFutureLine(x, y);
+            if (calculateFuture)
+                return CheckFutureLine(x, y);
+            else return true;
         }
 
         private bool CheckFutureLine(int x, int y)
@@ -2563,7 +2668,7 @@ namespace OneWayLabyrinth
         private void NextStepPossibilities()
         {
             T("NextStepPossibilities main, inFuture: " + inFuture + " inFutureIndex: " + inFutureIndex + " errorInWalkthrough " + errorInWalkthrough);
-            if (inFuture)
+            if (calculateFuture && inFuture)
             {   
                 int[] futureField = future.path[inFutureIndex];
                 T("Possible: " + futureField[0] + " " + futureField[1]);
@@ -2601,7 +2706,7 @@ namespace OneWayLabyrinth
                 int fx = field[0];
                 int fy = field[1];
 
-                if (inFuture)
+                if (calculateFuture && inFuture)
                 {
                     T("NextStepPossibilities InFuture fx " + fx + " fy " + fy + " count: " + future.path.Count);
                     if (!isTaskRunning) PossibleCoords.Text += fx + " " + fy + "\n";
@@ -2621,7 +2726,7 @@ namespace OneWayLabyrinth
                 }
                 else
                 {
-                    if (future.InTaken(fx, fy) && !InFutureStart(fx, fy))
+                    if (calculateFuture && future.InTaken(fx, fy) && !InFutureStart(fx, fy))
                     {
                         M("Possible field in future.", 0);
                     }
@@ -2743,12 +2848,13 @@ namespace OneWayLabyrinth
 				taken.path.RemoveAt(count - 1);
 				//T("Actual step back, possibleDirections.Count " + possibleDirections.Count + " " + taken.path.Count + " " + possibleDirections[possibleDirections.Count - 1].Length);
 				possibleDirections.RemoveAt(count);
-				int index = futureLoop.IndexOf(count - 1);
+
+				/*int index = futureLoop.IndexOf(count - 1);
 				if (index != -1)
 				{
 					futureLoop.RemoveAt(index);
 					futureLoopSelectedSection.RemoveAt(index);
-				}
+				}*/
 
 				T("previousStep not forbidden removed taken and possibleDirs inFuture: " + inFuture);
 
@@ -2825,12 +2931,13 @@ namespace OneWayLabyrinth
 
 					taken.path.RemoveAt(taken.path.Count - 1);
 					possibleDirections.RemoveAt(possibleDirections.Count - 1);
-					int index = futureLoop.IndexOf(count - 1);
+
+					/*int index = futureLoop.IndexOf(count - 1);
 					if (index != -1)
 					{
 						futureLoop.RemoveAt(index);
 						futureLoopSelectedSection.RemoveAt(index);
-					}
+					}*/
 
 					if (futureIndex.Count > 0)
 					{
@@ -3370,7 +3477,7 @@ namespace OneWayLabyrinth
 			File.WriteAllText("uncompleted.txt", savePath);
         }
 
-        private void SavePath() // used in fast run mode
+        private void SavePath(bool isCompleted = true) // used in fast run mode
 		{
             int startX = 1;
             int startY = 1;
@@ -3392,40 +3499,43 @@ namespace OneWayLabyrinth
                 savePath = savePath.Substring(0, savePath.Length - 1);
                 savePath += "-" + newX + "," + newY + ";";
 
-                for (int j = 0; j < 4; j++)
+                if (isCompleted)
                 {
-                    if (directions[j][0] == newX - startX && directions[j][1] == newY - startY)
+                    for (int j = 0; j < 4; j++)
                     {
-                        if (possibleDirections[i].Length > 1)
+                        if (directions[j][0] == newX - startX && directions[j][1] == newY - startY)
                         {
-                            if (j == lastDrawnDirection) //stepped straight. We need to check if there is a left or right field in the possibilities
+                            if (possibleDirections[i].Length > 1)
                             {
-                                bool leftFound = false;
-                                bool rightFound = false;
-                                foreach (int direction in possibleDirections[i])
+                                if (j == lastDrawnDirection) //stepped straight. We need to check if there is a left or right field in the possibilities
                                 {
-                                    if (direction == j + 1 || j == 3 && direction == 0) leftFound = true;
-                                    if (direction == j - 1 || j == 0 && direction == 3) rightFound = true;
-                                }
+                                    bool leftFound = false;
+                                    bool rightFound = false;
+                                    foreach (int direction in possibleDirections[i])
+                                    {
+                                        if (direction == j + 1 || j == 3 && direction == 0) leftFound = true;
+                                        if (direction == j - 1 || j == 0 && direction == 3) rightFound = true;
+                                    }
 
-                                if (leftFound && rightFound) // straight
-                                {
-                                    completedPathCode += "b";
+                                    if (leftFound && rightFound) // straight
+                                    {
+                                        completedPathCode += "b";
+                                    }
+                                    else if (leftFound) // right
+                                    {
+                                        completedPathCode += "c";
+                                    }
+                                    else // left
+                                    {
+                                        completedPathCode += "a";
+                                    }
                                 }
-                                else if (leftFound) // right
-                                {
-                                    completedPathCode += "c";
-                                }
-                                else // left
-                                {
-                                    completedPathCode += "a";
-                                }
+                                else if (j == lastDrawnDirection + 1 || lastDrawnDirection == 3 && j == 0) completedPathCode += "a"; // left
+                                else completedPathCode += "c"; // right
                             }
-                            else if (j == lastDrawnDirection + 1 || lastDrawnDirection == 3 && j == 0) completedPathCode += "a"; // left
-                            else completedPathCode += "c"; // right
-                        }
 
-                        lastDrawnDirection = j;
+                            lastDrawnDirection = j;
+                        }
                     }
                 }
 
@@ -3433,7 +3543,7 @@ namespace OneWayLabyrinth
                 startY = newY;
             }
 
-            if (possibleDirections.Count > 1)
+            if (possibleDirections.Count > taken.path.Count)
             {
                 foreach (int direction in possibleDirections[possibleDirections.Count - 1])
                 {
@@ -3458,7 +3568,15 @@ namespace OneWayLabyrinth
             }*/
 
             ReadDir();
-            if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedCount + "_" + completedPathCode + ".txt", savePath);
+
+            if (isCompleted)
+            {
+                if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedCount + "_" + completedPathCode + ".txt", savePath);
+            }
+            else
+            {
+                File.WriteAllText("incomplete/" + completedCount + ".txt", savePath);
+            }            
         }
 
 		public void DrawPath()
@@ -3656,7 +3774,7 @@ namespace OneWayLabyrinth
 
             bool prevStartItem = false;
 
-			if (future.path.Count != 0 && displayFuture)
+			if (future.path.Count != 0 && calculateFuture)
 			{
 				for (int i = future.path.Count - 1; i >= 0; i--)
 				{

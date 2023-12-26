@@ -1324,8 +1324,8 @@ namespace OneWayLabyrinth
             childIndex = 0;
             string[] listOfSizes = Directory.GetDirectories("rules");            
             int yTotalPos = 0;
-            string codeString = "namespace OneWayLabyrinth\n{\n\tusing System.Collections.Generic;\n\n\tpublic partial class Path\n\t{\n\t\tint directionFieldIndex = 0;\n\t\tList<string> activeRules;\n\t\tList<int[]> activeRuleSizes;\n[conditionVariablesDeclare]\n\t\tpublic void RunRules()\n\t\t{" +
-                "\n\t\t\tactiveRules = new List<string>();\n\t\t\tactiveRuleSizes = new List<int[]>();\n[conditionVariablesReset]\n";
+            string codeString = "namespace OneWayLabyrinth\n{\n\tusing System.Collections.Generic;\n\n\tpublic partial class Path\n\t{\n\t\tint directionFieldIndex = 0;\n\t\tList<string> activeRules;\n\t\tList<List<int[]>> activeRulesForbiddenFields;\n\t\tList<int[]> activeRuleSizes;\n\t\tList<int[]> startForbiddenFields;\n[conditionVariablesDeclare]\n\t\tpublic void RunRules()\n\t\t{" +
+                "\n\t\t\tactiveRules = new();\n\t\t\tactiveRulesForbiddenFields = new();\n\t\t\tactiveRuleSizes = new();\n\t\t\tstartForbiddenFields = Copy(forbidden);\n[conditionVariablesReset]\n";
             string conditionVariablesDeclare = "";
             string conditionVariablesReset = "";
             string conditionVariablesSet = "T(";
@@ -1500,7 +1500,7 @@ namespace OneWayLabyrinth
 
             if (conditionVariablesSet.Length != 2)
             {
-                codeString += "\t\t\t" + conditionVariablesSet.Substring(0, conditionVariablesSet.Length - 10) + ");\n\t\t\twindow.ShowActiveRules(activeRules,activeRuleSizes);\n\t\t}\n\t}\n}";
+                codeString += "\t\t\t" + conditionVariablesSet.Substring(0, conditionVariablesSet.Length - 10) + ");\n\t\t\twindow.ShowActiveRules(activeRules,activeRulesForbiddenFields,startForbiddenFields,activeRuleSizes);\n\t\t}\n\t}\n}";
             }
             else
             {
@@ -1574,6 +1574,7 @@ namespace OneWayLabyrinth
             }
 
             string forbiddenStr = "";
+            string listOfForbiddenFields = "";
 
             foreach (int[] field in forbiddenFields)
             {
@@ -1582,14 +1583,17 @@ namespace OneWayLabyrinth
                 if (relX == 0)
                 {
                     forbiddenStr += "forbidden.Add(new int[] { x + sx, y + sy });\n";
+                    listOfForbiddenFields += "new int[] { x + sx, y + sy }, ";
                 }
                 else if (relX == 1)
                 {
                     forbiddenStr += "forbidden.Add(new int[] { x + lx, y + ly });\n";
+                    listOfForbiddenFields += "new int[] { x + lx, y + ly }, ";
                 }
                 else
                 {
                     forbiddenStr += "forbidden.Add(new int[] { x - lx, y - ly });\n";
+                    listOfForbiddenFields += "new int[] { x - lx, y - ly }, ";
                 }
             }
             forbiddenStr = forbiddenStr.Substring(0, forbiddenStr.Length - 1);
@@ -1762,6 +1766,7 @@ namespace OneWayLabyrinth
                     "{\n" +
                     "\t" + variableName + " = true;\n" +
                     "\tactiveRules.Add(\"" + ruleName + "\");\n" +
+                    "\tactiveRulesForbiddenFields.Add(new List<int[]> {" + listOfForbiddenFields.Substring(0, listOfForbiddenFields.Length-2) + "});\n" +
                     "\tactiveRuleSizes.Add(new int[] {" + xSize + "," + ySize + "});\n" +
                     forbiddenStr +
                     "}";
@@ -1770,6 +1775,7 @@ namespace OneWayLabyrinth
             {
                 ruleCore = variableName + " = true;\n" +
                     "activeRules.Add(\"" + ruleName + "\");\n" +
+                    "activeRulesForbiddenFields.Add(new List<int[]> {" + listOfForbiddenFields.Substring(0, listOfForbiddenFields.Length - 2) + "});\n" +
                     "activeRuleSizes.Add(new int[] {" + xSize + "," + ySize + "});\n" +
                     forbiddenStr;
             }
