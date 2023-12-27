@@ -591,7 +591,7 @@ Though the algorithm including the reliance on the future lines is just as solva
 <img align="top" src="References/19717655_3.svg" width="42.86%"/>
 
 It is not the only thing. So far, when we entered a future line, the program just followed it without checking the possibilities for the next step.
-This behaviour needs to be changed too, and we should restart the 9 x 9 walkthroughs.
+This behaviour needs to be changed too. Future lines are no longer needed, and we should restart the 9 x 9 walkthroughs.
 
 For now, here is the solution to this and the next cases:
 
@@ -615,10 +615,87 @@ The two empty fields in the middle will not be filled if the don't enter the imp
 
 <img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.6%"/>
 
+When restarting the run with the new approach, we will find that some walkthroughs were missed previously. The 10 000 th path is slightly younger than before. It is not because the future lines had been drawn incorrecty, but because the 7 x 7 rules that I used in the beginning were not precise for this size.<br />
+In the following section I list the 9 x 9 rules in chronological order. The patterns are not introduced when they are first recognized, but when they are first needed, meaning that they disable fields that the other rules don't.
+Still, the number of completed walkthroughs before the appereance of the rule may not be the same as the number of those before getting stuck in the lack of that rule. If the rule disables a field right to a possible field, the left branch would run through first.
+
 <!-- page 49 -->
 
+462, Double Area C-Shape 
 
+<img align="top" src="References/462.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area C-Shape.svg" width="25%"/>
 
+1 861, Double C-Shape
+
+<img align="top" src="References/1861.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="30%"/>
+
+<!-- page 50 -->
+
+9 121, Count Area 2 Across
+
+<img align="top" src="References/9121.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across.svg" width="25%"/>
+
+22 328, Straight Mid Across 3 End Area
+
+<img align="top" src="References/22328.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="20%"/>
+
+<!-- page 51 -->
+
+22 328, Straight Across End Area
+
+<img align="top" src="References/22328_1.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across End Area.svg" width="20%"/>
+
+22 362, Count Area 2 Across C 
+
+<img align="top" src="References/22362.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="30%"/>
+
+<!-- page 52 -->
+
+25 153, Straight Across End C
+
+<img align="top" src="References/25153.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across End C.svg" width="15%"/>
+
+227 130, Square 4 x 2 C-Shape 
+
+<img align="top" src="References/227130.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="25%"/>
+
+<!-- page 53 -->
+
+231 960, Square 4 x 2 Area
+
+<img align="top" src="References/231960.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="25%"/>
+
+740 129, Straight Across 3 End Area 
+
+<img align="top" src="References/740129.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="20%"/>
+
+<!-- page 54 -->
+
+740 363, Triple Area
+
+<img align="top" src="References/740363.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Triple Area.svg" width="25%"/>
+
+2 022 763, Double Area Stair
+
+<img align="top" src="References/2022763.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area Stair.svg" width="30%"/>
+
+<!-- page 55 -->
+
+2 023 198, Double Area Stair 2
+
+<img align="top" src="References/2023198.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area Stair 2.svg" width="25%"/>
+
+2 034 435, Mid Mid Across 3 Determined (and Mid Across 3 Impair Determined)
+
+<img align="top" src="References/2034435.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="25%"/>
+
+<!-- page 56 -->
+
+2 059 934, Mid Across 3 Impair Determined
+
+<img align="top" src="References/2059934.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="20%"/>
+
+<!-- page 57 -->
 
 ---
 

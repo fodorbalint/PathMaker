@@ -1605,7 +1605,7 @@ namespace OneWayLabyrinth
                 forbiddenStr = "\t" + forbiddenStr.Replace("\n", "\n\t") + "\n";
                 int circleCount = 0;
                 string areaConditionsCode = "";
-                string countAreaCodeStart = "if (";
+                string countAreaCodeStart = "ResetExamAreas();\nif (";
                 string countAreaCodeEnd = "";
 
                 foreach (int[] coord in countAreaStartFields)
@@ -1768,6 +1768,7 @@ namespace OneWayLabyrinth
                     "\tactiveRules.Add(\"" + ruleName + "\");\n" +
                     "\tactiveRulesForbiddenFields.Add(new List<int[]> {" + listOfForbiddenFields.Substring(0, listOfForbiddenFields.Length-2) + "});\n" +
                     "\tactiveRuleSizes.Add(new int[] {" + xSize + "," + ySize + "});\n" +
+                    "\tAddExamAreas();\n" +
                     forbiddenStr +
                     "}";
             }
@@ -1776,7 +1777,7 @@ namespace OneWayLabyrinth
                 ruleCore = variableName + " = true;\n" +
                     "activeRules.Add(\"" + ruleName + "\");\n" +
                     "activeRulesForbiddenFields.Add(new List<int[]> {" + listOfForbiddenFields.Substring(0, listOfForbiddenFields.Length - 2) + "});\n" +
-                    "activeRuleSizes.Add(new int[] {" + xSize + "," + ySize + "});\n" +
+                    "activeRuleSizes.Add(new int[] {" + xSize + "," + ySize + "});\n" +                    
                     forbiddenStr;
             }
 

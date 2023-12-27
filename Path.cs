@@ -55,6 +55,9 @@ namespace OneWayLabyrinth
         bool closeMidAcrossLarge = false;
         bool closeAcrossLarge = false;
 
+        public List<List<int[]>> examAreaLines = new();
+        public List<int> examAreaLineTypes = new();
+        public List<bool> examAreaLineDirections = new();
         //used only for displaying area
         public List<List<int[]>> areaLines = new();
         public List<int> areaLineTypes = new();
@@ -352,6 +355,23 @@ namespace OneWayLabyrinth
 			possible = newPossible;
 		}
 
+        public void ResetExamAreas()
+        {
+            examAreaLines = new();
+            examAreaLineTypes = new();
+            examAreaLineDirections = new();
+        }
+
+        public void AddExamAreas() // if a rule is true, we display all examined circles.
+        {
+            for (int i = 0; i < examAreaLines.Count; i++)
+            {
+                areaLines.Add(examAreaLines[i]);
+                areaLineTypes.Add(examAreaLineTypes[i]);
+                areaLineDirections.Add(examAreaLineDirections[i]);
+            }            
+        }
+
         public void CheckCShape()
         {
             for (int i = 0; i < 2; i++)
@@ -518,7 +538,7 @@ namespace OneWayLabyrinth
             if (x == 3 && straightField[0] == 2 && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InTaken(1, y))
             {
                 T("CheckArea left");
-                if (CountArea(2, y - 1, 1, y - 1, null, false, 1, false))
+                if (CountArea(2, y - 1, 1, y - 1, null, false, 1))
                 {
                     forbidden.Add(straightField);
                     forbidden.Add(leftField);
@@ -527,7 +547,7 @@ namespace OneWayLabyrinth
             else if (y == 3 && straightField[1] == 2 && !InTakenAbs(straightField) && !InTakenAbs(leftField) && !InTaken(x, 1))
             {
                 T("CheckArea up");
-                if (CountArea(x - 1, 2, x - 1, 1, null, true, 1, false))
+                if (CountArea(x - 1, 2, x - 1, 1, null, true, 1))
                 {
                     forbidden.Add(straightField);
                     forbidden.Add(rightField);
@@ -536,7 +556,7 @@ namespace OneWayLabyrinth
             else if (x == size - 2 && y >= 2 && straightField[0] == size - 1 && !InTakenAbs(straightField) && !InTakenAbs(leftField) && !InTaken(size, y))
             {
                 T("CheckArea right");
-                if (CountArea(size - 1, y - 1, size, y - 1, null, true, 1, false))
+                if (CountArea(size - 1, y - 1, size, y - 1, null, true, 1))
                 {
                     forbidden.Add(straightField);
                     forbidden.Add(rightField);
@@ -545,7 +565,7 @@ namespace OneWayLabyrinth
             else if (y == size - 2 && x >= 2 && straightField[1] == size - 1 && !InTakenAbs(straightField) && !InTakenAbs(rightField) && !InTaken(x, size))
             {
                 T("CheckArea down");
-                if (CountArea(x - 1, size - 1, x - 1, size, null, false, 1, false))
+                if (CountArea(x - 1, size - 1, x - 1, size, null, false, 1))
                 {
                     forbidden.Add(straightField);
                     forbidden.Add(leftField);
@@ -554,7 +574,7 @@ namespace OneWayLabyrinth
             else if (x == 3 && y >= 4 && leftField[0] == 2 && !InTaken(3, y - 1) && !InTaken(1, y) && !InTaken(2, y - 2)) //straight and left field cannot be taken, but it is enough we check the most left field on border. Also, 1 left and 2 up, 2 left and 2 up cannot be taken in order to draw an arealine. Checking 1 left and 2 up is enough.
             {
                 T("CheckArea left side");
-                if (CountArea(2, y - 1, 1, y - 1, null, false, 1, false))
+                if (CountArea(2, y - 1, 1, y - 1, null, false, 1))
                 {
                     forbidden.Add(leftField);
                 }
@@ -562,7 +582,7 @@ namespace OneWayLabyrinth
             else if (y == 3 && x >= 4 && rightField[1] == 2 && !InTaken(x - 1, 3) && !InTaken(x, 1) && !InTaken(x - 2, 2))
             {
                 T("CheckArea up side");
-                if (CountArea(x - 1, 2, x - 1, 1, null, true, 1, false))
+                if (CountArea(x - 1, 2, x - 1, 1, null, true, 1))
                 {
                     forbidden.Add(rightField);
                 }
@@ -570,7 +590,7 @@ namespace OneWayLabyrinth
             else if (x == size - 2 && y >= 3 && rightField[0] == size - 1 && !InTaken(size - 2, y - 1) && !InTaken(size, y) && !InTaken(size - 1, y - 2))
             {
                 T("CheckArea right side");
-                if (CountArea(size - 1, y - 1, size, y - 1, null, true, 1, false))
+                if (CountArea(size - 1, y - 1, size, y - 1, null, true, 1))
                 {
                     forbidden.Add(rightField);
                 }
@@ -578,7 +598,7 @@ namespace OneWayLabyrinth
             else if (y == size - 2 && x >= 3 && leftField[1] == size - 1 && !InTaken(x - 1, size - 2) && !InTaken(x, size) && !InTaken(x - 2, size - 1))
             {
                 T("CheckArea down side");
-                if (CountArea(x - 1, size - 1, x - 1, size, null, false, 1, false))
+                if (CountArea(x - 1, size - 1, x - 1, size, null, false, 1))
                 {
                     forbidden.Add(leftField);
                 }
@@ -709,7 +729,7 @@ namespace OneWayLabyrinth
                                 if (i == 0) farStraightLeft = true; else farStraightRight = true;
 
                                 bool circleDirectionLeft = i == 0 ? true : false;
-                                if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1, false))
+                                if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x - lx, y - ly });
@@ -726,7 +746,7 @@ namespace OneWayLabyrinth
                             {
                                 T("Far straight large");
                                 bool circleDirectionLeft = i == 0 ? false : true;
-                                if (CountAreaRel(-1, 1, -1, 2, null, circleDirectionLeft, 1, false))
+                                if (CountAreaRel(-1, 1, -1, 2, null, circleDirectionLeft, 1))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x + lx, y + ly });
@@ -755,7 +775,7 @@ namespace OneWayLabyrinth
                                     T("Far mid across small");
                                     if (i == 0) farStraightLeft = true; else farStraightRight = true;
                                     bool circleDirectionLeft = i == 0 ? true : false;
-                                    if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1, false))
+                                    if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
                                     {
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                         forbidden.Add(new int[] { x - lx, y - ly });
@@ -772,7 +792,7 @@ namespace OneWayLabyrinth
                                 {
                                     T("Far mid across large");
                                     bool circleDirectionLeft = i == 0 ? false : true;
-                                    if (CountAreaRel(0, 1, 0, 2, null, circleDirectionLeft, 1, false))
+                                    if (CountAreaRel(0, 1, 0, 2, null, circleDirectionLeft, 1))
                                     {
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                         forbidden.Add(new int[] { x + lx, y + ly });
@@ -797,7 +817,7 @@ namespace OneWayLabyrinth
                                     T("Far across small");
                                     if (i == 0) farStraightLeft = true; else farStraightRight = true;
                                     bool circleDirectionLeft = i == 0 ? true : false;
-                                    if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1, false))
+                                    if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
                                     {
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                         forbidden.Add(new int[] { x - lx, y - ly });
@@ -820,7 +840,7 @@ namespace OneWayLabyrinth
                                     if (!InTakenRel(-1, 2))
                                     {
                                         bool circleDirectionLeft = i == 0 ? false : true;
-                                        if (CountAreaRel(0, 1, 1, 2, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 0, false))
+                                        if (CountAreaRel(0, 1, 1, 2, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 0))
                                         {
                                             forbidden.Add(new int[] { x + sx, y + sy });
                                             forbidden.Add(new int[] { x + lx, y + ly });
@@ -903,7 +923,7 @@ namespace OneWayLabyrinth
                                 {
                                     farSideUp = true;
 
-                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1, false))
+                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
                                     {
                                         forbidden.Add(new int[] { x + lx, y + ly });
                                     }
@@ -921,7 +941,7 @@ namespace OneWayLabyrinth
                                 int sideIndex = InTakenIndexRel(3, -1);
                                 if (sideIndex < middleIndex) // area up
                                 {
-                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1, false))
+                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
                                     {
                                         forbidden.Add(new int[] { x + lx, y + ly });
                                     }
@@ -950,7 +970,7 @@ namespace OneWayLabyrinth
                                 {
                                     farSideUp = true;
 
-                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1, false))
+                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
                                     {
                                         forbidden.Add(new int[] { x + lx, y + ly });
                                     }
@@ -970,7 +990,7 @@ namespace OneWayLabyrinth
                                 int sideIndex = InTakenIndexRel(3, -2);
                                 if (sideIndex < middleIndex) // area up
                                 {
-                                    if (CountAreaRel(1, 0, 2, 0, null, circleDirectionLeft, 1, false))
+                                    if (CountAreaRel(1, 0, 2, 0, null, circleDirectionLeft, 1))
                                     {
                                         forbidden.Add(new int[] { x + lx, y + ly });
                                     }
@@ -997,7 +1017,7 @@ namespace OneWayLabyrinth
                             {
                                 farSideUp = true;
 
-                                if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1, false))
+                                if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
@@ -1025,7 +1045,7 @@ namespace OneWayLabyrinth
                             T(sideIndex + " " + middleIndex);
                             if (sideIndex < middleIndex) // area up
                             {
-                                if (CountAreaRel(1, 0, 2, -1, new List<int[]> { new int[] { 2, 0 } }, circleDirectionLeft, 0, false))
+                                if (CountAreaRel(1, 0, 2, -1, new List<int[]> { new int[] { 2, 0 } }, circleDirectionLeft, 0))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
@@ -1255,7 +1275,7 @@ namespace OneWayLabyrinth
 
         // Check functions end here
 
-        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]> borderFields, bool circleDirectionLeft, int circleType, bool displayArea = true)
+        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]> borderFields, bool circleDirectionLeft, int circleType)
         {
             // left3 and straight 3 is the second start field in far across checking
             T("CountAreaRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
@@ -1274,10 +1294,10 @@ namespace OneWayLabyrinth
                 }
             }
 
-            return CountArea(x1, y1, x2, y2, absBorderFields, circleDirectionLeft, circleType, displayArea);
+            return CountArea(x1, y1, x2, y2, absBorderFields, circleDirectionLeft, circleType);
         }
 
-        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]> borderFields, bool circleDirectionLeft, int circleType, bool displayArea = true)
+        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]> borderFields, bool circleDirectionLeft, int circleType)
         // compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more than the other color.
         {
             // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
@@ -1495,6 +1515,10 @@ namespace OneWayLabyrinth
 			}*/
 
             //Special cases are not yet programmed in here as in MainWindow.xaml.cs. We take a gradual approach, starting from the cases that can happen on 7 x 7.
+
+            examAreaLines.Add(areaLine);
+            examAreaLineTypes.Add(circleType);
+            examAreaLineDirections.Add(circleDirectionLeft);
 
             int area = 0;
             List<int[]> startSquares = new List<int[]>();
@@ -1765,13 +1789,6 @@ namespace OneWayLabyrinth
             else area = areaLine.Count;
 
             T("Count area: " + area);
-
-            if (displayArea && area > 3)
-            {
-                areaLines.Add(areaLine);
-                areaLineTypes.Add(area % 2);
-                areaLineDirections.Add(circleDirectionLeft);
-            }
             
             switch (circleType)
             {
@@ -1842,7 +1859,6 @@ namespace OneWayLabyrinth
                         if (circleType == 2 && ((startX + startY) % 2 == 0 && pairCount != impairCount + 1 || (startX + startY) % 2 == 1 && impairCount != pairCount + 1) || circleType == 3 && ((startX + startY) % 2 == 0 && pairCount + 1 != impairCount || (startX + startY) % 2 == 1 && impairCount + 1 != pairCount))
                         {
                             // imbalance in colors, forbidden fields in the rule apply
-                            if (displayArea) areaLineTypes[areaLineTypes.Count - 1] = 2;
                             return true;
                         }
                         else

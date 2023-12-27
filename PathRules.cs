@@ -213,12 +213,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (CountArea2AcrossC_circle1 && CountAreaRel(1,1,2,2,new List<int[]> {new int[] {2,1}},i==0?true:!true,1))
 							{
 								CountArea2AcrossC = true;
 								activeRules.Add("Count Area 2 Across C");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {6,4});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
 						}
@@ -277,12 +279,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (CountArea2Across_circle1 && CountAreaRel(1,1,2,2,new List<int[]> {new int[] {2,1}},i==0?true:!true,0))
 							{
 								CountArea2Across = true;
 								activeRules.Add("Count Area 2 Across");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
 								activeRuleSizes.Add(new int[] {5,4});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x - lx, y - ly });
 							}
@@ -373,12 +377,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (DoubleAreaCShape_circle1 && DoubleAreaCShape_circle2 && CountAreaRel(0,1,0,3,new List<int[]> {new int[] {0,2}},i==0?true:!true,0) && CountAreaRel(-1,0,-2,0,null,i==0?false:!false,0))
 							{
 								DoubleAreaCShape = true;
 								activeRules.Add("Double Area C-Shape");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {5,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -469,12 +475,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (DoubleAreaStair2_circle1 && DoubleAreaStair2_circle2 && CountAreaRel(1,1,1,2,null,i==0?true:!true,0) && CountAreaRel(-1,1,-2,1,null,i==0?false:!false,0))
 							{
 								DoubleAreaStair2 = true;
 								activeRules.Add("Double Area Stair 2");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
 								activeRuleSizes.Add(new int[] {5,6});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x - lx, y - ly });
 							}
@@ -596,12 +604,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (DoubleAreaStairArea_circle1 && DoubleAreaStairArea_circle2 && DoubleAreaStairArea_circle3 && CountAreaRel(1,1,1,2,null,i==0?true:!true,0) && CountAreaRel(-1,1,-2,1,null,i==0?false:!false,0))
 							{
 								DoubleAreaStairArea = true;
 								activeRules.Add("Double Area Stair Area");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {5,6});
+								AddExamAreas();
 								forbidden.Add(new int[] { x - lx, y - ly });
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
@@ -692,12 +702,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (DoubleAreaStair_circle1 && DoubleAreaStair_circle2 && CountAreaRel(0,1,0,2,null,i==0?true:!true,0))
 							{
 								DoubleAreaStair = true;
 								activeRules.Add("Double Area Stair");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {6,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
 						}
@@ -756,12 +768,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (DoubleCShapeDetermined_circle1 && CountAreaRel(1,1,1,4,new List<int[]> {new int[] {1,3},new int[] {1,2}},i==0?true:!true,3))
 							{
 								DoubleCShapeDetermined = true;
 								activeRules.Add("Double C-Shape Determined");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {3,6});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
 						}
@@ -820,12 +834,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (DoubleCShapeStartC_circle1 && CountAreaRel(1,2,1,4,new List<int[]> {new int[] {1,3}},i==0?true:!true,0))
 							{
 								DoubleCShapeStartC = true;
 								activeRules.Add("Double C-Shape Start C");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {3,6});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
 						}
@@ -884,12 +900,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (DoubleCShape_circle1 && CountAreaRel(1,1,3,1,new List<int[]> {new int[] {2,1}},i==0?false:!false,1))
 							{
 								DoubleCShape = true;
 								activeRules.Add("Double C-Shape");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
 								activeRuleSizes.Add(new int[] {6,3});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x - lx, y - ly });
 							}
@@ -949,12 +967,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (MidAcross3ImpairDetermined_circle1 && CountAreaRel(1,1,1,3,new List<int[]> {new int[] {1,2}},i==0?true:!true,2))
 							{
 								MidAcross3ImpairDetermined = true;
 								activeRules.Add("Mid Across 3 Impair Determined");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x - lx, y - ly }});
 								activeRuleSizes.Add(new int[] {4,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x - lx, y - ly });
 							}
@@ -1014,12 +1034,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (MidMidAcross3Determined_circle1 && CountAreaRel(1,1,2,3,new List<int[]> {new int[] {2,2},new int[] {2,1}},i==0?true:!true,2))
 							{
 								MidMidAcross3Determined = true;
 								activeRules.Add("Mid Mid Across 3 Determined");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {5,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x - lx, y - ly });
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
@@ -1141,12 +1163,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (Square4x2Area_circle1 && Square4x2Area_circle2 && Square4x2Area_circle3 && CountAreaRel(-1,0,-2,0,null,i==0?false:!false,0) && CountAreaRel(0,1,0,2,null,i==0?true:!true,0))
 							{
 								Square4x2Area = true;
 								activeRules.Add("Square 4 x 2 Area");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {5,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -1237,12 +1261,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (Square4x2CShape_circle1 && Square4x2CShape_circle2 && CountAreaRel(0,1,0,2,null,i==0?true:!true,0) && CountAreaRel(-1,0,-2,0,null,i==0?false:!false,0))
 							{
 								Square4x2CShape = true;
 								activeRules.Add("Square 4 x 2 C-Shape");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {5,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -1333,12 +1359,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (StraightAcross3EndArea_circle1 && StraightAcross3EndArea_circle2 && CountAreaRel(1,1,1,3,new List<int[]> {new int[] {1,2}},i==0?true:!true,1))
 							{
 								StraightAcross3EndArea = true;
 								activeRules.Add("Straight Across 3 End Area");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {4,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
 						}
@@ -1428,12 +1456,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (StraightAcrossEndArea_circle1 && StraightAcrossEndArea_circle2 && CountAreaRel(1,1,1,2,null,i==0?true:!true,0))
 							{
 								StraightAcrossEndArea = true;
 								activeRules.Add("Straight Across End Area");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {4,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
 						}
@@ -1492,12 +1522,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (StraightAcrossEndC_circle1 && CountAreaRel(1,1,1,2,null,i==0?true:!true,0))
 							{
 								StraightAcrossEndC = true;
 								activeRules.Add("Straight Across End C");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {3,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
 						}
@@ -1587,12 +1619,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (StraightMidAcross3EndArea_circle1 && StraightMidAcross3EndArea_circle2 && CountAreaRel(0,1,0,3,new List<int[]> {new int[] {0,2}},i==0?true:!true,0))
 							{
 								StraightMidAcross3EndArea = true;
 								activeRules.Add("Straight Mid Across 3 End Area");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {4,6});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -1652,12 +1686,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (StraightMidAcross3EndC_circle1 && CountAreaRel(0,1,0,3,new List<int[]> {new int[] {0,2}},i==0?true:!true,0))
 							{
 								StraightMidAcross3EndC = true;
 								activeRules.Add("Straight Mid Across 3 End C");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {2,6});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -1779,12 +1815,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (TripleAreaExitDown_circle1 && TripleAreaExitDown_circle2 && TripleAreaExitDown_circle3 && CountAreaRel(1,0,3,0,new List<int[]> {new int[] {2,0}},i==0?true:!true,1) && CountAreaRel(3,3,1,3,new List<int[]> {new int[] {2,3}},i==0?true:!true,1))
 							{
 								TripleAreaExitDown = true;
 								activeRules.Add("Triple Area Exit Down");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {6,4});
+								AddExamAreas();
 								forbidden.Add(new int[] { x - lx, y - ly });
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
@@ -1906,12 +1944,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (TripleAreaStair_circle1 && TripleAreaStair_circle2 && TripleAreaStair_circle3 && CountAreaRel(0,1,0,2,null,i==0?true:!true,0))
 							{
 								TripleAreaStair = true;
 								activeRules.Add("Triple Area Stair");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }, new int[] { x + lx, y + ly }});
 								activeRuleSizes.Add(new int[] {7,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x + lx, y + ly });
 							}
@@ -2033,12 +2073,14 @@ namespace OneWayLabyrinth
 								}
 							}
 							
+							ResetExamAreas();
 							if (TripleArea_circle1 && TripleArea_circle2 && TripleArea_circle3 && CountAreaRel(0,1,0,3,new List<int[]> {new int[] {0,2}},i==0?true:!true,0) && CountAreaRel(-1,0,-2,0,null,i==0?false:!false,0))
 							{
 								TripleArea = true;
 								activeRules.Add("Triple Area");
 								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x + sx, y + sy }});
 								activeRuleSizes.Add(new int[] {5,5});
+								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 							}
 						}
@@ -2098,12 +2140,14 @@ namespace OneWayLabyrinth
 							}
 						}
 						
+						ResetExamAreas();
 						if (Across3ImpairDetermined_circle1 && CountAreaRel(1,1,3,3,new List<int[]> {new int[] {3,2},new int[] {3,1},new int[] {2,1}},i==0?true:!true,2))
 						{
 							Across3ImpairDetermined = true;
 							activeRules.Add("Across 3 Impair Determined");
 							activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
 							activeRuleSizes.Add(new int[] {6,5});
+							AddExamAreas();
 							forbidden.Add(new int[] { x - lx, y - ly });
 							forbidden.Add(new int[] { x + sx, y + sy });
 						}
