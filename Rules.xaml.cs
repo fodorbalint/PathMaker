@@ -97,15 +97,15 @@ namespace OneWayLabyrinth
 
             if (lines.Length > 8)
             {
-                string[] arr = lines[9].Split(": ");
+                string[] arr = lines[10].Split(": ");
                 size = int.Parse(arr[1]);
                 AppliedSize.Text = arr[1];
 
-                arr = lines[10].Split(": ");
+                arr = lines[11].Split(": ");
                 xSize = int.Parse(arr[1]);
                 XSize.Text = arr[1];
 
-                arr = lines[11].Split(": ");
+                arr = lines[12].Split(": ");
                 ySize = int.Parse(arr[1]);
                 YSize.Text = arr[1];
             }
@@ -431,6 +431,12 @@ namespace OneWayLabyrinth
                 {
                     draggedElement = (int)((x - x % 50) / 50 + (y - y % 50) / 50 * elementsInRow) + 1;
                 }
+            }
+
+            if (draggedElement > c + 1)
+            {
+                draggedElement = 0;
+                return;
             }
 
             draggedObj = (SKElement)RuleGrid.Children[draggedElement];
@@ -1112,6 +1118,8 @@ namespace OneWayLabyrinth
                 int stype = coord[2];
 
                 bool foundEnd = false;
+                bool foundDirTaken = false;
+
                 int entryCount = 0;
 
                 foreach (int[] coord1 in countAreaEndCoordinates)
@@ -1190,16 +1198,26 @@ namespace OneWayLabyrinth
 
                         if (!CheckTakenOrBorderNearEnd(ex, ey, distX, distY))
                         {
-                            M("There has to be a directional taken field next to the count area end.");
-                            return false;
+                            // directional field missing or the two different areas have start and end fields next to each other. In this case, the end is incorrect.
+                            foundDirTaken = false;
+                            continue;
                         }
-                        break; // Found the matching end, break cycling through end coordinates
+                        else
+                        {
+                            foundDirTaken = true;
+                            break;
+                        }
                     }
                 }
 
                 if (!foundEnd)
                 {
                     M("Count area end or border fields missing.");
+                    return false;
+                }
+                if (!foundDirTaken)
+                {
+                    M("There has to be a directional taken field next to the count area end.");
                     return false;
                 }
             }
@@ -1227,6 +1245,7 @@ namespace OneWayLabyrinth
             {
                 if (takenField[0] == middleWallX && takenField[1] == middleWallY || takenField[0] == leftAcrossWallX && takenField[1] == leftAcrossWallY || takenField[0] == rightAcrossWallX && takenField[1] == rightAcrossWallY)
                 {
+                    T(takenField[0] + " " + takenField[1] + " " + takenField[2] + " " + (dir % 2));
                     if (dir % 2 == 1 && (takenField[2] == 6 || takenField[2] == 7) || dir % 2 == 0 && (takenField[2] == 4 || takenField[2] == 5)) // left and right field up and down
                     {
                         return true;
@@ -1632,7 +1651,7 @@ namespace OneWayLabyrinth
                             int distX = 0, distY = 0;
 
                             if (Math.Abs(ex - sx) == 1 && ey == sy || Math.Abs(ey - sy) == 1 && ex == sx)
-                            {
+                            {                                
                                 // if the area is next to the live end, count it. Otherwise, only check direction of the taken field, counting area is not necessary, and often it would only be 2.
                                 correctEnd = true;
                                
@@ -1702,7 +1721,16 @@ namespace OneWayLabyrinth
 
                             bool directionLeft;
 
+                            directionField = null;
+
                             directionLeft = GetCircleDirection(ex, ey, distX, distY, takenFields);
+
+                            if (directionField == null) // end was not correct, because two areas are next to each other
+                            {
+                                circleCount--;
+                                continue;
+                            }
+
                             countAreaCodeStart += variableName + "_circle" + circleCount + " && ";
                             if (!noCount)
                             {
@@ -1719,7 +1747,7 @@ namespace OneWayLabyrinth
                             int rightY = startY - (directionField[1] + directions[rightDir][1]);
 
                             areaConditionsCode += "bool " + variableName + "_circle" + circleCount + " = false;\n" +
-                    "directionFieldIndex = InTakenIndexRel(" + directionX+ "," + directionY + ");\n" +
+                    "directionFieldIndex = InTakenIndexRel(" + directionX + "," + directionY + ");\n" +
                     "if (directionFieldIndex != -1)\n" +
                     "{\n" +
                     "\tif (InTakenRel(" + leftX + "," + leftY + "))\n" +

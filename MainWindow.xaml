@@ -70,7 +70,7 @@
 1, 2<LineBreak />
 2, 1
             </TextBlock>
-            <Label x:Name="CoordinateLabel" Content="" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Black" Background="White" Visibility="Hidden" IsHitTestVisible="False" ClipToBounds="False" />
+            <Label x:Name="CoordinateLabel" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" BorderThickness="1" BorderBrush="Black" Background="White" Visibility="Hidden" IsHitTestVisible="False" ClipToBounds="False" />
             <Label x:Name="MessageLine" Content="" HorizontalAlignment="Left" Margin="20,108,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
             <Button x:Name="OKButton" Background="LightPink" Content="OK" HorizontalAlignment="Left" Margin="371,112,0,0" VerticalAlignment="Top" Width="50" Click="OK_Click" Height="21" Visibility="Hidden"/>
             <Button Content="Rule editor" HorizontalAlignment="Left" Margin="593,107,0,0" VerticalAlignment="Top" Width="70" Click="Rules_Click" Height="21"  Focusable="False"/>
@@ -79,11 +79,12 @@
             <Grid x:Name="SettingsGrid" Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80FFFFFF" Visibility="Hidden" >
                 <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid x:Name="SettingsContentGrid" Background="#FFFFFF">
-                        <CheckBox x:Name="DisplayFutureCheck" Content="Calculate and display future lines (change requires reload)" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,10,10,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <CheckBox x:Name="DisplayFutureCheck" Content="Calculate and display future lines (requires reload)" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,10,10,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                         <CheckBox x:Name="DisplayAreaCheck" Content="Display area" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,31,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <CheckBox x:Name="MakeStatsCheck" Content="Make statistics in random fast run" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,52,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <CheckBox x:Name="ShowActiveRulesCheck" Content="Show active rules" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,73,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        <Button Content="Close" HorizontalAlignment="Right" Margin="100,102,10,10" VerticalAlignment="Top" Width="70" Click="CloseSettings_Click" Height="21" Focusable="False" />
+                        <CheckBox x:Name="ShowCheckerCheck" Content="Show checker board" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,94,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <Button Content="Close" HorizontalAlignment="Right" Margin="100,123,10,10" VerticalAlignment="Top" Width="70" Click="CloseSettings_Click" Height="21" Focusable="False" />
                     </Grid>
                 </Border>
             </Grid>

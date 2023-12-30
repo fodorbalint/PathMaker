@@ -541,7 +541,19 @@ A pair area is created with the obstacle 3 distance away, so if we step into it,
 
 <img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="19%"/>
 
+Beware of disabling the left field. If the count area end field is excluded from the area, the area will be impair, thus we will exit at the count area start field, coming from the middle.<br />
+
 <!-- page 42 -->
+
+But if the obstacle in the upper right corner is moved down, even this will be impossible.
+
+<img align="top" src="References/rules/13/Straight Mid Across 3 End Area 2.svg" width="19%"/>
+
+We can recreate this example on 13 x 13.
+
+<img align="top" src="References/1229.svg" width="61.9%"/>
+
+<!-- page 43 -->
 
 From our experience, the area can be substituted with C-shape.
 
@@ -553,7 +565,7 @@ From our experience, the area can be substituted with C-shape.
 <img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="23.8%"/>
 
-<!-- page 43 -->
+<!-- page 44 -->
 
 8 076 012 builds upon the existing rule where C-shapes are created on both sides if we enter an impair area.
 
@@ -563,7 +575,7 @@ Here, a C-shape at the start would force the line to enter the area.
 
 <img align="top" src="References/rules/9/Double C-Shape Start C.svg" width="14.28%"/>
 
-<!-- page 44 -->
+<!-- page 45 -->
 
 Soon we get a similar situation, only here it is the imbalance of pair and impair fields that is to blame.
 
@@ -574,7 +586,7 @@ In the rule, I introduced a new field that indicates the entry point; this has a
 
 <img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
 
-<!-- page 45 -->
+<!-- page 46 -->
 
 At 19 717 655 the program stops.
 
@@ -586,7 +598,7 @@ Obvously, we cannot step straight, but had we extended the future line until the
 
 Though the algorithm including the reliance on the future lines is just as solvable, we miss patterns and therefore narrow the spectrum of the discoverable rules. We would eventually discover the patterns as we increase the table, but why not gain the most out of the 9 x 9 study? From now on, future lines are treated as a visible aid, but they do not play a role in deciding which fields are available for the next move. When a possible field is within the body of a future line, the program should stop. 
 
-<!-- page 46 -->
+<!-- page 47 -->
 
 <img align="top" src="References/19717655_3.svg" width="42.86%"/>
 
@@ -597,7 +609,7 @@ For now, here is the solution to this and the next cases:
 
 <img align="top" src="References/rules/9/Triple Area Stair.svg" width="33.3%"/>
 
-<!-- page 47 -->
+<!-- page 48 -->
 
 19 718 148 is a slight modification of 2 022 773 where there is an area instead of a C-shape straight ahead.
 
@@ -609,17 +621,17 @@ We encounter a new constellation of 3 areas in 23 310 321 where the exit is next
 
 <img align="top" src="References/23310321.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/23310321_1.svg" width="42.86%"/>
 
-<!-- page 48 -->
+<!-- page 49 -->
 
 The two empty fields in the middle will not be filled if the don't enter the impair area now.
 
 <img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.6%"/>
 
 When restarting the run with the new approach, we will find that some walkthroughs were missed previously. The 10 000 th path is slightly younger than before. It is not because the future lines had been drawn incorrecty, but because the 7 x 7 rules that I used in the beginning were not precise for this size.<br />
-In the following section I list the 9 x 9 rules in chronological order. The patterns are not introduced when they are first recognized, but when they are first needed, meaning that they disable fields that the other rules don't.
+In the following section I list the 9 x 9 rules in chronological order. The patterns are not introduced when they are first recognized, but when they are first needed, meaning that they disable fields that the other rules don't. And the disabled fields have to be empty.
 Still, the number of completed walkthroughs before the appereance of the rule may not be the same as the number of those before getting stuck in the lack of that rule. If the rule disables a field right to a possible field, the left branch would run through first.
 
-<!-- page 49 -->
+<!-- page 50 -->
 
 462, Double Area C-Shape 
 
@@ -629,7 +641,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/1861.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="30%"/>
 
-<!-- page 50 -->
+<!-- page 51 -->
 
 9 121, Count Area 2 Across
 
@@ -639,7 +651,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/22328.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="20%"/>
 
-<!-- page 51 -->
+<!-- page 52 -->
 
 22 328, Straight Across End Area
 
@@ -649,7 +661,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/22362.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="30%"/>
 
-<!-- page 52 -->
+<!-- page 53 -->
 
 25 153, Straight Across End C
 
@@ -659,7 +671,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/227130.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="25%"/>
 
-<!-- page 53 -->
+<!-- page 54 -->
 
 231 960, Square 4 x 2 Area
 
@@ -669,7 +681,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/740129.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="20%"/>
 
-<!-- page 54 -->
+<!-- page 55 -->
 
 740 363, Triple Area
 
@@ -679,7 +691,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/2022763.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area Stair.svg" width="30%"/>
 
-<!-- page 55 -->
+<!-- page 56 -->
 
 2 023 198, Double Area Stair 2
 
@@ -689,13 +701,33 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/2034435.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="25%"/>
 
-<!-- page 56 -->
+<!-- page 57 -->
 
 2 059 934, Mid Across 3 Impair Determined
 
 <img align="top" src="References/2059934.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="20%"/>
 
-<!-- page 57 -->
+8 076 202, Straight Mid Across 3 End C
+
+<img align="top" src="References/8076202.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Mid Across 3 End C.svg" width="10%"/>
+
+<!-- page 58 -->
+
+8 076 706, Double C-Shape Start C
+
+<img align="top" src="References/8076706.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape Start C.svg" width="15%"/>
+
+8 076 762, Double C-Shape Determined
+
+<img align="top" src="References/8076762.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="15%"/>
+
+<!-- page 59 -->
+
+<!-- --, Triple Area Exit Down
+
+<img align="top" src="References/10199890.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="30%"/>-->
+
+<!-- page 60 -->
 
 ---
 

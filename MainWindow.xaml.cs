@@ -137,6 +137,7 @@ namespace OneWayLabyrinth
         int numberOfCompleted = 0;
         int saveFrequency = 10000;
         bool saveConcise = false; // save only routes without their possibilities in one file
+        bool showChecker = true;
 
         public bool calculateFuture = false; // does not allow a future line body or end to be a possibility. Stepped on future lines are followed through without checking possibilities on the way.
 
@@ -182,6 +183,9 @@ namespace OneWayLabyrinth
                 arr = lines[8].Split(": ");
                 ShowActiveRulesCheck.IsChecked = bool.Parse(arr[1]);
                 activeRules = (bool)ShowActiveRulesCheck.IsChecked;
+                arr = lines[9].Split(": ");
+                ShowCheckerCheck.IsChecked = bool.Parse(arr[1]);
+                showChecker = (bool)ShowCheckerCheck.IsChecked;
 
                 CheckSize();
 				Size.Text = size.ToString();
@@ -206,6 +210,8 @@ namespace OneWayLabyrinth
                 makeStats = false;
                 ShowActiveRulesCheck.IsChecked = false;
                 activeRules = false;
+                ShowCheckerCheck.IsChecked = false;
+                showChecker = false;
             }
 
             SetActiveRules();
@@ -283,10 +289,22 @@ namespace OneWayLabyrinth
             if (rules.Count == 0) return;
 
             int i;
-
+            
             if (isTaskRunning) // only record new rule when its forbidden fields were not created by other rules. More complicated rules can be true together with simpler rules that already added the necessary forbiden fields, like in 349170
             {
                 forbiddenFields.Add(startForbiddenFields);
+
+                /*i = 0;
+                foreach (List<int[]> forbiddenField in forbiddenFields)
+                {
+                    if (i < rules.Count) T(rules[i]); else T("startforbidden");
+                    foreach (int[] field in forbiddenField)
+                    {
+                        T(field[0] + " " + field[1]);
+                    }
+                    i++;
+                }*/
+
                 int ruleNo = 0;
 
                 if (File.Exists("log_rules.txt"))
@@ -326,10 +344,17 @@ namespace OneWayLabyrinth
                                 }
                             }
 
-                            if (newRuleForbiddenFields.Count != 0) // it has unique forbidden field
+                            if (newRuleForbiddenFields.Count != 0) // it has at least one unique forbidden field which is empty
                             {
-                                arr.Add(completedCount + ": " + rule);
-                                SavePath(false);
+                                foreach (int[] field in newRuleForbiddenFields)
+                                {
+                                    if (!InTaken(field[0], field[1]))
+                                    {
+                                        arr.Add(completedCount + ": " + rule);
+                                        SavePath(false);
+                                        break;
+                                    }
+                                }                                
                             }
                         }
 
@@ -340,15 +365,18 @@ namespace OneWayLabyrinth
                 }
                 else
                 {
+                    // when two rules disable the same fields, the forbidden fields of the first will be removed, then the forbidden fields of the second will remain unique 
                     List<string> arr = new();
                     foreach (string rule in rules)
                     {
-                        List<int[]> newRuleForbiddenFields = forbiddenFields[ruleNo];
+                        T("ruleNo " + ruleNo);
+                        List<int[]> newRuleForbiddenFields = forbiddenFields[ruleNo]; // does not copy, it is a reference assignment
 
                         for (i = 0; i < forbiddenFields.Count; i++)
                         {
                             if (i != ruleNo)
                             {
+                                T("i " + i);
                                 foreach (int[] field in forbiddenFields[i])
                                 {
                                     for (int j = newRuleForbiddenFields.Count - 1; j >= 0; j--)
@@ -356,6 +384,7 @@ namespace OneWayLabyrinth
                                         int[] newField = newRuleForbiddenFields[j];
                                         if (field[0] == newField[0] && field[1] == newField[1])
                                         {
+                                            T("remove at " + j);
                                             newRuleForbiddenFields.RemoveAt(j);
                                         }
                                     }
@@ -365,8 +394,15 @@ namespace OneWayLabyrinth
 
                         if (newRuleForbiddenFields.Count != 0)
                         {
-                            arr.Add(completedCount + ": " + rule);
-                            SavePath(false);
+                            foreach (int[] field in newRuleForbiddenFields)
+                            {
+                                if (!InTaken(field[0], field[1]))
+                                {
+                                    arr.Add(completedCount + ": " + rule);
+                                    SavePath(false);
+                                    break;
+                                }
+                            }
                         }
 
                         ruleNo++;
@@ -671,20 +707,22 @@ namespace OneWayLabyrinth
 
         private void Reload_Click(object sender, RoutedEventArgs e)
         {
+            Reload();
+        }
+
+        private void Reload(bool fromFile = true)
+        {
             FocusButton.Focus();
 
-            if (sender != null)
+            if (isTaskRunning)
             {
-                if (isTaskRunning)
-                {
-                    source.Cancel();
-                    toReload = true;
-                    return;
-                }
-                else if (timer.IsEnabled)
-                {
-                    StopTimer();
-                }
+                source.Cancel();
+                toReload = true;
+                return;
+            }
+            else if (timer.IsEnabled)
+            {
+                StopTimer();
             }
 
             HideMessage();
@@ -707,7 +745,7 @@ namespace OneWayLabyrinth
 
             calculateFuture = displayFuture;
 
-            if (loadCheck == true && loadFile != "")
+            if (loadCheck == true && fromFile && loadFile != "")
             {
                 LoadFromFile();
             }
@@ -925,7 +963,7 @@ namespace OneWayLabyrinth
                     if (toReload)
                     {
                         toReload = false;
-                        Reload_Click(null, null);
+                        Reload();
                     }
                     else if (toSave)
                     {
@@ -982,9 +1020,15 @@ namespace OneWayLabyrinth
             makeStats = (bool)MakeStatsCheck.IsChecked;
             activeRules = (bool)ShowActiveRulesCheck.IsChecked;
 
+            if (showChecker != ShowCheckerCheck.IsChecked)
+            {
+                showChecker = (bool)ShowCheckerCheck.IsChecked; 
+                DrawPath();               
+            }
+
             SetActiveRules();
 
-            string[] lines = new string[] { "size: " + size, "loadFromFile: " + loadCheck, "saveOnCompletion: " + saveCheck, "continueOnCompletion: " + continueCheck, "keepLeft: " + keepLeftCheck, "displayFutureLines: " + displayFuture, "displayArea: " + displayArea, "makeStats: " + makeStats, "activeRules: " + activeRules };
+            string[] lines = new string[] { "size: " + size, "loadFromFile: " + loadCheck, "saveOnCompletion: " + saveCheck, "continueOnCompletion: " + continueCheck, "keepLeft: " + keepLeftCheck, "displayFutureLines: " + displayFuture, "displayArea: " + displayArea, "makeStats: " + makeStats, "activeRules: " + activeRules, "checkerBoard: " + showChecker };
 
             string linesStr = string.Join("\n", lines);
 
@@ -4105,7 +4149,21 @@ namespace OneWayLabyrinth
                 }                
             }
 
-			string content = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + size + " " + size + "\">\r\n\t<path d=\"M0,0 h" + size + " v" + size + " h-" + size + " z\" fill=\"#dddddd\" />\r\n" + backgrounds + futureBackgrounds + possibles + areaBackground + grid +
+            string checker = "";
+            if (showChecker)
+            { 
+                for(int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        if ((i + j) % 2 == 0)
+                        {
+                            checker += "\t<rect x=\"" + i + ".25\" y=\"" + j + ".25\" width=\"0.5\" height=\"0.5\" fill=\"black\" fill-opacity=\"0.5\"  />\n";
+                        }
+                    }
+                }
+            }
+			string content = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + size + " " + size + "\">\r\n\t<path d=\"M0,0 h" + size + " v" + size + " h-" + size + " z\" fill=\"#dddddd\" />\r\n" + checker + backgrounds + futureBackgrounds + possibles + areaBackground + grid +
 				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n" +
 				futurePath + "</svg>";
 			content = content.Replace("[path]", path);
@@ -4113,7 +4171,7 @@ namespace OneWayLabyrinth
             ReadDir();
 
             string tag;
-            if (saveLoadFile && loadFile != "" && File.ReadAllText(loadFile) != savePath)
+            if (saveLoadFile && loadFile != "")
             {
                 tag = loadFile.Replace(".txt", "");
             }
@@ -4147,6 +4205,7 @@ namespace OneWayLabyrinth
                     color = "#808000";
                     break;
                 case 2:
+                case 3:
                     color = "#FF4000";
                     break;
             }
@@ -4175,7 +4234,8 @@ namespace OneWayLabyrinth
             }
             else if (areaLine.Count == 3)
             {
-                int[] startField = areaLine[0];
+                // areaLine[0] is a border field 
+                int[] startField = areaLine[1];
                 int[] endField = areaLine[2];
 
                 if (startField[0] < endField[0])
@@ -4367,14 +4427,17 @@ namespace OneWayLabyrinth
 
         private void SKElement_PaintSurface2(object sender, SKPaintSurfaceEventArgs e)
         {
-            string fileName = "rules/" + size + "/" + (string)((SKElement)sender).Tag + ".svg";
-            T("paintsurface" + fileName);
-            if (!File.Exists(fileName)) return;
+            int ruleSize = size;
+            while (!File.Exists("rules/" + ruleSize + "/" + (string)((SKElement)sender).Tag + ".svg") && size > 3)
+            {
+                ruleSize -= 2; 
+            }
+            if (ruleSize == 3) return; // rule does not exist
             var canvas = e.Surface.Canvas;
             canvas.Clear(SKColors.White);
 
             var svg = new SkiaSharp.Extended.Svg.SKSvg();
-            var picture = svg.Load(fileName);
+            var picture = svg.Load("rules/" + ruleSize + "/" + (string)((SKElement)sender).Tag + ".svg");
 
             var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
             e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
@@ -4405,7 +4468,14 @@ namespace OneWayLabyrinth
 
 			if (e.Key == Key.Enter)
 			{
-				Reload_Click(new object(), new RoutedEventArgs());
+                if (Size.IsFocused)
+                {
+                    Reload(false);
+                }
+				else
+                {
+                    Reload();
+                }
 				//Keyboard.ClearFocus(); removes the focus from the textbox, but the window becomes unresponsive. Calling MWindow.Focus(); will put the focus on the textbox again.
 			}
 
@@ -4495,22 +4565,29 @@ namespace OneWayLabyrinth
         {
             double posX = e.GetPosition(Canvas).X;
             double posY = e.GetPosition(Canvas).Y;
-            double gridX = e.GetPosition(MainGrid).X;
-            double gridY = e.GetPosition(MainGrid).Y;
 
-            double w = (activeRules) ? MainGrid.ActualWidth - 300 : MainGrid.ActualWidth;
-            CoordinateLabel.Content = Math.Ceiling(posX / w * size) + " " + Math.Ceiling(posY / Canvas.ActualHeight * size);
-            double right = w - gridX;
-            double bottom = MainGrid.ActualHeight - gridY;
-            if (posX < CoordinateLabel.ActualWidth)
+            double w = Canvas.ActualWidth < Canvas.ActualHeight ? Canvas.ActualWidth : Canvas.ActualHeight;
+            if (posX > w || posY > w)
             {
-                right -= CoordinateLabel.ActualWidth + 10;
+                CoordinateLabel.Visibility = Visibility.Hidden;
+                return;
             }
-            if (posY < CoordinateLabel.ActualHeight)
+            else
             {
-                bottom -= CoordinateLabel.ActualHeight + 10;
+                CoordinateLabel.Visibility = Visibility.Visible;
             }
-            CoordinateLabel.Margin = new Thickness(0, 0, right, bottom);
+            CoordinateLabel.Content = Math.Ceiling(posX / w * size) + " " + Math.Ceiling(posY / w * size);
+            double left = posX - CoordinateLabel.ActualWidth;
+            double top = posY - CoordinateLabel.ActualHeight;
+            if (left < CoordinateLabel.ActualWidth)
+            {
+                left += CoordinateLabel.ActualWidth + 10;
+            }
+            if (top < CoordinateLabel.ActualHeight)
+            {
+                top += CoordinateLabel.ActualHeight + 10;
+            }
+            CoordinateLabel.Margin = new Thickness(left, top + 140, 0, 0);
         }
 
         private void Canvas_MouseEnter(object sender, MouseEventArgs e)
