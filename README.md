@@ -723,11 +723,34 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <!-- page 59 -->
 
-<!-- --, Triple Area Exit Down
+18 665 383, Triple Area Exit Down
 
-<img align="top" src="References/10199890.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="30%"/>-->
+<img align="top" src="References/18665383.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="30%"/>
+
+19 720 122, Triple Area Stair
+
+<img align="top" src="References/19720122.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Triple Area Stair.svg" width="35%"/>
 
 <!-- page 60 -->
+
+19 720 614, Double Area Stair Area
+
+<img align="top" src="References/19720614.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area Stair Area.svg" width="25%"/>
+
+23 350 320 is new, but it shows similarity to the Mid Across 3 Impair Determined rule. As the double C-shape reveals, it is about pair/impair field imbalance.
+
+<img align="top" src="References/23350320.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/23350320_1.svg" width="42.86%"/>
+
+<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined 2.svg" width="15%"/>
+
+<!-- page 61 -->
+
+If we step left in the impair area, we can only exit at the count area middle field, but there is one less field of that type than the other.
+And no fields can be omitted from the area for entry and exit later.<br />
+When the count area start field + middle field is omitted (subtracting a pair amount of cells from the area), the possible exit is the count area end field, which has a different parity than the field to the left.<br />
+When the count area middle + end field is omitted, the possible exit is the count area start field, which has again different parity.
+
+<!-- page 62 -->
 
 ---
 

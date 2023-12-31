@@ -63,6 +63,8 @@ namespace OneWayLabyrinth
         public List<int> areaLineTypes = new();
         public List<bool> areaLineDirections = new();
 
+        List<int> info;
+
         public Path(MainWindow window, int size, List<int[]> path, List<int[]>? path2, bool isMain)
 		{
 			this.window = window;
@@ -319,6 +321,8 @@ namespace OneWayLabyrinth
                                     CheckAreaNearBorder(); // Uses countarea, see 0909. A 2x2 area would be created with one way to go in and out
                                     // With the exception of closeAcross large area, all near field rules disable two fields, leaving only one option. Running further rules are not necessary. 
                                     // Example of interference: 1031_1
+
+                                    CheckLeftRightArea();
                                     RunRules();
                                 }
 
@@ -603,6 +607,51 @@ namespace OneWayLabyrinth
                     forbidden.Add(leftField);
                 }
             }
+        }
+
+        public void CheckLeftRightArea()
+        {
+            return;
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;             
+                int dist = 1;
+                List<int[]> borderFields = new();
+                while (!InTakenRel(dist, 1) && !InBorderRel(dist, 1))
+                {
+                    dist++; 
+                }
+                int ex = dist - 1;
+
+                if (ex > 2)
+                {
+                    for (int j = ex - 1; j >= 2; j--)
+                    {
+                        borderFields.Add(new int[] { j, 1 });
+                    }
+                }
+                if (ex > 1)
+                {
+                    if (CountAreaRel(1, 1, ex, 1, borderFields, circleDirectionLeft, 2, true))
+                    {
+                        int impair = info[0];
+                        int sType = info[1];
+                        int eType = info[2];
+                        T("CheckLeftRightArea impair " + impair + " s type " + sType + " e type " + eType);
+
+                        if (impair == 1 && ex % 2 == 1 && sType < eType)
+                        {
+                            T("CheckLeftRightArea condition true");
+                            forbidden.Add(new int[] { x + sx, y + sy });
+                            forbidden.Add(new int[] { x - lx, y - ly });
+                        }
+                    }
+                }
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
         }
 
         public void CheckNearField()
@@ -1275,7 +1324,7 @@ namespace OneWayLabyrinth
 
         // Check functions end here
 
-        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]> borderFields, bool circleDirectionLeft, int circleType)
+        public bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]> borderFields, bool circleDirectionLeft, int circleType, bool getInfo = false)
         {
             // left3 and straight 3 is the second start field in far across checking
             T("CountAreaRel " + left1 + " " + straight1 + " " + left2 + " " + straight2);
@@ -1294,10 +1343,10 @@ namespace OneWayLabyrinth
                 }
             }
 
-            return CountArea(x1, y1, x2, y2, absBorderFields, circleDirectionLeft, circleType);
+            return CountArea(x1, y1, x2, y2, absBorderFields, circleDirectionLeft, circleType, getInfo);
         }
 
-        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]> borderFields, bool circleDirectionLeft, int circleType)
+        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]> borderFields, bool circleDirectionLeft, int circleType, bool getInfo = false)
         // compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more than the other color.
         {
             // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
@@ -1436,8 +1485,6 @@ namespace OneWayLabyrinth
                     {
                         T(field[0] + " " + field[1]);
                     }
-
-                    T("Old direction: " + startDirection + ", new " + i);
                     window.M("Single field in arealine.", 1);
 
                     return false;
@@ -1447,6 +1494,12 @@ namespace OneWayLabyrinth
 
 				nextX = possibleNextX;
 				nextY = possibleNextY;
+
+                // when getting info about area
+                if (nextX == size && nextY == size)
+                {
+                    return false;
+                }
 
                 // We may go through the same field twice as in 1208 side across down checking, but that field is a count area border field.
                 foreach (int[] field in areaLine)
@@ -1468,7 +1521,7 @@ namespace OneWayLabyrinth
                         
                         if (!found)
                         {
-                            T("Error at " + startX + " " + startY + " " + endX + " " + endY);
+                            T("Error at sx " + startX + " sy " + startY + " ex " + endX + " ey " + endY + " x " + nextX + " y " + nextY);
                             window.errorInWalkthrough = true;
                             T("Field exists in arealine.");
                             window.M("Field exists in arealine.", 1);
@@ -1505,8 +1558,6 @@ namespace OneWayLabyrinth
                     }
                 }
             }
-
-            T("------- areaLineCount " + areaLine.Count);
 
             /*T("minY " + minY + " limitX " + limitX);
             foreach (int[] a in areaLine)
@@ -1814,7 +1865,7 @@ namespace OneWayLabyrinth
                     break;
                 case 2:
                 case 3:
-                    if (area % 2 == 0)
+                    if (!getInfo && area % 2 == 0)
                     {
                         return false;
                     }
@@ -1853,6 +1904,19 @@ namespace OneWayLabyrinth
                                 impairCount += (span + span % 2) / 2;
                                 pairCount += (span - span % 2) / 2;
                             }
+                        }
+
+                        if (getInfo)
+                        {
+                            if ((startX + startY) % 2 == 0)
+                            {
+                                info = new List<int> { area % 2, pairCount, impairCount };
+                            }
+                            else
+                            {
+                                info = new List<int> { area % 2, impairCount, pairCount };
+                            }
+                            return true;
                         }
 
                         T("pair " + pairCount + ", impair " + impairCount + " circleType " + circleType);
