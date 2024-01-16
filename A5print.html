@@ -657,6 +657,56 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 <td class="right"><div>If we step left in the impair area, we can only exit at the count area middle field, but there is one less field of that type than the other.<br />
 And no fields can be omitted from the area for entry and exit later.<br />
 When the count area start field + middle field is omitted (subtracting a pair amount of cells from the area), the possible exit is the count area end field, which has a different parity than the field to the left.<br />
-When the count area middle + end field is omitted, the possible exit is the count area start field, which has again different parity.</div></td></tr>
+When the count area middle + end field is omitted, the possible exit is the count area start field, which has again different parity.<br />
+<br />
+By now, we are able to group some rules and even solve the original 21 x 21 example. Previously, we have covered all of the cases where an obstacle is 2 distance away from the live end. Let's examine distances of 3, 4 and so on in this constellation:<br />
+<br />
+<img align="top" src="References/3pair.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4pair.svg" width="30%"/><br />
+<br />
+Besides the count area fields being empty, here I also assume that the left field and the field below the count area end is also empty, because the program cannot go through a field twice when creating the arealine. In the future, this might have to be changed and new constellations added.<br />
+Knowing the difference between the number of pair and impair fields, we can make a decision in some cases.</div></td></tr>
+<tr><td class="left"><div>Let's start with this:<br />
+<br />
+<img align="top" src="References/0101.svg" width="42.86%"/><br />
+<br />
+The distance is 3, the area is pair, and the number of pair and impair fields are the same. We can either enter the area now (stepping left) or later (up or right). Either way, we can start and end the area on a different color, so nothing should be disabled.<br />
+<br />
+<img align="top" src="References/0101_1.svg" width="61.9%"/></div></td>
+<td class="right"><div>Here, the area is still pair, but there are 12 black fields and 10 white.<br />
+To fill it, two lines of an impair length would be needed, each starting and finishing on a black field. Now, it is possible to enter and exit the black field in the upper left corner of the area, but we cannot do it with the field 2 below. And there are no more black fields on the boundary of the area. Filling it is therefore impossible.<br />
+<br />
+<img align="top" src="References/0116_1.svg" width="52.4%"/><br />
+<br />
+When there are one more black field than white (8 and 7 in this case), the area is impair. If we enter now, we can exit at the count area end (to make a line of pair length), and the corner black can be filled later. We can also enter at the corner black later to exit at the couunt area end.</div></td></tr>
+<tr><td class="left"><div><img align="top" src="References/0116_2.svg" width="71.4%"/><br />
+<br />
+Here, there are one more white field than black. To fill the area, 1 line of impair length would be needed that starts and ends on white, but if the enter the area now, the corner black could not have been filled. Now there are 2 less black fields available for the rest of the area, but making two lines starting and ending on white is impossible, there are not that many white fields on the boundary.<br />
+Needless to say that we cannot enter later either, there is only one white field on the boundary.<br />
+<br />
+If there are even fewer black fields relative to the white, the situation is the same.</div></td>
+<td class="right"><div>At 4 distance (and in any case), we still don't have a problem filling an area that has equal number of black and white fields.<br />
+When the number of black fields are two more than the whites (16 and 14):<br />
+<br />
+<img align="top" src="References/0107.svg" width="61.9%"/><br />
+<br />
+Two black to black lines would be needed to fill the area. Apart from the black in the corner, there is only one black field on the boundary.</div></td></tr>
+<tr><td class="left"><div>If black = white + 1:<br />
+<br />
+<img align="top" src="References/0116.svg" width="61.9%"/><br />
+<br />
+If we enter now by stepping left, there will have to be one more line even if we exit on black. That line has to go from black to black, so it can only be the corner field. Have we exited at the other black field (the third on the boundary), either the second or the fourth could not have been filled.<br />
+<b><u>This direction therefore has to be disabled.</u></b><br />
+We can enter later without problems to start at the corner field, then the second, go inside the area and end at the third.</div></td>
+<td class="right"><div>If black = white - 1:<br />
+<br />
+<img align="top" src="References/0116_3.svg" width="52.4%"/><br />
+<br />
+A line that starts and ends on white can be drawn, no matter if we enter now or later. If we enter now, the next field has to be the corner black, and then there will be a line between the two white fields on the boundary.</div></td></tr>
+<tr><td class="left"><div>If black = white - 2:<br />
+<br />
+<img align="top" src="References/0116_4.svg" width="71.4%"/><br />
+<br />
+Two white to white lines would be needed, but there are only 3 white fields on the boundary, and none is the corner.</div></td>
+<td class="right"></td></tr>
  
 </table>

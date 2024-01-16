@@ -7,7 +7,7 @@ At first sight it may look easy. But look at the following example:
 
 <img src="References/0701_1.svg"/>
 
-<!-- page 1 -->
+<!---->
 
 Based on the black line's movement, blue fragments were drawn to indicate a path we have to go through in the future in order to fill the board.<br />
 Do you see why the situation is impossible from now on?
@@ -28,7 +28,7 @@ The 5 x 5 requires much more consideration. Whenever it is possible to draw futu
 By August 21, 2023 all 5 x 5 scenarios were discovered. The number of walkthroughs are 104.<br />
 Here are the things to consider on a grid of this size:
 
-<!-- page 2 -->
+<!---->
 
 <img src="References/rules/5/C-Shape.svg" width="19.05%" align="top" /><img src="References/spacer.svg" width="4.76%"/><img src="References/C-Shape example.svg" width="23.8%" align="top" />
 
@@ -42,7 +42,7 @@ Here are the things to consider on a grid of this size:
 
 - A 2 x 3 empty area next to the live end that is walled by three sides (2-3-2 long) will have a future line going through along the walls. At the wall next to the main line, its direction is the opposite of the main line, meaning it will go from (3,2) upwards whereas the main line just took a step downwards. How the middle field will be filled is not yet known. Either the near end (the one the main line will go through first) or the far end can fill it.
 
-<!-- page 3 -->
+<!---->
 
 <img src="References/0821_2.svg" width="23.8%"/>
 
@@ -56,7 +56,7 @@ Here are the things to consider on a grid of this size:
 
 The same goes with 1 x- and y-distance. A C-Shape is not always created in this case.
 
-<!-- page 4 -->
+<!---->
 
 <img src="References/1019_11.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/1019_12.svg" width="23.8%"/>
 
@@ -70,7 +70,7 @@ If the far end was near the end corner, it has to choose the other empty field.
 
 - Future line connection: In this case, the line being stepped on extends until the far end has two options. (When the end corner is one of them, it has to be removed.) Then, the line on the left extends and now has no other option than to connect to the line on the right.<br />
 
-<!-- page 5 -->
+<!---->
 
 <img src="References/0930.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/0930_0_1.svg" width="23.8%"/>
 
@@ -81,7 +81,7 @@ In the example, you can also say that we cannot step right, because there is a f
 
 <img src="References/1001.svg" width="33.3%"/>
 
-<!-- page 6 -->
+<!---->
 
 But let's start with the simpler rules:
 
@@ -95,7 +95,7 @@ In other situations, there is a 1-thin future line next to the live end that can
 
 - Just like moving near the edge, we need to disable some fields if we are approaching an older section of the main line. In order to determine on which side the enclosed area is created, we need to examine the direction of the line at the connection point.
 
-<!-- page 7 -->
+<!---->
 
 <img src="References/checknearfield/close straight left right.svg" width="9.5%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/close straight left left.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/close straight right right.svg" width="14.3%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/close straight right left.svg" width="9.5%"/>
 
@@ -115,7 +115,7 @@ And when none of the 1-distance situations are valid, we check for 2-distance.
 
 Impair areas can now happen inside the grid, not just on the edge, and the following rules have to be applied:
 
-<!-- page 8 -->
+<!---->
 
 <img src="References/checknearfield/far straight left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far straight right.svg" width="19%"/>
 
@@ -132,7 +132,7 @@ Similarly to the straight rules, these will only apply if there is no wall 2 dis
 
 We are not finished. Did you notice the example above is not covered by these rules? We have to move the taken fields 1 and 2 steps to the side, both in straight and side direction.
 
-<!-- page 9 -->
+<!---->
 
 <img align="top" src="References/checknearfield/far mid across left.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/checknearfield/far mid across right.svg" width="23.8%"/>
 <img src="References/spacer.svg" height="17"/>
@@ -146,7 +146,7 @@ When any of the straight 2-distance rules are present, we don't need to check th
 
 <img src="References/1019_8.svg" width="42.9%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1021_2.svg" width="42.9%"/>
 
-<!-- page 10 -->
+<!---->
 
 And these are the rest of the rules:
 
@@ -157,7 +157,7 @@ And these are the rest of the rules:
 <img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.3%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="14.3%"/><img src="References/spacer.svg" width="19.05%"/><img align="top" src="References/Future 2 x 3 Start End 465.svg" width="33.3%"/><br />
-<img src="References/spacer.svg" height="23"/><br /><!-- page 11 -->
+<img src="References/spacer.svg" height="23"/><br /><!---->
 <img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.81%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/Future 3 x 3 Start End 1861.svg" width="33.3%"/>
 
 - And these are the remaining size-specific rules. Future 2 x 2 Start End, Future 2 x 3 Start End and Future 3 x 3 Start End.
@@ -178,7 +178,7 @@ I have made statistics about how many random walkthroughs you can complete on di
 19: 0.4<br />
 21: 0.2
 
-<!-- page 12 -->
+<!---->
 
 To discover 9-specific patterns, I run the program keeping it left as long as the time to get to the first error is too big. After that, I will run it randomly. The first 13 826 walkthroughs are completed before we encounter a situation. It is similar to the last one we discovered on 7 x 7:
 
@@ -190,7 +190,7 @@ Let's simplify the pattern. Which will be impossible to fill?
 
 It is the picture on the left. Since the yellow-bordered area is impair, adding the (4,2) (4,3) (4,4) fields will be pair. We enter the area at (4,4), so we will exit at (4,3). Now we enter the 3 x 3 area in the top left corner at its side, (3,3) and will exit at (2,4). The results is two C-shapes on each side:
 
-<!-- page 13 -->
+<!---->
 
 <img align="top" src="References/1008_2.svg" width="42.86%"/>
 
@@ -204,7 +204,7 @@ When generating code from the drawing, we have to check on which side the enclos
 - The taken or border field beyond the end field is a taken field. In this case, if the field to its left is taken, its index must be lower. If the field to the right is taken, its index must be higher.
 - It is the border. Add together the x- and y-coordinates to get a value. A higher value is closer to the end corner. Here, we compare the border field straight ahead and on its left, and we want the first-mentioned to be the smaller.
 
-<!-- page 14 -->
+<!---->
 
 I have applied this rule rotated clockwise (besides mirroring it, of course), so that the live end can both come from the bottom and the right. But it can also come from the left in this example:
 
@@ -218,7 +218,7 @@ Now let's run the program further up to number 13 992:<!-- (from stepping back +
 
 It is also just like the 7 x 7 rule, just with the extension of the area on the opposite side of the future line ends. But we can't simply remove the two taken fields on that side, because the line might continue in that direction, as it is the case here:
 
-<!-- page 15 -->
+<!---->
 
 <img align="top" src="References/1013.svg" width="33.3%"/>
 
@@ -231,7 +231,7 @@ So we need to check if an enclosed has been created on that side, but counting t
 The code generator will examine if the count area start and end fields are 1 or 2 distance apart. In the first case, it will only determine in which direction the taken field straight ahead is going to, and if it is right, the forbidden field will take effect.<br />
 You may ask, why that field is "taken", not "taken or border". From what I found through some examples, if that field is border, the enclosed area on the right is impair, so the line cannot step in the other direction anyway. But it needs further examination.
 
-<!-- page 16 -->
+<!---->
 
 The next error, at 14 004 has something to with how I defined the universal rules of approaching an older section of the line, it needs to be reworked in light of the C-shape the main line can create with the border.
 
@@ -241,7 +241,7 @@ We need to take a few steps back, and then we can create the rule. It is similar
 
 <img align="top" src="References/rules/9_old/Future 2 x 3 Start End 9.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1013_2.svg" width="42.86%"/>
 
-<!-- page 17 -->
+<!---->
 
 At 55 298, we get this:
 
@@ -254,7 +254,7 @@ Let's analyze it! A double C-shape is created, because the line occupied the A f
 But what if from the A position, we step upwards in another situation?<br />
 Compare these two on 11 x 11:
 
-<!-- page 18 -->
+<!---->
 
 <img align="top" src="References/1022_2.svg" width="52.4%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
@@ -262,7 +262,7 @@ Compare these two on 11 x 11:
 
 If the area we started with is pair, then the other will be impair. We can only enter the area at the light-gray field and will exit at A. From there we must go through B, C and D, and then a double C-shape is again created.
 
-<!-- page 19 -->
+<!---->
 
 One certain situation reveals the incorrectness of the 7-rules when it comes to a 9-grid. In the following example, when I apply a rule rotated, it will disable a field that would otherwise be viable.
 
@@ -272,11 +272,11 @@ Rotating was not necessary to start with on 7 x 7, because no such situation occ
 
 We can see that defining a rule with future line starts and ends does not tell us on which side the future line was created. That is the side that contains the enclosed area. We need to therefore replace such rules with area counting, which we actually already did, with the exception of Future L. Here the future line couldn't have been created on the other side, because that's the side the live end is at right now. And area counting is not always possible, like in this situation:
 
-<!-- page 20 -->
+<!---->
 
 <img align="top" src="References/1031.svg" width="61.9%"/>
 
-<!-- page 21 -->
+<!---->
 
 As we run the program further, we will discover this at 227 200:
 
@@ -286,7 +286,7 @@ Intuitively, we can draw up the square, and let's mark the exit as well. There c
 
 <img align="top" src="References/Square 4 x 2 orig.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/227200_1.svg" width="42.86%"/>
 
-<!-- page 22 -->
+<!---->
 
 233 810 will look like:
 
@@ -298,7 +298,7 @@ As with many of the previous rules, the C-shape created with the border is to bl
 
 <img align="top" src="References/rules/9_old/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/233810_1.svg" width="42.86%"/>
 
-<!-- page 23 -->
+<!---->
 
 234 256 has at first sight something to do with future lines.
 
@@ -314,7 +314,7 @@ Any of the far straight rules (straight, mid across and across as I call them, d
 And the same is true when the pattern is rotated to the left or right side.<br />
 As far as porgramming concerned, it just needed a rework of the universal rules, we didn't need to make completely new ones.
 
-<!-- page 24 -->
+<!---->
 
 At 349 215, we find this:
 
@@ -327,7 +327,7 @@ We have made a similar rule previously. Now we need to simplify it.
 
 The area now has to be impair for the right direction to be forbidden. Essentially, we just added the three extra fields to the pair area.
 
-<!-- page 25 -->
+<!---->
 
 478 361 is similar to what we have seen before, only now there is a 2-wide path to exit the area:
 
@@ -340,7 +340,7 @@ We have to mark where the area has been created in another way.
 The taken field in the upper right corner is now checked for direction, but it is not enough. It can go upwards, and the exit of the area can still be on the bottom edge, just look at the example and imagine the live end was at A with the pattern already drawn. (On 11 x 11, it is possible to draw it.)<br />
 In order to establish an enclosed area, we must not encounter the bottom-right corner of the grid when walking along the edge of it.
 
-<!-- page 26 -->
+<!---->
 
 626 071 is:
 
@@ -354,7 +354,7 @@ The universal far across rule have to be extended. By default, we disable the op
 <img src="References/spacer.svg" height="23"/><br />
 <img align="bottom" src="References/checknearfield/far side across up.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="bottom" src="References/checknearfield/far side across up end C.svg" width="23.8%"/>
 
-<!-- page 27 -->
+<!---->
 
 The same concept we encounter at 635 301, only the C-shape is created when we enter an area, on the other side of it.
 
@@ -369,7 +369,7 @@ Straight, circle direction left:
 <img src="References/spacer.svg" height="23"/><br />
 <img src="References/checknearfield/far across left.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far across left start C.svg" width="28.6%"/>
 
-<!-- page 28 -->
+<!---->
 
 Circle direction right:
 
@@ -386,7 +386,7 @@ Side, with taken fields above and below:
 <img src="References/checknearfield/far side down.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far side down start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
 
-<!-- page 29 -->
+<!---->
 
 <img src="References/checknearfield/far side mid across up.svg" align="top" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img src="References/checknearfield/far side mid across up start C.svg" align="top" width="19%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
@@ -400,7 +400,7 @@ I have made some changes by adding some empty fields in side positions, so they 
 Also, I have added the side across down rule and changed the straight across rule accordingly. Not only fields next to each other can define an area, they can be across too. In that case, if the area originally was marked impair, now it has to be pair.<br />
 Notice that in side rules, when the taken field that would create the C-shape is below the obstacle creating the area, it can be a border field too. We have seen an example of that previously.
 
-<!-- page 30 -->
+<!---->
 
 Now what if both the start and end C-conditions are true? We can construct this on 13 x 13:
 
@@ -410,7 +410,7 @@ Several walkthrough attempts will leave you thinking why you cannot fill the are
 The minimal area would be stepping left from A, left again, up and up to get to C. You have covered 5 fields.<br />
 In order to make a walkthroughable area, you would need to extend it by pairs of fields next to each other, like D and E. One will be filled at a pair amount of steps, the other at an impair amount.<br />
 
-<!-- page 31 -->
+<!---->
 
 Let's mark the original example as a checkerboard.
 
@@ -424,7 +424,7 @@ This is the rule representation. The reddish arealine now means the arealine is 
 <img align="top" src="References/rules/13/Across 3 impair determined.svg" width="28.6%"/>
 
 
-<!-- page 32 -->
+<!---->
 
 And now the walkthrough is possible.
 
@@ -436,7 +436,7 @@ Continuing the 9 x 9 program, we get this at 641 019:
 
 If you enter the pair area straight ahead, you will exit at A, and you need to turn towards B because of the C-shape. Now you cannot go in and out of the area enclosed by C, and the situation would be the same if that obstacle was in D. 
 
-<!-- page 33 -->
+<!---->
 
 To mark the two areas, each one has to be given a directional obstacle next to the count area end field. In this case, it represents a taken field, but we don't go wrong if we include the border as well.
 
@@ -451,7 +451,7 @@ So we get the 2-distance across rules, the straight 3-distance rule to prevent a
 
 Let's return to the last example and make a modification:
 
-<!-- page 34 -->
+<!---->
 
 <img align="top" src="References/641019_2.svg" width="42.86%"/>
 
@@ -464,7 +464,7 @@ The same concept we encounter at 725 325. We have seen this prevously, just with
 
 <img align="top" src="References/725325_1.svg" width="42.86%"/>
 
-<!-- page 35 -->
+<!---->
 
 The rule will now look like this:
 
@@ -479,7 +479,7 @@ What if we omit D from the area? Then the area will be pair, so we must exit at 
 
 <img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="19%"/>
 
-<!-- page 36 -->
+<!---->
 
 811 808:
 
@@ -493,7 +493,7 @@ Recognize it is a variation of the square obstacle pattern where instead of an a
 
 <img align="top" src="References/1261580.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/1261580_1.svg" width="42.86%"/>
 
-<!-- page 37 -->
+<!---->
 
 Again, same pattern with area. The upper obstacle is now moved, but it will satisfy the previous examples too. The rule replaces the old one.
 
@@ -507,7 +507,7 @@ Though not as universal as we want it to be, this will solve this specific situa
 
 <img align="top" src="References/rules/9/Double Area Stair.svg" width="28.57%"/>
 
-<!-- page 38 -->
+<!---->
 
 And soon, at 2 022 773 we encounter a similar one:
 
@@ -515,13 +515,13 @@ And soon, at 2 022 773 we encounter a similar one:
 <img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/rules/9/Double Area Stair 2.svg" width="23.8%"/>
 
-<!-- page 39 -->
+<!---->
 
 On 17 x 17, we can construct a situation where the obstacle across the stair is 2 behind and 2 to right. As the table size increases, the stair-obstacle narrowing can move infinite distance away from the live end. That's why it is important to group these rules as one.
 
 <img align="top" src="References/1218_1.svg" width="80.95%"/>
 
-<!-- page 40 -->
+<!---->
 
 We have all the tools to handle 2 034 575.
 
@@ -531,7 +531,7 @@ It is an impair area where the number of the starting field's color is less than
 
 <img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/>
 
-<!-- page 41 -->
+<!---->
 
 Next stop is at 3 224 847.
 
@@ -543,7 +543,7 @@ A pair area is created with the obstacle 3 distance away, so if we step into it,
 
 Beware of disabling the left field. If the count area end field is excluded from the area, the area will be impair, thus we will exit at the count area start field, coming from the middle.<br />
 
-<!-- page 42 -->
+<!---->
 
 But if the obstacle in the upper right corner is moved down, even this will be impossible.
 
@@ -553,7 +553,7 @@ We can recreate this example on 13 x 13.
 
 <img align="top" src="References/1229.svg" width="61.9%"/>
 
-<!-- page 43 -->
+<!---->
 
 From our experience, the area can be substituted with C-shape.
 
@@ -565,7 +565,7 @@ From our experience, the area can be substituted with C-shape.
 <img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="23.8%"/>
 
-<!-- page 44 -->
+<!---->
 
 8 076 012 builds upon the existing rule where C-shapes are created on both sides if we enter an impair area.
 
@@ -575,7 +575,7 @@ Here, a C-shape at the start would force the line to enter the area.
 
 <img align="top" src="References/rules/9/Double C-Shape Start C.svg" width="14.28%"/>
 
-<!-- page 45 -->
+<!---->
 
 Soon we get a similar situation, only here it is the imbalance of pair and impair fields that is to blame.
 
@@ -586,7 +586,7 @@ In the rule, I introduced a new field that indicates the entry point; this has a
 
 <img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
 
-<!-- page 46 -->
+<!---->
 
 At 19 717 655 the program stops.
 
@@ -598,7 +598,7 @@ Obvously, we cannot step straight, but had we extended the future line until the
 
 Though the algorithm including the reliance on the future lines is just as solvable, we miss patterns and therefore narrow the spectrum of the discoverable rules. We would eventually discover the patterns as we increase the table, but why not gain the most out of the 9 x 9 study? From now on, future lines are treated as a visible aid, but they do not play a role in deciding which fields are available for the next move. When a possible field is within the body of a future line, the program should stop. 
 
-<!-- page 47 -->
+<!---->
 
 <img align="top" src="References/19717655_3.svg" width="42.86%"/>
 
@@ -609,7 +609,7 @@ For now, here is the solution to this and the next cases:
 
 <img align="top" src="References/rules/9/Triple Area Stair.svg" width="33.3%"/>
 
-<!-- page 48 -->
+<!---->
 
 19 718 148 is a slight modification of 2 022 773 where there is an area instead of a C-shape straight ahead.
 
@@ -621,7 +621,7 @@ We encounter a new constellation of 3 areas in 23 310 321 where the exit is next
 
 <img align="top" src="References/23310321.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/23310321_1.svg" width="42.86%"/>
 
-<!-- page 49 -->
+<!---->
 
 The two empty fields in the middle will not be filled if the don't enter the impair area now.
 
@@ -631,7 +631,7 @@ When restarting the run with the new approach, we will find that some walkthroug
 In the following section I list the 9 x 9 rules in chronological order. The patterns are not introduced when they are first recognized, but when they are first needed, meaning that they disable fields that the other rules don't. And the disabled fields have to be empty.
 Still, the number of completed walkthroughs before the appereance of the rule may not be the same as the number of those before getting stuck in the lack of that rule. If the rule disables a field right to a possible field, the left branch would run through first.
 
-<!-- page 50 -->
+<!---->
 
 462, Double Area C-Shape 
 
@@ -641,7 +641,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/1861.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="30%"/>
 
-<!-- page 51 -->
+<!---->
 
 9 121, Count Area 2 Across
 
@@ -651,7 +651,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/22328.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="20%"/>
 
-<!-- page 52 -->
+<!---->
 
 22 328, Straight Across End Area
 
@@ -661,7 +661,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/22362.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="30%"/>
 
-<!-- page 53 -->
+<!---->
 
 25 153, Straight Across End C
 
@@ -671,7 +671,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/227130.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="25%"/>
 
-<!-- page 54 -->
+<!---->
 
 231 960, Square 4 x 2 Area
 
@@ -681,7 +681,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/740129.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="20%"/>
 
-<!-- page 55 -->
+<!---->
 
 740 363, Triple Area
 
@@ -691,7 +691,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/2022763.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area Stair.svg" width="30%"/>
 
-<!-- page 56 -->
+<!---->
 
 2 023 198, Double Area Stair 2
 
@@ -701,7 +701,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/2034435.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="25%"/>
 
-<!-- page 57 -->
+<!---->
 
 2 059 934, Mid Across 3 Impair Determined
 
@@ -711,7 +711,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/8076202.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Mid Across 3 End C.svg" width="10%"/>
 
-<!-- page 58 -->
+<!---->
 
 8 076 706, Double C-Shape Start C
 
@@ -721,7 +721,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/8076762.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="15%"/>
 
-<!-- page 59 -->
+<!---->
 
 18 665 383, Triple Area Exit Down
 
@@ -731,7 +731,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/19720122.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Triple Area Stair.svg" width="35%"/>
 
-<!-- page 60 -->
+<!---->
 
 19 720 614, Double Area Stair Area
 
@@ -743,14 +743,82 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined 2.svg" width="15%"/>
 
-<!-- page 61 -->
+<!---->
 
 If we step left in the impair area, we can only exit at the count area middle field, but there is one less field of that type than the other.
 And no fields can be omitted from the area for entry and exit later.<br />
 When the count area start field + middle field is omitted (subtracting a pair amount of cells from the area), the possible exit is the count area end field, which has a different parity than the field to the left.<br />
 When the count area middle + end field is omitted, the possible exit is the count area start field, which has again different parity.
 
-<!-- page 62 -->
+By now, we are able to group some rules and even solve the original 21 x 21 example. Previously, we have covered all of the cases where an obstacle is 2 distance away from the live end. Let's examine distances of 3, 4 and so on in this constellation:
+
+<img align="top" src="References/3pair.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4pair.svg" width="30%"/>
+
+Besides the count area fields being empty, here I also assume that the left field and the field below the count area end is also empty, because the program cannot go through a field twice when creating the arealine. In the future, this might have to be changed and new constellations added.<br />
+Knowing the difference between the number of pair and impair fields, we can make a decision in some cases.
+
+<!---->
+
+Let's start with this:
+
+<img align="top" src="References/0101.svg" width="42.86%"/>
+
+The distance is 3, the area is pair, and the number of pair and impair fields are the same. We can either enter the area now (stepping left) or later (up or right). Either way, we can start and end the area on a different color, so nothing should be disabled.
+
+<img align="top" src="References/0101_1.svg" width="61.9%"/>
+
+<!---->
+
+Here, the area is still pair, but there are 12 black fields and 10 white.<br />
+To fill it, two lines of an impair length would be needed, each starting and finishing on a black field. Now, it is possible to enter and exit the black field in the upper left corner of the area, but we cannot do it with the field 2 below. And there are no more black fields on the boundary of the area. Filling it is therefore impossible.
+
+<img align="top" src="References/0116_1.svg" width="52.4%"/>
+
+When there are one more black field than white (8 and 7 in this case), the area is impair. If we enter now, we can exit at the count area end (to make a line of pair length), and the corner black can be filled later. We can also enter at the corner black later to exit at the couunt area end.
+
+<!---->
+
+<img align="top" src="References/0116_2.svg" width="71.4%"/>
+
+Here, there are one more white field than black. To fill the area, 1 line of impair length would be needed that starts and ends on white, but if the enter the area now, the corner black could not have been filled. Now there are 2 less black fields available for the rest of the area, but making two lines starting and ending on white is impossible, there are not that many white fields on the boundary.<br />
+Needless to say that we cannot enter later either, there is only one white field on the boundary.
+
+If there are even fewer black fields relative to the white, the situation is the same.
+
+<!---->
+
+At 4 distance (and in any case), we still don't have a problem filling an area that has equal number of black and white fields.<br />
+When the number of black fields are two more than the whites (16 and 14):
+
+<img align="top" src="References/0107.svg" width="61.9%"/>
+
+Two black to black lines would be needed to fill the area. Apart from the black in the corner, there is only one black field on the boundary.
+
+<!---->
+
+If black = white + 1:
+
+<img align="top" src="References/0116.svg" width="61.9%"/>
+
+If we enter now by stepping left, there will have to be one more line even if we exit on black. That line has to go from black to black, so it can only be the corner field. Have we exited at the other black field (the third on the boundary), either the second or the fourth could not have been filled.<br />
+<b><u>This direction therefore has to be disabled.</u></b><br />
+We can enter later without problems to start at the corner field, then the second, go inside the area and end at the third.
+
+<!---->
+
+If black = white - 1:
+
+<img align="top" src="References/0116_3.svg" width="52.4%"/>
+
+A line that starts and ends on white can be drawn, no matter if we enter now or later. If we enter now, the next field has to be the corner black, and then there will be a line between the two white fields on the boundary.
+
+<!---->
+
+If black = white - 2:
+
+<img align="top" src="References/0116_4.svg" width="71.4%"/>
+
+Two white to white lines would be needed, but there are only 3 white fields on the boundary, and none is the corner.
 
 ---
 

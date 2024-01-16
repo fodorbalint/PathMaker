@@ -1347,6 +1347,9 @@ namespace OneWayLabyrinth
             taken.areaLines = new();
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
+            taken.areaPairFields = new();
+            taken.areaImpairFields = new();
+
             if (!isTaskRunning) ClearActiveRules();
 
             taken.x = x;
@@ -2865,6 +2868,9 @@ namespace OneWayLabyrinth
 			taken.areaLines = new();
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
+            taken.areaPairFields = new();
+            taken.areaImpairFields = new();
+
             if (!isTaskRunning) ClearActiveRules();
 
             int removeX = taken.path[count - 1][0];
@@ -3634,14 +3640,20 @@ namespace OneWayLabyrinth
 			float posY = 0.5f;
 			int startX = 1;
 			int startY = 1;
-			string backgrounds = "\t<rect width=\"1\" height=\"1\" x=\"" + (startX - 1) + "\" y=\"" + (startY - 1) + "\" fill=\"#ff0000\" fill-opacity=\"0.15\" />\r\n";
+
+            //string color = "#ff0000";
+            //string opacity = "0.15";
+            string color = "#e2bcbc"; // checker grid must not show through the main line
+
+            string backgrounds = "\t<rect width=\"1\" height=\"1\" x=\"" + (startX - 1) + "\" y=\"" + (startY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"1\" />\r\n";
+            //string backgrounds = "\t<rect width=\"1\" height=\"1\" x=\"" + (startX - 1) + "\" y=\"" + (startY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
 			savePath = size + "|1-" + startX + "," + startY + ";";
 			string completedPathCode = "";
 
 			int newX = 0;
 			int newY = 0;
 
-			bool inLoop = false;
+			/*bool inLoop = false;
 			if (exits.Count > 0)
 			{
 				int[] lastExit = exits[exits.Count - 1];
@@ -3652,7 +3664,7 @@ namespace OneWayLabyrinth
 				{
 					inLoop = true;
 				}
-			}
+			}*/
 
 			int lastDrawnDirection = 0;
 
@@ -3662,18 +3674,16 @@ namespace OneWayLabyrinth
 				newX = field[0];
 				newY = field[1];
 
-				string color = "#ff0000";
-				string opacity = "0.15";
-
-				if (displayExits && inLoop && i > exitIndex[exitIndex.Count - 1])
+                /*if (displayExits && inLoop && i > exitIndex[exitIndex.Count - 1])
 				{
 					color = "#996600";
 					opacity = "0.25";
-				}
+				}*/
 
-				backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
+                backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"1\" />\r\n";
+                //backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
 
-				foreach (int direction in possibleDirections[i])
+                foreach (int direction in possibleDirections[i])
 				{
 					savePath += direction + ",";
 				}
@@ -3891,7 +3901,7 @@ namespace OneWayLabyrinth
 					newX = field[0];
 					newY = field[1];
 
-					string color = "#0000ff";
+					color = "#0000ff";
 					string opacity = "0.15";
 					futureBackgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
 
@@ -4018,7 +4028,7 @@ namespace OneWayLabyrinth
 								newX = field[0];
 								newY = field[1];
 
-								string color = "#0000ff";
+								color = "#0000ff";
 								string opacity = "0.15";
 								futureBackgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
 
@@ -4141,15 +4151,28 @@ namespace OneWayLabyrinth
 			}
 
             string areaBackground = "";
+            string checker = "";
+
             if (taken.areaLines.Count != 0 && displayArea)
 			{
-                for(int i = 0; i < taken.areaLines.Count; i++)
+                for (int i = 0; i < taken.areaLines.Count; i++)
                 {
                     areaBackground += DrawAreaLine(taken.areaLines[i], taken.areaLineTypes[i], taken.areaLineDirections[i]);
-                }                
+
+                    if (showChecker)
+                    { 
+                        if (taken.areaLineTypes[i] == 2 && taken.areaPairFields.Count > i)
+                        {
+                            foreach (int[] field in taken.areaPairFields[i])
+                            {
+                                checker += "\t<rect x=\"" + (field[0] - 1) + ".25\" y=\"" + (field[1] - 1) + ".25\" width=\"0.5\" height=\"0.5\" fill=\"black\" fill-opacity=\"0.5\"  />\n";
+                            }
+                        }
+                    }
+                } 
             }
 
-            string checker = "";
+            /*string checker = "";
             if (showChecker)
             { 
                 for(int i = 0; i < size; i++)
@@ -4162,7 +4185,8 @@ namespace OneWayLabyrinth
                         }
                     }
                 }
-            }
+            }*/
+
 			string content = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + size + " " + size + "\">\r\n\t<path d=\"M0,0 h" + size + " v" + size + " h-" + size + " z\" fill=\"#dddddd\" />\r\n" + checker + backgrounds + futureBackgrounds + possibles + areaBackground + grid +
 				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n" +
 				futurePath + "</svg>";

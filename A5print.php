@@ -108,25 +108,30 @@
     $pos2 = strpos($content, "\n",  $pos1);
     $header = substr($content, $pos1 + 2, $pos2 - $pos1 - 2);
     $content = "<span style=\"font-size: 18px; font-weight: bold\">$header</span>".substr($content, $pos2);
-    $pos = strpos($content, "---");
+    $pos = strpos($content, "---\n");
     $content = substr($content, 0, $pos);
 
-    preg_match_all("|<!-- page \d+ -->|", $content, $matches);
-    $startPos = 0;
+    $pos = 0;
+    $endPos = strpos($content, "<!---->", $pos);
+    $pageTexts = array();
 
+    while ($endPos != false) {
+        $pageTexts[] = nl2br(trim(substr($content, $pos, $endPos - $pos)));
+        $pos = $endPos + 8;
+        $endPos = strpos($content, "<!---->", $pos);
+    }    
+    $pageTexts[] = nl2br(trim(substr($content, $pos)));
+    
     $output = "";
 
     if ($normalOrder) { // 1 2 3 4, for reading in browser
-        for($i = 0; $i < count($matches[0]); $i++) {
-            $pos = strpos($content, $matches[0][$i]);
-    
+        for($i = 0; $i < count($pageTexts); $i++) {
             if ($i % 2 == 0) {                
-                $output.= "<tr><td class=\"left\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td>\n";
+                $output.= "<tr><td class=\"left\"><div>".$pageTexts[$i]."</div></td>\n";
             }            
             else {
-                $output.= "<td class=\"right\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td></tr>\n";
+                $output.= "<td class=\"right\"><div>".$pageTexts[$i]."</div></td></tr>\n";
             }
-            $startPos = $pos + strlen($matches[0][$i]);
         }
         if ($i % 2 == 1) {
             $output.= "<td class=\"right\"></td></tr>\n";
@@ -135,21 +140,18 @@
     else { // 4 1 2 3, for printing on A4 paper on both sides
         $pages = array();
         
-        for($i = 0; $i < count($matches[0]); $i++) {
-            $pos = strpos($content, $matches[0][$i]);    
-
+        for($i = 0; $i < count($pageTexts); $i++) {
             if ($i % 2 == 1) {
                 if ($i % 4 == 1) {
-                    $pages[] = "<tr><td class=\"left\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
+                    $pages[] = "<tr><td class=\"left\"><div>".$pageTexts[$i]."</div><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
                 }
                 else {
-                    $pages[] = "<tr><td class=\"left\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td>\n";
+                    $pages[] = "<tr><td class=\"left\"><div>".$pageTexts[$i]."</div></td>\n";
                 }
             }
             else {
-                $pages[] = "<td class=\"right\"><div>".nl2br(trim(substr($content, $startPos, $pos - $startPos)))."</div></td></tr>";
+                $pages[] = "<td class=\"right\"><div>".$pageTexts[$i]."</div></td></tr>";
             }
-            $startPos = $pos + strlen($matches[0][$i]);
         }
         if ($i % 4 == 1) {
             $pages[] = "<tr><td class=\"left\"><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
@@ -167,7 +169,7 @@
         $pageNum = count($pages) / 4;
 
         for ($i = 1; $i <= $pageNum; $i++) {
-            $output.= $pages[$i*4 - 1].$pages[$i*4-4].$pages[$i*4-3].$pages[$i*4-2];
+            $output.= $pages[$i*4 - 1].$pages[$i*4 - 4].$pages[$i*4 - 3].$pages[$i*4 - 2];
         }
     }    
     print $output;
