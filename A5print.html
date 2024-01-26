@@ -706,7 +706,47 @@ A line that starts and ends on white can be drawn, no matter if we enter now or 
 <br />
 <img align="top" src="References/0116_4.svg" width="71.4%"/><br />
 <br />
-Two white to white lines would be needed, but there are only 3 white fields on the boundary, and none is the corner.</div></td>
-<td class="right"></td></tr>
+Two white to white lines would be needed, but there are only 3 white fields on the boundary, and none is the corner.<br />
+<br />
+Without finding concrete examples, at 5 distance I only draw the boundary and go through the different possibiities.<br />
+<br />
+<img align="top" src="References/5dist.svg" width="33.3%"/><br />
+<br />
+<b><u>black = white + 2</u></b><br />
+<br />
+If we enter now and finish at black, only two black fields remain. Drawing two black to black lines is not possible, so this direction has to be disabled.<br />
+We can enter later, go through the corner and draw another black to black line.</div></td>
+<td class="right"><div>black = white + 3<br />
+<br />
+There is not enough black fields for three black to black lines.<br />
+<br />
+black = white + 1<br />
+<br />
+We can enter now, finish on a black field and draw another black to black line. Or enter later.<br />
+<br />
+black = white - 1<br />
+<br />
+A white to white line is possible in either case.<br />
+<br />
+black = white - 2<br />
+<br />
+We cannot enter now, because even if we end on a white field, only one white remains, and that is not the corner. And cannot enter later either.<br />
+<br />
+The same procedure applies at 6 distance.<br />
+<br />
+<img align="top" src="References/6dist.svg" width="38.1%"/><br />
+<br />
+<b><u>black = white + 2</u></b><br />
+<br />
+The number of black fields is the same as previously, so entering now is not possible.<br />
+<br />
+black = white + 3 is impossible.<br />
+<br />
+black = white + 1 and black = white - 1 is possible.<br />
+<br />
+<b><u>black = white - 2</u></b><br />
+<br />
+Entering now is possible if we step upwards, and exit at the neighbouring white field. Two white fields remains.<br />
+But we cannot enter later and make two white to white lines using the two white fields.</div></td></tr>
  
 </table>

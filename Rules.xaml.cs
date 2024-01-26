@@ -740,7 +740,7 @@ namespace OneWayLabyrinth
                 switch (draggedElement)
                 {
                     case 1:
-                        addField = liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 1", "M " + (coordX - 0.5f) + " " + coordY) + 
+                        addField = liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 1", "M " + (coordX - 0.5f) + " " + coordY) + "\r\n\t" +
                             liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + coordY).Replace("M 0.5 1 v -0.5", "M " + (coordX - 0.5f) + " " + coordY + " v 0.5");
                         takenCoordinates.Add(new int[] { coordX, coordY + 1, 0 });
                         break;

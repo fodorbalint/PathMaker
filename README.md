@@ -820,6 +820,50 @@ If black = white - 2:
 
 Two white to white lines would be needed, but there are only 3 white fields on the boundary, and none is the corner.
 
+Without finding concrete examples, at 5 distance I only draw the boundary and go through the different possibiities.
+
+<img align="top" src="References/5dist.svg" width="33.3%"/>
+
+<b><u>black = white + 2</u></b>
+
+If we enter now and finish at black, only two black fields remain. Drawing two black to black lines is not possible, so this direction has to be disabled.<br />
+We can enter later, go through the corner and draw another black to black line.
+
+<!---->
+
+black = white + 3
+
+There is not enough black fields for three black to black lines.
+
+black = white + 1
+
+We can enter now, finish on a black field and draw another black to black line. Or enter later.
+
+black = white - 1
+
+A white to white line is possible in either case.
+
+black = white - 2
+
+We cannot enter now, because even if we end on a white field, only one white remains, and that is not the corner. And cannot enter later either.
+
+The same procedure applies at 6 distance.
+
+<img align="top" src="References/6dist.svg" width="38.1%"/>
+
+<b><u>black = white + 2</u></b>
+
+The number of black fields is the same as previously, so entering now is not possible.
+
+black = white + 3<br /> is impossible.
+
+black = white + 1 and black = white - 1 is possible.
+
+<b><u>black = white - 2</u></b>
+
+Entering now is possible if we step upwards, and exit at the neighbouring white field. Two white fields remains.<br />
+But we cannot enter later and make two white to white lines using the two white fields.
+
 ---
 
 The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".

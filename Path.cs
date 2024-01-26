@@ -650,12 +650,25 @@ namespace OneWayLabyrinth
                             T("CheckLeftRightArea 4 black = white + 1");
                             forbidden.Add(new int[] { x + lx, y + ly });
                         }
-                        /*if (impair == 1 && ex % 2 == 1 && sType < eType)
+                        if (ex == 5 && sType == eType + 2)
                         {
-                            T("CheckLeftRightArea condition true");
-                            forbidden.Add(new int[] { x + sx, y + sy });
-                            forbidden.Add(new int[] { x - lx, y - ly });
-                        }*/
+                            T("CheckLeftRightArea 5 black = white + 2");
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
+                        if (ex == 6)
+                        {
+                            if (sType == eType + 2)
+                            {
+                                T("CheckLeftRightArea 6 black = white + 2");
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                            }
+                            else if (sType == eType - 2)
+                            {
+                                T("CheckLeftRightArea 6 black = white - 2");
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                forbidden.Add(new int[] { x - lx, y - ly });
+                            }
+                        }
                     }
                 }
                 lx = -lx;
