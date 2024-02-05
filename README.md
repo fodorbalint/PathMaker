@@ -861,8 +861,68 @@ black = white + 1 and black = white - 1 is possible.
 
 <b><u>black = white - 2</u></b>
 
-Entering now is possible if we step upwards, and exit at the neighbouring white field. Two white fields remains.<br />
-But we cannot enter later and make two white to white lines using the two white fields.
+Entering now is possible if we step upwards and exit at the neighbouring white field. Two white fields remains.<br />
+But we cannot enter later and make two white to white lines using three white fields.
+
+<!---->
+
+From now on, we can distinguish between four cases:
+
+<b>1) Pair distance, pair black and white</b> (indicated by B and W): 4, 8, 12 etc. distance
+
+If we enter now and exit on black, B-1 black field remains on the border. B-1 is impair, and the corner alone can make a black to black line. Hence (B-2) / 2 + 1 = B / 2 black to black line would be possible, but...
+- if the first line finishes at the corner black, the opportunity for it to make a single line is lost, and the remaining B-1 black fields cannot make B / 2 black lines.
+- if it finishes on any other black field, on one side there will be a section that has white fields on both ends (below the greenish fields were taken by the first line)
+
+<img align="top" src="References/8dist.svg" width="47.6%"/>
+
+A black to black line cannot have three white fields on the border (unless more black fields were used up).
+
+So there can be at most B / 2 - 1 black to black lines.
+
+If we enter now and exit on white, W-1 white fields remain, so 1 + (W-2) / 2 = W / 2 white to white lines is possible.
+
+If we enter later, the number of possible black to black lines is at most B / 2, and the white ones W / 2.
+
+Our rule will look like this: If the number of black fields in the area is greater or equal than the number of white fields plus B / 2, we cannot enter now. 
+
+<b>2) Pair distance, impair black and white</b>: 6, 10 etc.
+
+If we enter now and exit at black, (B-1) / 2 black to black lines can be drawn.
+
+<!---->
+
+If we exit at white, (W+1) / 2 white to white lines can be drawn. (We have to move to the corner black and exit at the first white during the first line)
+
+If we enter later, (B+1) / 2 and (W-1) / 2 black and white lines are possible, respectively.
+
+The rule is double:
+- If the number of black fields is greater or equal than the number of whites plus (B+1) / 2, we cannot enter now.
+- If the number of white fields is greater or equal than the number of blacks plus (W+1) / 2, we have to enter now.
+
+<b>3) Impair distance, impair black and pair white</b>: 5, 9 etc.
+
+If we enter now and exit at black, (B-1) / 2 black lines are possible.
+
+If we exit at white, W/2 white lines are possible.
+
+If we enter later, the number of black lines can be up to (B+1)/2, the whites W/2
+
+Single rule: When the difference is at least (B+1)/2, we cannot enter now.
+
+<b>4) Impair distance, pair black and impair white</b>: 3, 7 etc.
+
+If we enter now and exit at black, B / 2 black lines are possible.
+
+If we exit at white: Similarly to the first of the four cases, a black to black edge will remain on one side. Drawing (W-1) / 2 more white lines is either not possible, or if we do so, the corner black may make up a black to black line, decreasing the difference.
+
+<img align="top" src="References/7dist.svg" width="42.9%"/>
+
+When entering later, B / 2 and (W-1) / 2 are the numbers. Since they match the above, no rule is applied.
+
+<!---->
+
+Check the original 21 x 21 example. Two steps back, there will be 9 distance with the wall to the left. The number of black fields on the edge is 5, therefore there cannot be 3 more black fields in the area than white, but counting them, they are 51 and 48.
 
 ---
 

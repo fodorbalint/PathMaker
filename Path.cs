@@ -645,29 +645,38 @@ namespace OneWayLabyrinth
 
                         T("CheckLeftRightArea impair " + impair + " s type " + sType + " e type " + eType);
 
-                        if (ex == 4 && sType == eType + 1)
+                        switch (ex % 4)
                         {
-                            T("CheckLeftRightArea 4 black = white + 1");
-                            forbidden.Add(new int[] { x + lx, y + ly });
-                        }
-                        if (ex == 5 && sType == eType + 2)
-                        {
-                            T("CheckLeftRightArea 5 black = white + 2");
-                            forbidden.Add(new int[] { x + lx, y + ly });
-                        }
-                        if (ex == 6)
-                        {
-                            if (sType == eType + 2)
-                            {
-                                T("CheckLeftRightArea 6 black = white + 2");
-                                forbidden.Add(new int[] { x + lx, y + ly });
-                            }
-                            else if (sType == eType - 2)
-                            {
-                                T("CheckLeftRightArea 6 black = white - 2");
-                                forbidden.Add(new int[] { x + sx, y + sy });
-                                forbidden.Add(new int[] { x - lx, y - ly });
-                            }
+                            case 0:
+                                if (sType >= eType + ex / 4)
+                                {
+                                    T("CheckLeftRightArea " + ex % 4);
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                                break;
+                            case 1:
+                                if (sType >= eType + ((ex + 1) / 2 + 1) / 2)
+                                {
+                                    T("CheckLeftRightArea " + ex % 4);
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                                break;
+                            case 2:
+                                if (sType >= eType + (ex / 2 + 1) / 2)
+                                {
+                                    T("CheckLeftRightArea " + ex % 4 + " black");
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                                if (eType >= sType + (ex / 2 + 1) / 2)
+                                {
+                                    T("CheckLeftRightArea " + ex % 4 + " white");
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                }
+                                break;
+                            case 3:
+                                break;
+
                         }
                     }
                 }
