@@ -1,5 +1,7 @@
 # The one-way labyrinth algorithm
 
+(If the page doesn't load correctly, download the PDF version for <a href="A5 web.pdf"/>screen reading</a> or <a href="A5 print.pdf"/>to be printed out</a>)
+
 This research aims to solve the following problem:<br />
 "Draw a line that goes through an n x n grid (where n is an odd number), passing through each field once. The line has to start from the field at the upper left corner (1,1) and end at (n,n). At any time it is allowed to move left, right, up or down, and it has to randomly choose between the available fields."
 
@@ -862,9 +864,10 @@ black = white + 1 and black = white - 1 is possible.
 <b><u>black = white - 2</u></b>
 
 Entering now is possible if we step upwards and exit at the neighbouring white field. Two white fields remains.<br />
-But we cannot enter later and make two white to white lines using three white fields.
 
 <!---->
+
+But we cannot enter later and make two white to white lines using three white fields.
 
 From now on, we can distinguish between four cases:
 
@@ -886,11 +889,11 @@ If we enter later, the number of possible black to black lines is at most B / 2,
 
 Our rule will look like this: If the number of black fields in the area is greater or equal than the number of white fields plus B / 2, we cannot enter now. 
 
+<!---->
+
 <b>2) Pair distance, impair black and white</b>: 6, 10 etc.
 
 If we enter now and exit at black, (B-1) / 2 black to black lines can be drawn.
-
-<!---->
 
 If we exit at white, (W+1) / 2 white to white lines can be drawn. (We have to move to the corner black and exit at the first white during the first line)
 
@@ -910,6 +913,8 @@ If we enter later, the number of black lines can be up to (B+1)/2, the whites W/
 
 Single rule: When the difference is at least (B+1)/2, we cannot enter now.
 
+<!---->
+
 <b>4) Impair distance, pair black and impair white</b>: 3, 7 etc.
 
 If we enter now and exit at black, B / 2 black lines are possible.
@@ -920,9 +925,82 @@ If we exit at white: Similarly to the first of the four cases, a black to black 
 
 When entering later, B / 2 and (W-1) / 2 are the numbers. Since they match the above, no rule is applied.
 
+Check the original 21 x 21 example. Two steps back, there will be 9 distance with the wall to the left. The number of black fields on the edge is 5, therefore there cannot be 3 more black fields in the area than white, but counting them, they are 51 and 48.
+
+Does this procedure apply to any of the 9x9 rules? Not exactly, but let's look them through. Here are all of them that deal with black and white field imbalance:
+
 <!---->
 
-Check the original 21 x 21 example. Two steps back, there will be 9 distance with the wall to the left. The number of black fields on the edge is 5, therefore there cannot be 3 more black fields in the area than white, but counting them, they are 51 and 48.
+<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
+
+As a reminder, they indicate impair areas, and in the first two case if the count area start field (black) type is not 1 field more in the area, we cannot enter later.
+In the third the field marked with + (white) is the type that needs to be 1 more than black, otherwise stepping forward is forbidden.
+
+I will take the second rule under examination as it contains both a horizontal and vertical offset.
+
+<img align="top" src="References/2x3dist.svg" width="20%"/>
+
+If we enter now:
+- We can exit at the end white, so 1 white line is possible.
+- We can exit at the black farthest away and then make a line using the black field closest. 1 black line is pssible.
+I will mark it like this: 1W -> 1B
+
+If we enter later:
+- Having two black fields, 1 black line is possible.
+- There is only one white field. It sits in a corner, but the two black fields will give 1 black line. 0 white line is possible.
+0W -> 1B
+
+<!---->
+
+So if there are 1 more white fields in the area than black (1W), we cannot enter later.
+
+Now let's increase the vertical distance.
+
+<img align="top" src="References/2x4dist.svg" width="20%"/>
+
+If we enter now, 1 white line to 2 black lines are possible. There are 2 black fields on a corner.<br />
+1W -> 2B<br />
+Later, 0 white line and 2 black lines can be drawn.<br />
+0W -> 2B
+
+Conclusion: in case of 1W, we cannot enter later.
+
+5 distance:
+
+<img align="top" src="References/2x5dist.svg" width="20%"/>
+
+Now: 2W -> 1B<br />
+Later: 1W -> 2B<br />
+2W: cannot enter later<br />
+2B: cannot enter now
+
+<!---->
+
+6 distance:
+
+<img align="top" src="References/2x6dist.svg" width="20%"/>
+
+Now: 1W -> 2B<br />
+Later: 1W -> 3B<br />
+3B: cannot enter now
+
+7 distance:
+
+<img align="top" src="References/2x7dist.svg" width="20%"/>
+
+Now: 2W -> 2B<br />
+Later: 2W -> 2B<br />
+No rule.
+
+<!---->
+
+In case of 7, there are 4 fields added to the 3-distance example. We would expect that in case of 2W, we cannot enter later, but now, 2W is possible even when entering later, because one line will be the corner white, and the other can go between the other two white fields, taking up all the blacks along the way.<br />
+From now on, increasing the numbers by 1 for every 4 distance increase will work.
+
+The next thing to do is the horizontal increase
+
+
+
 
 ---
 
