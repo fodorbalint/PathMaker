@@ -997,10 +997,68 @@ No rule.
 In case of 7, there are 4 fields added to the 3-distance example. We would expect that in case of 2W, we cannot enter later, but now, 2W is possible even when entering later, because one line will be the corner white, and the other can go between the other two white fields, taking up all the blacks along the way.<br />
 From now on, increasing the numbers by 1 for every 4 distance increase will work.
 
-The next thing to do is the horizontal increase
+The next thing to do is the horizontal increase.
 
+3 distance:
 
+<img align="top" src="References/3x3dist.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/3x3dist_1.svg" width="25%"/>
 
+The picture on the left is the representation we have used so far. However, we cannot exit at the black in the middle, and when we exit at one of the whites, the other is only accessible for immediate entry. Therefore, I will add the extra field. If there is a taken field anywhere ahead acting as the obstacle, we can get to it by drawing a straight line and a stair.
+
+Now: 0W -> 2B<br />
+Later: 1B -> 2B<br />
+If we used all 3 black corners for a separate line, we would not enter the area.
+
+<!---->
+
+4 distance:
+
+<img align="top" src="References/4x3dist.svg" width="30%"/>		
+
+Now: 2W -> 0B<br />
+If we exited at the nearest white after entering, we have either not entered the area or not filled the black field.<br />
+Later: 2W -> 0B
+
+5 distance:
+
+<img align="top" src="References/5x3dist.svg" width="35%"/>
+
+Now: 0W -> 3B<br />
+If we reserved the 3 black corners, the only way to end the first line on black is to move downwards after entry.<br />
+Later: 0W -> 3B
+
+<!---->
+
+6 distance:
+
+<img align="top" src="References/6x3dist.svg" width="40%"/>
+
+Now: 3W -> 1B<br />
+Similarly, we need to move down after entry in order to finish at the second black field, leaving the first for itself.<br />
+Later: 3W -> 1B
+
+7 distance:
+
+<img align="top" src="References/7x3dist.svg" width="45%"/>
+
+Now: 1W -> 3B<br />
+Later: 0W -> 4B<br />
+There cannot be one white line, because out of the first three black fields only 2 would be filled.
+
+Notice that as we added 4 distance to 3, now both the white and the black end of the ranges have increased by one.
+
+<!---->
+
+But we are not finished, we still need to examine the distance of 8.
+
+<img align="top" src="References/8x3dist.svg" width="50%"/>
+
+Now: 4W -> 1B<br />
+After entry, we need to move up to fill the corner black and exit at the first white field.<br />
+At 4 distance, only 2W was possible, but now we can exit at the first white and fill the area when entering at the second and exiting at the third.<br />
+Later: 3W -> 1B
+
+After this practice, let's calculate how many white and black lines we can draw when we have an obstacle x and y distance away.
 
 ---
 
