@@ -1060,6 +1060,71 @@ Later: 3W -> 1B
 
 After this practice, let's calculate how many white and black lines we can draw when we have an obstacle x and y distance away.
 
+There are three cases to look at.
+
+1. Equal horizontal and vertical distance
+
+<img align="top" src="References/xdist.svg" width="30%"/>
+
+There are an x number of black fields on the area boundary.
+
+<!---->
+
+x = 1:<br />
+Now: 0W -> 0B<br />
+We cannot enter later.
+
+x = 2:<br />
+Now: 0W -> 1B<br />
+Later: 1B
+
+x = 3:<br />
+Now: 0W -> 2B<br />
+Later: 1B -> 2B
+
+x = 4:<br />
+Now: 0W -> 3B<br />
+Later: 1B -> 3B
+
+x = n:<br />
+Now: 0W -> (n-1)B<br />
+Later: 1B -> (n-1)B<br />
+There is an x amount of corner blacks, but we need to enter the area as well. 
+
+Conclusion: if the white and black fields in the area are equal, we cannot enter later.
+
+<!---->
+
+2. Larger horizontal distance
+
+<img align="top" src="References/x 2n.svg" width="47.6%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/x 2n 1.svg" width="47.6%"/>
+
+If the added distance is pair:
+
+2n = 2:
+
+<img align="top" src="References/2n=2.svg" width="40%"/>
+
+Now: Can we make 1W? No, because that would require going through the first black field to end at the first white, while filling the other parts of the area too.<br />
+What about the black line count? Without the horizontal addition, (x-1)B was possible. Can we now make x amount? Yes, by stepping down and ending the line at the first white field and the second black, having filled everything except the corner blacks.<br />
+0W -> xB
+
+Later: We can use all corner blacks, and the line starting at the first white and ending at the second black will fill the area.<br />
+0W -> xB
+
+<!---->
+
+2n = 4:
+
+<img align="top" src="References/2n=4.svg" width="50%"/>
+
+Now: 1W is now possible by ending at the second white, and everything can be filled on the way, while (x+1)B is not possible. Two in-line blacks remain after taking off all the corner blacks, and we have to use one of them to exit the first line.<br />
+1W -> xB
+
+Later: 1W -> (x+1)B<br />
+The line connecting the two in-line blacks casn fill the rest of the area. 
+
+
 ---
 
 The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".
