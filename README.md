@@ -1118,11 +1118,34 @@ Later: We can use all corner blacks, and the line starting at the first white an
 
 <img align="top" src="References/2n=4.svg" width="50%"/>
 
-Now: 1W is now possible by ending at the second white, and everything can be filled on the way, while (x+1)B is not possible. Two in-line blacks remain after taking off all the corner blacks, and we have to use one of them to exit the first line.<br />
+Now: 1W is now possible by ending at the second white, and everything can be filled on the way, while (x+1)B is not possible. Two inline blacks remain after taking off all the corner blacks, and we have to use one of them to exit the first line.<br />
 1W -> xB
 
 Later: 1W -> (x+1)B<br />
-The line connecting the two in-line blacks casn fill the rest of the area. 
+The line connecting the two inline blacks can fill the rest of the area. 
+
+2n = 6:
+
+<img align="top" src="References/2n=6.svg" width="60%"/>
+
+Now: If the first line goes through the first black and exits at the first white, the second line can go between the remaining two whites.<br />
+As far as the blacks concerned, if we exit at the second black, we can use the third and fourth for a line, plus the x amount of corners.<br />
+2W -> (x+1)B
+
+<!---->
+
+Later: Because of three inline white fields, one white line is possible. For blacks, we can use all the corners and two out of the three inline blacks.<br />
+1W -> (x+1)B
+
+We don't need more examples.
+
+For 2n added fields, there will be n amount of inline white fields.<br />
+If we enter now, ((n+1) - (n+1) % 2 ) / 2 white lines can be drawn if n > 1.<br />
+The black line count is all the corners minus one for finishing the first line, plus one for each remaining pair.<br />
+x + ((n-1) - (n-1) % 2 ) / 2
+
+For entering later, the white line count is (n - n % 2 ) / 2, and the black line count is x + (n - n % 2 ) / 2.
+
 
 
 ---
