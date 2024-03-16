@@ -23,14 +23,14 @@
         border-spacing: 0px;  
         margin-top: -8px;
     }
-    .a5 td {
+    .a5 td { /* print */
         border: 0px solid #CCCCCC;  
         width: 525px;    
         height: 725px;  
         vertical-align: top;
         position: relative;
     }
-    .a5_1 td {
+    .a5_1 td { /* screen */
         border: 0px solid #808080;  
         width: 525px;    
         height: 725px;  

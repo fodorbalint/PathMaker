@@ -1099,7 +1099,7 @@ Conclusion: if the white and black fields in the area are equal, we cannot enter
 
 <img align="top" src="References/x 2n.svg" width="47.6%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/x 2n 1.svg" width="47.6%"/>
 
-If the added distance is pair:
+<b>If the added distance is pair:</b>
 
 2n = 2:
 
@@ -1139,14 +1139,68 @@ Later: Because of three inline white fields, one white line is possible. For bla
 
 We don't need more examples.
 
-For 2n added fields, there will be n amount of inline white fields.<br />
+For 2n added fields, there will be n amount of inline white fields.
+
 If we enter now, ((n+1) - (n+1) % 2 ) / 2 white lines can be drawn if n > 1.<br />
 The black line count is all the corners minus one for finishing the first line, plus one for each remaining pair.<br />
 x + ((n-1) - (n-1) % 2 ) / 2
 
 For entering later, the white line count is (n - n % 2 ) / 2, and the black line count is x + (n - n % 2 ) / 2.
 
+<b>If the added distance is impair:</b>
 
+2n + 1 = 1:
+
+<img align="top" src="References/2n 1=1.svg" width="35%"/>
+
+Now: If we end the first line at the first white, we could not have filled the corner black and the area simultaneously. xW is therefore not possible, but (x-1)W is.<br />
+And since there is only one black field, the black line count will be 0.<br />
+(x-1)W -> 0B
+
+<!---->
+
+Later: All the corner whites plus the neutral line makes (x-1)W. The black line count is still 0. The black field is a corner, but it will be counterbalanced by at least one white to white line.
+(x-1)W -> 0B
+
+2n + 1 = 3:
+
+<img align="top" src="References/2n 1=3.svg" width="45%"/>
+
+Now: Aside the corner whites, 1W is possible by ending at the second white, just like in the 2n = 4 case.<br />
+The black line count is now 1, but we need to step downwards and finish at the first white and second black in order to have the corner black available.
+xW -> 1B
+
+Later: xW -> 1B
+
+2n + 1 = 5:
+
+<img align="top" src="References/2n 1=5.svg" width="55%"/>
+
+Now: We can step up and finish at the first white, because line connecting the remaining two whites can fill the area.
+(x+1)W -> 1B
+
+<!---->
+
+Later: xW -> 2B
+
+From now on, the calculations are the following:
+
+If we enter now, x + (n - n % 2) / 2 white lines can be drawn if n > 0.<br />
+The number of black fields is n+1, and when we use up one to finish the first line, n amount remains, one of which is a corner. Add one to make pairs, and the formula will be (n+1 - (n+1) % 2) / 2.
+
+When entering later, the white line count is x-1 + (n+1 - (n+1) % 2) / 2, and the black line count is (n+2 - (n+2) % 2) / 2 if n > 0.
+
+3. Larger vertical distance
+
+<img align="top" src="References/2n x.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2n 1 x.svg" width="30%"/>
+
+<!---->
+
+<b>If the added distance is pair:</b>
+
+2n = 2:
+
+<img align="top" src="References/2n=2v.svg" width="30%"/>
 
 ---
 
