@@ -1202,6 +1202,63 @@ When entering later, the white line count is x-1 + (n+1 - (n+1) % 2) / 2, and th
 
 <img align="top" src="References/2n=2v.svg" width="30%"/>
 
+Now: It is possible to exit at the white field, having filled everything. The previous step must have been the last black.<br />
+When counting the blacks, we exit the first line at the first black field above the stair, and x amount of corner blacks will remain.<br />
+1W -> xB
+
+Later: Same as the 2n = 2 case previously.<br />
+0W -> xB
+
+<!---->
+
+2n = 4:
+
+<img align="top" src="References/2n=4v.svg" width="30%"/>
+
+Now: There cannot be more than 1W. And the black line count is unchanged too. One of the two inline blacks will be used for completing the first line, and one remains plus x amount of corner.
+1W -> xB
+
+Later: 1W -> (x+1)B
+
+<!---->
+
+2n = 6:
+
+<img align="top" src="References/2n=6v.svg" width="30%"/>
+
+Now: 2W -> (x+1)B
+Later: 1W -> (x+1)B
+
+When entering now, the general formula will be (n+1 - (n+1) % 2) / 2 white and x + (n-1 - (n-1) % 2) / 2 black.<br />
+The later case is the same as previously, (n - n % 2 ) / 2 for white and x + (n - n % 2 ) / 2 for black.
+
+<!---->
+
+<b>If the added distance is impair:</b>
+
+2n + 1 = 1:
+
+<img align="top" src="References/2n 1=1v.svg" width="30%"/>
+
+Now: 1W -> (x-1)B
+Later: (see horizontal case) 0W -> (x-1)B
+
+2n + 1 = 3:
+
+<img align="top" src="References/2n 1=3v.svg" width="30%"/>
+
+Now: 2W -> (x-1)B
+Later: 1W -> xB
+
+<!---->
+
+Now: The corner white always gives 1. Then make pairs with the remaining inline whites plus the white field we are stepping first.<br />
+1 + (n+1 - (n+1) % 2) / 2<br />
+For the blacks, one of the inline black fields will be taken by the first line. We can then make pairs with the remaining inline blacks and add the corners.<br />
+x-1 + (n - n % 2) / 2.<br />
+
+Later: The white line count is 1 + (n - n % 2) / 2, and the black line count is x-1 + (n+1 - (n+1) % 2) / 2.
+
 ---
 
 The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".
