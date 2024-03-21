@@ -904,9 +904,9 @@ We don't need more examples.<br />
 <br />
 For 2n added fields, there will be n amount of inline white fields.<br />
 <br />
-If we enter now, ((n+1) - (n+1) % 2 ) / 2 white lines can be drawn if n > 1.<br />
+If we enter now, (n+1 - (n+1) % 2 ) / 2 white lines can be drawn if n > 1.<br />
 The black line count is all the corners minus one for finishing the first line, plus one for each remaining pair.<br />
-x + ((n-1) - (n-1) % 2 ) / 2<br />
+x + (n-1 - (n-1) % 2 ) / 2<br />
 <br />
 For entering later, the white line count is (n - n % 2 ) / 2, and the black line count is x + (n - n % 2 ) / 2.<br />
 <br />
@@ -1050,5 +1050,7 @@ Later: 1W -> xB</div><div class="leftNum">90</div><div class="marking1"></div><d
 For the blacks, one of the inline black fields will be taken by the first line. We can then make pairs with the remaining inline blacks and add the corners.<br />
 x-1 + (n - n % 2) / 2.<br />
 <br />
-Later: The white line count is 1 + (n - n % 2) / 2, and the black line count is x-1 + (n+1 - (n+1) % 2) / 2.</div><div class="rightNum">91</div></td></tr> 
+Later: The white line count is 1 + (n - n % 2) / 2, and the black line count is x-1 + (n+1 - (n+1) % 2) / 2.<br />
+<br />
+Next, we will look at the corner discovery algorithm.</div><div class="rightNum">91</div></td></tr> 
 </table>

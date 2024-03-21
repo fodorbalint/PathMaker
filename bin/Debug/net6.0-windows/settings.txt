@@ -1,4 +1,4 @@
-size: 21
+size: 25
 loadFromFile: True
 saveOnCompletion: True
 continueOnCompletion: True
