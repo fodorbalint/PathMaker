@@ -1259,7 +1259,34 @@ x-1 + (n - n % 2) / 2.<br />
 
 Later: The white line count is 1 + (n - n % 2) / 2, and the black line count is x-1 + (n+1 - (n+1) % 2) / 2.
 
-Next, we will look at the corner discovery algorithm.
+Next, we will look at the corner discovery algorithm.<br />
+Starting with 1 horizontal and 2 vertical distance, we check if that field is taken.
+
+<img align="top" src="References/cornerDisc 2x3.svg" width="10%"/>
+
+If so, we mirror sides and start the algorithm on the right side.
+If not, we increase the horizontal distance by one until we find a taken field or run into the border.
+
+<img align="top" src="References/cornerDisc 6x3.svg" width="30%"/>
+
+If it is a border field, we increase the vertical distance and start with 1 horizontal distance again.<br />
+Otherwise, we check if the bottom field is free, and by comparing the index of the corner field with the field above, we can determine if the line is going down and left, so the enclosed area is on the side we want.
+
+<img align="top" src="References/cornerDisc 4x3.svg" width="20%"/>
+
+<!---->
+
+Now the area can be counted. And after this, we increase the vertical distance by one and stop / mirror sides when a field at one horizontal distance is taken or is the border.
+
+Compare these two cases:
+
+<img align="top" src="References/0321.svg" width="85%"/>
+
+<img align="top" src="References/0321_1.svg" width="85%"/>
+
+<!---->
+
+The only difference is the added 2x2 area. To the first, we apply the straight-to-side algorithm, while at the second, we have a corner that defines the area, but essentially, the procedure is the same.
 
 ---
 

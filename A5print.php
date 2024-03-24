@@ -19,12 +19,12 @@
 }
 </style>
 <style>
-    .a5, .a5_1 {
-        border-spacing: 0px;  
-        margin-top: -8px;
+    :root {
+        --text: #000;
+        --bg: #fff;
     }
     .a5 td { /* print */
-        border: 0px solid #CCCCCC;  
+        border: 0px solid #808080;  
         width: 525px;    
         height: 725px;  
         vertical-align: top;
@@ -37,6 +37,22 @@
         vertical-align: top;
         position: relative;
     }
+    .a5, .a5_1 {
+        border-spacing: 0px;  
+        margin-top: -8px;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --text: #fff;
+            --bg: #000;
+        }
+        .a5 td, .a5_1 td {
+            border: 1px solid #808080;  
+        }
+    }
+    body {
+        background-color: var(--bg);
+    }    
     .left {
         padding-left: 0px;
         padding-right: 42px;
@@ -49,7 +65,8 @@
         width: 100%;
         height: 720px;
         overflow: hidden;
-        box-shadow: inset 0 0 0 1000px white;      
+        box-shadow: inset 0 0 0 1000px var(--bg);
+        color: var(--text);
     }
 
     div.marking1 {

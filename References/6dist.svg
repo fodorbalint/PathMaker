@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 2">
+	<style>
+		svg { background-color: white; }
+	</style>
     <path d="M 0,0 h 7 v 1 h 1 v 1 h -2 v -1 h -6 z" fill="#dddddd" />
 	<!-- 8 2 1 -->
 	<path d="M 7 1 h 1 v 1 h -1 z" fill="#FFD9D9" fill-opacity="1" />

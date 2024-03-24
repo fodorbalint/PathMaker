@@ -132,12 +132,12 @@ namespace OneWayLabyrinth
             ySize = 1;
             DrawGrid();
 
-            string singleGrid = "<svg xmlns =\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1 1\">\r\n\t<!---->\r\n" + grid + "</svg>";
+            string singleGrid = "<svg xmlns =\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1 1\">\n\t<style>\n\t\tsvg { background-color: white; }\n\t</style>\n\t<!---->\n" + grid + "</svg>";
             if (!File.Exists("singleGrid.svg")) File.WriteAllText("singleGrid.svg", singleGrid);
 
             string color = "#ff0000";
             string opacity = "0.15";
-            liveEnd = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
+            liveEnd = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" +
                 "\t<path d=\"M 0.5 1 v -0.5\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             string content = singleGrid.Replace("<!---->", liveEnd);
             if (!File.Exists("liveEnd.svg")) File.WriteAllText("liveEnd.svg", content);
@@ -148,31 +148,31 @@ namespace OneWayLabyrinth
 
             color = "#ff0000";
             opacity = "0.15";
-            takenField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            takenField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenField);
             if (!File.Exists("takenField.svg")) File.WriteAllText("takenField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
-            takenLeftField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" + "\t<path d=\"M 0.8 0.5 h -0.6 l 0.2 -0.2 l -0.2 0.2 l 0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            takenLeftField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.8 0.5 h -0.6 l 0.2 -0.2 l -0.2 0.2 l 0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenLeftField);
             if (!File.Exists("takenLeftField.svg")) File.WriteAllText("takenLeftField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
-            takenRightField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" + "\t<path d=\"M 0.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            takenRightField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenRightField);
             if (!File.Exists("takenRightField.svg")) File.WriteAllText("takenRightField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
-            takenUpField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" + "\t<path d=\"M 0.5 0.8 v -0.6 l -0.2 0.2 l 0.2 -0.2 l 0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            takenUpField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.5 0.8 v -0.6 l -0.2 0.2 l 0.2 -0.2 l 0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenUpField);
             if (!File.Exists("takenUpField.svg")) File.WriteAllText("takenUpField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
-            takenDownField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" + "\t<path d=\"M 0.5 0.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            takenDownField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.5 0.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenDownField);
             if (!File.Exists("takenDownField.svg")) File.WriteAllText("takenDownField.svg", content);
 
@@ -184,7 +184,7 @@ namespace OneWayLabyrinth
 
             color = "#0000ff";
             opacity = "0.15";
-            futureStartField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
+            futureStartField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" +
                 "\t<path d=\"M 0.2 0.2 v 0.6 v -0.3 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", futureStartField);
             if (!File.Exists("futureStartField.svg")) File.WriteAllText("futureStartField.svg", content);
@@ -192,7 +192,7 @@ namespace OneWayLabyrinth
             color = "#0000ff";
             opacity = "0.15";
 
-            futureEndField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n" +
+            futureEndField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" +
                 "\t<path d=\"M 0.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2 l 0.2 -0.2 v 0.3 v -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", futureEndField);
             if (!File.Exists("futureEndField.svg")) File.WriteAllText("futureEndField.svg", content);
@@ -205,11 +205,11 @@ namespace OneWayLabyrinth
             content = singleGrid.Replace("<!---->", forbiddenField);
             if (!File.Exists("forbiddenField.svg")) File.WriteAllText("forbiddenField.svg", content);
 
-            countAreaPairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            countAreaPairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaPairStartField);
             if (!File.Exists("countAreaPairStartField.svg")) File.WriteAllText("countAreaPairStartField.svg", content);
 
-            countAreaPairEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            countAreaPairEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaPairEndField);
             if (!File.Exists("countAreaPairEndField.svg")) File.WriteAllText("countAreaPairEndField.svg", content);
 
@@ -217,11 +217,11 @@ namespace OneWayLabyrinth
             content = singleGrid.Replace("<!---->", countAreaPairBorderField);
             if (!File.Exists("countAreaPairBorderField.svg")) File.WriteAllText("countAreaPairBorderField.svg", content);
 
-            countAreaImpairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            countAreaImpairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairStartField);
             if (!File.Exists("countAreaImpairStartField.svg")) File.WriteAllText("countAreaImpairStartField.svg", content);
 
-            countAreaImpairEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            countAreaImpairEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairEndField);
             if (!File.Exists("countAreaImpairEndField.svg")) File.WriteAllText("countAreaImpairEndField.svg", content);
 
@@ -229,11 +229,11 @@ namespace OneWayLabyrinth
             content = singleGrid.Replace("<!---->", countAreaImpairBorderField);
             if (!File.Exists("countAreaImpairBorderField.svg")) File.WriteAllText("countAreaImpairBorderField.svg", content);
 
-            countAreaImpairDeterminedStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            countAreaImpairDeterminedStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedStartField);
             if (!File.Exists("countAreaImpairDeterminedStartField.svg")) File.WriteAllText("countAreaImpairDeterminedStartField.svg", content);
 
-            countAreaImpairDeterminedEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\r\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            countAreaImpairDeterminedEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedEndField);
             if (!File.Exists("countAreaImpairDeterminedEndField.svg")) File.WriteAllText("countAreaImpairDeterminedEndField.svg", content);
 
@@ -241,7 +241,7 @@ namespace OneWayLabyrinth
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedBorderField);
             if (!File.Exists("countAreaImpairDeterminedBorderField.svg")) File.WriteAllText("countAreaImpairDeterminedBorderField.svg", content);
 
-            countAreaImpairDeterminedEntryField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\r\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            countAreaImpairDeterminedEntryField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedEntryField);
             if (!File.Exists("countAreaImpairDeterminedEntryField.svg")) File.WriteAllText("countAreaImpairDeterminedEntryField.svg", content);
 
@@ -292,7 +292,7 @@ namespace OneWayLabyrinth
 
             DrawGrid();
 
-            newRule = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + xSize + " " + ySize + "\">\r\n\t<!--1-->\r\n\t<!--2-->\r\n\t<!--3-->\r\n" + grid + "</svg>";
+            newRule = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + xSize + " " + ySize + "\">\n\t<style>\n\t\tsvg { background-color: white; }\n\t</style>\n\t<!--1-->\n\t<!--2-->\n\t<!--3-->\n" + grid + "</svg>";
             File.WriteAllText(svgName, newRule);
             takenCoordinates = new();
             forbiddenCoordinates = new();
@@ -325,7 +325,7 @@ namespace OneWayLabyrinth
                     i2 = i - 0.01f;
                 }
 
-                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M " + i2 + " 0 v " + ySize + "\" />\r\n";
+                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M " + i2 + " 0 v " + ySize + "\" />\n";
             }
             for (int i = 0; i <= ySize; i++)
             {
@@ -339,7 +339,7 @@ namespace OneWayLabyrinth
                     i2 = i - 0.01f;
                 }
 
-                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M 0 " + i2 + " h " + xSize + "\" />\r\n";
+                grid += "\t<path fill=\"transparent\" stroke=\"gray\" stroke-width=\"0.02\" d=\"M 0 " + i2 + " h " + xSize + "\" />\n";
             }
         }
 
@@ -374,7 +374,7 @@ namespace OneWayLabyrinth
             newRule = newRule.Replace("viewBox=\"0 0 " + sizeStr, "viewBox=\"0 0 " + xSize + " " + ySize);
 
             pos = newRule.IndexOf("<!--3-->");
-            newRule = newRule.Substring(0, pos + 8) + "\r\n" + grid + "</svg>";
+            newRule = newRule.Substring(0, pos + 8) + "\n" + grid + "</svg>";
 
             // remove fields that are now outside the area
 
@@ -740,7 +740,7 @@ namespace OneWayLabyrinth
                 switch (draggedElement)
                 {
                     case 1:
-                        addField = liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 1", "M " + (coordX - 0.5f) + " " + coordY) + "\r\n\t" +
+                        addField = liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 1", "M " + (coordX - 0.5f) + " " + coordY) + "\n\t" +
                             liveEnd.Replace("M 0 0", "M " + (coordX - 1) + " " + coordY).Replace("M 0.5 1 v -0.5", "M " + (coordX - 0.5f) + " " + coordY + " v 0.5");
                         takenCoordinates.Add(new int[] { coordX, coordY + 1, 0 });
                         break;
@@ -811,15 +811,15 @@ namespace OneWayLabyrinth
 
                 if (draggedElement == 11 || draggedElement == 12)
                 {
-                    newRule = newRule.Replace("<!--3-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--3-->");
+                    newRule = newRule.Replace("<!--3-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\n\t" + addField + "\n\t<!--3-->");
                 }
                 else if (draggedElement >= 13)
                 {
-                    newRule = newRule.Replace("<!--2-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--2-->");
+                    newRule = newRule.Replace("<!--2-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\n\t" + addField + "\n\t<!--2-->");
                 }
                 else
                 {
-                    newRule = newRule.Replace("<!--1-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\r\n\t" + addField + "\r\n\t<!--1-->");
+                    newRule = newRule.Replace("<!--1-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\n\t" + addField + "\n\t<!--1-->");
                 }
 
                 File.WriteAllText(svgName, newRule);
@@ -1929,7 +1929,7 @@ namespace OneWayLabyrinth
         {
             if (newRule == null) return;
             int pos = newRule.IndexOf("<svg");
-            newRule = "<!--|" + RotateClockwise.IsChecked + "|" + RotateCounterClockwise.IsChecked + "|-->\r\n" + newRule.Substring(pos);
+            newRule = "<!--|" + RotateClockwise.IsChecked + "|" + RotateCounterClockwise.IsChecked + "|-->\n" + newRule.Substring(pos);
             File.WriteAllText(svgName, newRule);
         }
 
