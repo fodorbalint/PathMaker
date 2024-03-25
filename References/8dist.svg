@@ -9,6 +9,8 @@
 	<!-- 1 1 7 -->
 	<path d="M 0 0 h 1 v 1 h -1 z" fill="#FFD9D9" fill-opacity="1" />
 	<path d="M 0.5 0.19999999 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
+	<!-- 9 1 8 -->
+	<path d="M 8 0 h 1 v 1 h -1 z" fill="#000000" fill-opacity="1" />
 	<!-- 7 1 8 -->
 	<path d="M 6 0 h 1 v 1 h -1 z" fill="#000000" fill-opacity="1" />
     <!-- 5 1 8 -->

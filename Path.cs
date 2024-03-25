@@ -613,7 +613,7 @@ namespace OneWayLabyrinth
         }
 
         public void CheckLeftRightArea()
-        // check area that goes from 1,1 to the side. If we step sideways, we enter the area. Otherwise, we will enter it later.
+        // check area that goes from 1,1 to the side. If we step left, we enter the area. Otherwise, we will enter it later.
         {
             for (int i = 0; i < 2; i++)
             {
@@ -685,6 +685,88 @@ namespace OneWayLabyrinth
                                 break;
 
                         }
+                    }
+                }
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        public void CheckLeftRightAreaUp()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+                int dist = 1;
+                List<int[]> borderFields = new();
+                while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
+                {
+                    dist++;
+                }
+                int ex = dist - 1;
+
+                if (ex > 2)
+                {
+                    for (int j = ex - 1; j >= 2; j--)
+                    {
+                        borderFields.Add(new int[] { j, 1 });
+                    }
+                }
+                if (ex > 1 && !InTakenRel(2, 1) && !InTakenRel(2, ex)) //area cannot be drawn if one of these fields is taken
+                {
+                    ResetExamAreas();
+                    if (CountAreaRel(1, 1, ex, 1, borderFields, circleDirectionLeft, 2, true))
+                    {
+                        int impair = (int)info[0];
+                        int sType = (int)info[1];
+                        int eType = (int)info[2];
+
+                        T("CheckLeftRightAreaUp impair " + impair + " s type " + sType + " e type " + eType);
+
+                        /*
+                        switch (ex % 4)
+                        {
+                            case 0:
+                                if (sType >= eType + ex / 4)
+                                {
+                                    T("CheckLeftRightArea cannot enter now " + ex % 4);
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]); //list of sType fields, will be drawn black
+                                }
+                                break;
+                            case 1:
+                                if (sType >= eType + ((ex + 1) / 2 + 1) / 2)
+                                {
+                                    T("CheckLeftRightArea cannot enter now " + ex % 4);
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
+                                }
+                                break;
+                            case 2:
+                                if (sType >= eType + (ex / 2 + 1) / 2)
+                                {
+                                    T("CheckLeftRightArea cannot enter now " + ex % 4 + " black");
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
+                                }
+                                if (eType >= sType + (ex / 2 + 1) / 2)
+                                {
+                                    T("CheckLeftRightArea cannot enter later " + ex % 4 + " white");
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
+                                }
+                                break;
+                            case 3:
+                                break;
+
+                        }*/
                     }
                 }
                 lx = -lx;

@@ -24,7 +24,6 @@ namespace OneWayLabyrinth
 		public bool DoubleCShape = false;
 		public bool MidAcross3ImpairDetermined2 = false;
 		public bool MidAcross3ImpairDetermined = false;
-		public bool MidMidAcross3Determined = false;
 		public bool Square4x2Area = false;
 		public bool Square4x2CShape = false;
 		public bool StraightAcross3EndArea = false;
@@ -35,7 +34,6 @@ namespace OneWayLabyrinth
 		public bool TripleAreaExitDown = false;
 		public bool TripleAreaStair = false;
 		public bool TripleArea = false;
-		public bool Across3ImpairDetermined = false;
 		public bool StraightMidAcross3EndArea2 = false;
 
 		public void RunRules()
@@ -59,7 +57,6 @@ namespace OneWayLabyrinth
 			DoubleCShape = false;
 			MidAcross3ImpairDetermined2 = false;
 			MidAcross3ImpairDetermined = false;
-			MidMidAcross3Determined = false;
 			Square4x2Area = false;
 			Square4x2CShape = false;
 			StraightAcross3EndArea = false;
@@ -70,7 +67,6 @@ namespace OneWayLabyrinth
 			TripleAreaExitDown = false;
 			TripleAreaStair = false;
 			TripleArea = false;
-			Across3ImpairDetermined = false;
 			StraightMidAcross3EndArea2 = false;
 
 			if (size == 5)
@@ -1047,73 +1043,6 @@ namespace OneWayLabyrinth
 								AddExamAreas();
 								forbidden.Add(new int[] { x + sx, y + sy });
 								forbidden.Add(new int[] { x - lx, y - ly });
-							}
-						}
-						int s0 = sx;
-						int s1 = sy;
-						sx = -lx;
-						sy = -ly;
-						lx = s0;
-						ly = s1;
-					}
-					sx = thisSx;
-					sy = thisSy;
-					lx = -thisLx;
-					ly = -thisLy;
-				}
-				sx = thisSx;
-				sy = thisSy;
-				lx = thisLx;
-				ly = thisLy;
-
-				// Mid Mid Across 3 Determined
-				for (int i = 0; i < 2; i++)
-				{
-					for (int j = 0; j < 2; j++)
-					{
-						if ((InTakenRel(3,4) || InBorderRel(3,4)) && !InTakenRel(2,3) && !InBorderRel(2,3) && !InTakenRel(2,2) && !InBorderRel(2,2) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(2,0) && !InBorderRel(2,0))
-						{
-							bool MidMidAcross3Determined_circle1 = false;
-							directionFieldIndex = InTakenIndexRel(3,4);
-							if (directionFieldIndex != -1)
-							{
-								if (InTakenRel(4,4))
-								{
-									int leftIndex = InTakenIndexRel(4,4);
-									if (leftIndex > directionFieldIndex)
-									{
-										MidMidAcross3Determined_circle1 = true;
-									}
-								}
-								else
-								{
-									int rightIndex = InTakenIndexRel(2,4);
-									if (rightIndex < directionFieldIndex)
-									{
-										MidMidAcross3Determined_circle1 = true;
-									}
-								}
-							}
-							else
-							{
-								directionFieldIndex = InBorderIndexRel(3,4);
-								int farSideIndex = InBorderIndexRel(2,4);
-								if (farSideIndex > directionFieldIndex)
-								{
-									MidMidAcross3Determined_circle1 = true;
-								}
-							}
-							
-							ResetExamAreas();
-							if (MidMidAcross3Determined_circle1 && CountAreaRel(1,1,2,3,new List<int[]> {new int[] {2,2},new int[] {2,1}},i==0?true:!true,2))
-							{
-								MidMidAcross3Determined = true;
-								activeRules.Add("Mid Mid Across 3 Determined");
-								activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
-								activeRuleSizes.Add(new int[] {5,5});
-								AddExamAreas();
-								forbidden.Add(new int[] { x - lx, y - ly });
-								forbidden.Add(new int[] { x + sx, y + sy });
 							}
 						}
 						int s0 = sx;
@@ -2172,60 +2101,6 @@ namespace OneWayLabyrinth
 
 			if (size >= 13)
 			{
-				// Across 3 Impair Determined
-				for (int i = 0; i < 2; i++)
-				{
-					if ((InTakenRel(4,4) || InBorderRel(4,4)) && !InTakenRel(3,2) && !InBorderRel(3,2) && !InTakenRel(2,1) && !InBorderRel(2,1) && !InTakenRel(1,0) && !InBorderRel(1,0) && !InTakenRel(1,1) && !InBorderRel(1,1) && !InTakenRel(3,1) && !InBorderRel(3,1) && !InTakenRel(3,0) && !InBorderRel(3,0) && !InTakenRel(4,1) && !InBorderRel(4,1) && !InTakenRel(3,3) && !InBorderRel(3,3) && !InTakenRel(4,3) && !InBorderRel(4,3))
-					{
-						bool Across3ImpairDetermined_circle1 = false;
-						directionFieldIndex = InTakenIndexRel(4,4);
-						if (directionFieldIndex != -1)
-						{
-							if (InTakenRel(5,4))
-							{
-								int leftIndex = InTakenIndexRel(5,4);
-								if (leftIndex > directionFieldIndex)
-								{
-									Across3ImpairDetermined_circle1 = true;
-								}
-							}
-							else
-							{
-								int rightIndex = InTakenIndexRel(3,4);
-								if (rightIndex < directionFieldIndex)
-								{
-									Across3ImpairDetermined_circle1 = true;
-								}
-							}
-						}
-						else
-						{
-							directionFieldIndex = InBorderIndexRel(4,4);
-							int farSideIndex = InBorderIndexRel(3,4);
-							if (farSideIndex > directionFieldIndex)
-							{
-								Across3ImpairDetermined_circle1 = true;
-							}
-						}
-						
-						ResetExamAreas();
-						if (Across3ImpairDetermined_circle1 && CountAreaRel(1,1,3,3,new List<int[]> {new int[] {3,2},new int[] {3,1},new int[] {2,1}},i==0?true:!true,2))
-						{
-							Across3ImpairDetermined = true;
-							activeRules.Add("Across 3 Impair Determined");
-							activeRulesForbiddenFields.Add(new List<int[]> {new int[] { x - lx, y - ly }, new int[] { x + sx, y + sy }});
-							activeRuleSizes.Add(new int[] {6,5});
-							AddExamAreas();
-							forbidden.Add(new int[] { x - lx, y - ly });
-							forbidden.Add(new int[] { x + sx, y + sy });
-						}
-					}
-					lx = -lx;
-					ly = -ly;
-				}
-				lx = thisLx;
-				ly = thisLy;
-
 				// Straight Mid Across 3 End Area 2
 				for (int i = 0; i < 2; i++)
 				{
@@ -2324,7 +2199,7 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 			}
-			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleAreaStair2: " + DoubleAreaStair2 + "\n" + "DoubleAreaStairArea: " + DoubleAreaStairArea + "\n" + "DoubleAreaStair: " + DoubleAreaStair + "\n" + "DoubleCShapeDetermined: " + DoubleCShapeDetermined + "\n" + "DoubleCShapeStartC: " + DoubleCShapeStartC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "MidAcross3ImpairDetermined2: " + MidAcross3ImpairDetermined2 + "\n" + "MidAcross3ImpairDetermined: " + MidAcross3ImpairDetermined + "\n" + "MidMidAcross3Determined: " + MidMidAcross3Determined + "\n" + "Square4x2Area: " + Square4x2Area + "\n" + "Square4x2CShape: " + Square4x2CShape + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "StraightAcrossEndC: " + StraightAcrossEndC + "\n" + "StraightMidAcross3EndArea: " + StraightMidAcross3EndArea + "\n" + "StraightMidAcross3EndC: " + StraightMidAcross3EndC + "\n" + "TripleAreaExitDown: " + TripleAreaExitDown + "\n" + "TripleAreaStair: " + TripleAreaStair + "\n" + "TripleArea: " + TripleArea + "\n" + "Across3ImpairDetermined: " + Across3ImpairDetermined + "\n" + "StraightMidAcross3EndArea2: " + StraightMidAcross3EndArea2);
+			T("Future2x2StartEnd: " + Future2x2StartEnd + "\n" + "Future2x3StartEnd: " + Future2x3StartEnd + "\n" + "Future3x3StartEnd: " + Future3x3StartEnd + "\n" + "FutureL: " + FutureL + "\n" + "CountArea2AcrossC: " + CountArea2AcrossC + "\n" + "CountArea2Across: " + CountArea2Across + "\n" + "DoubleAreaCShape: " + DoubleAreaCShape + "\n" + "DoubleAreaStair2: " + DoubleAreaStair2 + "\n" + "DoubleAreaStairArea: " + DoubleAreaStairArea + "\n" + "DoubleAreaStair: " + DoubleAreaStair + "\n" + "DoubleCShapeDetermined: " + DoubleCShapeDetermined + "\n" + "DoubleCShapeStartC: " + DoubleCShapeStartC + "\n" + "DoubleCShape: " + DoubleCShape + "\n" + "MidAcross3ImpairDetermined2: " + MidAcross3ImpairDetermined2 + "\n" + "MidAcross3ImpairDetermined: " + MidAcross3ImpairDetermined + "\n" + "Square4x2Area: " + Square4x2Area + "\n" + "Square4x2CShape: " + Square4x2CShape + "\n" + "StraightAcross3EndArea: " + StraightAcross3EndArea + "\n" + "StraightAcrossEndArea: " + StraightAcrossEndArea + "\n" + "StraightAcrossEndC: " + StraightAcrossEndC + "\n" + "StraightMidAcross3EndArea: " + StraightMidAcross3EndArea + "\n" + "StraightMidAcross3EndC: " + StraightMidAcross3EndC + "\n" + "TripleAreaExitDown: " + TripleAreaExitDown + "\n" + "TripleAreaStair: " + TripleAreaStair + "\n" + "TripleArea: " + TripleArea + "\n" + "StraightMidAcross3EndArea2: " + StraightMidAcross3EndArea2);
 			window.ShowActiveRules(activeRules,activeRulesForbiddenFields,startForbiddenFields,activeRuleSizes);
 		}
 	}

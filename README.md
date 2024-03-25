@@ -423,7 +423,7 @@ Here there are 14 black fields and 15 white. That's why the area cannot be fille
 
 This is the rule representation. The reddish arealine now means the arealine is impair, and we know that the entry and exit points are the arealine start and end fields.
 
-<img align="top" src="References/rules/13/Across 3 impair determined.svg" width="28.6%"/>
+<img align="top" src="References/rules/13_old/Across 3 impair determined.svg" width="28.6%"/>
 
 
 <!---->
@@ -565,7 +565,7 @@ From our experience, the area can be substituted with C-shape.
 
 <img align="top" src="References/3225432.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/3225432_1.svg" width="42.86%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="23.8%"/>
+<img align="top" src="References/rules/9_old/Mid Mid Across 3 Determined.svg" width="23.8%"/>
 
 <!---->
 
@@ -701,7 +701,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 2 034 435, Mid Mid Across 3 Determined (and Mid Across 3 Impair Determined)
 
-<img align="top" src="References/2034435.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="25%"/>
+<img align="top" src="References/2034435.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Mid Across 3 Determined.svg" width="25%"/>
 
 <!---->
 
@@ -927,14 +927,16 @@ When entering later, B / 2 and (W-1) / 2 are the numbers. Since they match the a
 
 Check the original 21 x 21 example. Two steps back, there will be 9 distance with the wall to the left. The number of black fields on the edge is 5, therefore there cannot be 3 more black fields in the area than white, but counting them, they are 51 and 48.
 
-Does this procedure apply to any of the 9x9 rules? Not exactly, but let's look them through. Here are all of them that deal with black and white field imbalance:
+Does this procedure apply to any of the size-specific rules? Not exactly, but let's look them through. Here are all of them that deal with black and white field imbalance:
+
+<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Mid Across 3 Determined.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/13_old/Across 3 Impair Determined.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined 2.svg" width="14.28%"/>
 
 <!---->
 
-<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Mid Across 3 Determined.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
+<img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
 
 As a reminder, they indicate impair areas, and in the first two case if the count area start field (black) type is not 1 field more in the area, we cannot enter later.
-In the third the field marked with + (white) is the type that needs to be 1 more than black, otherwise stepping forward is forbidden.
+In the fourth, the field marked with + (white) is the type that needs to be 1 more than black, otherwise stepping forward is forbidden.
 
 I will take the second rule under examination as it contains both a horizontal and vertical offset.
 
@@ -1287,6 +1289,56 @@ Compare these two cases:
 <!---->
 
 The only difference is the added 2x2 area. To the first, we apply the straight-to-side algorithm, while at the second, we have a corner that defines the area, but essentially, the procedure is the same.
+
+Having the universal algorithm, these two size-specific rules can be deleted:
+
+<img align="top" src="References/rules/9_old/Mid Mid Across 3 Determined.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/13_old/Across 3 Impair Determined.svg" width="28.57%"/>
+
+As we continue the case above, soon we will discover a deficiency which actually has been visible all along.
+
+<img align="top" src="References/0321_2.svg" width="85%"/>
+
+<!---->
+
+With the border on top, now we have no option to move.<br />
+The following rules are active, in addition to the universal one that disables the left field:
+
+<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined 2.svg" width="14.28%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Double C-Shape.svg" width="14.3%"/>
+
+There are three more black fields in the area than white, so there is not enough vertical distance for entering and exiting that many times.<br />
+The straight-to-side algorithm has to be rotated upwards, so we get this:
+
+<img align="top" src="References/4pair up.svg" width="15%"/>
+
+Let's look at the distances from 3 to 6 to have an example of each case of modulo 4.
+
+<!---->
+
+<img align="top" src="References/3dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/5dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/6dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/>
+
+D (distance) % 4 = 3:
+
+Now: 1W -> 0B, 2W -> 1B etc. = (D+1)/4 W -> (D-3)/4 B<br />
+Later: 0W -> 1B, 1W -> 2B etc. = (D-3)/4 W -> (D+1)/4 B<br />
+(double rule)
+
+D % 4 = 0:
+
+Now: 1W -> 0B, 2W -> 1B etc. = D/4 W -> D/4 - 1 B<br />
+Later: 1W -> 1B, 2W -> 2B etc. = D/4 W -> D/4 B<br />
+(single rule)
+
+D % 4 = 1:
+
+Now: 1W -> 1B, 2W -> 2B etc. = (D-1)/4 W -> (D-1)/4 B<br />
+Later: 1W -> 1B, 2W -> 2B etc. = (D-1)/4 W -> (D-1)/4 B<br />
+(no rule)
+
+D % 4 = 2:
+
+Now: 2W -> 1B, 3W -> 2B etc. = (D+2)/4 W -> (D-2)/4 B<br />
+Later: 1W -> 1B, 2W -> 2B etc. = (D-2)/4 W -> (D-2)/4 B<br />
+(single rule)
 
 ---
 
