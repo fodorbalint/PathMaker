@@ -1090,7 +1090,9 @@ If not, we increase the horizontal distance by one until we find a taken field o
 If it is a border field, we increase the vertical distance and start with 1 horizontal distance again.<br />
 Otherwise, we check if the bottom field is free, and by comparing the index of the corner field with the field above, we can determine if the line is going down and left, so the enclosed area is on the side we want.<br />
 <br />
-<img align="top" src="References/cornerDisc 4x3.svg" width="20%"/></div><div class="rightNum">91</div></td></tr><tr><td class="left"></td>
+<img align="top" src="References/cornerDisc 4x3.svg" width="20%"/></div><div class="rightNum">91</div></td></tr><tr><td class="left"><div>And as we step back, we find the point where the line should move in another direction.<br />
+<br />
+<img align="top" src="References/0326.svg" width="85%"/></div><div class="leftNum">96</div></td>
 <td class="right"><div>The only difference is the added 2x2 area. To the first, we apply the straight-to-side algorithm, while at the second, we have a corner that defines the area, but essentially, the procedure is the same.<br />
 <br />
 Having the universal algorithm, these two size-specific rules can be deleted:<br />

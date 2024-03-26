@@ -1340,6 +1340,12 @@ Now: 2W -> 1B, 3W -> 2B etc. = (D+2)/4 W -> (D-2)/4 B<br />
 Later: 1W -> 1B, 2W -> 2B etc. = (D-2)/4 W -> (D-2)/4 B<br />
 (single rule)
 
+<!---->
+
+And as we step back, we find the point where the line should move in another direction.
+
+<img align="top" src="References/0326.svg" width="85%"/>
+
 ---
 
 The project contains the source code for use with Visual Studio. To start the program, run OneWayLabyrinth.exe in the folder "bin/Debug/net6.0-windows".
