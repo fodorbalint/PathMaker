@@ -1001,7 +1001,14 @@ namespace OneWayLabyrinth
                                 {
                                     nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;  
                                     nowBCount = x - 1 + (n - n % 2) / 2;
-                                    laterWCount = 1 + (n - n % 2) / 2;
+                                    if (n > 0)
+                                    {
+                                        laterWCount = 1 + (n - n % 2) / 2;
+                                    }
+                                    else
+                                    {
+                                        laterWCount = 0;
+                                    }
                                     laterBCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
                                 }
 

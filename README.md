@@ -1259,7 +1259,7 @@ Now: The corner white always gives 1. Then make pairs with the remaining inline 
 For the blacks, one of the inline black fields will be taken by the first line. We can then make pairs with the remaining inline blacks and add the corners.<br />
 x-1 + (n - n % 2) / 2.<br />
 
-Later: The white line count is 1 + (n - n % 2) / 2, and the black line count is x-1 + (n+1 - (n+1) % 2) / 2.
+Later: The white line count is 1 + (n - n % 2) / 2 if n > 0, and the black line count is x-1 + (n+1 - (n+1) % 2) / 2.
 
 Next, we will look at the corner discovery algorithm.<br />
 Starting with 1 horizontal and 2 vertical distance, we check if that field is taken.
@@ -1314,7 +1314,7 @@ Let's look at the distances from 3 to 6 to have an example of each case of modul
 
 <!---->
 
-<img align="top" src="References/3dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/5dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/6dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/>
+<img align="top" src="References/3dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/5dist up.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/6dist up.svg" width="10%"/>
 
 D (distance) % 4 = 3:
 
@@ -1345,6 +1345,53 @@ Later: 1W -> 1B, 2W -> 2B etc. = (D-2)/4 W -> (D-2)/4 B<br />
 And as we step back, we find the point where the line should move in another direction.
 
 <img align="top" src="References/0326.svg" width="85%"/>
+
+<!---->
+
+If we continue the line from here, keeping left, we will run into this situation:
+
+<img align="top" src="References/0326_1.svg" width="100%"/>
+
+Double C-Shape Determined:
+
+<img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
+
+<!---->
+
+The number of black fields is one more than the white. Without the size-specific rule, we could step straight. Let me remind you that this rule is based upon the Double C-Shape. If we stepped straight and then into the area, we would come out in the middle, creating two C-shapes.<br />
+What this actually means is that there would be two fields of the same color that cannot be filled simultaneously.<br />
+If we now extended the area to include the 4 fields straight ahead, there would be still one more black than white, and by stepping straight, to a white field, it is clear that a black to black line cannot be drawn.<br />
+An extension of the universal rule is necessary to include cases of a "big" area where the obstacle is on the other side of the live end.
+
+<img align="top" src="References/4pair up big.svg" width="15%"/>
+
+<!---->
+
+<img align="top" src="References/3dist up big.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4dist up big.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/5dist up big.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/6dist up big.svg" width="10%"/>
+
+D % 4 = 3:
+
+Now: 1W -> 0B = (D+1)/4 W -> (D-3)/4 B<br />
+Later: 1W -> 0B = (D+1)/4 W -> (D-3)/4 B<br />
+(no rule)
+
+D % 4 = 0:
+
+Now: 1W -> 0B = D/4 W -> D/4 - 1 B<br />
+Later: 1W -> 1B = D/4 W -> D/4 B<br />
+(single rule)
+
+D % 4 = 1:
+
+Now: 1W -> 0B = (D-1)/4 W -> (D-5)/4 B<br />
+Later: 1W -> 1B = (D-1)/4 W -> (D-1)/4 B<br />
+(single rule)
+
+D % 4 = 2:
+
+Now: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
+Later: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
+(no rule)
 
 ---
 
