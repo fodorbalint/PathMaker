@@ -326,6 +326,7 @@ namespace OneWayLabyrinth
 
                                     CheckLeftRightArea();
                                     CheckLeftRightAreaUp();
+                                    CheckLeftRightAreaUpBig();
                                     CheckLeftRightCorner();
                                     RunRules();
                                 }
@@ -817,6 +818,83 @@ namespace OneWayLabyrinth
                             AddExamAreas();
                             areaPairFields.Add((List<int[]>)info[3]);
                         }*/
+                    }
+                }
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        public void CheckLeftRightAreaUpBig()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? false : true;
+                int dist = 1;
+                List<int[]> borderFields = new();
+                while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
+                {
+                    dist++;
+                }
+                int ex = dist - 1;
+
+                if (ex > 2)
+                {
+                    for (int j = ex - 1; j >= 2; j--)
+                    {
+                        borderFields.Add(new int[] { 0, j });
+                    }
+                }
+
+                T("CheckLeftRightAreaUpBig dist " + ex);
+                if (ex > 1 && !InTakenRel(-1, 1) && !InBorderRel(-1, 1) && !InTakenRel(-1, ex) && !InBorderRel(-1, ex)) //area cannot be drawn if one of these fields is taken
+                {
+                    ResetExamAreas();
+
+                    // circle type 3 means the start field will be drawn white
+                    if (CountAreaRel(0, 1, 0, ex, borderFields, circleDirectionLeft, 3, true))
+                    {
+                        int black = (int)info[1];
+                        int white = (int)info[2];
+
+                        T("CheckLeftRightAreaUpBig black " + black + " white " + white + " mod " + ex % 4);
+
+                        int whiteDiff = white - black;
+                        int nowWCount = 0;
+                        int nowBCount = 0;
+                        int laterWCount = 0;
+                        int laterBCount = 0;
+
+                        switch (ex % 4)
+                        {
+                            // exclusive approach
+                            case 0:
+                                if (black >= white + ex / 4)
+                                {
+                                    T("Cannot enter now");
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
+                                }
+                                break;
+                            case 1:
+                                if (black >= white + (ex - 1) / 4)
+                                {
+                                    T("Cannot enter now");
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
+                                }
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                        }
                     }
                 }
                 lx = -lx;
@@ -1963,6 +2041,7 @@ namespace OneWayLabyrinth
 				nextX = possibleNextX;
 				nextY = possibleNextY;
 
+                //T(nextX + " " + nextY);
                 // when getting info about area
                 if (nextX == size && nextY == size)
                 {
@@ -2370,7 +2449,7 @@ namespace OneWayLabyrinth
                             if (getInfo)
                             {
                                 for (int i = x; i <= minX; i++)
-                                {                                    
+                                {    
                                     if ((i + y) % 2 == 0)
                                     {
                                         pairFields.Add(new int[] { i, y });
@@ -2379,9 +2458,9 @@ namespace OneWayLabyrinth
                                     {
                                         impairFields.Add(new int[] { i, y });
                                     }
+                                    
                                 }
                             }
-                            
 
                             if ((x + y) % 2 == 0)
                             {
@@ -2392,19 +2471,34 @@ namespace OneWayLabyrinth
                             {
                                 impairCount += (span + span % 2) / 2;
                                 pairCount += (span - span % 2) / 2;
-                            }
+                            }                            
                         }
 
                         if (getInfo)
                         {
-                            if ((startX + startY) % 2 == 0)
+                            if (circleType == 2)
                             {
-                                info = new List<object> { area % 2, pairCount, impairCount, pairFields };
+                                if ((startX + startY) % 2 == 0)
+                                {
+                                    info = new List<object> { area % 2, pairCount, impairCount, pairFields };
+                                }
+                                else
+                                {
+                                    info = new List<object> { area % 2, impairCount, pairCount, impairFields };
+                                }
                             }
                             else
                             {
-                                info = new List<object> { area % 2, impairCount, pairCount, impairFields };
+                                if ((startX + startY) % 2 == 1)
+                                {
+                                    info = new List<object> { area % 2, pairCount, impairCount, pairFields };
+                                }
+                                else
+                                {
+                                    info = new List<object> { area % 2, impairCount, pairCount, impairFields };
+                                }
                             }
+                            
                             return true;
                         }
 

@@ -4161,7 +4161,7 @@ namespace OneWayLabyrinth
 
                     if (showChecker)
                     { 
-                        if (taken.areaLineTypes[i] == 2 && taken.areaPairFields.Count > i)
+                        if ((taken.areaLineTypes[i] == 2 || taken.areaLineTypes[i] == 3) && taken.areaPairFields.Count > i)
                         {
                             foreach (int[] field in taken.areaPairFields[i])
                             {

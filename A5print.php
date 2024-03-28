@@ -137,19 +137,12 @@
 </style>
 <table class="<?php $normalOrder == true ? print "a5_1" : print "a5" ?>" width="1050" align="center" style="font-family: Segoe UI; font-size: 14px;">
 <?php
-    $content = str_replace("\r", "", str_replace("<br />", "", file_get_contents("README.md")));
+    $content = str_replace("\r", "", str_replace("<br />", "", file_get_contents("readme.html")));
     
     $pos1 = strpos($content, "#");
     $pos2 = strpos($content, "\n",  $pos1);
     $header = substr($content, $pos1 + 2, $pos2 - $pos1 - 2);
     $content = "<span style=\"font-size: 18px; font-weight: bold\">$header</span>".substr($content, $pos2);
-
-    $pos1 = strpos($content, "(");
-    $pos2 = strpos($content, ")",  $pos1);
-    $content = substr($content, 0, $pos1).substr($content, $pos2 + 3);
-
-    $pos = strpos($content, "---\n");
-    $content = substr($content, 0, $pos);
 
     $pos = 0;
     $endPos = strpos($content, "<!---->", $pos);

@@ -730,7 +730,7 @@ namespace OneWayLabyrinth
 				lx = thisLx;
 				ly = thisLy;
 
-				// Double C-Shape Determined
+				//Double C-Shape Determined
 				for (int i = 0; i < 2; i++)
 				{
 					for (int j = 0; j < 2; j++)
