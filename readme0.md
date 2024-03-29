@@ -1149,7 +1149,7 @@ For entering later, the white line count is (n - n % 2 ) / 2, and the black line
 
 <b>If the added distance is impair:</b>
 
-2n + 1 = 1:
+2n + 1 = 1, n = 0:
 
 <img align="top" src="References/2n 1=1.svg" width="35%"/>
 
@@ -1162,7 +1162,7 @@ And since there is only one black field, the black line count will be 0.<br />
 Later: All the corner whites plus the neutral line makes (x-1)W. The black line count is still 0. The black field is a corner, but it will be counterbalanced by at least one white to white line.
 (x-1)W -> 0B
 
-2n + 1 = 3:
+2n + 1 = 3, n = 1:
 
 <img align="top" src="References/2n 1=3.svg" width="45%"/>
 
@@ -1172,7 +1172,7 @@ xW -> 1B
 
 Later: xW -> 1B
 
-2n + 1 = 5:
+2n + 1 = 5, n = 2:
 
 <img align="top" src="References/2n 1=5.svg" width="55%"/>
 
@@ -1236,14 +1236,14 @@ The later case is the same as previously, (n - n % 2 ) / 2 for white and x + (n 
 
 <b>If the added distance is impair:</b>
 
-2n + 1 = 1:
+2n + 1 = 1, n = 0:
 
 <img align="top" src="References/2n 1=1v.svg" width="30%"/>
 
 Now: 1W -> (x-1)B
 Later: (see horizontal case) 0W -> (x-1)B
 
-2n + 1 = 3:
+2n + 1 = 3, n = 1:
 
 <img align="top" src="References/2n 1=3v.svg" width="30%"/>
 
@@ -1412,3 +1412,111 @@ So far we have solved all cases indicated by green:
 I will now take the case of x horizontal and y vertical distance big area.<br />
 All representations are the same as in the small area case, only the area is on the other side.<br />
 So I will just summarize the black and white limits here.
+
+1. Equal horizontal and vertical distance
+
+x = 2:
+Now: 0W -> 1B
+Later: 1B
+
+x = 3:
+Now: 0W -> 2B
+Later: 1B -> 2B
+
+x = n:
+Now: 0W -> (n-1)B
+Later: 1B -> (n-1)B
+
+Exactly the same as with the small area.
+
+2. Larger horizontal distance
+
+<b>If the added distance is pair:</b>
+
+2n = 2:
+
+Now: 1W is possible. The entry field and the first white is at least 2 distance from each other, the whole area can be filled between them.
+1W -> xB
+
+Later: All corner blacks can be used. The line between the first black and first white will fill the area.
+0W -> xB
+
+<!---->
+
+General:
+
+The only difference is the n = 1 case. Otherwise, the number of inline and corner fields are the same.
+Now: (n+1 - (n+1) % 2 ) / 2 W -> x + (n-1 - (n-1) % 2 ) / 2 B
+Later: (n - n % 2 ) / 2 W -> x + (n - n % 2 ) / 2 B 
+
+<b>If the added distance is impair:</b>
+
+2n + 1 = 1, n = 0:
+
+Now: xW is possible.
+xW -> 0B
+
+Later: Same values as prevously.
+(x-1)W -> 0B
+
+2n + 1 = 3, n = 1:
+
+Note that in the small area case, there were x-1 corner whites and 1 corner black. Now there are x amount of corner whites and 2 inline blacks insted of 1.
+
+Now: xW -> 0B
+Later: xW -> 1B
+
+2n + 1 = 5, n = 2:
+
+Now: (x+1)W -> 1B
+Later: (x+1)W -> 1B
+
+General:
+
+Now: x + (n+1 - (n+1) % 2) / 2 W -> (n - n % 2) / 2 B
+Later: x + (n - n % 2) / 2 W if n > 0 -> (n+1 - (n+1) % 2) / 2 B
+
+<!---->
+
+3. Larger vertical distance
+
+<b>If the added distance is pair:</b>
+
+We will find it is the same as the small area.
+
+2n = 2:
+
+Now: 1W -> xB
+Later: 0W -> xB
+
+2n = 4:
+
+Now: 1W -> xB
+Later: 1W -> (x+1)B
+
+General:
+
+Now: (n+1 - (n+1) % 2) / 2 W -> x + (n-1 - (n-1) % 2) / 2 B
+Later: (n - n % 2) / 2 W -> x + (n - n % 2) / 2 B
+
+<b>If the added distance is impair:</b>
+
+2n + 1 = 1, n = 0:
+
+Now: 1W -> (x-1)B
+Later: 0W -> (x-1)B
+
+2n + 1 = 3, n = 1:
+
+Here comes the change again, due to having one more corner black field and one less corner white field than in the small area case.
+
+Now: 1W -> xB
+Later: 1W -> xB
+
+<!---->
+
+General:
+
+Now: If n > 0, we can use all corner blacks after exiting the first line.
+(n+2 - (n+2) % 2) / 2 W -> x + (n-1 - (n-1) % 2) / 2 B if n > 0.
+Later: (n+1 - (n+1) % 2) / 2 W -> x + (n - n % 2) / 2 B if n > 0.

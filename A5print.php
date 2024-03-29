@@ -137,7 +137,7 @@
 </style>
 <table class="<?php $normalOrder == true ? print "a5_1" : print "a5" ?>" width="1050" align="center" style="font-family: Segoe UI; font-size: 14px;">
 <?php
-    $content = str_replace("\r", "", str_replace("<br />", "", file_get_contents("readme.html")));
+    $content = str_replace("\r", "", str_replace("<br />", "", file_get_contents("readme0.md")));
     
     $pos1 = strpos($content, "#");
     $pos2 = strpos($content, "\n",  $pos1);
