@@ -328,6 +328,7 @@ namespace OneWayLabyrinth
                                     CheckLeftRightAreaUp();
                                     CheckLeftRightAreaUpBig();
                                     CheckLeftRightCorner();
+                                    CheckLeftRightCornerBig();
                                     RunRules();
                                 }
 
@@ -736,8 +737,8 @@ namespace OneWayLabyrinth
 
                         switch (ex % 4)
                         {
-                            // range approach
-                            /*case 0:
+                            /* // range approach
+                            case 0:
                                 nowWCount = ex / 4;
                                 nowBCount = ex / 4 - 1;
                                 laterWCount = ex / 4;
@@ -869,32 +870,88 @@ namespace OneWayLabyrinth
 
                         switch (ex % 4)
                         {
-                            // exclusive approach
+                            /* // range approach
                             case 0:
-                                if (black >= white + ex / 4)
-                                {
-                                    T("Cannot enter now");
-                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                    forbidden.Add(new int[] { x - lx, y - ly });
-                                    AddExamAreas();
-                                    areaPairFields.Add((List<int[]>)info[3]);
-                                }
+                                nowWCount = ex / 4;
+                                nowBCount = ex / 4 - 1;
+                                laterWCount = ex / 4;
+                                laterBCount = ex / 4;
                                 break;
                             case 1:
-                                if (black >= white + (ex - 1) / 4)
-                                {
-                                    T("Cannot enter now");
-                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                    forbidden.Add(new int[] { x - lx, y - ly });
-                                    AddExamAreas();
-                                    areaPairFields.Add((List<int[]>)info[3]);
-                                }
+                                nowWCount = (ex + 3) / 4;
+                                nowBCount = (ex - 5) / 4;
+                                laterWCount = (ex - 1) / 4;
+                                laterBCount = (ex - 1) / 4;
                                 break;
                             case 2:
+                                nowWCount = (ex + 2) / 4;
+                                nowBCount = (ex - 2) / 4;
+                                laterWCount = (ex - 2) / 4;
+                                laterBCount = (ex - 2) / 4;
                                 break;
                             case 3:
-                                break;
+                                nowWCount = (ex + 1) / 4;
+                                nowBCount = (ex - 3) / 4;
+                                laterWCount = (ex + 1) / 4;
+                                laterBCount = (ex - 3) / 4;
+                                break;*/
+
+                                // exclusive approach fails at 2024_0330 where there is 2 morw whites than blacks, and it is apparently not preventable.
+                                case 0:
+                                    if (black >= white + ex / 4)
+                                    {
+                                        T("Cannot enter now");
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                        AddExamAreas();
+                                        areaPairFields.Add((List<int[]>)info[3]);
+                                    }
+                                    break;
+                                case 1:
+                                    if (black >= white + (ex - 1) / 4)
+                                    {
+                                        T("Cannot enter now");
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                        AddExamAreas();
+                                        areaPairFields.Add((List<int[]>)info[3]);
+                                    }
+                                    if (white >= black + (ex + 3) / 4)
+                                    {
+                                        T("Cannot enter later");
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                        AddExamAreas();
+                                        areaPairFields.Add((List<int[]>)info[3]);
+                                    }
+                                    break;
+                                case 2:
+                                    if (white >= black + (ex + 2) / 4)
+                                    {
+                                        T("Cannot enter later");
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                        AddExamAreas();
+                                        areaPairFields.Add((List<int[]>)info[3]);
+                                    }
+                                    break;
+                                case 3:
+                                    break;
                         }
+
+                        /* if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
+                        {
+                            T("Cannot enter now");
+                            forbidden.Add(new int[] { x + sx, y + sy });
+                            forbidden.Add(new int[] { x - lx, y - ly });
+                            AddExamAreas();
+                            areaPairFields.Add((List<int[]>)info[3]);
+                        }
+                        if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                        {
+                            T("Cannot enter later");
+                            forbidden.Add(new int[] { this.x + lx, y + ly });
+                            AddExamAreas();
+                            areaPairFields.Add((List<int[]>)info[3]);
+                        }*/
                     }
                 }
                 lx = -lx;
@@ -908,209 +965,75 @@ namespace OneWayLabyrinth
         {
             for (int j = 0; j < 2; j++)
             {
-                if (InTakenRel(1, 0) || InBorderRel(1, 0) || InTakenRel(0, 1) || InBorderRel(0, 1)) continue; //enter now and forward area has to be empty
-
-                int hori = 1;
-                int vert = 2;                
-                
-                while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                // enter now and forward area has to be empty
+                if (!(InTakenRel(1, 0) || InBorderRel(1, 0) || InTakenRel(0, 1) || InBorderRel(0, 1)))
                 {
-                    hori++;
-                    
+                    int hori = 1;
+                    int vert = 2;
+
                     while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
                     {
                         hori++;
-                    }
 
-                    if (InBorderRel(hori, vert))
-                    {
-                        vert++;
-                        hori = 1;
-                        continue;
-                    }
-
-                    if (!InTakenRel(hori, vert - 1))
-                    {
-                        int i1 = InTakenIndexRel(hori, vert);
-                        int i2 = InTakenIndexRel(hori, vert + 1);
-
-                        if (i2 < i1) // area is downwards
+                        while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
                         {
-                            T("Corner found at side " + j + " horizontal " + hori + " vertical " + vert + " i1 " + i1 + " i2 " + i2);
+                            hori++;
+                        }
 
-                            bool takenFound = false;
-                            int left1 = 1;
-                            int straight1 = 1;
-                            int left2 = hori - 1;
-                            int straight2 = vert - 1;
-                            List <int[]> borderFields = new();
-                                                        
-                            int nowWCount, nowBCount, laterWCount, laterBCount;
-                            int x, n;
+                        if (hori == 2 && vert == 2 || InBorderRel(hori, vert))
+                        {
+                            vert++;
+                            hori = 1;
+                            continue;
+                        }
 
-                            //check if all fields on the border line is free
-                            if (vert == hori)
+                        if (!InTakenRel(hori, vert - 1))
+                        {
+                            int i1 = InTakenIndexRel(hori, vert);
+                            int i2 = InTakenIndexRel(hori, vert + 1);
+
+                            if (i2 < i1) // area is downwards
                             {
-                                x = hori - 1;
-                                nowWCount = 0;
-                                nowBCount = x - 1;
-                                laterWCount = -1;// means B = 1
-                                laterBCount = x - 1;
+                                T("CheckLeftRightCorner Corner found at side " + j + " horizontal " + hori + " vertical " + vert + " i1 " + i1 + " i2 " + i2);
 
-                                for(int i = 1; i < hori; i++)
+                                bool takenFound = false;
+                                int left1 = 1;
+                                int straight1 = 1;
+                                int left2 = hori - 1;
+                                int straight2 = vert - 1;
+                                List<int[]> borderFields = new();
+
+                                int nowWCount, nowBCount, laterWCount, laterBCount;
+                                int x, n;
+
+                                //check if all fields on the border line is free
+                                if (vert == hori)
                                 {
-                                    if (i < hori - 1)
+                                    x = hori - 1;
+                                    nowWCount = 0;
+                                    nowBCount = x - 1;
+                                    laterWCount = -1;// means B = 1
+                                    laterBCount = x - 1;
+
+                                    for (int i = 1; i < hori; i++)
                                     {
-                                        if (InTakenRel(i, i) || InTakenRel(i + 1, i))
+                                        if (i < hori - 1)
                                         {
-                                            takenFound = true;
-                                            break;
+                                            if (InTakenRel(i, i) || InTakenRel(i + 1, i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
                                         }
-                                    }
-                                    else
-                                    {
-                                        if (InTakenRel(i, i))
+                                        else
                                         {
-                                            takenFound = true;
-                                            break;
+                                            if (InTakenRel(i, i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
                                         }
-                                    }                                    
 
-                                    if (i == 1)
-                                    {
-                                        borderFields.Add(new int[] { 2, 1 });
-                                    }
-                                    else if (i < hori - 1)
-                                    {
-                                        borderFields.Add(new int[] { i, i });
-                                        borderFields.Add(new int[] { i + 1, i });
-                                    }
-                                }
-                            }
-                            else if (hori > vert)
-                            {
-                                x = vert - 1;
-                                n = (hori - vert - (hori - vert) % 2) / 2;
-
-                                if ((hori - vert) % 2 == 0)
-                                {
-                                    if (n > 1)
-                                    {
-                                        nowWCount = (n + 1 - (n + 1) % 2) / 2;
-                                    }
-                                    else
-                                    {
-                                        nowWCount = 0;
-                                    }                                    
-                                    nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
-                                    laterWCount = (n - n % 2) / 2;
-                                    laterBCount = x + (n - n % 2) / 2;
-                                }
-                                else
-                                {
-                                    if (n > 0)
-                                    {
-                                        nowWCount = x + (n - n % 2) / 2;
-                                        laterBCount = (n + 2 - (n + 2) % 2) / 2;
-                                    }
-                                    else
-                                    {
-                                        nowWCount = x - 1;
-                                        laterBCount = 0;
-                                    }                                    
-                                    nowBCount = (n + 1 - (n + 1) % 2) / 2;
-                                    laterWCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
-                                    
-                                }
-
-                                for (int i = 1; i <= hori - vert; i++)
-                                {                                    
-                                    if (InTakenRel(i, 1))
-                                    {
-                                        takenFound = true;
-                                        break;
-                                    }
-
-                                    if (i > 1)
-                                    {
-                                        borderFields.Add(new int[] { i, 1 });
-                                    }
-                                }
-
-                                for (int i = 1; i < vert; i++)
-                                {
-                                    if (i < vert - 1)
-                                    {
-                                        if (InTakenRel(hori - vert + i, i) || InTakenRel(hori - vert + i + 1, i))
-                                        {
-                                            takenFound = true;
-                                            break;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (InTakenRel(hori - vert + i, i))
-                                        {
-                                            takenFound = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if (i < vert - 1)
-                                    {
-                                        borderFields.Add(new int[] { hori - vert + i, i });
-                                        borderFields.Add(new int[] { hori - vert + i + 1, i });
-                                    }
-                                }
-                            }
-                            else // vert > hori
-                            {
-                                x = hori - 1;
-                                n = (vert - hori - (vert - hori) % 2) / 2;
-
-                                if ((vert - hori) % 2 == 0)
-                                {
-                                    nowWCount = (n + 1 - (n + 1) % 2) / 2;
-                                    nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
-                                    laterWCount = (n - n % 2) / 2;
-                                    laterBCount = x + (n - n % 2) / 2;
-                                }
-                                else
-                                {
-                                    nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;  
-                                    nowBCount = x - 1 + (n - n % 2) / 2;
-                                    if (n > 0)
-                                    {
-                                        laterWCount = 1 + (n - n % 2) / 2;
-                                    }
-                                    else
-                                    {
-                                        laterWCount = 0;
-                                    }
-                                    laterBCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
-                                }
-
-                                for (int i = 1; i < hori; i++)
-                                {
-                                    if (i < hori - 1 && hori > 2)
-                                    {
-                                        if (InTakenRel(i, i) || InTakenRel(i + 1, i))
-                                        {
-                                            takenFound = true;
-                                            break;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (InTakenRel(i, i))
-                                        {
-                                            takenFound = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if (hori > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
-                                    {
                                         if (i == 1)
                                         {
                                             borderFields.Add(new int[] { 2, 1 });
@@ -1120,80 +1043,522 @@ namespace OneWayLabyrinth
                                             borderFields.Add(new int[] { i, i });
                                             borderFields.Add(new int[] { i + 1, i });
                                         }
+                                    }
+                                }
+                                else if (hori > vert)
+                                {
+                                    x = vert - 1;
+                                    n = (hori - vert - (hori - vert) % 2) / 2;
+
+                                    if ((hori - vert) % 2 == 0)
+                                    {
+                                        if (n > 1)
+                                        {
+                                            nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                        }
                                         else
                                         {
-                                            borderFields.Add(new int[] { i, i });
+                                            nowWCount = 0;
                                         }
-                                    }                                    
+                                        nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
+                                        laterWCount = (n - n % 2) / 2;
+                                        laterBCount = x + (n - n % 2) / 2;
+                                    }
+                                    else
+                                    {
+                                        if (n > 0)
+                                        {
+                                            nowWCount = x + (n - n % 2) / 2;
+                                            laterBCount = (n + 2 - (n + 2) % 2) / 2;
+                                        }
+                                        else
+                                        {
+                                            nowWCount = x - 1;
+                                            laterBCount = 0;
+                                        }
+                                        nowBCount = (n + 1 - (n + 1) % 2) / 2;
+                                        laterWCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
+
+                                    }
+
+                                    for (int i = 1; i <= hori - vert; i++)
+                                    {
+                                        if (InTakenRel(i, 1))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+
+                                        if (i > 1)
+                                        {
+                                            borderFields.Add(new int[] { i, 1 });
+                                        }
+                                    }
+
+                                    for (int i = 1; i < vert; i++)
+                                    {
+                                        if (i < vert - 1)
+                                        {
+                                            if (InTakenRel(hori - vert + i, i) || InTakenRel(hori - vert + i + 1, i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (InTakenRel(hori - vert + i, i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (i < vert - 1)
+                                        {
+                                            borderFields.Add(new int[] { hori - vert + i, i });
+                                            borderFields.Add(new int[] { hori - vert + i + 1, i });
+                                        }
+                                    }
+                                }
+                                else // vert > hori
+                                {
+                                    x = hori - 1;
+                                    n = (vert - hori - (vert - hori) % 2) / 2;
+
+                                    if ((vert - hori) % 2 == 0)
+                                    {
+                                        nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                        nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
+                                        laterWCount = (n - n % 2) / 2;
+                                        laterBCount = x + (n - n % 2) / 2;
+                                    }
+                                    else
+                                    {
+                                        nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;
+                                        nowBCount = x - 1 + (n - n % 2) / 2;
+                                        if (n > 0)
+                                        {
+                                            laterWCount = 1 + (n - n % 2) / 2;
+                                        }
+                                        else
+                                        {
+                                            laterWCount = 0;
+                                        }
+                                        laterBCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
+                                    }
+
+                                    for (int i = 1; i < hori; i++)
+                                    {
+                                        if (i < hori - 1 && hori > 2)
+                                        {
+                                            if (InTakenRel(i, i) || InTakenRel(i + 1, i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (InTakenRel(i, i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (hori > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
+                                        {
+                                            if (i == 1)
+                                            {
+                                                borderFields.Add(new int[] { 2, 1 });
+                                            }
+                                            else if (i < hori - 1)
+                                            {
+                                                borderFields.Add(new int[] { i, i });
+                                                borderFields.Add(new int[] { i + 1, i });
+                                            }
+                                            else
+                                            {
+                                                borderFields.Add(new int[] { i, i });
+                                            }
+                                        }
+                                    }
+
+                                    for (int i = 1; i <= vert - hori; i++)
+                                    {
+                                        if (InTakenRel(hori - 1, hori - 1 + i))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+
+                                        if (i < vert - hori)
+                                        {
+                                            borderFields.Add(new int[] { hori - 1, hori - 1 + i });
+                                        }
+                                    }
                                 }
 
-                                for (int i = 1; i <= vert - hori; i++)
+                                if (!takenFound)
                                 {
-                                    if (InTakenRel(hori - 1, hori - 1 + i))
+                                    // reverse order
+                                    List<int[]> newBorderFields = new();
+                                    for (int i = borderFields.Count - 1; i >= 0; i--)
                                     {
-                                        takenFound = true;
-                                        break;
+                                        newBorderFields.Add(borderFields[i]);
                                     }
 
-                                    if (i < vert - hori)
-                                    {
-                                        borderFields.Add(new int[] { hori - 1, hori - 1 + i });
-                                    }
-                                }                                
-                            }
+                                    ResetExamAreas();
 
-                            if (!takenFound)
-                            {
-                                // reverse order
-                                List<int[]> newBorderFields = new();
-                                for (int i = borderFields.Count - 1; i >= 0; i--)
-                                {
-                                    newBorderFields.Add(borderFields[i]);
+                                    // here, true means that count area succeeds, does not run into an error
+                                    if (CountAreaRel(left1, straight1, left2, straight2, newBorderFields, j == 0 ? true : false, 2, true))
+                                    {
+                                        int impair = (int)info[0];
+                                        int black = (int)info[1];
+                                        int white = (int)info[2];
+
+                                        T("nowWCount " + nowWCount + " nowBCount " + nowBCount + " laterWCount " + laterWCount + " laterBCount " + laterBCount);
+                                        T("impair " + impair + " black " + black + " white " + white);
+
+                                        int whiteDiff = white - black;
+
+                                        if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
+                                        {
+                                            T("CheckLeftRightCorner cannot enter now");
+                                            forbidden.Add(new int[] { this.x + lx, y + ly });
+                                            AddExamAreas();
+                                            areaPairFields.Add((List<int[]>)info[3]);
+                                        }
+                                        if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                                        {
+                                            T("CheckLeftRightCorner cannot enter later");
+                                            forbidden.Add(new int[] { this.x + sx, y + sy });
+                                            forbidden.Add(new int[] { this.x - lx, y - ly });
+                                            AddExamAreas();
+                                            areaPairFields.Add((List<int[]>)info[3]);
+                                        }
+
+
+                                    }
                                 }
-
-                                ResetExamAreas();
-
-                                // here, true means that count area succeeds, does not run into an error
-                                if (CountAreaRel(left1, straight1, left2, straight2, newBorderFields, j == 0 ? true : false, 2, true))
+                                else
                                 {
-                                    int impair = (int)info[0];
-                                    int black = (int)info[1];
-                                    int white = (int)info[2];
-
-                                    T("nowWCount " + nowWCount + " nowBCount " + nowBCount + " laterWCount " + laterWCount + " laterBCount " + laterBCount);
-                                    T("impair " + impair + " black " + black + " white " + white);
-
-                                    int whiteDiff = white - black;
-
-                                    if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
-                                    {
-                                        T("CheckLeftRightCorner cannot enter now");
-                                        forbidden.Add(new int[] { this.x + lx, y + ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                    if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
-                                    {
-                                        T("CheckLeftRightCorner cannot enter later");
-                                        forbidden.Add(new int[] { this.x + sx, y + sy });
-                                        forbidden.Add(new int[] { this.x - lx, y - ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-
-                                    
+                                    T("arealine taken");
                                 }
-                            }
-                            else
-                            {
-                                T("arealine taken");
                             }
                         }
-                    }
 
-                    vert++;
-                    hori = 1;
-                }  
+                        vert++;
+                        hori = 1;
+                    }
+                }     
+                
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        public void CheckLeftRightCornerBig()
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                // enter now and forward area has to be empty
+                if (!(InTakenRel(1, 0) || InBorderRel(1, 0) || InTakenRel(0, 1) || InBorderRel(0, 1)))
+                {
+                    int hori = 1;
+                    int vert = 2;
+
+                    while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                    {
+                        hori++;
+
+                        while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                        {
+                            hori++;
+                        }
+
+                        if (hori == 2 && vert == 2 || InBorderRel(hori, vert))
+                        {
+                            vert++;
+                            hori = 1;
+                            continue;
+                        }
+
+                        if (!InTakenRel(hori, vert - 1))
+                        {
+                            int i1 = InTakenIndexRel(hori, vert);
+                            int i2 = InTakenIndexRel(hori, vert + 1);
+
+                            if (i2 > i1) // area is upwards
+                            {
+                                T("CheckLeftRightCornerBig Corner found at side " + j + " horizontal " + hori + " vertical " + vert + " i1 " + i1 + " i2 " + i2);
+
+                                bool takenFound = false;
+                                int left1 = 1;
+                                int straight1 = 1;
+                                int left2 = hori - 1;
+                                int straight2 = vert - 1;
+                                List<int[]> borderFields = new();
+
+                                int nowWCount, nowWCountRight, nowBCount, laterWCount, laterBCount;
+                                int x, n;
+
+                                //check if all fields on the border line is free
+                                if (vert == hori)
+                                {
+                                    x = hori - 1;
+                                    nowWCountRight = nowWCount = 0;
+                                    nowBCount = x - 1;
+                                    laterWCount = -1;// means B = 1
+                                    laterBCount = x - 1;
+
+                                    for (int i = 1; i < hori; i++)
+                                    {
+                                        if (i < hori - 1)
+                                        {
+                                            if (InTakenRel(i, i) || InTakenRel(i, i + 1))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (InTakenRel(i, i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (i == 1)
+                                        {
+                                            borderFields.Add(new int[] { 1, 2 });
+                                        }
+                                        else if (i < hori - 1)
+                                        {
+                                            borderFields.Add(new int[] { i, i });
+                                            borderFields.Add(new int[] { i, i + 1 });
+                                        }
+                                    }
+                                }
+                                else if (hori > vert)
+                                {
+                                    x = vert - 1;
+                                    n = (hori - vert - (hori - vert) % 2) / 2;
+
+                                    if ((hori - vert) % 2 == 0)
+                                    {
+                                        nowWCountRight = nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                        nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
+                                        laterWCount = (n - n % 2) / 2;
+                                        laterBCount = x + (n - n % 2) / 2;
+                                    }
+                                    else
+                                    {
+                                        nowWCountRight = nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;
+                                        nowBCount = x - 1 + (n - n % 2) / 2;
+                                        if (n > 0)
+                                        {
+                                            laterWCount = 1 + (n - n % 2) / 2;
+                                        }
+                                        else
+                                        {
+                                            laterWCount = 0;
+                                        }
+                                        laterBCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
+                                    }
+
+                                    for (int i = 1; i < vert; i++)
+                                    {
+                                        if (i < vert - 1 && vert > 2)
+                                        {
+                                            if (InTakenRel(i, i) || InTakenRel(i, i + 1))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (InTakenRel(i, i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (hori > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
+                                        {
+                                            if (i == 1)
+                                            {
+                                                borderFields.Add(new int[] { 1, 2 });
+                                            }
+                                            else if (i < hori - 1)
+                                            {
+                                                borderFields.Add(new int[] { i, i });
+                                                borderFields.Add(new int[] { i, i + 1 });
+                                            }
+                                            else
+                                            {
+                                                borderFields.Add(new int[] { i, i });
+                                            }
+                                        }
+                                    }
+
+                                    for (int i = 1; i <= hori - vert; i++)
+                                    {
+                                        if (InTakenRel(vert - 1 + i, vert - 1))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+
+                                        if (i < hori - vert)
+                                        {
+                                            borderFields.Add(new int[] { vert - 1 + i, vert - 1 });
+                                        }
+                                    }
+                                }
+                                else // vert > hori
+                                {
+                                    x = hori - 1;
+                                    n = (vert - hori - (vert - hori) % 2) / 2;
+
+                                    if ((vert - hori) % 2 == 0)
+                                    {
+                                        if (n > 1)
+                                        {
+                                            nowWCountRight = nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                        }
+                                        else
+                                        {
+                                            nowWCount = 0;
+                                            nowWCountRight = 1;
+                                        }
+                                        nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
+                                        laterWCount = (n - n % 2) / 2;
+                                        laterBCount = x + (n - n % 2) / 2;
+                                    }
+                                    else
+                                    {
+                                        if (n > 0)
+                                        {
+                                            nowWCountRight = nowWCount = x + (n - n % 2) / 2;
+                                            laterBCount = (n + 2 - (n + 2) % 2) / 2;
+                                        }
+                                        else
+                                        {
+                                            nowWCount = x - 1;
+                                            nowWCountRight = x;
+                                            laterBCount = 0;
+                                        }
+                                        nowBCount = (n + 1 - (n + 1) % 2) / 2;
+                                        laterWCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
+
+                                    }
+
+                                    for (int i = 1; i <= vert - hori; i++)
+                                    {
+                                        if (InTakenRel(1, i))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+
+                                        if (i > 1)
+                                        {
+                                            borderFields.Add(new int[] { 1, i });
+                                        }
+                                    }
+
+                                    for (int i = 1; i < hori; i++)
+                                    {
+                                        if (i < hori - 1)
+                                        {
+                                            if (InTakenRel(i, vert - hori + i) || InTakenRel(i, vert - hori + i + 1))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (InTakenRel(i, vert - hori + i))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (i < hori - 1)
+                                        {
+                                            borderFields.Add(new int[] { i, vert - hori + i });
+                                            borderFields.Add(new int[] { i, vert - hori + i + 1 });
+                                        }
+                                    }
+                                }
+
+                                if (!takenFound)
+                                {
+                                    // reverse order
+                                    List<int[]> newBorderFields = new();
+                                    for (int i = borderFields.Count - 1; i >= 0; i--)
+                                    {
+                                        newBorderFields.Add(borderFields[i]);
+                                    }
+
+                                    ResetExamAreas();
+
+                                    // here, true means that count area succeeds, does not run into an error
+                                    if (CountAreaRel(left1, straight1, left2, straight2, newBorderFields, j == 0 ? false : true, 2, true))
+                                    {
+                                        int impair = (int)info[0];
+                                        int black = (int)info[1];
+                                        int white = (int)info[2];
+
+                                        T("nowWCount " + nowWCount + " nowBCount " + nowBCount + " laterWCount " + laterWCount + " laterBCount " + laterBCount);
+                                        T("impair " + impair + " black " + black + " white " + white);
+
+                                        int whiteDiff = white - black;
+
+                                        if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
+                                        {
+                                            T("CheckLeftRightCornerBig cannot enter now up");
+                                            forbidden.Add(new int[] { this.x + sx, y + sy });
+                                            AddExamAreas();
+                                            areaPairFields.Add((List<int[]>)info[3]);
+                                        }
+                                        if (!(whiteDiff <= nowWCountRight && whiteDiff >= -nowBCount)) // not in range
+                                        {
+                                            T("CheckLeftRightCornerBig cannot enter now right");
+                                            forbidden.Add(new int[] { this.x - lx, y - ly });
+                                            AddExamAreas();
+                                            areaPairFields.Add((List<int[]>)info[3]);
+                                        }
+                                        if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                                        {
+                                            T("CheckLeftRightCornerBig cannot enter later");
+                                            forbidden.Add(new int[] { this.x + lx, y + ly });
+                                            AddExamAreas();
+                                            areaPairFields.Add((List<int[]>)info[3]);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    T("arealine taken");
+                                }
+                            }
+                        }
+
+                        vert++;
+                        hori = 1;
+                    }
+                }
 
                 lx = -lx;
                 ly = -ly;
@@ -1307,7 +1672,7 @@ namespace OneWayLabyrinth
             if (!closeStraightSmall && !closeMidAcrossSmall && !closeAcrossSmall && !closeStraightLarge && !closeMidAcrossLarge)
             {
                 for (int i = 0; i < 2; i++)
-                {                                   
+                {
                     bool farStraight = false;
                     bool farMidAcross = false;
 
@@ -1508,7 +1873,7 @@ namespace OneWayLabyrinth
                     if (!closeSideStraight && !closeSideMidAcross && !closeSideAcross)
                     {
                         if (InTakenRel(3, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2))
-                        {    
+                        {
                             int middleIndex = InTakenIndexRel(3, 0);
                             if (InTakenRel(3, 1)) // up side taken
                             {

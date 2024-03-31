@@ -802,7 +802,7 @@ namespace OneWayLabyrinth
             ReadDir();
 
             //only give completedCount if we have been in a fast run. In normal run, upon an error, errorInWalkthrough remains through until we clicked the OK button.
-            string saveName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".txt" : DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
+            string saveName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".txt" : DateTime.Today.Year + "_" + DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
 
 			File.WriteAllText(saveName, savePath);
 		}
@@ -4201,7 +4201,7 @@ namespace OneWayLabyrinth
             }
             else
             {
-                tag = (errorInWalkthrough && completedCount > 0) ? completedCount.ToString() : DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00");
+                tag = (errorInWalkthrough && completedCount > 0) ? completedCount.ToString() : DateTime.Today.Year + "_" + DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00");
             }
             
             Canvas.Tag = tag;

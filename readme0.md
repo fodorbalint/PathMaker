@@ -442,7 +442,7 @@ To mark the two areas, each one has to be given a directional obstacle next to t
 
 <img align="top" src="References/rules/9/Double Area C-Shape.svg" width="23.8%"/>
 
-And with this marking system, we can correct the rules prevously made. All rules featuring future line start and end fields have to be rewritten to start with.<br />
+And with this marking system, we can correct the rules previously made. All rules featuring future line start and end fields have to be rewritten to start with.<br />
 So we get the 2-distance across rules, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.
 
 <img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="28.6%"/><br />
@@ -460,7 +460,7 @@ The rule will be now symmetrical. It is similar to the square obstacle pattern.
 
 <img align="top" src="References/rules/9/Triple Area.svg" width="23.8%"/>
 
-The same concept we encounter at 725 325. We have seen this prevously, just with C-shape, not an area.
+The same concept we encounter at 725 325. We have seen this previously, just with C-shape, not an area.
 
 <img align="top" src="References/725325_1.svg" width="42.86%"/>
 
@@ -1381,15 +1381,15 @@ Later: 1W -> 1B = D/4 W -> D/4 B<br />
 
 D % 4 = 1:
 
-Now: 1W -> 0B = (D-1)/4 W -> (D-5)/4 B<br />
+Now: 2W -> 0B = (D+3)/4 W -> (D-5)/4 B<br />
 Later: 1W -> 1B = (D-1)/4 W -> (D-1)/4 B<br />
-(single rule)
+(double rule)
 
 D % 4 = 2:
 
-Now: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
+Now: 2W -> 1B = (D+2)/4 W -> (D-2)/4 B<br />
 Later: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
-(no rule)
+(single rule)
 
 <!---->
 
@@ -1456,7 +1456,7 @@ Later: (n - n % 2 ) / 2 W -> x + (n - n % 2 ) / 2 B
 Now: xW is possible.
 xW -> 0B
 
-Later: Same values as prevously.
+Later: Same values as previously.
 (x-1)W -> 0B
 
 2n + 1 = 3, n = 1:
@@ -1520,3 +1520,77 @@ General:
 Now: If n > 0, we can use all corner blacks after exiting the first line.
 (n+2 - (n+2) % 2) / 2 W -> x + (n-1 - (n-1) % 2) / 2 B if n > 0.
 Later: (n+1 - (n+1) % 2) / 2 W -> x + (n - n % 2) / 2 B if n > 0.
+
+While creating a case to verify the newly created rule set, I have encountered this:
+
+<img align="top" src="References/2024_0330.svg" width="47.6%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2024_0330_1.svg" width="47.6%"/>
+
+It is not possible to continue after stepping upwards.
+But where is the missing part?
+
+On the left, the largest area contains 1 more white field than black, and on the right it is 2 more black. It would be possible if the upper left corner was filled, like thís:
+
+<img align="top" src="References/2024_0330_2.svg" width="47.6%"/>
+
+<!---->
+
+So it is not any of the small area rules and neither the 0 horizontal distance big area rule that has something to do with it.
+
+One thing is sure, we have been using the small area representations when defining the rule set, which does not give us the minimal area in this case. See the difference:
+
+<img align="top" src="References/corner big 4 x 5 big.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/corner big 4 x 5 small.svg" width="20%"/>
+
+Can it be a problem?
+We will see, but let's look at one detail: If we step upwards, we have to step left to fill the corner white, otherwise it is only good for an exit, which we do not want if the area contains 1 more white fields than black (for the left representation).
+After this, we step upwards and then left again. We did not enter the area.
+
+The 1 added distance case is therefore 0W -> (x-1)B when entering now by stepping upwards and 1W -> (x-1)B when stepping right.
+
+To simplify things, I will specify the cases again using the minimal area representation.
+
+Notice that these are the same as the small area patterns, things are just mirrored, so that the previous horizontal expansion is now vertical. 
+
+<!---->
+
+n = 1
+
+<img align="top" src="References/2n=2 big.svg" width="40%"/>
+
+Now: (n+1 - (n+1) % 2) / 2 W -> x + (n-1 - (n-1) % 2) / 2 B
+Later: (n - n % 2) / 2 W -> x + (n - n % 2) / 2 B
+
+n = 0
+
+<img align="top" src="References/2n 1=1 big.svg" width="35%"/>
+
+Now: 1 + (n+1 - (n+1) % 2) / 2 W -> x - 1 + (n - n % 2) / 2 B
+Later: 1 + (n - n % 2) / 2 W if n > 0 (0 if n = 0) -> x - 1 + (n+1 - (n+1) % 2) / 2 B
+
+<!---->
+
+n = 1
+
+<img align="top" src="References/2n=2v big.svg" width="30%"/>
+
+Now: (n+1 - (n+1) % 2) / 2 W if n > 1 (0 if n = 1) -> x + (n-1 - (n-1) % 2) / 2 B
+Later: (n - n % 2) / 2 W -> x + (n - n % 2) / 2 B
+
+n = 0
+
+<img align="top" src="References/2n 1=1v big.svg" width="30%"/>
+
+Now: x - 1 + (n+2 - (n+2) % 2) / 2 W if n > 0 (x - 1 if n = 0) -> (n+1 - (n+1) % 2) / 2 B
+Later: x - 1 + (n+1 - (n+1) % 2) / 2 W -> (n+2 - (n+2) % 2) / 2 B if n > 0 (0 if n = 0)
+
+The difference between stepping up and right still remains in these vertical expansion cases. We didn't have to deal with it at the small area, because the line could not step backwards.
+It just means we have to remove the Now W conditions for stepping right.
+
+<!---->
+
+Now we can continue the case, but we will find that we cannot go past this point:
+
+<img align="top" src="References/2024_0331_1.svg" width="47.6%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2024_0331.svg" width="47.6%"/>
+
+The picture on the right is the crossroad. If we step upwards, the area can be completed.
+The area between the live end and the corner on the left contains one more black field than white, so the number could be made by stepping left and up, only we cannot step up because of the C-shape.
+This has to be accounted for in all rules.

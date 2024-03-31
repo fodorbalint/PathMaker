@@ -9,5 +9,10 @@ makeStats: False
 activeRules: True
 checkerBoard: True
 appliedSize: 9
-ruleXSize: 11
+<<<<<<< HEAD
+ruleXSize: 6
 ruleYSize: 7
+=======
+ruleXSize: 4
+ruleYSize: 5
+>>>>>>> 0cb766d9e088eff5a69a1a4c342f5d4165e49d95
