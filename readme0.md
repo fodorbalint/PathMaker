@@ -294,9 +294,9 @@ Intuitively, we can draw up the square, and let's mark the exit as well. There c
 
 Once we step to A, it is unavoidable to get to B before entering the outlined area. It is because we can only reach B from the left or the bottom.<br />
 The area is impair, therefore we cannot complete it starting in C and ending in D.<br />
-As with many of the previous rules, the C-shape created with the border is to blame and therefore we need to represent it.
+If we omit the C field from the area, the area becomes pair. It is clear that the start and end field being across each other, a pair amount of fields cannot be filled. We must therefore enter the area now.
 
-<img align="top" src="References/rules/9_old/Count Area Across Border C.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/233810_1.svg" width="42.86%"/>
+<img align="top" src="References/rules/9_old/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/233810_1.svg" width="42.86%"/>
 
 <!---->
 
@@ -443,11 +443,9 @@ To mark the two areas, each one has to be given a directional obstacle next to t
 <img align="top" src="References/rules/9/Double Area C-Shape.svg" width="23.8%"/>
 
 And with this marking system, we can correct the rules previously made. All rules featuring future line start and end fields have to be rewritten to start with.<br />
-So we get the 2-distance across rules, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.
+So we get the 2-distance across rule, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.
 
-<img align="top" src="References/rules/9/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="28.6%"/><br />
-<img src="References/spacer.svg" height="23"/><br />
-<img align="top" src="References/rules/9_old/Square 4 x 2_2.svg" width="19%"/>
+<img align="top" src="References/rules/9_old/Count Area 2 Across.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Double C-Shape rotated.svg" width="28.6%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Square 4 x 2_2.svg" width="19%"/>
 
 Let's return to the last example and make a modification:
 
@@ -529,7 +527,7 @@ We have all the tools to handle 2 034 575.
 
 It is an impair area where the number of the starting field's color is less than the other color.
 
-<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/>
+<img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="19%"/>
 
 <!---->
 
@@ -584,7 +582,7 @@ Soon we get a similar situation, only here it is the imbalance of pair and impai
 If we step to A, we cannot step left and therefure must continue to B (or right). From B, the only possibility is C, but the 5 x 3 area is not just impair, there is less of the C-parity field than the other.<br />
 In the rule, I introduced a new field that indicates the entry point; this has always been the start field until now.
 
-<img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
+<img align="top" src="References/rules/9_old/Double C-Shape Determined.svg" width="14.28%"/>
 
 <!---->
 
@@ -639,13 +637,13 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 1 861, Double C-Shape
 
-<img align="top" src="References/1861.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape.svg" width="30%"/>
+<img align="top" src="References/1861.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Double C-Shape rotated.svg" width="30%"/>
 
 <!---->
 
 9 121, Count Area 2 Across
 
-<img align="top" src="References/9121.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across.svg" width="25%"/>
+<img align="top" src="References/9121.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Count Area 2 Across.svg" width="25%"/>
 
 22 328, Straight Mid Across 3 End Area
 
@@ -656,10 +654,6 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 22 328, Straight Across End Area
 
 <img align="top" src="References/22328_1.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across End Area.svg" width="20%"/>
-
-22 362, Count Area 2 Across C 
-
-<img align="top" src="References/22362.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Count Area 2 Across C.svg" width="30%"/>
 
 <!---->
 
@@ -705,7 +699,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 2 059 934, Mid Across 3 Impair Determined
 
-<img align="top" src="References/2059934.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="20%"/>
+<img align="top" src="References/2059934.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="20%"/>
 
 8 076 202, Straight Mid Across 3 End C
 
@@ -719,7 +713,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 8 076 762, Double C-Shape Determined
 
-<img align="top" src="References/8076762.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="15%"/>
+<img align="top" src="References/8076762.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Double C-Shape Determined.svg" width="15%"/>
 
 <!---->
 
@@ -741,7 +735,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 <img align="top" src="References/23350320.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/23350320_1.svg" width="42.86%"/>
 
-<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined 2.svg" width="15%"/>
+<img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined 2.svg" width="15%"/>
 
 <!---->
 
@@ -927,11 +921,11 @@ Check the original 21 x 21 example. Two steps back, there will be 9 distance wit
 
 Does this procedure apply to any of the size-specific rules? Not exactly, but let's look them through. Here are all of them that deal with black and white field imbalance:
 
-<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Mid Across 3 Determined.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/13_old/Across 3 Impair Determined.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined 2.svg" width="14.28%"/>
+<img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Mid Across 3 Determined.svg" width="23.8%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/13_old/Across 3 Impair Determined.svg" width="28.57%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined 2.svg" width="14.28%"/>
 
 <!---->
 
-<img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
+<img align="top" src="References/rules/9_old/Double C-Shape Determined.svg" width="14.28%"/>
 
 As a reminder, they indicate impair areas, and in the first two case if the count area start field (black) type is not 1 field more in the area, we cannot enter later.
 In the fourth, the field marked with + (white) is the type that needs to be 1 more than black, otherwise stepping forward is forbidden.
@@ -1255,9 +1249,9 @@ Later: 1W -> xB
 Now: The corner white always gives 1. Then make pairs with the remaining inline whites plus the white field we are stepping first.<br />
 1 + (n+1 - (n+1) % 2) / 2<br />
 For the blacks, one of the inline black fields will be taken by the first line. We can then make pairs with the remaining inline blacks and add the corners.<br />
-x-1 + (n - n % 2) / 2.<br />
+x - 1 + (n - n % 2) / 2.<br />
 
-Later: The white line count is 1 + (n - n % 2) / 2 if n > 0, and the black line count is x-1 + (n+1 - (n+1) % 2) / 2.
+Later: The white line count is 1 + (n - n % 2) / 2 if n > 0, and the black line count is x - 1 + (n+1 - (n+1) % 2) / 2.
 
 Next, we will look at the corner discovery algorithm.<br />
 Starting with 1 horizontal and 2 vertical distance, we check if that field is taken.
@@ -1301,7 +1295,7 @@ As we continue the case above, soon we will discover a deficiency which actually
 With the border on top, now we have no option to move.<br />
 The following rules are active, in addition to the universal one that disables the left field:
 
-<img align="top" src="References/rules/9/Mid Across 3 Impair Determined.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Mid Across 3 Impair Determined 2.svg" width="14.28%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Double C-Shape.svg" width="14.3%"/>
+<img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="19%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined 2.svg" width="14.28%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Double C-Shape.svg" width="14.3%"/>
 
 There are three more black fields in the area than white, so there is not enough vertical distance for entering and exiting that many times.<br />
 The straight-to-side algorithm has to be rotated upwards, so we get this:
@@ -1352,7 +1346,7 @@ If we continue the line from here, keeping left, we will run into this situation
 
 Double C-Shape Determined:
 
-<img align="top" src="References/rules/9/Double C-Shape Determined.svg" width="14.28%"/>
+<img align="top" src="References/rules/9_old/Double C-Shape Determined.svg" width="14.28%"/>
 
 <!---->
 
@@ -1592,5 +1586,46 @@ Now we can continue the case, but we will find that we cannot go past this point
 <img align="top" src="References/2024_0331_1.svg" width="47.6%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2024_0331.svg" width="47.6%"/>
 
 The picture on the right is the crossroad. If we step upwards, the area can be completed.
-The area between the live end and the corner on the left contains one more black field than white, so the number could be made by stepping left and up, only we cannot step up because of the C-shape.
-This has to be accounted for in all rules.
+The area between the live end and the corner on the left contains one more black field than white, so the number could be made by stepping left and up, only we cannot step up because of the C-shape. This has to be accounted for in all rules.
+
+Let's look at them individually.
+
+<img align="top" src="References/xdist.svg" width="30%"/>
+
+If we now step up and right, the later B count (which was x-1) changes to, well, actually remains x-1. Even though the first corner black changes to inline, it can pair up with another corner black to fill the area, and x-2 corner blacks remain.
+
+<!---->
+
+n = 1
+
+<img align="top" src="References/2n=2.svg" width="40%"/>
+
+x + (n - n % 2 ) / 2
+changes to
+x - 1 + (n+1 - (n+1) % 2 ) / 2
+
+n = 0
+
+<img align="top" src="References/2n 1=1.svg" width="35%"/>
+
+(n+2 - (n+2) % 2) / 2
+changes to
+(n+1 - (n+1) % 2 ) / 2
+
+<!---->
+
+n = 1
+
+<img align="top" src="References/2n=2v.svg" width="30%"/>
+
+x + (n - n % 2 ) / 2
+changes to
+x - 1 + (n+1 - (n+1) % 2 ) / 2
+
+n = 0
+
+<img align="top" src="References/2n 1=1v.svg" width="30%"/>
+
+x - 1 + (n+1 - (n+1) % 2) / 2
+changes to
+x - 1 + (n - n % 2 ) / 2
