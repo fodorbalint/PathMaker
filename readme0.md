@@ -748,7 +748,7 @@ By now, we are able to group some rules and even solve the original 21 x 21 exam
 
 <img align="top" src="References/3pair.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4pair.svg" width="30%"/>
 
-Besides the count area fields being empty, here I also assume that the left field and the field below the count area end is also empty, because the program cannot go through a field twice when creating the arealine. In the future, this might have to be changed and new constellations added.<br />
+Besides the count area fields being empty, here I also assume that the left field and the field below the obstacle is also empty. In the future, this might have to be changed and new constellations added.<br />
 Knowing the difference between the number of pair and impair fields, we can make a decision in some cases.
 
 <!---->
@@ -1586,15 +1586,41 @@ Now we can continue the case, but we will find that we cannot go past this point
 <img align="top" src="References/2024_0331_1.svg" width="47.6%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2024_0331.svg" width="47.6%"/>
 
 The picture on the right is the crossroad. If we step upwards, the area can be completed.
-The area between the live end and the corner on the left contains one more black field than white, so the number could be made by stepping left and up, only we cannot step up because of the C-shape. This has to be accounted for in all rules.
+The area between the live end and the corner on the left contains one more black field than white, so the number could be made by stepping left and up, only we cannot step left because of the C-shape. In other words, when stepping left, the line will not be able to continue, but we need to change the programming algorithm in order to see it.
+Now when there is a C-Shape, it is possible to step there, and no other rules will be checked. But C-Shape is just one of the nine cases of area checking.
+
+<img align="top" src="References/allcases2.svg" width="55%"/>
+
+<!---->
+
+Remember we have made rules previously that take both sides into account, like this:
+
+<img align="top" src="References/checknearfield/2 far mid across across.svg" width="28.6%"/>
+
+To combine all cases where after the next step, on the left side only the left field will be possible, and on the right, only the right, is not feasible.
+
+Let's say instead that if one of the possible fields will lead to an impossible situation, we cannot step there. It still results in a usable algorithm.
+
+(An algorithm is usable if the number of operations are on the order of n ^ 2 where n indicates the size of the table.
+An unusable algorithm would require a number of operations on the order of 2 ^ n or more: that is the random path where you just guess the next step until you get an impossible situation, but the crossroad might have been as far back as almost n x n steps.) 
+
+We need to look at the straight obstacle case:
+
+<img align="top" src="References/4pair straight.svg" width="15%"/>
+
+<!---->
+
+<img align="top" src="References/3dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/5dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/6dist straight.svg" width="10%"/>
+
+Notice the area is the same as with the case where the obstacle is one field to the right.
+
+<!--This has to be accounted for in all rules.
 
 Let's look at them individually.
 
 <img align="top" src="References/xdist.svg" width="30%"/>
 
 If we now step up and right, the later B count (which was x-1) changes to, well, actually remains x-1. Even though the first corner black changes to inline, it can pair up with another corner black to fill the area, and x-2 corner blacks remain.
-
-<!---->
 
 n = 1
 
@@ -1612,8 +1638,6 @@ n = 0
 changes to
 (n+1 - (n+1) % 2 ) / 2
 
-<!---->
-
 n = 1
 
 <img align="top" src="References/2n=2v.svg" width="30%"/>
@@ -1628,4 +1652,4 @@ n = 0
 
 x - 1 + (n+1 - (n+1) % 2) / 2
 changes to
-x - 1 + (n - n % 2 ) / 2
+x - 1 + (n - n % 2 ) / 2-->
