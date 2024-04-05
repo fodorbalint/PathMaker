@@ -1604,7 +1604,7 @@ Let's say instead that if one of the possible fields will lead to an impossible 
 (An algorithm is usable if the number of operations are on the order of n ^ 2 where n indicates the size of the table.
 An unusable algorithm would require a number of operations on the order of 2 ^ n or more: that is the random path where you just guess the next step until you get an impossible situation, but the crossroad might have been as far back as almost n x n steps.) 
 
-We need to look at the straight obstacle case:
+We are still missing the straight obstacle case:
 
 <img align="top" src="References/4pair straight.svg" width="15%"/>
 

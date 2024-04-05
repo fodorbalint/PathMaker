@@ -1677,13 +1677,13 @@ namespace OneWayLabyrinth
                                             }
                                         }
 
-                                        if (hori > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
+                                        if (vert > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
                                         {
                                             if (i == 1)
                                             {
                                                 borderFields.Add(new int[] { 1, 2 });
                                             }
-                                            else if (i < hori - 1)
+                                            else if (i < vert - 1)
                                             {
                                                 borderFields.Add(new int[] { i, i });
                                                 borderFields.Add(new int[] { i, i + 1 });
@@ -3017,18 +3017,8 @@ namespace OneWayLabyrinth
                         }
                         startCandidate = endCandidate = field;
                     }
-                    currentY = fieldY;
-
-                    /*foreach (int[] sfield in startSquares)
-                    {
-                        T("startsquare: " + sfield[0] + " " + sfield[1]);
-                    }
-                    foreach (int[] efield in endSquares)
-                    {
-                        T("endsquare: " + efield[0] + " " + efield[1]);
-                    }*/
+                    currentY = fieldY;                    
                 }
-
 
                 //add last field
                 if (circleDirectionLeft)
@@ -3039,6 +3029,15 @@ namespace OneWayLabyrinth
                 {
                     endSquares.Add(endCandidate);
                 }
+
+                /*foreach (int[] sfield in startSquares)
+                {
+                    T("startsquare: " + sfield[0] + " " + sfield[1]);
+                }
+                foreach (int[] efield in endSquares)
+                {
+                    T("endsquare: " + efield[0] + " " + efield[1]);
+                }*/
 
                 count = endSquares.Count;
 
@@ -3115,7 +3114,7 @@ namespace OneWayLabyrinth
                             //without having open peaks, the first start square should match the last end square. Otherwise, we need to find the ending that is closest to the start field in the row.
                             for (int i = endSquares.Count - 1; i >= 0; i--)
                             {
-                                if (endSquares[i][1] == y && endSquares[i][0] > x)
+                                if (endSquares[i][1] == y && endSquares[i][0] >= x)
                                 {
                                     if (endSquares[i][0] < minX)
                                     {
