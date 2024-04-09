@@ -734,7 +734,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 23 350 320 is new, but it shows similarity to the Mid Across 3 Impair Determined rule. As the double C-shape reveals, it is about pair/impair field imbalance.
 
 <img align="top" src="References/23350320.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/23350320_1.svg" width="42.86%"/>
-
+<img src="References/spacer.svg" height="23"/>
 <img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined 2.svg" width="15%"/>
 
 <!---->
@@ -1606,13 +1606,31 @@ An unusable algorithm would require a number of operations on the order of 2 ^ n
 
 We are still missing the straight obstacle case:
 
-<img align="top" src="References/4pair straight.svg" width="15%"/>
+<img align="top" src="References/straight left.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight right.svg" width="15%"/>
 
 <!---->
 
-<img align="top" src="References/3dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/5dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/6dist straight.svg" width="10%"/>
+<img align="top" src="References/straight 3.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 4.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 5.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 6.svg" width="15%"/>
 
 Notice the area is the same as with the case where the obstacle is one field to the right.
+
+Side straight cases, small area:
+
+<img align="top" src="References/side straight up.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight down.svg" width="30%"/>
+
+<img align="top" src="References/side straight 3.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight 4.svg" width="30%"/>
+<img src="References/spacer.svg" height="23"/>
+<img align="top" src="References/side straight 5.svg" width="35%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight 6.svg" width="40%"/>
+
+<!---->
+
+Big area:
+
+<img align="top" src="References/side straight big up.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big down.svg" width="30%"/>
+
+<img align="top" src="References/side straight big 3.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big 4.svg" width="30%"/>
+<img src="References/spacer.svg" height="23"/>
+<img align="top" src="References/side straight big 5.svg" width="35%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big 6.svg" width="40%"/>
 
 <!--This has to be accounted for in all rules.
 

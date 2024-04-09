@@ -656,7 +656,7 @@ When there are one more black field than white (8 and 7 in this case), the area 
 23 350 320 is new, but it shows similarity to the Mid Across 3 Impair Determined rule. As the double C-shape reveals, it is about pair/impair field imbalance.<br />
 <br />
 <img align="top" src="References/23350320.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/23350320_1.svg" width="42.86%"/><br />
-<br />
+<img src="References/spacer.svg" height="23"/><br />
 <img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined 2.svg" width="15%"/></div><div class="rightNum">61</div></td></tr><tr><td class="left"><div>If we step left in the impair area, we can only exit at the count area middle field, but there is one less field of that type than the other.<br />
 And no fields can be omitted from the area for entry and exit later.<br />
 When the count area start field + middle field is omitted (subtracting a pair amount of cells from the area), the possible exit is the count area end field, which has a different parity than the field to the left.<br />
@@ -1355,9 +1355,24 @@ An unusable algorithm would require a number of operations on the order of 2 ^ n
 <br />
 We are still missing the straight obstacle case:<br />
 <br />
-<img align="top" src="References/4pair straight.svg" width="15%"/></div><div class="rightNum">109</div></td></tr><tr><td class="left"><div><img align="top" src="References/3dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/4dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/5dist straight.svg" width="10%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/6dist straight.svg" width="10%"/><br />
+<img align="top" src="References/straight left.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight right.svg" width="15%"/></div><div class="rightNum">109</div></td></tr><tr><td class="left"><div><img align="top" src="References/straight 3.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 4.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 5.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 6.svg" width="15%"/><br />
 <br />
 Notice the area is the same as with the case where the obstacle is one field to the right.<br />
+<br />
+Side straight cases, small area:<br />
+<br />
+<img align="top" src="References/side straight up.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight down.svg" width="30%"/><br />
+<br />
+<img align="top" src="References/side straight 3.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight 4.svg" width="30%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img align="top" src="References/side straight 5.svg" width="35%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight 6.svg" width="40%"/></div><div class="leftNum">110</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"><div>Big area:<br />
+<br />
+<img align="top" src="References/side straight big up.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big down.svg" width="30%"/><br />
+<br />
+<img align="top" src="References/side straight big 3.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big 4.svg" width="30%"/><br />
+<img src="References/spacer.svg" height="23"/><br />
+<img align="top" src="References/side straight big 5.svg" width="35%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big 6.svg" width="40%"/><br />
 <br />
 <!--This has to be accounted for in all rules.<br />
 <br />
@@ -1397,7 +1412,5 @@ n = 0<br />
 <br />
 x - 1 + (n+1 - (n+1) % 2) / 2<br />
 changes to<br />
-x - 1 + (n - n % 2 ) / 2--></div><div class="leftNum">110</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
-<td class="right"></td></tr>
- 
+x - 1 + (n - n % 2 ) / 2--></div><div class="rightNum">111</div></td></tr> 
 </table>

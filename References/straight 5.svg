@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 7">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 7">
 	<style>
 		svg { background-color: white; }
 	</style>
@@ -25,13 +25,14 @@
 	<!--3-->
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 7" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 7" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1.99 0 v 7" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 0.01 h 2" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 1 h 2" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 2 h 2" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 3 h 2" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 4 h 2" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 5 h 2" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 6 h 2" />
-	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 6.99 h 2" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2 0 v 7" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 2.99 0 v 7" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 0.01 h 3" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 1 h 3" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 2 h 3" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 3 h 3" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 4 h 3" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 5 h 3" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 6 h 3" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 6.99 h 3" />
 </svg>

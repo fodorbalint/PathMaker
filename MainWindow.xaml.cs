@@ -33,8 +33,7 @@ using SkiaSharp.Views.WPF;
 
 ----- OTHER -----
 
-2-distance area rules, implement to side and border
-1-field does not draw arealine correctly
+implement C-shape up
 
 ----------
 
