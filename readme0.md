@@ -1627,10 +1627,16 @@ Side straight cases, small area:
 Big area:
 
 <img align="top" src="References/side straight big up.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big down.svg" width="30%"/>
-
+<img src="References/spacer.svg" height="23"/>
 <img align="top" src="References/side straight big 3.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big 4.svg" width="30%"/>
 <img src="References/spacer.svg" height="23"/>
 <img align="top" src="References/side straight big 5.svg" width="35%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big 6.svg" width="40%"/>
+
+And here is an example of the x horizontal, 0 vertical distance big area corner. None of the existing cases cover it. The area is impair, so we shouldn't be able to step right.
+
+<img align="top" src="References/2024_0410.svg" width="35%"/>
+<img src="References/spacer.svg" height="23"/>
+<img align="top" src="References/area big.svg" width="30%"/>
 
 <!--This has to be accounted for in all rules.
 
