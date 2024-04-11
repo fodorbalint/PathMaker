@@ -289,25 +289,33 @@ namespace OneWayLabyrinth
                             closeMidAcross = false;
                             closeAcross = false;
 
+                            T("CheckStraight");
                             CheckStraight();
+                            T("CheckSideStraight");
                             CheckSideStraight();
+                            T("CheckSideStraightBig");
                             CheckSideStraightBig();
 
-                            //CheckLeftRightArea();
-                            //CheckLeftRightAreaUp();
+                            T("CheckLeftRightArea");
+                            CheckLeftRightArea();
+                            T("CheckLeftRightAreaUp");
+                            CheckLeftRightAreaUp();
 
+                            T("CheckLeftRightCorner");
                             CheckLeftRightCorner();                           
                             if (!closeStraight && !closeMidAcross && !closeAcross)
                             {
-                                //CheckLeftRightAreaBig();
-                                //CheckLeftRightAreaUpBig();
+                                T("CheckLeftRightAreaBig");
+                                CheckLeftRightAreaBig();
+                                T("CheckLeftRightAreaUpBig");
+                                CheckLeftRightAreaUpBig();
+                                T("CheckLeftRightCornerBig");
                                 CheckLeftRightCornerBig();
                             }                            
 
                             //CheckNearBorder();
                             //CheckNearField();
                             //CheckAreaNearBorder();
-                            
                             
                             //RunRules();
 
@@ -357,11 +365,6 @@ namespace OneWayLabyrinth
                                                        // With the exception of closeAcross large area, all near field rules disable two fields, leaving only one option. Running further rules are not necessary. 
                                                        // Example of interference: 1031_1
 
-                                CheckLeftRightArea();
-                                CheckLeftRightAreaUp();
-                                CheckLeftRightAreaUpBig();
-                                CheckLeftRightCorner();
-                                CheckLeftRightCornerBig();
                                 RunRules();
                             }*/
 
@@ -785,7 +788,6 @@ namespace OneWayLabyrinth
 
                         ResetExamAreas();
 
-                        T("straight count area");
                         if (CountAreaRel(0, 1, 0, ex, borderFields, circleDirectionLeft, 3, true))
                         {
                             int black = (int)info[1];
@@ -910,7 +912,6 @@ namespace OneWayLabyrinth
                         if (i2 > i1) 
                         {
                             circleValid = true;
-                            
                         }
                     }
                     else
@@ -1044,7 +1045,7 @@ namespace OneWayLabyrinth
                 bool conditionValid = true;
                 for (int j = 1; j <= ex; j++)
                 {
-                    if (InTakenRel(j, 1))
+                    if (InTakenRel(j, 1) || InBorderRel(j, 1))
                     {
                         conditionValid = false;
                         break;
@@ -1185,10 +1186,8 @@ namespace OneWayLabyrinth
         {
             for (int i = 0; i < 2; i++)
             {
-                //if (i == 0 && CShapeLeft) return;
-                //if (i == 1 && CShapeRight) return;
-
-                bool circleDirectionLeft = (i == 0) ? true : false;             
+                bool circleValid = false;
+                bool circleDirectionLeft = (i == 0) ? true : false;
                 int dist = 1;
                 List<int[]> borderFields = new();
 
@@ -1198,139 +1197,48 @@ namespace OneWayLabyrinth
                 }
 
                 int ex = dist - 1;
-
-                if (ex > 2)
+                if (ex == 0 || InBorderRel(dist, 1))
                 {
-                    for (int j = ex - 1; j >= 2; j--)
+                    lx = -lx;
+                    ly = -ly;
+                    continue;
+                }
+
+                if (!InTakenRel(dist, 0))
+                {
+                    int i1 = InTakenIndexRel(dist, 1);
+                    int i2 = InTakenIndexRel(dist, 2);
+
+                    if (i1 > i2)
                     {
-                        borderFields.Add(new int[] { j, 1 });
+                        circleValid = true;
                     }
                 }
-                if (ex > 1 && !InTakenRel(1, 0) && !InTakenRel(ex + 1, 0)) //area cannot be drawn if one of these fields is taken
-                {
-                    int i1 = InTakenIndexRel(ex + 1, 1);
-                    int i2 = InTakenIndexRel(ex + 1, 2);
 
-                    if (i1 > i2) // area downwards
+                if (circleValid)
+                {
+                    if (ex == 1)
                     {
+                        // This cannot haappen
+                    }
+                    else
+                    {
+                        if (ex > 2)
+                        {
+                            for (int j = ex - 1; j >= 2; j--)
+                            {
+                                borderFields.Add(new int[] { j, 1 });
+                            }
+                        }
+
                         ResetExamAreas();
+
                         if (CountAreaRel(1, 1, ex, 1, borderFields, circleDirectionLeft, 2, true))
                         {
                             int black = (int)info[1];
                             int white = (int)info[2];
 
                             T("CheckLeftRightArea black " + black + " white " + white + " mod " + ex % 4);
-
-                            switch (ex % 4)
-                            {
-                                case 0:
-                                    if (black >= white + ex / 4)
-                                    {
-                                        T("Cannot enter now");
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]); //list of black fields, will be drawn black
-                                    }
-                                    break;
-                                case 1:
-                                    if (black >= white + (ex + 3) / 4)
-                                    {
-                                        T("Cannot enter now");
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                    break;
-                                case 2:
-                                    if (black >= white + (ex + 2) / 4)
-                                    {
-                                        T("Cannot enter now");
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                    if (white >= black + (ex + 2) / 4)
-                                    {
-                                        T("Cannot enter later");
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        forbidden.Add(new int[] { x - lx, y - ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                    break;
-                                case 3:
-                                    break;
-
-                            }
-                        }
-                    }
-                }
-                lx = -lx;
-                ly = -ly;
-            }
-            lx = thisLx;
-            ly = thisLy;
-        }
-
-        public void CheckLeftRightAreaBig()
-        {
-
-        }
-
-        public void CheckLeftRightAreaUp()
-        {
-            return;
-            for (int i = 0; i < 2; i++)
-            {
-                //if (i == 0 && CShapeLeft) return;
-                //if (i == 1 && CShapeRight) return;
-
-                bool circleDirectionLeft = (i == 0) ? true : false;
-                int dist = 1;
-
-                List<int[]> borderFields = new();
-                while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
-                {
-                    dist++;
-                }
-
-                if (!InTakenRel(0, dist))
-                {
-                    int ex = dist - 1;
-
-                    if (ex == 1)
-                    {
-                        int i1 = InTakenIndexRel(1, 2);
-                        int i2 = InTakenIndexRel(2, 2);
-
-                        if (i2 > i1) // area on left
-                        {
-                            closeMidAcross = true;
-
-                            forbidden.Add(new int[] { x + sx, y + sy });
-                            forbidden.Add(new int[] { x - lx, y - ly });
-                        }
-                    }
-
-                    if (ex > 2)
-                    {
-                        for (int j = ex - 1; j >= 2; j--)
-                        {
-                            borderFields.Add(new int[] { 1, j });
-                        }
-                    }
-
-                    T("CheckLeftRightAreaUp dist " + ex);
-                    if (ex > 1 && !InTakenRel(2, 1) && !InTakenRel(2, ex)) //area cannot be drawn if one of these fields is taken
-                    {
-                        ResetExamAreas();
-
-                        if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
-                        {
-                            int black = (int)info[1];
-                            int white = (int)info[2];
-
-                            T("CheckLeftRightAreaUp black " + black + " white " + white + " mod " + ex % 4);
 
                             int whiteDiff = white - black;
                             int nowWCount = 0;
@@ -1340,7 +1248,142 @@ namespace OneWayLabyrinth
 
                             switch (ex % 4)
                             {
-                                // range approach
+                                case 0:
+                                    nowWCount = ex / 4;
+                                    nowBCount = ex / 4;
+                                    laterWCount = ex / 4;
+                                    laterBCount = ex / 4;
+                                    break;
+                                case 1:
+                                    nowWCount = (ex - 1) / 4;
+                                    nowBCount = (ex - 1) / 4;
+                                    laterWCount = (ex - 1) / 4;
+                                    laterBCount = (ex + 3) / 4;
+                                    break;
+                                case 2:
+                                    if (ex == 2)
+                                    {
+                                        nowWCount = 0;
+                                        laterBCount = 0;
+                                    }
+                                    else
+                                    {
+                                        nowWCount = (ex + 2) / 4;
+                                        laterBCount = (ex + 2) / 4;
+                                    }
+                                    nowBCount = (ex - 2) / 4;
+                                    laterWCount = (ex - 2) / 4;
+                                    break;
+                                case 3:
+                                    if (ex == 3)
+                                    {
+                                        nowWCount = 0;
+                                    }
+                                    else
+                                    {
+                                        nowWCount = (ex + 1) / 4;
+                                    }
+                                    
+                                    nowBCount = (ex + 1) / 4;
+                                    laterWCount = (ex - 3) / 4;
+                                    laterBCount = (ex + 1) / 4;
+                                    break;
+
+                            }
+
+                            if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
+                            {
+                                T("CheckLeftRightArea cannot enter now");
+                                forbidden.Add(new int[] { this.x + lx, y + ly });
+                                AddExamAreas();
+                                areaPairFields.Add((List<int[]>)info[3]);
+                            }
+                            if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                            {
+                                T("CheckLeftRightArea cannot enter later");
+                                forbidden.Add(new int[] { this.x + sx, y + sy });
+                                forbidden.Add(new int[] { this.x - lx, y - ly });
+                                AddExamAreas();
+                                areaPairFields.Add((List<int[]>)info[3]);
+                            }
+                        }
+                    }
+                }
+
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        public void CheckLeftRightAreaBig()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleValid = false;
+                bool circleDirectionLeft = (i == 0) ? false : true;
+                int dist = 1;
+                List<int[]> borderFields = new();
+
+                while (!InTakenRel(dist, 1) && !InBorderRel(dist, 1))
+                {
+                    dist++;
+                }
+
+                int ex = dist - 1;
+                if (ex == 0 || InBorderRel(dist, 1))
+                {
+                    lx = -lx;
+                    ly = -ly;
+                    continue;
+                }
+
+                if (!InTakenRel(dist, 0))
+                {
+                    int i1 = InTakenIndexRel(dist, 1);
+                    int i2 = InTakenIndexRel(dist, 2);
+
+                    if (i2 > i1)
+                    {
+                        circleValid = true;
+                    }
+                }
+
+                if (circleValid)
+                {
+                    if (ex == 1)
+                    {
+                        forbidden.Add(new int[] { this.x + lx, y + ly });
+                    }
+                    else
+                    {
+                        if (ex > 2)
+                        {
+                            for (int j = ex - 1; j >= 2; j--)
+                            {
+                                borderFields.Add(new int[] { j, 1 });
+                            }
+                        }
+
+                        ResetExamAreas();
+
+                        if (CountAreaRel(1, 1, ex, 1, borderFields, circleDirectionLeft, 2, true))
+                        {
+                            int black = (int)info[1];
+                            int white = (int)info[2];
+
+                            T("CheckLeftRightAreaBig black " + black + " white " + white + " mod " + ex % 4);
+
+                            int whiteDiff = white - black;
+                            int nowWCount = 0;
+                            int nowBCount = 0;
+                            int laterWCount = 0;
+                            int laterBCount = 0;
+
+                            // same as in CheckSideStraightBig
+                            switch (ex % 4)
+                            {
                                 case 0:
                                     nowWCount = ex / 4;
                                     nowBCount = ex / 4 - 1;
@@ -1365,58 +1408,137 @@ namespace OneWayLabyrinth
                                     laterWCount = (ex - 3) / 4;
                                     laterBCount = (ex + 1) / 4;
                                     break;
-
-                                // exclusive approach
-                                /*case 0:
-                                    if (black >= white + ex / 4)
-                                    {
-                                        T("Cannot enter now");
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                    break;
-                                case 1:
-                                    break;
-                                case 2:
-                                    if (white >= black + (ex + 2) / 4)
-                                    {
-                                        T("Cannot enter later");
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        forbidden.Add(new int[] { x - lx, y - ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                    break;
-                                case 3:
-                                    if (white >= black + (ex + 1) / 4)
-                                    {
-                                        T("Cannot enter later ");
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        forbidden.Add(new int[] { x - lx, y - ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                    if (black >= white + (ex + 1) / 4)
-                                    {
-                                        T("Cannot enter now");
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                    break;*/
                             }
 
                             if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
                             {
-                                T("CheckLeftRightCorner cannot enter now");
+                                T("CheckLeftRightAreaBig cannot enter now");
+                                forbidden.Add(new int[] { this.x + sx, y + sy });
+                                forbidden.Add(new int[] { this.x - lx, y - ly });
+                                AddExamAreas();
+                                areaPairFields.Add((List<int[]>)info[3]);
+                            }
+                            if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                            {
+                                T("CheckLeftRightArea cannot enter later");
+                                forbidden.Add(new int[] { this.x + lx, y + ly });
+                                AddExamAreas();
+                                areaPairFields.Add((List<int[]>)info[3]);
+                            }
+                        }
+                    }
+                }
+
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        public void CheckLeftRightAreaUp()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleValid = false;
+                bool circleDirectionLeft = (i == 0) ? true : false;
+                int dist = 1;
+                List<int[]> borderFields = new();
+
+                while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
+                {
+                    dist++;
+                }
+
+                int ex = dist - 1;
+                if (ex == 0 || InBorderRel(1, dist))
+                {
+                    lx = -lx;
+                    ly = -ly;
+                    continue;
+                }
+
+                if (!InTakenRel(0, dist))
+                {
+                    int i1 = InTakenIndexRel(1, dist);
+                    int i2 = InTakenIndexRel(2, dist);
+
+                    if (i2 > i1)
+                    {
+                        circleValid = true;
+                    }
+                }
+
+                if (circleValid)
+                {
+                    if (ex == 1)
+                    {
+                        forbidden.Add(new int[] { x + sx, y + sy });
+                        forbidden.Add(new int[] { x - lx, y - ly });
+                    }
+                    else
+                    {
+                        if (ex > 2)
+                        {
+                            for (int j = ex - 1; j >= 2; j--)
+                            {
+                                borderFields.Add(new int[] { j, 1 });
+                            }
+                        }
+
+                        ResetExamAreas();
+
+                        if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                        {
+                            int black = (int)info[1];
+                            int white = (int)info[2];
+
+                            T("CheckLeftRightAreaUp black " + black + " white " + white + " mod " + ex % 4);
+
+                            int whiteDiff = white - black;
+                            int nowWCount = 0;
+                            int nowBCount = 0;
+                            int laterWCount = 0;
+                            int laterBCount = 0;
+
+                            switch (ex % 4)
+                            {
+                                case 0:
+                                    nowWCount = ex / 4;
+                                    nowBCount = ex / 4 - 1;
+                                    laterWCount = ex / 4;
+                                    laterBCount = ex / 4;
+                                    break;
+                                case 1:
+                                    nowWCount = (ex - 1) / 4;
+                                    nowBCount = (ex - 1) / 4;
+                                    laterWCount = (ex - 1) / 4;
+                                    laterBCount = (ex - 1) / 4;
+                                    break;
+                                case 2:
+                                    nowWCount = (ex + 2) / 4;
+                                    nowBCount = (ex - 2) / 4;
+                                    laterWCount = (ex - 2) / 4;
+                                    laterBCount = (ex - 2) / 4;
+                                    break;
+                                case 3:
+                                    nowWCount = (ex + 1) / 4;
+                                    nowBCount = (ex - 3) / 4;
+                                    laterWCount = (ex - 3) / 4;
+                                    laterBCount = (ex + 1) / 4;
+                                    break;
+                            }
+
+                            if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
+                            {
+                                T("CheckLeftRightAreaUp cannot enter now");
                                 forbidden.Add(new int[] { this.x + lx, y + ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
                             if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                             {
-                                T("CheckLeftRightCorner cannot enter later");
+                                T("CheckLeftRightAreaUp cannot enter later");
                                 forbidden.Add(new int[] { this.x + sx, y + sy });
                                 forbidden.Add(new int[] { this.x - lx, y - ly });
                                 AddExamAreas();
@@ -1425,6 +1547,7 @@ namespace OneWayLabyrinth
                         }
                     }
                 }
+
                 lx = -lx;
                 ly = -ly;
             }
@@ -1434,10 +1557,9 @@ namespace OneWayLabyrinth
 
         public void CheckLeftRightAreaUpBig()
         {
-            return;
-
             for (int i = 0; i < 2; i++)
             {
+                bool circleValid = false;
                 bool circleDirectionLeft = (i == 0) ? false : true;
                 int dist = 1;
                 List<int[]> borderFields = new();
@@ -1447,36 +1569,44 @@ namespace OneWayLabyrinth
                     dist++;
                 }
 
+                int ex = dist - 1;
+                if (ex == 0 || InBorderRel(1, dist))
+                {
+                    lx = -lx;
+                    ly = -ly;
+                    continue;
+                }
+
                 if (!InTakenRel(0, dist))
                 {
-                    int ex = dist - 1;
+                    int i1 = InTakenIndexRel(1, dist);
+                    int i2 = InTakenIndexRel(2, dist);
 
+                    if (i1 > i2)
+                    {
+                        circleValid = true;
+                    }
+                }
+
+                if (circleValid)
+                {
                     if (ex == 1)
                     {
-                        int i1 = InTakenIndexRel(1, 2);
-                        int i2 = InTakenIndexRel(2, 2);
-
-                        if (i1 > i2) // area on right
-                        {
-                            forbidden.Add(new int[] { x + sx, y + sy });
-                            forbidden.Add(new int[] { x + lx, y + ly });                          
-                        }
+                        forbidden.Add(new int[] { x + sx, y + sy });
+                        forbidden.Add(new int[] { x + lx, y + ly });
                     }
-
-                    if (ex > 2)
+                    else
                     {
-                        for (int j = ex - 1; j >= 2; j--)
+                        if (ex > 2)
                         {
-                            borderFields.Add(new int[] { 0, j });
+                            for (int j = ex - 1; j >= 2; j--)
+                            {
+                                borderFields.Add(new int[] { j, 1 });
+                            }
                         }
-                    }
 
-                    T("CheckLeftRightAreaUpBig dist " + ex);
-                    if (ex > 1 && !InTakenRel(-1, 1) && !InTakenRel(-1, ex) && !InBorderRel(-1, 1)  && !InBorderRel(-1, ex)) //area cannot be drawn if one of these fields is taken
-                    {
                         ResetExamAreas();
 
-                        // circle type 3 means the start field will be drawn white
                         if (CountAreaRel(0, 1, 0, ex, borderFields, circleDirectionLeft, 3, true))
                         {
                             int black = (int)info[1];
@@ -1536,7 +1666,7 @@ namespace OneWayLabyrinth
                             }
                             if (!(whiteDiff <= nowWCountRight && whiteDiff >= -nowBCount)) // not in range
                             {
-                                T("Cannot enter now");
+                                T("Cannot enter now right");
                                 forbidden.Add(new int[] { x - lx, y - ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
@@ -1551,6 +1681,7 @@ namespace OneWayLabyrinth
                         }
                     }
                 }
+
                 lx = -lx;
                 ly = -ly;
             }
@@ -2951,12 +3082,15 @@ namespace OneWayLabyrinth
 
             // if the field in straight direction is the live end, we need to turn (right if the circle direction is left). Similarly, if the live end is across on the same side the direction is going.
             int turnedDirection = currentDirection == 0 ? 3 : currentDirection - 1;
-            if (x == nextX + xDiff && y == nextY + yDiff || x == nextX + xDiff + directions[turnedDirection][0] && y == nextY + yDiff + directions[turnedDirection][1])
+            // second condition is needed in case of 2024_0411_1 where future possibility creates a 2-field area
+            if (x == nextX + xDiff && y == nextY + yDiff || InTaken(nextX + xDiff, nextY + yDiff) || x == nextX + xDiff + directions[turnedDirection][0] && y == nextY + yDiff + directions[turnedDirection][1])
             {
                 currentDirection = turnedDirection;
             }
 
-            //In case of an area of 2, 3 or a longer column
+            T("currentDirection: " + currentDirection + ", " + (nextX + directions[currentDirection][0]) + " " + (nextY + directions[currentDirection][1]) + " taken: " + InTaken(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]));
+
+            // In case of an area of 2, 3 or a longer column
             if (InTaken(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]) || InBorder(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]))
             {
                 currentDirection = currentDirection == 0 ? 3 : currentDirection - 1;
