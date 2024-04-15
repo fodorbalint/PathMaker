@@ -1638,42 +1638,30 @@ And here is an example of the x horizontal, 0 vertical distance big area corner.
 <img src="References/spacer.svg" height="23"/>
 <img align="top" src="References/area big.svg" width="30%"/>
 
-<!--This has to be accounted for in all rules.
+<!---->
 
-Let's look at them individually.
+When we re-run the program on 9 x 9, it will be obvious that covering all the above 9 cases of area checking still does not solve everything.
 
-<img align="top" src="References/xdist.svg" width="30%"/>
+If we don't apply the first size-specific rule, we get stuck here:
 
-If we now step up and right, the later B count (which was x-1) changes to, well, actually remains x-1. Even though the first corner black changes to inline, it can pair up with another corner black to fill the area, and x-2 corner blacks remain.
+<img align="top" src="References/464.svg" width="42.86%"/>
 
-n = 1
+As a reminder:
 
-<img align="top" src="References/2n=2.svg" width="40%"/>
+<img align="top" src="References/462.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area C-Shape.svg" width="25%"/>
 
-x + (n - n % 2 ) / 2
-changes to
-x - 1 + (n+1 - (n+1) % 2 ) / 2
+Let's put this into the perspective of our current knowledge.
 
-n = 0
+What happens here is that the 3 x 2 area has a certain exit point, the middle, because the area is pair. Then it will create a C-Shape on one side and an area on the other side with a 1-wide gap.
 
-<img align="top" src="References/2n 1=1.svg" width="35%"/>
+<!---->
 
-(n+2 - (n+2) % 2) / 2
-changes to
-(n+1 - (n+1) % 2 ) / 2
+In general, if we have an area of this shape,
 
-n = 1
+<img align="top" src="References/464_1.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/464_2.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/464_3.svg" width="35%"/>
 
-<img align="top" src="References/2n=2v.svg" width="30%"/>
+that consists equal amount of black and white fields, and we enter now, we will exit at the black field, and the preceding field could only have been the farthest corner white, and we can continue backwards through all corner whites like this.
 
-x + (n - n % 2 ) / 2
-changes to
-x - 1 + (n+1 - (n+1) % 2 ) / 2
+<img align="top" src="References/464_4.svg" width="35%"/>
 
-n = 0
-
-<img align="top" src="References/2n 1=1v.svg" width="30%"/>
-
-x - 1 + (n+1 - (n+1) % 2) / 2
-changes to
-x - 1 + (n - n % 2 ) / 2-->
+If an area is created with either of the fields marked with left arrow, it cannot be filled.

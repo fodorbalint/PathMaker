@@ -1341,7 +1341,19 @@ Now: x - 1 + (n+2 - (n+2) % 2) / 2 W if n > 0 (x - 1 if n = 0) -> (n+1 - (n+1) %
 Later: x - 1 + (n+1 - (n+1) % 2) / 2 W -> (n+2 - (n+2) % 2) / 2 B if n > 0 (0 if n = 0)<br />
 <br />
 The difference between stepping up and right still remains in these vertical expansion cases. We didn't have to deal with it at the small area, because the line could not step backwards.<br />
-It just means we have to remove the Now W conditions for stepping right.</div><div class="rightNum">107</div></td></tr><tr><td class="left"></td>
+It just means we have to remove the Now W conditions for stepping right.</div><div class="rightNum">107</div></td></tr><tr><td class="left"><div>When we re-run the program on 9 x 9, it will be obvious that covering all the above 9 cases of area checking still does not solve everything.<br />
+<br />
+If we don't apply the first size-specific rule, we get stuck here:<br />
+<br />
+<img align="top" src="References/464.svg" width="42.86%"/><br />
+<br />
+As a reminder:<br />
+<br />
+<img align="top" src="References/462.svg" width="42.86%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Double Area C-Shape.svg" width="25%"/><br />
+<br />
+Let's put this into the perspective of our current knowledge.<br />
+<br />
+What happens here is that the 3 x 2 area has a certain exit point, the middle, because the area is pair. Then it will create a C-Shape on one side and an area on the other side with a 1-wide gap.</div><div class="leftNum">112</div></td>
 <td class="right"><div>Remember we have made rules previously that take both sides into account, like this:<br />
 <br />
 <img align="top" src="References/checknearfield/2 far mid across across.svg" width="28.6%"/><br />
@@ -1378,45 +1390,16 @@ And here is an example of the x horizontal, 0 vertical distance big area corner.
 <br />
 <img align="top" src="References/2024_0410.svg" width="35%"/><br />
 <img src="References/spacer.svg" height="23"/><br />
-<img align="top" src="References/area big.svg" width="30%"/><br />
+<img align="top" src="References/area big.svg" width="30%"/></div><div class="rightNum">111</div></td></tr><tr><td class="left"></td>
+<td class="right"><div>In general, if we have an area of this shape,<br />
 <br />
-<!--This has to be accounted for in all rules.<br />
+<img align="top" src="References/464_1.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/464_2.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/464_3.svg" width="35%"/><br />
 <br />
-Let's look at them individually.<br />
+that consists equal amount of black and white fields, and we enter now, we will exit at the black field, and the preceding field could only have been the farthest corner white, and we can continue backwards through all corner whites like this.<br />
 <br />
-<img align="top" src="References/xdist.svg" width="30%"/><br />
+<img align="top" src="References/464_4.svg" width="35%"/><br />
 <br />
-If we now step up and right, the later B count (which was x-1) changes to, well, actually remains x-1. Even though the first corner black changes to inline, it can pair up with another corner black to fill the area, and x-2 corner blacks remain.<br />
-<br />
-n = 1<br />
-<br />
-<img align="top" src="References/2n=2.svg" width="40%"/><br />
-<br />
-x + (n - n % 2 ) / 2<br />
-changes to<br />
-x - 1 + (n+1 - (n+1) % 2 ) / 2<br />
-<br />
-n = 0<br />
-<br />
-<img align="top" src="References/2n 1=1.svg" width="35%"/><br />
-<br />
-(n+2 - (n+2) % 2) / 2<br />
-changes to<br />
-(n+1 - (n+1) % 2 ) / 2<br />
-<br />
-n = 1<br />
-<br />
-<img align="top" src="References/2n=2v.svg" width="30%"/><br />
-<br />
-x + (n - n % 2 ) / 2<br />
-changes to<br />
-x - 1 + (n+1 - (n+1) % 2 ) / 2<br />
-<br />
-n = 0<br />
-<br />
-<img align="top" src="References/2n 1=1v.svg" width="30%"/><br />
-<br />
-x - 1 + (n+1 - (n+1) % 2) / 2<br />
-changes to<br />
-x - 1 + (n - n % 2 ) / 2--></div><div class="rightNum">111</div></td></tr> 
+If an area is created with either of the fields marked with left arrow, it cannot be filled.</div><div class="rightNum">113</div></td></tr><tr><td class="left"><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"></td></tr>
+ 
 </table>

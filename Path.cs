@@ -1482,7 +1482,7 @@ namespace OneWayLabyrinth
                         {
                             for (int j = ex - 1; j >= 2; j--)
                             {
-                                borderFields.Add(new int[] { j, 1 });
+                                borderFields.Add(new int[] { 1, j });
                             }
                         }
 
@@ -1601,7 +1601,7 @@ namespace OneWayLabyrinth
                         {
                             for (int j = ex - 1; j >= 2; j--)
                             {
-                                borderFields.Add(new int[] { j, 1 });
+                                borderFields.Add(new int[] { 1, j });
                             }
                         }
 
@@ -3230,8 +3230,8 @@ namespace OneWayLabyrinth
                 }
             }
 
-            //T("minY " + minY + " limitX " + limitX + " startIndex " + startIndex);
-            /*foreach (int[] a in areaLine)
+            /*T("minY " + minY + " limitX " + limitX + " startIndex " + startIndex);
+            foreach (int[] a in areaLine)
 			{
 				T(a[0] + " " + a[1]);
 			}*/
