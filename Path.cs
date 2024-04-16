@@ -311,7 +311,9 @@ namespace OneWayLabyrinth
                                 CheckLeftRightAreaUpBig();
                                 T("CheckLeftRightCornerBig");
                                 CheckLeftRightCornerBig();
-                            }                            
+                            }
+
+                            CheckDirectionalArea();
 
                             //CheckNearBorder();
                             //CheckNearField();
@@ -1074,8 +1076,6 @@ namespace OneWayLabyrinth
                     int i1 = InTakenIndexRel(dist, 0);
                     int i2 = InTakenIndexRel(dist, 1);
 
-                    T("i1: " + i1 + " i2: " + i2);
-
                     if (i2 != -1)
                     {
                         if (i2 > i1)
@@ -1086,11 +1086,9 @@ namespace OneWayLabyrinth
                     }
                     else
                     {
-                        T("i2 = -1, i1: " + i1);
                         i2 = InTakenIndexRel(dist, -1);
                         if (i1 > i2)
                         {
-                            T("circle valid");
                             circleValid = true;
                         }
                     }
@@ -2313,6 +2311,80 @@ namespace OneWayLabyrinth
 
                     vert++;
                     hori = 1;
+                }
+
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        public void CheckDirectionalArea()
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                int hori = 3;
+                int vert = 1;
+
+                while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                {
+                    bool circleValid = false;
+                    hori++;
+
+                    while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                    {
+                        hori++;
+                    }
+
+                    if (hori == vert + 3)
+                    {
+                        if (InBorderRel(hori, vert))
+                        {
+                            int i1 = InBorderIndexRel(hori, vert);
+                            int i2 = InBorderIndexRel(hori, vert + 1);
+
+                            if (i2 > i1)
+                            {
+                                circleValid = true;
+                            }
+                        }
+                        else
+                        {
+                            int i1 = InTakenIndexRel(hori, vert);
+                            int i2 = InTakenIndexRel(hori, vert + 1);
+
+                            if (i2 != -1)
+                            {
+                                if (i2 < i1)
+                                {
+                                    circleValid = true;
+
+                                }
+                            }
+                            else
+                            {
+                                i2 = InTakenIndexRel(hori, vert - 1);
+                                if (i2 > i1)
+                                {
+                                    circleValid = true;
+                                }
+                            }
+                        }
+
+                        if (circleValid)
+                        {
+                            T("CheckDirectionalArea circle valid at " + hori + " " + vert);
+
+                            for (int i = 2; i <= hori - 2; i++)
+                            {
+                                // i, i-1
+                            }
+                        }
+                    }
+
+                    vert++;
+                    hori = 3;
                 }
 
                 lx = -lx;
