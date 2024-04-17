@@ -1979,8 +1979,6 @@ namespace OneWayLabyrinth
                                         AddExamAreas();
                                         areaPairFields.Add((List<int[]>)info[3]);
                                     }
-
-
                                 }
                             }
                             else
@@ -2324,6 +2322,7 @@ namespace OneWayLabyrinth
         {
             for (int j = 0; j < 2; j++)
             {
+                bool circleDirectionLeft = (j == 0) ? true : false;
                 int hori = 3;
                 int vert = 1;
 
@@ -2376,9 +2375,49 @@ namespace OneWayLabyrinth
                         {
                             T("CheckDirectionalArea circle valid at " + hori + " " + vert);
 
-                            for (int i = 2; i <= hori - 2; i++)
+                            bool takenFound = false;
+                            List<int[]> borderFields = new();
+
+                            for (int i = hori - 2; i >= 2; i--)
                             {
-                                // i, i-1
+                                if (InTakenRel(i, i - 1) || InTakenRel(i, i - 2))
+                                {
+                                    takenFound = true;
+                                    break;
+                                }
+                                borderFields.Add(new int[] { i, i - 1 });
+                                borderFields.Add(new int[] { i, i - 2 });
+                            }
+
+                            if (!takenFound)
+                            {
+                                ResetExamAreas();
+
+                                if (CountAreaRel(1, 0, hori - 1, hori - 3, borderFields, circleDirectionLeft, 3, true))
+                                {
+                                    int black = (int)info[1];
+                                    int white = (int)info[2];
+
+                                    T("black " + black + " white " + white);
+
+                                    if (black == white)
+                                    {
+                                        // check all the corners if there is a close obstacle that would disable the horizontal far direction
+
+                                        for (int i = 2; i <= hori - 2; i++)
+                                        {
+                                            x = i;
+                                            y = i - 1;
+                                        }
+
+                                        x = path[path.Count - 1][0];
+                                        y = path[path.Count - 1][1];
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                T("arealine taken");
                             }
                         }
                     }
@@ -3118,12 +3157,12 @@ namespace OneWayLabyrinth
                 foreach (int[] field in borderFields)
                 {
                     areaLine.Add(new int[] { field[0], field[1] });
-                    // T("Adding border " + field[0] + " " + field[1] + " count " + areaLine.Count);
+                     // T("Adding border " + field[0] + " " + field[1] + " count " + areaLine.Count);
                 }
                 xDiff = startX - borderFields[borderFields.Count - 1][0];
                 yDiff = startY - borderFields[borderFields.Count - 1][1];
                 areaLine.Add(new int[] { startX, startY });
-                // T("Adding start " + startX + " " + startY + " count " + areaLine.Count);
+                 // T("Adding start " + startX + " " + startY + " count " + areaLine.Count);
             }            
 
             List<int[]> directions;
@@ -3160,7 +3199,7 @@ namespace OneWayLabyrinth
                 currentDirection = turnedDirection;
             }
 
-            T("currentDirection: " + currentDirection + ", " + (nextX + directions[currentDirection][0]) + " " + (nextY + directions[currentDirection][1]) + " taken: " + InTaken(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]));
+            // T("currentDirection: " + currentDirection + ", " + (nextX + directions[currentDirection][0]) + " " + (nextY + directions[currentDirection][1]) + " taken: " + InTaken(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]));
 
             // In case of an area of 2, 3 or a longer column
             if (InTaken(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]) || InBorder(nextX + directions[currentDirection][0], nextY + directions[currentDirection][1]))
@@ -3273,7 +3312,7 @@ namespace OneWayLabyrinth
                 }*/
 
                 areaLine.Add(new int[] { nextX, nextY });
-                //T("Adding " + nextX + " " + nextY + " count " + areaLine.Count);
+                // T("Adding " + nextX + " " + nextY + " count " + areaLine.Count);
 
                 if (nextY < minY)
                 {
