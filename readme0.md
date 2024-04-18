@@ -1665,3 +1665,5 @@ that consists equal amount of black and white fields, and we enter now, we will 
 <img align="top" src="References/464_4.svg" width="35%"/>
 
 If an area is created with either of the fields marked with left arrow, it cannot be filled.
+
+For now, I have only set the program to check the mid across and across cases, marked with pink background. To see if the yellow fields are necessary, we need to construct cases for them.

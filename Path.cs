@@ -2402,16 +2402,28 @@ namespace OneWayLabyrinth
 
                                     if (black == white)
                                     {
-                                        // check all the corners if there is a close obstacle that would disable the horizontal far direction
+                                        int thisX = x;
+                                        int thisY = y;
 
+                                        // check all the corners if there is a close obstacle that would disable the horizontal far direction
                                         for (int i = 2; i <= hori - 2; i++)
                                         {
-                                            x = i;
-                                            y = i - 1;
+                                            x = thisX + lx * i + sx * (i - 1);
+                                            y = thisY + ly * i + sy * (i - 1);
+
+                                            if (CheckNearFieldSmall(j))
+                                            {
+                                                T("small area at " + x + " " + y);
+
+                                                x = thisX;
+                                                y = thisY;
+
+                                                forbidden.Add(new int[] { x + lx, y + ly });
+                                            }
                                         }
 
-                                        x = path[path.Count - 1][0];
-                                        y = path[path.Count - 1][1];
+                                        x = thisX;
+                                        y = thisY;
                                     }
                                 }
                             }
@@ -2431,6 +2443,54 @@ namespace OneWayLabyrinth
             }
             lx = thisLx;
             ly = thisLy;
+        }
+
+        public bool CheckNearFieldSmall(int side) // for use only with Directional Area
+        {
+            bool closeMidAcross = false;
+            bool closeAcross = false;
+
+            int tempLx = lx;
+            int tempLy = ly;
+
+            // opposite side of the relation of the area to the live end
+            if (side == 0)
+            {
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            else
+            {
+                lx = thisLx;
+                ly = thisLy;
+            }
+
+            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+            {
+                int middleIndex = InTakenIndexRel(1, 2);
+                int sideIndex = InTakenIndexRel(2, 2);
+
+                if (sideIndex > middleIndex)
+                {
+                    closeMidAcross = true;
+                }
+            }
+
+            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+            {
+                int middleIndex = InTakenIndexRel(2, 2);
+                int sideIndex = InTakenIndexRel(3, 2);
+
+                if (sideIndex > middleIndex)
+                {
+                    closeAcross = true;
+                }
+            }
+
+            lx = tempLx;
+            ly = tempLy;
+
+            return closeMidAcross || closeAcross;
         }
 
         public void CheckNearField()

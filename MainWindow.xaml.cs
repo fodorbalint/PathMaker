@@ -31,10 +31,6 @@ using SkiaSharp.Views.WPF;
 
 /*
 
------ OTHER -----
-
-implement C-shape up
-
 ----------
 
 In 1-thin future line extension rule, it is not necessary that the far end is at the corner. We are in a closed loop where the far end cannot have effect on the near end, unless the field 2 to left is part of the same future line which took a U-turn.
