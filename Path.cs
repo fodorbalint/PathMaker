@@ -801,6 +801,7 @@ namespace OneWayLabyrinth
                             int nowWCount = 0;
                             int nowWCountLeft = 0;
                             int nowBCount = 0;
+                            int nowBCountLeft = 0;
                             int laterWCount = 0;
                             int laterBCount = 0;
 
@@ -808,15 +809,15 @@ namespace OneWayLabyrinth
                             {
                                 case 0:
                                     nowWCountLeft = nowWCount = ex / 4;
-                                    nowBCount = ex / 4 - 1;
+                                    nowBCountLeft = nowBCount = ex / 4 - 1;
                                     laterWCount = ex / 4;
                                     laterBCount = ex / 4;
                                     break;
                                 case 1:
                                     nowWCountLeft = nowWCount = (ex + 3) / 4;
-                                    nowBCount = (ex - 5) / 4;
+                                    nowBCountLeft = nowBCount = (ex - 5) / 4;
                                     laterWCount = (ex - 1) / 4;
-                                    laterBCount = (ex - 1) / 4;
+                                    laterBCount = (ex - 5) / 4;
                                     break;
                                 case 2:
                                     if (ex == 2)
@@ -827,13 +828,14 @@ namespace OneWayLabyrinth
                                     else
                                     {
                                         nowWCountLeft = nowWCount = (ex + 2) / 4;
-                                        nowBCount = (ex - 2) / 4;
+                                        nowBCountLeft = nowBCount = (ex - 2) / 4;
                                         laterWCount = (ex - 2) / 4;
                                         laterBCount = (ex - 2) / 4;
                                     }
                                     break;
                                 case 3:
                                     nowWCountLeft = nowWCount = (ex + 1) / 4;
+                                    nowBCountLeft = (ex - 7) / 4;
                                     nowBCount = (ex - 3) / 4;
                                     laterWCount = (ex + 1) / 4;
                                     laterBCount = (ex - 3) / 4;
@@ -847,7 +849,7 @@ namespace OneWayLabyrinth
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
-                            if (!(whiteDiff <= nowWCountLeft && whiteDiff >= -nowBCount))
+                            if (!(whiteDiff <= nowWCountLeft && whiteDiff >= -nowBCountLeft))
                             {
                                 T("Cannot enter now left");
                                 forbidden.Add(new int[] { x + lx, y + ly });

@@ -1612,7 +1612,27 @@ We are still missing the straight obstacle case:
 
 <img align="top" src="References/straight 3.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 4.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 5.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/straight 6.svg" width="15%"/>
 
-Notice the area is the same as with the case where the obstacle is one field to the right.
+Notice the area is the same as with the case where the obstacle is one field to the right, but there is a difference:
+Look at the 3-distance case. Since the obstacle is straight ahead, if we enter now by stepping left, we cannot exit at the black field, because then one of the whites could not have been filled.
+The area can only be filled if it is 1W. (This is the case we previously called Double C-Shape.) Adding 4 extra distance does not make the problem disappear: if we exit at the first black and the previous field was the first white, now we get the 5-distance case with 3 white fields and 2 black. A black to black line is therefore not possible.
+
+These are the new values:
+
+D % 4 = 3:
+
+Now: 1W -> -1B = (D+1)/4 W -> (D-7)/4 B
+Later: 1W -> 0B = (D+1)/4 W -> (D-3)/4 B
+(single rule)
+
+D % 4 = 5:
+
+Now: 2W -> 0B = (D+3)/4 W -> (D-5)/4 B
+Later: 1W -> 0B = (D-1)/4 W -> (D-5)/4 B
+(single rule)
+
+<!---->
+
+Also, pay attention to the 2-distance case. If we enter now by stepping left, 1W is possible. If we step straight, it is 0W. When the distance is 6, there is no difference, because if the step straight, we can exit the area immediately.
 
 Side straight cases, small area:
 
@@ -1622,8 +1642,6 @@ Side straight cases, small area:
 <img src="References/spacer.svg" height="23"/>
 <img align="top" src="References/side straight 5.svg" width="35%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight 6.svg" width="40%"/>
 
-<!---->
-
 Big area:
 
 <img align="top" src="References/side straight big up.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big down.svg" width="30%"/>
@@ -1632,19 +1650,21 @@ Big area:
 <img src="References/spacer.svg" height="23"/>
 <img align="top" src="References/side straight big 5.svg" width="35%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/side straight big 6.svg" width="40%"/>
 
+<!---->
+
 And here is an example of the x horizontal, 0 vertical distance big area corner. None of the existing cases cover it. The area is impair, so we shouldn't be able to step right.
 
 <img align="top" src="References/2024_0410.svg" width="35%"/>
 <img src="References/spacer.svg" height="23"/>
 <img align="top" src="References/area big.svg" width="30%"/>
 
-<!---->
-
 When we re-run the program on 9 x 9, it will be obvious that covering all the above 9 cases of area checking still does not solve everything.
 
 If we don't apply the first size-specific rule, we get stuck here:
 
 <img align="top" src="References/464.svg" width="42.86%"/>
+
+<!---->
 
 As a reminder:
 
@@ -1654,13 +1674,13 @@ Let's put this into the perspective of our current knowledge.
 
 What happens here is that the 3 x 2 area has a certain exit point, the middle, because the area is pair. Then it will create a C-Shape on one side and an area on the other side with a 1-wide gap.
 
-<!---->
-
 In general, if we have an area of this shape,
 
 <img align="top" src="References/464_1.svg" width="25%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/464_2.svg" width="30%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/464_3.svg" width="35%"/>
 
 that consists equal amount of black and white fields, and we enter now, we will exit at the black field, and the preceding field could only have been the farthest corner white, and we can continue backwards through all corner whites like this.
+
+<!---->
 
 <img align="top" src="References/464_4.svg" width="35%"/>
 
