@@ -316,7 +316,7 @@ namespace OneWayLabyrinth
                             CheckDirectionalArea();
 
                             //CheckNearBorder();
-                            //CheckNearField();
+                            CheckNearField();
                             //CheckAreaNearBorder();
                             
                             //RunRules();
@@ -400,6 +400,9 @@ namespace OneWayLabyrinth
 			}
 
 			possible = newPossible;
+
+            // for debugging
+            // return;
 
             if (isNextStep) return;
 
@@ -1601,7 +1604,7 @@ namespace OneWayLabyrinth
                         {
                             for (int j = ex - 1; j >= 2; j--)
                             {
-                                borderFields.Add(new int[] { 1, j });
+                                borderFields.Add(new int[] { 0, j });
                             }
                         }
 
@@ -2525,19 +2528,23 @@ namespace OneWayLabyrinth
                 {
                     closeStraight = true;
 
-                    forbidden.Add(new int[] { x + sx, y + sy });
+                    // needed if C-shape precondition is disabled
+                    if (!InTakenRel(1, 1) && !InTakenRel(-1, 1))
+                    {
+                        forbidden.Add(new int[] { x + sx, y + sy });
 
-                    int middleIndex = InTakenIndexRel(0, 2);
-                    int sideIndex = InTakenIndexRel(1, 2);
-                    if (sideIndex > middleIndex) // area on left
-                    {
-                        closeStraightSmall = true;
-                        forbidden.Add(new int[] { x - lx, y - ly });
-                    }
-                    else
-                    {
-                        closeStraightLarge = true;
-                        forbidden.Add(new int[] { x + lx, y + ly });
+                        int middleIndex = InTakenIndexRel(0, 2);
+                        int sideIndex = InTakenIndexRel(1, 2);
+                        if (sideIndex > middleIndex) // area on left
+                        {
+                            closeStraightSmall = true;
+                            forbidden.Add(new int[] { x - lx, y - ly });
+                        }
+                        else
+                        {
+                            closeStraightLarge = true;
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
                     }
                 }
 
@@ -2777,7 +2784,12 @@ namespace OneWayLabyrinth
                     if (InTakenRel(2, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1))
                     {
                         closeSideStraight = true;
-                        forbidden.Add(new int[] { x + lx, y + ly });
+
+                        // needed if C-Shape precondition is disabled
+                        if (!InTakenRel(1, -1))
+                        {
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
                     }
 
                     if (!closeSideStraight)

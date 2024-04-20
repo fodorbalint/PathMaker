@@ -1687,3 +1687,31 @@ that consists equal amount of black and white fields, and we enter now, we will 
 If an area is created with either of the fields marked with left arrow, it cannot be filled.
 
 For now, I have only set the program to check the mid across and across cases, marked with pink background. To see if the yellow fields are necessary, we need to construct cases for them.
+
+But let's continue the program. There are still single area cases we haven't thought about yet. (Previously we had rules for them, but not in the new system.)
+
+<img align="top" src="References/2024_0419.svg" width="45%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/2024_0419_1.svg" width="45%"/>
+
+Obviously, at 1 distance we cannot step right, but neither can we at 2 distance if the area is impair. It is because stepping straight allows for 1W, while stepping right only 0W is possible.
+
+<!---->
+
+Previously, we represented it like this:
+
+<img align="top" src="References/checknearfield/far side mid across down.svg" width="20%"/>
+
+Reviewing those 2-distance rules, we can see that many of them has a double area (one of them is a C-shape). They cannot be solved with the single area patterns. It is best to re-enable the whole set even if it is a repetition in other cases. 
+
+Per our expectation, the program stops at the next double area case. What is common in these rules?
+
+<img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across End Area.svg" width="20%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across End C.svg" width="15%"/><img src="References/spacer.svg" width="4.76%"/><img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="20%"/>
+
+There is an area with a straight border line of maximum 3 fields, with the obstacle being in the upper left corner. The farthest border field cannot be the exit, the line needs to go downwards from it, but another area is created with one of the obstacles on the up side.
+
+<img align="top" src="References/double area.svg" width="20%"/>
+
+<!---->
+
+The live end can be at 3 different places in relation to the area.
+
+Can the border line be longer?
