@@ -144,6 +144,8 @@
     $header = substr($content, $pos1 + 2, $pos2 - $pos1 - 2);
     $content = "<span style=\"font-size: 18px; font-weight: bold\">$header</span>".substr($content, $pos2);
 
+    $content = preg_replace_callback("/width=\"(\d+)\"/", function($matches) { return "width=\"".($matches[1]*100/21)."%\""; }, $content);
+
     $pos = 0;
     $endPos = strpos($content, "<!---->", $pos);
     $pageTexts = array();
