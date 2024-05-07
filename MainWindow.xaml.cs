@@ -141,6 +141,7 @@ namespace OneWayLabyrinth
         bool showChecker = true;
 
         public bool calculateFuture = false; // does not allow a future line body or end to be a possibility. Stepped on future lines are followed through without checking possibilities on the way.
+        Stopwatch watch;
 
 
         // ----- Initialize -----
@@ -454,7 +455,7 @@ namespace OneWayLabyrinth
             foreach (string file in files)
             {
                 string fileName = file.Substring(2);
-                if (fileName != "settings.txt" && fileName != "log.txt" && fileName != "log_rules.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
+                if (fileName != "settings.txt" && fileName != "log.txt" && fileName != "log_rules.txt" && fileName != "log_performance.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
                 {
                     T(fileName);
                     loadFile = fileName;
@@ -884,10 +885,13 @@ namespace OneWayLabyrinth
                 errorInWalkthrough = false;
                 MessageLine.Visibility = Visibility.Visible;
                 if (saveConcise) File.WriteAllText("completedPaths.txt", "");
+                File.WriteAllText("log_performance.txt", "");
                 source = new CancellationTokenSource();
                 CancellationToken token = source.Token;
                 Task task = new Task(() => DoThread(), token);
                 task.Start();
+                watch = Stopwatch.StartNew();
+
                 isTaskRunning = true;
                 T("StartTimer task started");
             }
@@ -895,7 +899,7 @@ namespace OneWayLabyrinth
 
         private void DoThread()
         {
-            completedCount = fileCompletedCount;
+            completedCount = fileCompletedCount;            
             do
             {
                 Timer_Tick(null, null);
@@ -959,7 +963,7 @@ namespace OneWayLabyrinth
                 Dispatcher.Invoke(() =>
                 {
                     isTaskRunning = false;
-                    StopTimer(); //in case of countarea inequal error, it is already called.
+                    StopTimer(); //in case of countarea inequal error, it is already called.                    
 
                     if (toReload)
                     {
@@ -994,7 +998,7 @@ namespace OneWayLabyrinth
             FastRunButton.Style = Resources["GreenButton"] as Style;
             StartStopButton.Content = "Start";
             StartStopButton.Style = Resources["GreenButton"] as Style;
-            if (!isTaskRunning) timer.Stop();
+            if (!isTaskRunning) timer.Stop(); else watch.Stop();
         }
 
         public void StopAll(string error) // used when count area is inequal in Path.cs or there is no possibility to move
@@ -1229,6 +1233,8 @@ namespace OneWayLabyrinth
                             if (saveCheck && completedCount % saveFrequency == 0)
 							{
                                 SavePath();
+                                long elapsed = watch.ElapsedMilliseconds;
+                                File.AppendAllText("log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + "\n");
                             }
 							
                             //Dispatcher.Invoke(() => { DrawPath(); }); //frequent error in SKCanvas: Attempt to read or write protected memory
@@ -4733,10 +4739,20 @@ namespace OneWayLabyrinth
             });
         }
 
-		private void T(object o)
-		{
-			Trace.WriteLine(o.ToString());
-		}
+        private void T(params object[] o)
+        {
+            string result = "";
+            if (o.Length > 0)
+            {
+                result += o[0];
+            }
+
+            for (int i = 1; i < o.Length; i++)
+            {
+                result += ", " + o[i];
+            }
+            Trace.WriteLine(result);
+        }
 
         private void TracePossible()
         {

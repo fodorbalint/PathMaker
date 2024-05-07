@@ -1678,13 +1678,14 @@ In general, if we have an area of this shape,
 
 <img align="top" src="References/464_1.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/464_2.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/464_3.svg" width="7" />
 
-that consists equal amount of black and white fields, and we enter now, we will exit at the black field, and the preceding field could only have been the farthest corner white, and we can continue backwards through all corner whites like this.
+that consists equal amount of black and white fields, and we enter now, we will exit at the black field, and the preceding field could only have been the farthest corner white, and we can continue backwards through all corner whites like this:
 
 <!---->
 
 <img align="top" src="References/464_4.svg" width="7" />
 
 If an area is created with either of the fields marked with left arrow, it cannot be filled.
+The gray fields must be empty in order to apply the rule, as well as the fields the blue line is crossing and the field right to the live end.
 
 For now, I have only set the program to check the mid across and across cases, marked with pink background. To see if the yellow fields are necessary, we need to construct cases for them.
 
@@ -1700,7 +1701,7 @@ Previously, we represented it like this:
 
 <img align="top" src="References/checknearfield/far side mid across down.svg" width="4" />
 
-Reviewing those 2-distance rules, we can see that many of them has a double area (one of them is a C-shape). They cannot be solved with the single area patterns. It is best to re-enable the whole set even if it is a repetition in other cases. 
+Reviewing those 2-distance rules, we can see that many of them has a double area (one of which is a C-shape). They cannot be solved with the single area patterns. It is best to re-enable the whole set even if it is a repetition in other cases. 
 
 Per our expectation, the program stops at the next double area case. What is common in these rules?
 
@@ -1718,7 +1719,9 @@ When checking the conditions for the first area, these are the fields that need 
 
 <img align="top" src="References/double area case 1.svg" width="2" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double area case 2.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double area case 3.svg" width="3" />
 
-And in the first case, the pattern has to be rotated.
+Notice that the first two cases can exist simultaneously. Then we examine the smaller area (second case); the obstacle in the first will create a C-shape with the exit of that area.
+All three has to be applied rotated clockwise as well.
+And the first pattern can be rotated counter-clockwise too.
 
 <img align="top" src="References/double area case 4.svg" width="5" />
 
@@ -1727,3 +1730,6 @@ Can the border line be longer?
 <img align="top" src="References/double area 1.svg" width="2" />
 
 If we look at 4 distance: It is true that if the area is 1W and we step forward, only one white field remains on the border, but we can also exit immediately, leaving a 3-long border line and a 0W area. Then, the area can be entered at the second white and exited at the last black.
+
+<!-- Write about fields that cannot be taken or border in CheckStraight and CheckSideStraight.
+Is checking next step posibilities necessary? -->

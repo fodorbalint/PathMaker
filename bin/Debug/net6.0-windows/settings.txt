@@ -9,5 +9,5 @@ makeStats: False
 activeRules: True
 checkerBoard: True
 appliedSize: 9
-ruleXSize: 5
-ruleYSize: 2
+ruleXSize: 7
+ruleYSize: 7

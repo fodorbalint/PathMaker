@@ -13,6 +13,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Documents;
 using System.Windows.Shapes;
 using System.Windows.Threading;
@@ -313,8 +314,11 @@ namespace OneWayLabyrinth
                                 CheckLeftRightCornerBig();
                             }
 
+                            T("CheckDirectionalArea");
                             CheckDirectionalArea();
+                            T("Check3DoubleArea");
                             Check3DoubleArea();
+                            T("Check3DoubleAreaRotated");
                             Check3DoubleAreaRotated();
 
                             //CheckNearBorder();
@@ -404,7 +408,7 @@ namespace OneWayLabyrinth
 			possible = newPossible;
 
             // for debugging
-            // return;
+             return;
 
             if (isNextStep) return;
 
@@ -734,35 +738,42 @@ namespace OneWayLabyrinth
                     continue;
                 }
 
-                if (InBorderRel(0, dist))
-                {
-                    int i1 = InBorderIndexRel(0, dist);
-                    int i2 = InBorderIndexRel(1, dist);
+                // if (-1, dist - 1) was border, all the remaining fields will be in the area. 
+                // If that field is taken, a big corner case will be true
+                // But we need circleValid, for 2 distance.
 
-                    if (i1 > i2)
-                    {
-                        circleValid = true;
-                    }
-                }
-                else
+                if (dist == 2 || (!InBorderRel(-1, dist - 1) && !InTakenRel(-1, dist - 1)))
                 {
-                    int i1 = InTakenIndexRel(0, dist);
-                    int i2 = InTakenIndexRel(1, dist);
-
-                    if (i2 != -1)
+                    if (InBorderRel(0, dist))
                     {
-                        if (i2 > i1)
+                        int i1 = InBorderIndexRel(0, dist);
+                        int i2 = InBorderIndexRel(1, dist);
+
+                        if (i1 > i2)
                         {
                             circleValid = true;
-
                         }
                     }
                     else
                     {
-                        i2 = InTakenIndexRel(-1, dist);
-                        if (i1 > i2)
+                        int i1 = InTakenIndexRel(0, dist);
+                        int i2 = InTakenIndexRel(1, dist);
+
+                        if (i2 != -1)
                         {
-                            circleValid = true;
+                            if (i2 > i1)
+                            {
+                                circleValid = true;
+
+                            }
+                        }
+                        else
+                        {
+                            i2 = InTakenIndexRel(-1, dist);
+                            if (i1 > i2)
+                            {
+                                circleValid = true;
+                            }
                         }
                     }
                 }
@@ -901,37 +912,42 @@ namespace OneWayLabyrinth
                     continue;
                 }
                 
-                if (InBorderRel(dist, 0))
+                // if (dist - 1, 1) was border, all the remaining fields would be in the area.
+                // If it is taken, a small corner case will be true
+                if (!InBorderRel(dist - 1, 1) && !InTakenRel(dist - 1, 1))
                 {
-                    int i1 = InBorderIndexRel(dist, 0);
-                    int i2 = InBorderIndexRel(dist, -1);
-
-                    if (i1 > i2)
+                    if (InBorderRel(dist, 0))
                     {
-                        circleValid = true;
-                    }
-                }
-                else
-                {
-                    int i1 = InTakenIndexRel(dist, 0);
-                    int i2 = InTakenIndexRel(dist, -1);
+                        int i1 = InBorderIndexRel(dist, 0);
+                        int i2 = InBorderIndexRel(dist, -1);
 
-                    if (i2 != -1)
-                    {
-                        if (i2 > i1) 
+                        if (i1 > i2)
                         {
                             circleValid = true;
                         }
                     }
                     else
                     {
-                        i2 = InTakenIndexRel(dist, 1);
-                        if (i1 > i2)
+                        int i1 = InTakenIndexRel(dist, 0);
+                        int i2 = InTakenIndexRel(dist, -1);
+
+                        if (i2 != -1)
                         {
-                            circleValid = true;
+                            if (i2 > i1)
+                            {
+                                circleValid = true;
+                            }
+                        }
+                        else
+                        {
+                            i2 = InTakenIndexRel(dist, 1);
+                            if (i1 > i2)
+                            {
+                                circleValid = true;
+                            }
                         }
                     }
-                }
+                }                
 
                 if (circleValid)
                 {
@@ -2329,8 +2345,15 @@ namespace OneWayLabyrinth
         {
             for (int j = 0; j < 2; j++)
             {
+                if (InTakenRel(1, 0) || InBorderRel(1, 0) || InTakenRel(2, 0) || InBorderRel(2, 0))
+                {
+                    lx = -lx;
+                    ly = -ly;
+                    continue;
+                }
+
                 bool circleDirectionLeft = (j == 0) ? true : false;
-                int hori = 3;
+                int hori = 0;
                 int vert = 1;
 
                 while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
@@ -2338,12 +2361,14 @@ namespace OneWayLabyrinth
                     bool circleValid = false;
                     hori++;
 
-                    while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                    while (hori <= vert + 3 && !InTakenRel(hori, vert) && !InBorderRel(hori, vert))
                     {
                         hori++;
                     }
 
-                    if (hori == vert + 3)
+                    // After stepping to side, we need to step down if the area contains more than the border line
+
+                    if (hori == vert + 3 && !InTakenRel(hori - 1, vert + 1) && !InBorderRel(hori - 1, vert + 1) && !InTakenRel(hori - 2, vert + 1) && !InTakenRel(hori - 3, vert + 1))
                     {
                         if (InBorderRel(hori, vert))
                         {
@@ -2441,7 +2466,7 @@ namespace OneWayLabyrinth
                     }
 
                     vert++;
-                    hori = 3;
+                    hori = vert - 1;
                 }
 
                 lx = -lx;
@@ -2453,117 +2478,132 @@ namespace OneWayLabyrinth
 
         public void Check3DoubleArea() // the distance to the obstacle is maximum 3. Line cannot finish at the far corner, but at the field below. There is a second area created sith an obstacle on the right side.
 
-        // has to be rotated to side in first area case
+        // has to be rotated ccw in first area case
         {
-
-            for (int j = 0; j < 2; j++)
+            for (int i = 0; i < 2; i++)
             {
-                bool circleValid = false;
-                bool circleDirectionLeft = (j == 0) ? true : false;
-                int sx = 0, sy = 0, ex = 0, ey = 0;
-                int fx = 0, fy = 0;
-                int circleParity = 0;
-
-                List<int[]> borderFields = new();
-
-                if (InTakenRel(1, 4) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(0, 4) && !InTakenRel(1, 1) && !InTakenRel(1, 3))
+                for (int j = 0; j < 2; j++)
                 {
-                    int i1 = InTakenIndexRel(1, 4);
-                    int i2 = InTakenIndexRel(2, 4);
+                    bool circleValid = false;
+                    bool circleDirectionLeft = (i == 0) ? true : false;
+                    int startX = 0, startY = 0, endX = 0, endY = 0;
+                    int forbidX = 0, forbidY = 0;
+                    int circleParity = 0;
 
-                    if (i2 > i1)
+                    List<int[]> borderFields = new();
+
+                    // First two cases can be simultaneously true, as in 2024_0505. If the bigger area is pair, so is the smaller, which would cause a C-shape with the obstacle in (1, 4). So we can just examine the smaller area. borderFields needs to be reset in that case.
+
+                    if (InTakenRel(1, 4) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(0, 4) && !InTakenRel(1, 1) && !InTakenRel(1, 3))
                     {
-                        circleValid = true;
+                        int i1 = InTakenIndexRel(1, 4);
+                        int i2 = InTakenIndexRel(2, 4);
 
-                        sx = 0;
-                        sy = 1;
-                        ex = 0;
-                        ey = 3;
-                        fx = 0;
-                        fy = 1;
-                        borderFields.Add(new int[] { 0, 2 });
-                        circleParity = 0;
-                    }
-                }
+                        if (i2 > i1)
+                        {
+                            circleValid = true;
 
-                // close mid across
-                if (InTakenRel(2, 3) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2) && !InTakenRel(1, 3) && !InTakenRel(0, 2) && !InTakenRel(2, 2))
-                {
-                    int i1 = InTakenIndexRel(2, 3);
-                    int i2 = InTakenIndexRel(3, 3);
-
-                    if (i2 > i1)
-                    {
-                        circleValid = true;
-
-                        sx = 1;
-                        sy = 1;
-                        ex = 1;
-                        ey = 2;
-                        fx = 1;
-                        fy = 0;
-                        circleParity = 0;
-                    }
-                }
-
-                // close across
-                if (InTakenRel(2, 4) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2) && !InTakenRel(1, 3) && !InTakenRel(1, 4) && !InTakenRel(2, 1) && !InTakenRel(2, 3))
-                {
-                    int i1 = InTakenIndexRel(2, 4);
-                    int i2 = InTakenIndexRel(3, 4);
-
-                    if (i2 > i1)
-                    {
-                        circleValid = true;
-
-                        sx = 1;
-                        sy = 1;
-                        ex = 1;
-                        ey = 3;
-                        fx = 1;
-                        fy = 0;
-                        borderFields.Add(new int[] { 1, 2 });
-                        circleParity = 1;
-                    }
-                }
-
-                ResetExamAreas();
-
-                if (circleValid && CountAreaRel(sx, sy, ex, ey, borderFields, circleDirectionLeft, circleParity))
-                {
-                    int thisX = x;
-                    int thisY = y;
-                    int thisLx = lx;
-                    int thisLy = ly;
-
-                    x = x + ex * lx + ey * thisSx;
-                    y = y + ex * ly + ey * thisSy;
-
-                    int[] rotatedDir = RotateDir(lx, ly, j);
-                    lx = rotatedDir[0];
-                    ly = rotatedDir[1];
-                    rotatedDir = RotateDir(this.sx, this.sy, j);
-                    this.sx = rotatedDir[0];
-                    this.sy = rotatedDir[1];
-
-                    if (CheckNearFieldSmall2())
-                    {
-                        T("Check3DoubleArea at " + thisX + " " + thisY);
-                        AddExamAreas();
-                        forbidden.Add(new int[] { thisX + fx * thisLx + fy * thisSx, thisY + fx * thisLy + fy * thisSy });
+                            startX = 0;
+                            startY = 1;
+                            endX = 0;
+                            endY = 3;
+                            forbidX = 0;
+                            forbidY = 1;
+                            borderFields.Add(new int[] { 0, 2 });
+                            circleParity = 0;
+                        }
                     }
 
-                    x = thisX;
-                    y = thisY;
-                    lx = thisLx;
-                    ly = thisLy;
-                    this.sx = thisSx;
-                    this.sy = thisSy;
-                }
+                    if (InTakenRel(2, 3) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2) && !InTakenRel(1, 3) && !InTakenRel(0, 2) && !InTakenRel(2, 2))
+                    {
+                        int i1 = InTakenIndexRel(2, 3);
+                        int i2 = InTakenIndexRel(3, 3);
 
-                lx = -lx;
-                ly = -ly;
+                        if (i2 > i1)
+                        {
+                            circleValid = true;
+
+                            startX = 1;
+                            startY = 1;
+                            endX = 1;
+                            endY = 2;
+                            forbidX = 1;
+                            forbidY = 0;
+                            borderFields = new();
+                            circleParity = 0;
+                        }
+                    }
+
+                    if (InTakenRel(2, 4) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2) && !InTakenRel(1, 3) && !InTakenRel(1, 4) && !InTakenRel(2, 1) && !InTakenRel(2, 3))
+                    {
+                        int i1 = InTakenIndexRel(2, 4);
+                        int i2 = InTakenIndexRel(3, 4);
+
+                        if (i2 > i1)
+                        {
+                            circleValid = true;
+
+                            startX = 1;
+                            startY = 1;
+                            endX = 1;
+                            endY = 3;
+                            forbidX = 1;
+                            forbidY = 0;
+                            borderFields.Add(new int[] { 1, 2 });
+                            circleParity = 1;
+                        }
+                    }
+
+                    ResetExamAreas();
+
+                    if (circleValid && CountAreaRel(startX, startY, endX, endY, borderFields, circleDirectionLeft, circleParity))
+                    {
+                        int thisX = x;
+                        int thisY = y;
+                        int thisSx = sx;
+                        int thisSy = sy;
+                        int thisLx = lx;
+                        int thisLy = ly;
+
+                        x = x + endX * lx + endY * thisSx;
+                        y = y + endX * ly + endY * thisSy;
+
+                        int[] rotatedDir = RotateDir(lx, ly, i);
+                        lx = rotatedDir[0];
+                        ly = rotatedDir[1];
+                        rotatedDir = RotateDir(sx, sy, i);
+                        sx = rotatedDir[0];
+                        sy = rotatedDir[1];
+
+                        if (CheckNearFieldSmall2())
+                        {
+                            T("Check3DoubleArea at " + thisX + " " + thisY);
+                            AddExamAreas();
+                            forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
+                        }
+
+                        x = thisX;
+                        y = thisY;
+                        lx = thisLx;
+                        ly = thisLy;
+                        sx = thisSx;
+                        sy = thisSy;
+                    }
+                    // rotate up. Clockwise on left side and counter-clockwise on right side.
+                    int s0 = sx; 
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
             }
+            sx = thisSx;
+            sy = thisSy;
             lx = thisLx;
             ly = thisLy;
         }
@@ -2628,8 +2668,9 @@ namespace OneWayLabyrinth
 
         public bool CheckNearFieldSmall() // for use only with Directional Area
         {
-            //close mid across
-            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+            // empty fields already checked
+            // close mid across
+            if (InTakenRel(1, 2)) // && !InTakenRel(0, 2) && !InTakenRel(1, 1))
             {
                 int middleIndex = InTakenIndexRel(1, 2);
                 int sideIndex = InTakenIndexRel(2, 2);
@@ -2641,7 +2682,7 @@ namespace OneWayLabyrinth
             }
 
             // close across
-            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+            if (InTakenRel(2, 2)) // && !InTakenRel(1, 2) && !InTakenRel(2, 1))
             {
                 int middleIndex = InTakenIndexRel(2, 2);
                 int sideIndex = InTakenIndexRel(3, 2);
@@ -3430,13 +3471,16 @@ namespace OneWayLabyrinth
         private bool CountArea(int startX, int startY, int endX, int endY, List<int[]>? borderFields, bool circleDirectionLeft, int circleType, bool getInfo = false)
         // compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more than the other color.
         {
+            bool debug = false;
+            bool debug2 = false;
+
             // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
             int minY = startY;
             int limitX = startX;
             int startIndex;
 
             int xDiff, yDiff;
-            List<int[]> areaLine;
+            List<int[]> areaLine = new();
 
             if (borderFields == null || borderFields.Count == 0)
             {
@@ -3446,13 +3490,14 @@ namespace OneWayLabyrinth
                     int middleY = (endY + startY) / 2;
                     xDiff = startX - middleX;
                     yDiff = startY - middleY;
-                    areaLine = new List<int[]> { new int[] { middleX, middleY }, new int[] { startX, startY } };
+                    areaLine.Add(new int[] { middleX, middleY });
+                    if (debug) T("Adding border " + middleX + " " + middleY);
+
                 }
                 else
                 {
                     xDiff = startX - endX;
                     yDiff = startY - endY;
-                    areaLine = new List<int[]> { new int[] { startX, startY } };
                 }
             }
             else
@@ -3461,13 +3506,14 @@ namespace OneWayLabyrinth
                 foreach (int[] field in borderFields)
                 {
                     areaLine.Add(new int[] { field[0], field[1] });
-                      // T("Adding border " + field[0] + " " + field[1] + " count " + areaLine.Count);
+                    if (debug) T("Adding border " + field[0] + " " + field[1]);
                 }
                 xDiff = startX - borderFields[borderFields.Count - 1][0];
                 yDiff = startY - borderFields[borderFields.Count - 1][1];
-                areaLine.Add(new int[] { startX, startY });
-                  // T("Adding start " + startX + " " + startY + " count " + areaLine.Count);
-            }            
+            }
+
+            areaLine.Add(new int[] { startX, startY });
+            if (debug) T("Adding start " + startX + " " + startY);
 
             List<int[]> directions;
 
@@ -3514,7 +3560,7 @@ namespace OneWayLabyrinth
             nextY += directions[currentDirection][1];
 
             areaLine.Add(new int[] { nextX, nextY });
-             // T("Adding continued " + nextX + " " + nextY + " count " + areaLine.Count);
+            if (debug) T("Adding continued " + nextX + " " + nextY);
 
             if (nextY < minY)
             {
@@ -3582,6 +3628,9 @@ namespace OneWayLabyrinth
                 if (nextX == size && nextY == size)
                 {
                     T("Corner is reached.");
+
+                    window.errorInWalkthrough = true;
+                    window.StopAll("Corner is reached.");
                     return false;
                 }
 
@@ -3616,7 +3665,7 @@ namespace OneWayLabyrinth
                 }*/
 
                 areaLine.Add(new int[] { nextX, nextY });
-                 // T("Adding " + nextX + " " + nextY + " count " + areaLine.Count);
+                if (debug) T("Adding " + nextX + " " + nextY + " count " + areaLine.Count);
 
                 if (nextY < minY)
                 {
@@ -3645,11 +3694,14 @@ namespace OneWayLabyrinth
                 }
             }
 
-            /*T("minY " + minY + " limitX " + limitX + " startIndex " + startIndex);
-            foreach (int[] a in areaLine)
-			{
-				T(a[0] + " " + a[1]);
-			}*/
+            if (debug)
+            {
+                T("minY " + minY + " limitX " + limitX + " startIndex " + startIndex);
+                foreach (int[] a in areaLine)
+                {
+                    T(a[0] + " " + a[1]);
+                }
+            }
 
             //Special cases are not yet programmed in here as in MainWindow.xaml.cs. We take a gradual approach, starting from the cases that can happen on 7 x 7.
 
@@ -3666,7 +3718,8 @@ namespace OneWayLabyrinth
                 int[] startCandidate = new int[] { limitX, minY };
                 int[] endCandidate = new int[] { limitX, minY };
 
-                // T("arealine start " + startCandidate[0] + " " + startCandidate[1]);
+                if (debug2) T("arealine start " + startCandidate[0] + " " + startCandidate[1]);
+
                 int currentY = minY;
 
                 bool singleField = false;
@@ -3738,9 +3791,7 @@ namespace OneWayLabyrinth
                         int fieldX = field[0];
                         int fieldY = field[1];
 
-                        // T("arealine " + field[0] + " " + field[1]);
-
-                        //T(" currentY " + currentY + " fieldX " + fieldX + " fieldY " + fieldY + " startCandidate " + startCandidate[0] + " " + startCandidate[1] + " endCandidate " + endCandidate[0] + " " + endCandidate[1]);
+                        if (debug2) T("field x " + field[0] + " y " + field[1] + " currentY " + currentY + " startCandidate " + startCandidate[0] + " " + startCandidate[1] + " endCandidate " + endCandidate[0] + " " + endCandidate[1]);
 
                         if (fieldY > currentY)
                         {
@@ -3952,19 +4003,58 @@ namespace OneWayLabyrinth
                     //add last field
                     if (circleDirectionLeft)
                     {
-                        startSquares.Add(startCandidate);
-                        // in case of a single field on top, L-shape
-                        if (singleField && endSquares.Count == 1)
+                        if (singleField)
                         {
-                            endSquares.Add( endCandidate );
+                            // L-shape
+                            if (endSquares.Count == 1)
+                            {
+                                endSquares.Add(endCandidate);
+                                startSquares.Add(startCandidate);
+                            }
+                            // add startCandidate, unless the last row is an open dip
+                            else
+                            {
+                                int[] square = endSquares[endSquares.Count - 1];
+                                int y = square[1];
+
+                                if (y != currentY - 1)
+                                {
+                                    startSquares.Add(startCandidate);
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            startSquares.Add(startCandidate);
                         }
                     }
                     else
                     {
-                        endSquares.Add(endCandidate);
-                        if (singleField && startSquares.Count == 1)
+                        if (singleField)
                         {
-                            startSquares.Add( startCandidate );
+                            // L-shape
+                            if (startSquares.Count == 1)
+                            {
+                                startSquares.Add(startCandidate);
+                                endSquares.Add(endCandidate);
+                            }
+                            // add startCandidate, unless the last row is an open dip
+                            else
+                            {
+                                int[] square = startSquares[startSquares.Count - 1];
+                                int y = square[1];
+
+                                if (y != currentY - 1)
+                                {
+                                    endSquares.Add(endCandidate);
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            endSquares.Add(endCandidate);
                         }
                     }
                 }
@@ -4437,9 +4527,19 @@ namespace OneWayLabyrinth
 			return found;
 		}
 
-		private void T(object o)
+		private void T(params object[] o)
 		{
-			Trace.WriteLine(o.ToString());
+            string result = "";
+            if (o.Length > 0)
+            {
+                result += o[0];
+            }
+
+            for (int i = 1; i < o.Length; i++)
+            {
+                result += ", " + o[i];
+            }
+            Trace.WriteLine(result);
 		}
 
         private List<int[]> Copy(List<int[]> obj)
