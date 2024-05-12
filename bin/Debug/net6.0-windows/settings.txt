@@ -1,5 +1,5 @@
-size: 9
-loadFromFile: True
+size: 15
+loadFromFile: False
 saveOnCompletion: True
 continueOnCompletion: True
 keepLeft: True

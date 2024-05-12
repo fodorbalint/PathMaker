@@ -3,6 +3,8 @@
 	<style>
 		svg { background-color: white; }
 	</style>
+	<!-- 2 1 2 -->
+	<path d="M 1 0 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />
 	<!-- 6 2 1 -->
 	<path d="M 5 1 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
 	<path d="M 5.5 2 v -0.5" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />

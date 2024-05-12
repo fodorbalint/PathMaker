@@ -1608,6 +1608,8 @@ We are still missing the straight obstacle case:
 
 <img align="top" src="References/straight left.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight right.svg" width="3" />
 
+Besides all the fields straight ahead, the gray field has to be empty in order to apply the rule.
+
 <!---->
 
 <img align="top" src="References/straight 3.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 4.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 6.svg" width="3" />
@@ -1731,5 +1733,16 @@ Can the border line be longer?
 
 If we look at 4 distance: It is true that if the area is 1W and we step forward, only one white field remains on the border, but we can also exit immediately, leaving a 3-long border line and a 0W area. Then, the area can be entered at the second white and exited at the last black.
 
-<!-- Write about fields that cannot be taken or border in CheckStraight and CheckSideStraight.
-Is checking next step posibilities necessary? -->
+<!---->
+
+The next stop is similar in concept: When we exit the first area, there are two close obstacles on either side:
+
+<img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="5" />
+
+We can see that the mechanism is not limited to a few cases, but it can go on indefinitely. If after exiting the area, there are repeated C-shapes on the left side (a stair shape), the right side obstacle may be far away, as in this example:
+
+<img align="top" src="References/2024_0512.svg" width="15" />
+
+A sequence is made from the start area and the close obstacle cases, and this can be programmed.
+
+<!-- Is checking next step posibilities necessary? -->
