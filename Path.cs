@@ -321,6 +321,8 @@ namespace OneWayLabyrinth
                             T("Check3DoubleAreaRotated");
                             Check3DoubleAreaRotated();
 
+                            CheckSequence();
+
                             //CheckNearBorder();
                             CheckNearField();
                             //CheckAreaNearBorder();
@@ -2556,38 +2558,44 @@ namespace OneWayLabyrinth
 
                     ResetExamAreas();
 
-                    if (circleValid && CountAreaRel(startX, startY, endX, endY, borderFields, circleDirectionLeft, circleParity))
+                    if (circleValid && CountAreaRel(startX, startY, endX, endY, borderFields, circleDirectionLeft, 2, true))
                     {
-                        int thisX = x;
-                        int thisY = y;
-                        int thisSx = sx;
-                        int thisSy = sy;
-                        int thisLx = lx;
-                        int thisLy = ly;
+                        int black = (int)info[1];
+                        int white = (int)info[2];
 
-                        x = x + endX * lx + endY * thisSx;
-                        y = y + endX * ly + endY * thisSy;
-
-                        int[] rotatedDir = RotateDir(lx, ly, i);
-                        lx = rotatedDir[0];
-                        ly = rotatedDir[1];
-                        rotatedDir = RotateDir(sx, sy, i);
-                        sx = rotatedDir[0];
-                        sy = rotatedDir[1];
-
-                        if (CheckNearFieldSmall2())
+                        if (circleParity == 0 && black == white || circleParity == 1 && white == black + 1)
                         {
-                            T("Check3DoubleArea at " + thisX + " " + thisY);
-                            AddExamAreas();
-                            forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
-                        }
+                            int thisX = x;
+                            int thisY = y;
+                            int thisSx = sx;
+                            int thisSy = sy;
+                            int thisLx = lx;
+                            int thisLy = ly;
 
-                        x = thisX;
-                        y = thisY;
-                        lx = thisLx;
-                        ly = thisLy;
-                        sx = thisSx;
-                        sy = thisSy;
+                            x = x + endX * lx + endY * thisSx;
+                            y = y + endX * ly + endY * thisSy;
+
+                            int[] rotatedDir = RotateDir(lx, ly, i);
+                            lx = rotatedDir[0];
+                            ly = rotatedDir[1];
+                            rotatedDir = RotateDir(sx, sy, i);
+                            sx = rotatedDir[0];
+                            sy = rotatedDir[1];
+
+                            if (CheckNearFieldSmall2())
+                            {
+                                T("Check3DoubleArea at " + thisX + " " + thisY);
+                                AddExamAreas();
+                                forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
+                            }
+
+                            x = thisX;
+                            y = thisY;
+                            lx = thisLx;
+                            ly = thisLy;
+                            sx = thisSx;
+                            sy = thisSy;
+                        }
                     }
                     // rotate up. Clockwise on left side and counter-clockwise on right side.
                     int s0 = sx; 
@@ -2616,7 +2624,6 @@ namespace OneWayLabyrinth
                 bool circleValid = false;
                 bool circleDirectionLeft = (j == 0) ? true : false;
                 int sx = 0, sy = 0, ex = 0, ey = 0;
-                int circleParity = 0;
 
                 List<int[]> borderFields = new();
 
@@ -2634,29 +2641,34 @@ namespace OneWayLabyrinth
                         ex = 3;
                         ey = 0;
                         borderFields.Add(new int[] { 2, 0 });
-                        circleParity = 0;
                     }
                 }
 
                 ResetExamAreas();
 
-                if (circleValid && CountAreaRel(sx, sy, ex, ey, borderFields, circleDirectionLeft, circleParity))
+                if (circleValid && CountAreaRel(sx, sy, ex, ey, borderFields, circleDirectionLeft, 2, true))
                 {
-                    int thisX = x;
-                    int thisY = y;
+                    int black = (int)info[1];
+                    int white = (int)info[2];
 
-                    x = x + ex * lx + ey * thisSx;
-                    y = y + ex * ly + ey * thisSy;
-
-                    if (CheckNearFieldSmall2())
+                    if (black == white)
                     {
-                        T("Check3DoubleAreaRotated at " + thisX + " " + thisY);
-                        AddExamAreas();
-                        forbidden.Add(new int[] { thisX + lx, thisY + ly });
-                    }
+                        int thisX = x;
+                        int thisY = y;
 
-                    x = thisX;
-                    y = thisY;
+                        x = x + ex * lx + ey * thisSx;
+                        y = y + ex * ly + ey * thisSy;
+
+                        if (CheckNearFieldSmall2())
+                        {
+                            T("Check3DoubleAreaRotated at " + thisX + " " + thisY);
+                            AddExamAreas();
+                            forbidden.Add(new int[] { thisX + lx, thisY + ly });
+                        }
+
+                        x = thisX;
+                        y = thisY;
+                    }
                 }
 
                 lx = -lx;
@@ -2696,8 +2708,19 @@ namespace OneWayLabyrinth
             return false;
         }
 
-        public bool CheckNearFieldSmall2() // for use with Check3DoubleArea
+        int[] newExitField = new int[] { 0, 0 };
+        bool newDirectionRotated = false; // if rotated, it is CW on left side
+
+        public bool CheckNearFieldSmall2(bool leftSide = true) // for use with Check3DoubleArea
         {
+            bool ret = false;
+
+            if (!leftSide)
+            {
+                lx = -lx;
+                ly = -ly;
+            }
+
             // C-Shape
             if (InTakenRel(2, 0) && !InTakenRel(1, 0))
             {
@@ -2707,8 +2730,14 @@ namespace OneWayLabyrinth
 
                 if (sideIndex > middleIndex)
                 {
-                    T("CheckNearFieldSmall2 cshape");
-                    return true;
+                    T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
+                    ret = true;
+
+                    if (leftSide)
+                    {
+                        newExitField = new int[] { x + lx + sx, y + ly + sy };
+                        newDirectionRotated = false;
+                    }
                 }
             }
 
@@ -2720,8 +2749,15 @@ namespace OneWayLabyrinth
 
                 if (sideIndex > middleIndex)
                 {
-                    T("CheckNearFieldSmall2 close mid across");
-                    return true;
+                    T("CheckNearFieldSmall2 close mid across, left side " + leftSide);
+                    ret = true;
+
+                    if (leftSide)
+                    {
+                        // mid across overwrites C-shape
+                        newExitField = new int[] { x + sx, y + sy };
+                        newDirectionRotated = true;
+                    }
                 }
             }
 
@@ -2733,12 +2769,24 @@ namespace OneWayLabyrinth
 
                 if (sideIndex > middleIndex)
                 {
-                    T("CheckNearFieldSmall2 across");
-                    return true;
+                    T("CheckNearFieldSmall2 close across, left side " + leftSide);
+                    ret = true;
+
+                    if (leftSide)
+                    {
+                        newExitField = new int[] { x + lx + sx, y + ly + sy };
+                        newDirectionRotated = true;
+                    }
                 }
             }
 
-            return false;
+            if (!leftSide)
+            {
+                lx = -lx;
+                ly = -ly;
+            }
+
+            return ret;
         }
 
         private int[] RotateDir(int xDiff, int yDiff, int ccw)
@@ -2767,6 +2815,154 @@ namespace OneWayLabyrinth
             int turnedDirection = currentDirection == 3 ? 0 : currentDirection + 1;
 
             return directions[turnedDirection];
+        }
+
+        private void CheckSequence()
+        {
+            T("CheckSequence");
+            for (int j = 0; j < 2; j++)
+            {
+                // First case, Square 4 x 2 C-Shape / Square 4 x 2 Area: Works with third case
+                
+                // Second case, Triple Area
+                if (InTakenRel(0, 4) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 4))
+                {
+                    int directionFieldIndex = InTakenIndexRel(0, 4);
+                    int leftIndex = InTakenIndexRel(1, 4);
+
+                    if (leftIndex > directionFieldIndex)
+                    {
+                        // second circle true, but we need to check if the area is pair
+                        ResetExamAreas();
+
+                        if (CountAreaRel(0, 1, 0, 3, new List<int[]> { new int[] { 0, 2 } }, true, 0))
+                        {
+                            int thisX = x;
+                            int thisY = y;
+                            int thisSx = sx;
+                            int thisSy = sy;
+                            int thisLx = lx;
+                            int thisLy = ly;
+
+                            // step after exiting area:
+                            x = x - lx + 2 * sx;
+                            y = y - ly + 2 * sy;
+
+                            int[] rotatedDir = RotateDir(lx, ly, j);
+                            lx = rotatedDir[0];
+                            ly = rotatedDir[1];
+                            rotatedDir = RotateDir(sx, sy, j);
+                            sx = rotatedDir[0];
+                            sy = rotatedDir[1];
+
+                            bool leftSideClose = CheckNearFieldSmall2(true);
+                            bool rightSideClose = CheckNearFieldSmall2(false);
+
+                            if (leftSideClose && rightSideClose)
+                            {
+                                AddExamAreas();
+
+                                T("CheckSequence case 2 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                                // Due to CheckStraight, stepping left is already disabled
+                                forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
+                                forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                            }
+
+                            x = thisX;
+                            y = thisY;
+                            lx = thisLx;
+                            ly = thisLy;
+                            sx = thisSx;
+                            sy = thisSy;
+                        }
+                    }
+                }
+
+                // Third case, Double Area Stair
+                if (InTakenRel(0, 3) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(-1, 3))
+                {
+                    int directionFieldIndex = InTakenIndexRel(0, 3);
+                    int leftIndex = InTakenIndexRel(1, 3);
+
+                    if (leftIndex > directionFieldIndex)
+                    {
+                        // first circle true
+
+                        T("CheckSequence third case start area true");
+
+                        int thisX = x;
+                        int thisY = y;
+                        int thisSx = sx;
+                        int thisSy = sy;
+                        int thisLx = lx;
+                        int thisLy = ly;
+
+                        // step after exiting area:
+                        x = x - lx + 2 * sx;
+                        y = y - ly + 2 * sy;
+
+                        int[] rotatedDir = RotateDir(lx, ly, j);
+                        lx = rotatedDir[0];
+                        ly = rotatedDir[1];
+                        rotatedDir = RotateDir(sx, sy, j);
+                        sx = rotatedDir[0];
+                        sy = rotatedDir[1];
+
+                        if (CheckSequenceRecursive(j))
+                        {
+                            T("CheckSequence case 3 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                            forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
+                            forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                        }
+
+                        x = thisX;
+                        y = thisY;
+                        lx = thisLx;
+                        ly = thisLy;
+                        sx = thisSx;
+                        sy = thisSy;
+                    }
+                }
+
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        public bool CheckSequenceRecursive(int j)
+        {
+            bool leftSideClose = CheckNearFieldSmall2(true);
+            bool rightSideClose = CheckNearFieldSmall2(false);
+
+            if (leftSideClose && rightSideClose)
+            {
+                return true;
+            }
+            else if (leftSideClose && !rightSideClose)
+            {
+                T("CheckSequenceRecursive left side only x " + newExitField[0] + " y " + newExitField[1] + " direction rotated " + newDirectionRotated);
+
+                x = newExitField[0];
+                y = newExitField[1];
+
+                if (newDirectionRotated)
+                {
+                    int[] rotatedDir = RotateDir(lx, ly, j);
+                    lx = rotatedDir[0];
+                    ly = rotatedDir[1];
+                    rotatedDir = RotateDir(sx, sy, j);
+                    sx = rotatedDir[0];
+                    sy = rotatedDir[1];
+                }
+
+                return CheckSequenceRecursive(j);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void CheckNearField()

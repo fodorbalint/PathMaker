@@ -1,4 +1,5 @@
 ﻿# The one-way labyrinth algorithm
+(github.com/fodorbalint/OneWayLabyrinth)
 
 This research aims to solve the following problem:<br />
 "Draw a line that goes through an n x n grid (where n is an odd number), passing through each field once. The line has to start from the field at the upper left corner (1,1) and end at (n,n). At any time it is allowed to move left, right, up or down, and it has to randomly choose between the available fields."
@@ -1735,7 +1736,7 @@ If we look at 4 distance: It is true that if the area is 1W and we step forward,
 
 <!---->
 
-The next stop is similar in concept: When we exit the first area, there are two close obstacles on either side:
+The next stop is similar in concept (Square 4 x 2 C-Shape): When we exit the first area, there are two close obstacles on either side:
 
 <img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="5" />
 
@@ -1745,4 +1746,25 @@ We can see that the mechanism is not limited to a few cases, but it can go on in
 
 A sequence is made from the start area and the close obstacle cases, and this can be programmed.
 
+<!---->
+
+But let's build the program step by step, based on the discovered 9 x 9 rules. Besides the rule above, Square 4 x 2 Area is also solved by just using the two steps:
+
+<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="5" />
+
+The second case, Triple Area, uses an area where the obstacle is 3 distance away.
+
+<img align="top" src="References/rules/9/Triple Area.svg" width="5" />
+
+If the area is pair, the exit field will be straight in the middle, and the next step is one to the right. That's where we can check for close obstacles on either side.
+Stepping to the left is already disabled in the single area straight obstacle rule.
+
+<!---->
+
+Doule Area Stair will be a 4-step sequence.
+
+<img align="top" src="References/Double Area Stair numbered.svg" width="6" />
+
+After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a mid across close obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and a close across obstacle on the right.
+We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.
 <!-- Is checking next step posibilities necessary? -->
