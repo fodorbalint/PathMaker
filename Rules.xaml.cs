@@ -95,7 +95,7 @@ namespace OneWayLabyrinth
         {
             string[] lines = File.ReadAllLines("settings.txt");
 
-            if (lines.Length > 8)
+            if (lines.Length > 10)
             {
                 string[] arr = lines[10].Split(": ");
                 size = int.Parse(arr[1]);

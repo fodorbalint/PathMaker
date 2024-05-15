@@ -1037,17 +1037,24 @@ namespace OneWayLabyrinth
 
             string linesStr = string.Join("\n", lines);
 
-            string fileContent = File.ReadAllText("settings.txt");
-            int pos = fileContent.IndexOf("appliedSize");
-
-            if (pos!= -1)
+            if (File.Exists("settings.txt"))
             {
-                File.WriteAllText("settings.txt", linesStr + "\n" + fileContent.Substring(pos));
+                string fileContent = File.ReadAllText("settings.txt");
+                int pos = fileContent.IndexOf("appliedSize");
+
+                if (pos != -1)
+                {
+                    File.WriteAllText("settings.txt", linesStr + "\n" + fileContent.Substring(pos));
+                }
+                else
+                {
+                    File.WriteAllLines("settings.txt", lines);
+                }
             }
             else
             {
                 File.WriteAllLines("settings.txt", lines);
-            }
+            }            
         }
 
         private int Move(int directionIndex)
