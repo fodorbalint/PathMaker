@@ -54,6 +54,8 @@
 	<!--2-->
 	<!-- 2 4 12 -->
 	<path d="M 1.2 3.2 l 0.6 0.6 M 1.2 3.8 l 0.6 -0.6" fill="white" fill-opacity="0" stroke="red" stroke-width="0.05" stroke-linecap="round" />
+	<!-- 1 5 12 -->
+	<path d="M 0.2 4.2 l 0.6 0.6 M 0.2 4.8 l 0.6 -0.6" fill="white" fill-opacity="0" stroke="red" stroke-width="0.05" stroke-linecap="round" />
 	<!--3-->
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 5" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 5" />

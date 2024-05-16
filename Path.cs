@@ -320,14 +320,14 @@ namespace OneWayLabyrinth
                             Check3DoubleArea();
                             T("Check3DoubleAreaRotated");
                             Check3DoubleAreaRotated();
-
+                            T("CheckSequence");
                             CheckSequence();
 
                             //CheckNearBorder();
                             CheckNearField();
                             //CheckAreaNearBorder();
                             
-                            //RunRules();
+                            RunRules();
 
                             /*if (size >= 7)
                             {
@@ -2618,7 +2618,6 @@ namespace OneWayLabyrinth
 
         public void Check3DoubleAreaRotated() // Take only the first case and rotate it.
         {
-
             for (int j = 0; j < 2; j++)
             {
                 bool circleValid = false;
@@ -2819,114 +2818,246 @@ namespace OneWayLabyrinth
 
         private void CheckSequence()
         {
-            T("CheckSequence");
-            for (int j = 0; j < 2; j++)
+            for (int i = 0; i < 2; i++)
             {
-                // First case, Square 4 x 2 C-Shape / Square 4 x 2 Area: Works with third case
-                
-                // Second case, Triple Area
-                if (InTakenRel(0, 4) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 4))
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 2; j++)
                 {
-                    int directionFieldIndex = InTakenIndexRel(0, 4);
-                    int leftIndex = InTakenIndexRel(1, 4);
+                    // First case, Square 4 x 2 C-Shape / Square 4 x 2 Area: Works with third case
+                    // 2024_0516
+                    // Rotated: 2024_0516_1
 
-                    if (leftIndex > directionFieldIndex)
+                    // Second case, Triple Area
+                    // 2024_0516_2
+                    // Rotated: 2024_0516_3
+                    if (InTakenRel(0, 4) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 4))
                     {
-                        // second circle true, but we need to check if the area is pair
-                        ResetExamAreas();
+                        int directionFieldIndex = InTakenIndexRel(0, 4);
+                        int leftIndex = InTakenIndexRel(1, 4);
 
-                        if (CountAreaRel(0, 1, 0, 3, new List<int[]> { new int[] { 0, 2 } }, true, 0))
+                        if (leftIndex > directionFieldIndex)
                         {
-                            int thisX = x;
-                            int thisY = y;
-                            int thisSx = sx;
-                            int thisSy = sy;
-                            int thisLx = lx;
-                            int thisLy = ly;
+                            // second circle true, but we need to check if the area is pair
+                            ResetExamAreas();
 
-                            // step after exiting area:
-                            x = x - lx + 2 * sx;
-                            y = y - ly + 2 * sy;
-
-                            int[] rotatedDir = RotateDir(lx, ly, j);
-                            lx = rotatedDir[0];
-                            ly = rotatedDir[1];
-                            rotatedDir = RotateDir(sx, sy, j);
-                            sx = rotatedDir[0];
-                            sy = rotatedDir[1];
-
-                            bool leftSideClose = CheckNearFieldSmall2(true);
-                            bool rightSideClose = CheckNearFieldSmall2(false);
-
-                            if (leftSideClose && rightSideClose)
+                            if (CountAreaRel(0, 1, 0, 3, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 2, true))
                             {
-                                AddExamAreas();
+                                int black = (int)info[1];
+                                int white = (int)info[2];
 
-                                T("CheckSequence case 2 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
-                                // Due to CheckStraight, stepping left is already disabled
-                                forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
-                                forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                                if (black == white)
+                                {
+                                    int thisX = x;
+                                    int thisY = y;
+                                    int thisSx = sx;
+                                    int thisSy = sy;
+                                    int thisLx = lx;
+                                    int thisLy = ly;
+
+                                    // step after exiting area:
+                                    x = x - lx + 2 * sx;
+                                    y = y - ly + 2 * sy;
+
+                                    int[] rotatedDir = RotateDir(lx, ly, i);
+                                    lx = rotatedDir[0];
+                                    ly = rotatedDir[1];
+                                    rotatedDir = RotateDir(sx, sy, i);
+                                    sx = rotatedDir[0];
+                                    sy = rotatedDir[1];
+
+                                    bool leftSideClose = CheckNearFieldSmall2(true);
+                                    bool rightSideClose = CheckNearFieldSmall2(false);
+
+                                    if (leftSideClose && rightSideClose)
+                                    {
+                                        AddExamAreas();
+
+                                        T("CheckSequence case 2 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                                        // Due to CheckStraight, stepping left is already disabled
+                                        forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                                    }
+
+                                    x = thisX;
+                                    y = thisY;
+                                    lx = thisLx;
+                                    ly = thisLy;
+                                    sx = thisSx;
+                                    sy = thisSy;
+                                }
                             }
-
-                            x = thisX;
-                            y = thisY;
-                            lx = thisLx;
-                            ly = thisLy;
-                            sx = thisSx;
-                            sy = thisSy;
                         }
                     }
-                }
 
-                // Third case, Double Area Stair
-                if (InTakenRel(0, 3) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(-1, 3))
-                {
-                    int directionFieldIndex = InTakenIndexRel(0, 3);
-                    int leftIndex = InTakenIndexRel(1, 3);
-
-                    if (leftIndex > directionFieldIndex)
+                    // Third case, Double Area Stair
+                    // 2024_0516_4
+                    // Rotated: 2024_0516_5
+                    if (InTakenRel(0, 3) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(-1, 3))
                     {
-                        // first circle true
+                        int directionFieldIndex = InTakenIndexRel(0, 3);
+                        int leftIndex = InTakenIndexRel(1, 3);
 
-                        T("CheckSequence third case start area true");
-
-                        int thisX = x;
-                        int thisY = y;
-                        int thisSx = sx;
-                        int thisSy = sy;
-                        int thisLx = lx;
-                        int thisLy = ly;
-
-                        // step after exiting area:
-                        x = x - lx + 2 * sx;
-                        y = y - ly + 2 * sy;
-
-                        int[] rotatedDir = RotateDir(lx, ly, j);
-                        lx = rotatedDir[0];
-                        ly = rotatedDir[1];
-                        rotatedDir = RotateDir(sx, sy, j);
-                        sx = rotatedDir[0];
-                        sy = rotatedDir[1];
-
-                        if (CheckSequenceRecursive(j))
+                        if (leftIndex > directionFieldIndex)
                         {
-                            T("CheckSequence case 3 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
-                            forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
-                            forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
-                        }
+                            ResetExamAreas();
 
-                        x = thisX;
-                        y = thisY;
-                        lx = thisLx;
-                        ly = thisLy;
-                        sx = thisSx;
-                        sy = thisSy;
+                            if (CountAreaRel(0, 1, 0, 2, null, circleDirectionLeft, 2, true))
+                            {
+                                int black = (int)info[1];
+                                int white = (int)info[2];
+
+                                if (black == white)
+                                {
+                                    // first circle true
+
+                                    T("CheckSequence third case start area true", lx, ly, sx, sy);
+
+                                    int thisX = x;
+                                    int thisY = y;
+                                    int thisSx = sx;
+                                    int thisSy = sy;
+                                    int thisLx = lx;
+                                    int thisLy = ly;
+
+                                    // step after exiting area:
+                                    x = x - lx + 2 * sx;
+                                    y = y - ly + 2 * sy;
+
+                                    int[] rotatedDir = RotateDir(lx, ly, i);
+                                    lx = rotatedDir[0];
+                                    ly = rotatedDir[1];
+                                    rotatedDir = RotateDir(sx, sy, i);
+                                    sx = rotatedDir[0];
+                                    sy = rotatedDir[1];
+
+                                    if (CheckSequenceRecursive(i))
+                                    {
+                                        AddExamAreas();
+
+                                        T("CheckSequence case 3 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                                        forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
+                                        forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                                    }
+
+                                    x = thisX;
+                                    y = thisY;
+                                    lx = thisLx;
+                                    ly = thisLy;
+                                    sx = thisSx;
+                                    sy = thisSy;
+                                }
+                            }
+                        }
+                    }
+
+                    int l0 = lx;
+                    int l1 = ly;
+                    lx = -sx;
+                    ly = -sy;
+                    sx = l0;
+                    sy = l1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+
+            // Fourth case, Double Area Stair 2
+            // 2024_0516_6
+            // Rotated both ways: 2024_0516_7, 2024_0516_8
+
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 3; j++)
+                {
+                    if (InTakenRel(1, 3) && !InTakenRel(1, 2) && !InTakenRel(0, 3))
+                    {
+                        int directionFieldIndex = InTakenIndexRel(1, 3);
+                        int leftIndex = InTakenIndexRel(2, 3);
+
+                        if (leftIndex > directionFieldIndex)
+                        {
+                            ResetExamAreas();
+
+                            if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 2, true))
+                            {
+                                int black = (int)info[1];
+                                int white = (int)info[2];
+
+                                if (black == white)
+                                {
+                                    // first circle true
+
+                                    T("CheckSequence fourth case start area true");
+
+                                    int thisX = x;
+                                    int thisY = y;
+                                    int thisSx = sx;
+                                    int thisSy = sy;
+                                    int thisLx = lx;
+                                    int thisLy = ly;
+
+                                    // step after exiting area:
+                                    x = x + 2 * sx;
+                                    y = y + 2 * sy;
+
+                                    int[] rotatedDir = RotateDir(lx, ly, i);
+                                    lx = rotatedDir[0];
+                                    ly = rotatedDir[1];
+                                    rotatedDir = RotateDir(sx, sy, i);
+                                    sx = rotatedDir[0];
+                                    sy = rotatedDir[1];
+
+                                    if (CheckSequenceRecursive(i))
+                                    {
+                                        AddExamAreas();
+
+                                        T("CheckSequence case 4 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                                        forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                                    }
+
+                                    x = thisX;
+                                    y = thisY;
+                                    lx = thisLx;
+                                    ly = thisLy;
+                                    sx = thisSx;
+                                    sy = thisSy;
+                                }
+                            }
+                        }
+                    }
+
+                    if (j == 0)
+                    {
+                        int l0 = lx;
+                        int l1 = ly;
+                        lx = -sx;
+                        ly = -sy;
+                        sx = l0;
+                        sy = l1;
+                    }
+                    else if (j == 1)
+                    {
+                        lx = -lx;
+                        ly = -ly;
+                        sx = -sx;
+                        sy = -sy;
                     }
                 }
-
-                lx = -lx;
-                ly = -ly;
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
             }
+            sx = thisSx;
+            sy = thisSy;
             lx = thisLx;
             ly = thisLy;
         }

@@ -441,7 +441,7 @@ If you enter the pair area straight ahead, you will exit at A, and you need to t
 
 To mark the two areas, each one has to be given a directional obstacle next to the count area end field. In this case, it represents a taken field, but we don't go wrong if we include the border as well.
 
-<img align="top" src="References/rules/9/Double Area C-Shape.svg" width="5" />
+<img align="top" src="References/rules/9_old/Double Area C-Shape.svg" width="5" />
 
 And with this marking system, we can correct the rules previously made. All rules featuring future line start and end fields have to be rewritten to start with.<br />
 So we get the 2-distance across rule, the straight 3-distance rule to prevent a double C-shape, and the square constellation with 3 areas. All of them are rotated clockwise or counter-clockwise.
@@ -457,7 +457,7 @@ Let's return to the last example and make a modification:
 The field previously marked with B is now empty. But we still need to step in that direction, due to the area enclosed by A, which obstacle could as well be in B.<br />
 The rule will be now symmetrical. It is similar to the square obstacle pattern.
 
-<img align="top" src="References/rules/9/Triple Area.svg" width="5" />
+<img align="top" src="References/rules/9_old/Triple Area.svg" width="5" />
 
 The same concept we encounter at 725 325. We have seen this previously, just with C-shape, not an area.
 
@@ -467,7 +467,7 @@ The same concept we encounter at 725 325. We have seen this previously, just wit
 
 The rule will now look like this:
 
-<img align="top" src="References/rules/9/Straight Across End Area.svg" width="4" />
+<img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="4" />
 
 740 039 is a slight modification.
 
@@ -476,7 +476,7 @@ The rule will now look like this:
 The only difference is, that the obstacle is 3-distance away. With the area being impair, if we enter at A, we must exit at C.<br />
 What if we omit D from the area? Then the area will be pair, so we must exit at B, and the only way to get there is from C. And if D is included, we can only step to C from there. Either way, we step away from the area beyond D, so the rule will be:
 
-<img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="4" />
+<img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="4" />
 
 <!---->
 
@@ -486,7 +486,7 @@ What if we omit D from the area? Then the area will be pair, so we must exit at 
 
 Recognize it is a variation of the square obstacle pattern where instead of an area, there is a C-shape at the rule's upper edge. 
 
-<img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="5" />
+<img align="top" src="References/rules/9_old/Square 4 x 2 C-Shape.svg" width="5" />
 
 1 261 580:
 
@@ -496,7 +496,7 @@ Recognize it is a variation of the square obstacle pattern where instead of an a
 
 Again, same pattern with area. The upper obstacle is now moved, but it will satisfy the previous examples too. The rule replaces the old one.
 
-<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="5" />
+<img align="top" src="References/rules/9_old/Square 4 x 2 Area.svg" width="5" />
 
 2 022 337 is getting stuck because of the stair-shaped walls that force the future line along them. Therefore, an area is created with only one field to go in and out of it. What is the solution?
 
@@ -504,7 +504,7 @@ Again, same pattern with area. The upper obstacle is now moved, but it will sati
 
 Though not as universal as we want it to be, this will solve this specific situation:
 
-<img align="top" src="References/rules/9/Double Area Stair.svg" width="6" />
+<img align="top" src="References/rules/9_old/Double Area Stair.svg" width="7" />
 
 <!---->
 
@@ -512,7 +512,7 @@ And soon, at 2 022 773 we encounter a similar one:
 
 <img align="top" src="References/2022773.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2022773_1.svg" width="9" /><br />
 <img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/rules/9/Double Area Stair 2.svg" width="5" />
+<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="5" />
 
 <!---->
 
@@ -538,7 +538,7 @@ Next stop is at 3 224 847.
 
 A pair area is created with the obstacle 3 distance away, so if we step into it, we will exit at the middle, but because of an area, we cannot step there.
 
-<img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="4" />
+<img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="4" />
 
 Beware of disabling the left field. If the count area end field is excluded from the area, the area will be impair, thus we will exit at the count area start field, coming from the middle.<br />
 
@@ -546,7 +546,7 @@ Beware of disabling the left field. If the count area end field is excluded from
 
 But if the obstacle in the upper right corner is moved down, even this will be impossible.
 
-<img align="top" src="References/rules/13/Straight Mid Across 3 End Area 2.svg" width="4" />
+<img align="top" src="References/rules/13_old/Straight Mid Across 3 End Area 2.svg" width="4" />
 
 We can recreate this example on 13 x 13.
 
@@ -556,7 +556,7 @@ We can recreate this example on 13 x 13.
 
 From our experience, the area can be substituted with C-shape.
 
-<img align="top" src="References/1219.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Mid Across 3 End C.svg" width="2" />
+<img align="top" src="References/1219.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Mid Across 3 End C.svg" width="2" />
 
 3 225 432 is a variation of the impair area imbalance rules we have seen before.
 
@@ -572,7 +572,7 @@ From our experience, the area can be substituted with C-shape.
 
 Here, a C-shape at the start would force the line to enter the area.
 
-<img align="top" src="References/rules/9/Double C-Shape Start C.svg" width="3" />
+<img align="top" src="References/rules/9_old/Double C-Shape Start C.svg" width="3" />
 
 <!---->
 
@@ -606,7 +606,7 @@ This behaviour needs to be changed too. Future lines are no longer needed, and w
 
 For now, here is the solution to this and the next cases:
 
-<img align="top" src="References/rules/9/Triple Area Stair.svg" width="7" />
+<img align="top" src="References/rules/9_old/Triple Area Stair.svg" width="7" />
 
 <!---->
 
@@ -614,7 +614,7 @@ For now, here is the solution to this and the next cases:
 
 <img align="top" src="References/19718148.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/19718148_1.svg" width="9" /><br />
 <img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/rules/9/Double Area Stair 2.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Double Area Stair Area.svg" width="5" />
+<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Double Area Stair Area.svg" width="5" />
 
 We encounter a new constellation of 3 areas in 23 310 321 where the exit is next to the live end.
 
@@ -634,7 +634,7 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 462, Double Area C-Shape 
 
-<img align="top" src="References/462.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Double Area C-Shape.svg" width="5" />
+<img align="top" src="References/462.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Double Area C-Shape.svg" width="5" />
 
 1 861, Double C-Shape
 
@@ -648,49 +648,49 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 22 328, Straight Mid Across 3 End Area
 
-<img align="top" src="References/22328.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="4" />
+<img align="top" src="References/22328.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="4" />
 
 <!---->
 
 22 328, Straight Across End Area
 
-<img align="top" src="References/22328_1.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Across End Area.svg" width="4" />
+<img align="top" src="References/22328_1.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="4" />
 
 <!---->
 
 25 153, Straight Across End C
 
-<img align="top" src="References/25153.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Across End C.svg" width="3" />
+<img align="top" src="References/25153.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="3" />
 
 227 130, Square 4 x 2 C-Shape 
 
-<img align="top" src="References/227130.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="5" />
+<img align="top" src="References/227130.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Square 4 x 2 C-Shape.svg" width="5" />
 
 <!---->
 
 231 960, Square 4 x 2 Area
 
-<img align="top" src="References/231960.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="5" />
+<img align="top" src="References/231960.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Square 4 x 2 Area.svg" width="5" />
 
 740 129, Straight Across 3 End Area 
 
-<img align="top" src="References/740129.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="4" />
+<img align="top" src="References/740129.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="4" />
 
 <!---->
 
 740 363, Triple Area
 
-<img align="top" src="References/740363.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area.svg" width="5" />
+<img align="top" src="References/740363.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Triple Area.svg" width="5" />
 
 2 022 763, Double Area Stair
 
-<img align="top" src="References/2022763.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Double Area Stair.svg" width="6" />
+<img align="top" src="References/2022763.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Double Area Stair.svg" width="7" />
 
 <!---->
 
 2 023 198, Double Area Stair 2
 
-<img align="top" src="References/2023198.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Double Area Stair 2.svg" width="5" />
+<img align="top" src="References/2023198.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="5" />
 
 2 034 435, Mid Mid Across 3 Determined (and Mid Across 3 Impair Determined)
 
@@ -704,13 +704,13 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 8 076 202, Straight Mid Across 3 End C
 
-<img align="top" src="References/8076202.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Mid Across 3 End C.svg" width="2" />
+<img align="top" src="References/8076202.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Mid Across 3 End C.svg" width="2" />
 
 <!---->
 
 8 076 706, Double C-Shape Start C
 
-<img align="top" src="References/8076706.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Double C-Shape Start C.svg" width="3" />
+<img align="top" src="References/8076706.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Double C-Shape Start C.svg" width="3" />
 
 8 076 762, Double C-Shape Determined
 
@@ -724,13 +724,13 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 
 19 720 122, Triple Area Stair
 
-<img align="top" src="References/19720122.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Stair.svg" width="7" />
+<img align="top" src="References/19720122.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Triple Area Stair.svg" width="7" />
 
 <!---->
 
 19 720 614, Double Area Stair Area
 
-<img align="top" src="References/19720614.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Double Area Stair Area.svg" width="5" />
+<img align="top" src="References/19720614.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Double Area Stair Area.svg" width="5" />
 
 23 350 320 is new, but it shows similarity to the Mid Across 3 Impair Determined rule. As the double C-shape reveals, it is about pair/impair field imbalance.
 
@@ -1671,7 +1671,7 @@ If we don't apply the first size-specific rule, we get stuck here:
 
 As a reminder:
 
-<img align="top" src="References/462.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Double Area C-Shape.svg" width="5" />
+<img align="top" src="References/462.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Double Area C-Shape.svg" width="5" />
 
 Let's put this into the perspective of our current knowledge.
 
@@ -1708,13 +1708,15 @@ Reviewing those 2-distance rules, we can see that many of them has a double area
 
 Per our expectation, the program stops at the next double area case. What is common in these rules?
 
-<img align="top" src="References/rules/9/Straight Mid Across 3 End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Across End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Across End C.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Straight Across 3 End Area.svg" width="4" />
+<img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="4" />
+<img src="References/spacer.svg" height="23" />
+<img align="top" src="References/rules/13_old/Straight Mid Across 3 End Area 2.svg" width="4" />
+
+<!---->
 
 There is an area with a straight border line of maximum 3 fields, with the obstacle being in the upper left corner. The farthest border field cannot be the exit, the line needs to go downwards from it, but another area is created with one of the obstacles on the up side.
 
 <img align="top" src="References/double area.svg" width="4" />
-
-<!---->
 
 The live end can be at 3 different places in relation to the area.
 
@@ -1728,43 +1730,70 @@ And the first pattern can be rotated counter-clockwise too.
 
 <img align="top" src="References/double area case 4.svg" width="5" />
 
+<!---->
+
 Can the border line be longer?
 
 <img align="top" src="References/double area 1.svg" width="2" />
 
 If we look at 4 distance: It is true that if the area is 1W and we step forward, only one white field remains on the border, but we can also exit immediately, leaving a 3-long border line and a 0W area. Then, the area can be entered at the second white and exited at the last black.
 
+The next stop is similar in concept (Square 4 x 2 C-Shape and Square 4 x 2 Area): When we exit the first area, there are two close obstacles on either side:
+
+<img align="top" src="References/rules/9_old/Square 4 x 2 C-Shape.svg" width="5" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Square 4 x 2 Area.svg" width="5" />
+
+ The pattern is rotated counter-clockwise.
+
+<img align="top" src="References/2024_0516.svg" width="9" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0516_1.svg" width="9" />
+
 <!---->
-
-The next stop is similar in concept (Square 4 x 2 C-Shape): When we exit the first area, there are two close obstacles on either side:
-
-<img align="top" src="References/rules/9/Square 4 x 2 C-Shape.svg" width="5" />
 
 We can see that the mechanism is not limited to a few cases, but it can go on indefinitely. If after exiting the area, there are repeated C-shapes on the left side (a stair shape), the right side obstacle may be far away, as in this example:
 
-<img align="top" src="References/2024_0512.svg" width="15" />
+<img align="top" src="References/2024_0512.svg" width="10" />
 
 A sequence is made from the start area and the close obstacle cases, and this can be programmed.
+But let's build the program step by step, based on the discovered 9 x 9 rules. The second case, Triple Area, uses an area where the obstacle is 3 distance away.
 
-<!---->
-
-But let's build the program step by step, based on the discovered 9 x 9 rules. Besides the rule above, Square 4 x 2 Area is also solved by just using the two steps:
-
-<img align="top" src="References/rules/9/Square 4 x 2 Area.svg" width="5" />
-
-The second case, Triple Area, uses an area where the obstacle is 3 distance away.
-
-<img align="top" src="References/rules/9/Triple Area.svg" width="5" />
+<img align="top" src="References/rules/9_old/Triple Area.svg" width="5" />
 
 If the area is pair, the exit field will be straight in the middle, and the next step is one to the right. That's where we can check for close obstacles on either side.
-Stepping to the left is already disabled in the single area straight obstacle rule.
+Stepping to the left is already disabled in the single area straight obstacle rule. Otherwise, the pattern is rotated, like in the previous case.
 
 <!---->
 
-Doule Area Stair will be a 4-step sequence.
+Double Area Stair will be a 4-step sequence.
 
-<img align="top" src="References/Double Area Stair numbered.svg" width="6" />
+<img align="top" src="References/Double Area Stair numbered.svg" width="7" />
 
 After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a mid across close obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and a close across obstacle on the right.
 We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.
+
+Double Area Stair 2 - although looking similar - will have a somewhat different solution.
+
+<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="5" />
+
+Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden.
+
+<!---->
+
+Accordingly, there will be 3 ways the rule is rotated.
+
+<img align="top" src="References/2024_0516_6.svg" width="8" />
+<img src="References/spacer.svg" height="23" />
+<img align="top" src="References/2024_0516_7.svg" width="8" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0516_8.svg" width="8" />
+
+We have now covered all the discovered 9 x 9 rules, except Triple Area Exit down.
+
+<img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />
+
+<!---->
+
+But it is okay if we cannot fit it into the existing systems. It represents an area closed on all sides, and as long as the borderlines of the sub-areas cannot be longer, there are no more cases to think about. But am I right? I have not proven it.
+
+Now I give you another case to think about. It was discovered by the program previously as 51 015 231.
+The second picture is the probable point of choice.
+
+<img align="top" src="References/51015231.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231_1.svg" width="9" />
+
 <!-- Is checking next step posibilities necessary? -->

@@ -457,7 +457,6 @@ namespace OneWayLabyrinth
                 string fileName = file.Substring(2);
                 if (fileName != "settings.txt" && fileName != "log.txt" && fileName != "log_rules.txt" && fileName != "log_performance.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
                 {
-                    T(fileName);
                     loadFile = fileName;
                     return;
                 }
@@ -551,7 +550,7 @@ namespace OneWayLabyrinth
                 possibleDirections.Add(new int[] { });
             }
 
-            T("LoadFromFile " + taken.path.Count + " " + possibleDirections.Count);
+            T("Loading " + loadFile + ", taken count " + taken.path.Count + ", possibledir count " + possibleDirections.Count);
 
             nextDirection = -2;
 
@@ -578,6 +577,10 @@ namespace OneWayLabyrinth
             {
                 string[] arr = loadFile.Split("_");
                 fileCompletedCount = int.Parse(arr[0]);
+            }
+            else
+            {
+                fileCompletedCount = 0;
             }
 
             CurrentCoords.Content = taken.x + " " + taken.y;
@@ -806,6 +809,7 @@ namespace OneWayLabyrinth
             //only give completedCount if we have been in a fast run. In normal run, upon an error, errorInWalkthrough remains through until we clicked the OK button.
             string saveName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".txt" : DateTime.Today.Year + "_" + DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
 
+            T("Saving " + saveName);
 			File.WriteAllText(saveName, savePath);
 		}
 
@@ -857,6 +861,8 @@ namespace OneWayLabyrinth
 
         // ----- Button functions -----
 
+        long startTimerValue;
+        long lastTimerValue;
 
         private void StartTimer(bool fastRun)
         {
@@ -885,7 +891,38 @@ namespace OneWayLabyrinth
                 errorInWalkthrough = false;
                 MessageLine.Visibility = Visibility.Visible;
                 if (saveConcise) File.WriteAllText("completedPaths.txt", "");
-                File.WriteAllText("log_performance.txt", "");
+                if (fileCompletedCount == 0 || !File.Exists("log_performance.txt"))
+                {
+                    File.WriteAllText("log_performance.txt", "");
+                    startTimerValue = 0;
+                }
+                else // continue where we left off
+                {
+                    List<string> arr = File.ReadAllLines("log_performance.txt").ToList();
+                    List<string> newArr = new();
+
+                    foreach (string line in arr)
+                    {
+                        string[] parts = line.Split(" ");
+                        if (int.Parse(parts[0]) <= fileCompletedCount)
+                        {
+                            newArr.Add(line);
+                            startTimerValue = (long)(float.Parse(parts[1]) * 1000);
+                            T(parts[1], startTimerValue);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    if (newArr.Count > 0)
+                    {
+                        File.WriteAllLines("log_performance.txt", newArr);
+                    }
+                }
+                lastTimerValue = startTimerValue;
+                
                 source = new CancellationTokenSource();
                 CancellationToken token = source.Token;
                 Task task = new Task(() => DoThread(), token);
@@ -1240,8 +1277,11 @@ namespace OneWayLabyrinth
                             if (saveCheck && completedCount % saveFrequency == 0)
 							{
                                 SavePath();
-                                long elapsed = watch.ElapsedMilliseconds;
-                                File.AppendAllText("log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + "\n");
+                                long elapsed = watch.ElapsedMilliseconds + startTimerValue;
+                                long periodValue = elapsed - lastTimerValue;
+                                File.AppendAllText("log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + " " + (periodValue - periodValue % 1000) / 1000 + "." + periodValue % 1000 + "\n" );
+
+                                lastTimerValue = elapsed;
                             }
 							
                             //Dispatcher.Invoke(() => { DrawPath(); }); //frequent error in SKCanvas: Attempt to read or write protected memory
