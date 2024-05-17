@@ -1301,7 +1301,7 @@ The following rules are active, in addition to the universal one that disables t
 There are three more black fields in the area than white, so there is not enough vertical distance for entering and exiting that many times.<br />
 The straight-to-side algorithm has to be rotated upwards, so we get this:
 
-<img align="top" src="References/4pair up.svg" width="3" />
+<img align="top" src="References/4pair up.svg" width="2" />
 
 Let's look at the distances from 3 to 6 to have an example of each case of modulo 4.
 
@@ -1762,6 +1762,10 @@ Stepping to the left is already disabled in the single area straight obstacle ru
 
 <!---->
 
+The first obstacle is not necessarily straight ahead. It can be positioned 1 right, and then we get a C-Shape with it when we exit the area.
+
+<img align="top" src="References/665575.svg" width="9" />
+
 Double Area Stair will be a 4-step sequence.
 
 <img align="top" src="References/Double Area Stair numbered.svg" width="7" />
@@ -1769,13 +1773,13 @@ Double Area Stair will be a 4-step sequence.
 After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a mid across close obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and a close across obstacle on the right.
 We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.
 
+<!---->
+
 Double Area Stair 2 - although looking similar - will have a somewhat different solution.
 
 <img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="5" />
 
 Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden.
-
-<!---->
 
 Accordingly, there will be 3 ways the rule is rotated.
 
@@ -1783,17 +1787,37 @@ Accordingly, there will be 3 ways the rule is rotated.
 <img src="References/spacer.svg" height="23" />
 <img align="top" src="References/2024_0516_7.svg" width="8" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0516_8.svg" width="8" />
 
-We have now covered all the discovered 9 x 9 rules, except Triple Area Exit down.
+<!---->
+
+Seemingly, we have now covered all the discovered 9 x 9 rules, except Triple Area Exit down, which comes at 18 million.
 
 <img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />
 
+But if we re-run the program, we get stuck already at 641 027.
+
+<img align="top" src="References/641027.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/641027_1.svg" width="9" />
+
 <!---->
 
-But it is okay if we cannot fit it into the existing systems. It represents an area closed on all sides, and as long as the borderlines of the sub-areas cannot be longer, there are no more cases to think about. But am I right? I have not proven it.
+If we didn't have the taken field marked with A, the straight obstacle rule would rightfully disable the left field.
+
+<img align="top" src="References/2024_0517.svg" width="6" />
+
+But, since we want to keep the field next to the furthest border field empty, we need to apply a rule for the smaller area. This will be the same as in the 0 horizontal distance small area case.
+
+<img align="top" src="References/straight right small.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/4pair up.svg" width="2" />
+
+<!--The solution will be a universal single area case we have missed, and this will also solve Triple Area Exit Down.
+
+<img align="top" src="References/xdist_closed.svg" width="6" />
+
+Previously we used an open corner. In this case, it is closed which will give different possibilities for white and black field count.
+
+In our specific case, the area is 2 black.
 
 Now I give you another case to think about. It was discovered by the program previously as 51 015 231.
 The second picture is the probable point of choice.
 
-<img align="top" src="References/51015231.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231_1.svg" width="9" />
+<img align="top" src="References/51015231.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231_1.svg" width="9" />-->
 
 <!-- Is checking next step posibilities necessary? -->

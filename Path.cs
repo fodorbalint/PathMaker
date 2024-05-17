@@ -778,106 +778,203 @@ namespace OneWayLabyrinth
                             }
                         }
                     }
-                }
 
-                if (circleValid)
-                {
-                    if (ex == 1) // C-shape straight or straight and side movement is disabled
+                    if (circleValid)
                     {
-                        closeStraight = true;
-
-                        forbidden.Add(new int[] { x - lx, y - ly });
-                        if (InTakenRel(1, 1) || InBorderRel(1, 1))
+                        if (ex == 1) // C-shape straight or straight and side movement is disabled
                         {
-                            T("C-Shape up");
+                            closeStraight = true;
+
+                            forbidden.Add(new int[] { x - lx, y - ly });
+                            if (InTakenRel(1, 1) || InBorderRel(1, 1))
+                            {
+                                T("C-Shape up");
+                            }
+                            else
+                            {
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                            }
                         }
                         else
                         {
-                            forbidden.Add(new int[] { x + sx, y + sy });
+                            if (ex > 2)
+                            {
+                                for (int j = ex - 1; j >= 2; j--)
+                                {
+                                    borderFields.Add(new int[] { 0, j });
+                                }
+                            }
+
+                            ResetExamAreas();
+
+                            if (CountAreaRel(0, 1, 0, ex, borderFields, circleDirectionLeft, 3, true))
+                            {
+                                int black = (int)info[1];
+                                int white = (int)info[2];
+
+                                T("CheckStraight black " + black + " white " + white + " mod " + ex % 4);
+
+                                int whiteDiff = white - black;
+                                int nowWCount = 0;
+                                int nowWCountLeft = 0;
+                                int nowBCount = 0;
+                                int nowBCountLeft = 0;
+                                int laterWCount = 0;
+                                int laterBCount = 0;
+
+                                switch (ex % 4)
+                                {
+                                    case 0:
+                                        nowWCountLeft = nowWCount = ex / 4;
+                                        nowBCountLeft = nowBCount = ex / 4 - 1;
+                                        laterWCount = ex / 4;
+                                        laterBCount = ex / 4;
+                                        break;
+                                    case 1:
+                                        nowWCountLeft = nowWCount = (ex + 3) / 4;
+                                        nowBCountLeft = nowBCount = (ex - 5) / 4;
+                                        laterWCount = (ex - 1) / 4;
+                                        laterBCount = (ex - 5) / 4;
+                                        break;
+                                    case 2:
+                                        if (ex == 2)
+                                        {
+                                            nowWCount = 0;
+                                            nowWCountLeft = 1;
+                                        }
+                                        else
+                                        {
+                                            nowWCountLeft = nowWCount = (ex + 2) / 4;
+                                            nowBCountLeft = nowBCount = (ex - 2) / 4;
+                                            laterWCount = (ex - 2) / 4;
+                                            laterBCount = (ex - 2) / 4;
+                                        }
+                                        break;
+                                    case 3:
+                                        nowWCountLeft = nowWCount = (ex + 1) / 4;
+                                        nowBCountLeft = (ex - 7) / 4;
+                                        nowBCount = (ex - 3) / 4;
+                                        laterWCount = (ex + 1) / 4;
+                                        laterBCount = (ex - 3) / 4;
+                                        break;
+                                }
+
+                                if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
+                                {
+                                    T("Cannot enter now up");
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
+                                }
+                                if (!(whiteDiff <= nowWCountLeft && whiteDiff >= -nowBCountLeft))
+                                {
+                                    T("Cannot enter now left");
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
+                                }
+                                if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                                {
+                                    T("Cannot enter later");
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (dist > 2 && (InBorderRel(-1, dist - 1) || InTakenRel(-1, dist - 1)) && (!InBorderRel(1, dist - 1) && !InTakenRel(1, dist - 1)))
+                {
+                    // area same as in LeftRightAreaUp
+
+                    if (InBorderRel(0, dist))
+                    {
+                        int i1 = InBorderIndexRel(0, dist);
+                        int i2 = InBorderIndexRel(1, dist);
+
+                        if (i1 > i2)
+                        {
+                            circleValid = true;
                         }
                     }
                     else
+                    {
+                        // the right side should be taken, so we don't need to check more
+                        int i1 = InTakenIndexRel(0, dist);
+                        int i2 = InTakenIndexRel(-1, dist);
+
+                        if (i1 > i2)
+                        {
+                            circleValid = true;
+                        }
+                    }
+
+                    if (circleValid)
                     {
                         if (ex > 2)
                         {
                             for (int j = ex - 1; j >= 2; j--)
                             {
-                                borderFields.Add(new int[] { 0, j });
+                                borderFields.Add(new int[] { 1, j });
                             }
                         }
 
                         ResetExamAreas();
 
-                        if (CountAreaRel(0, 1, 0, ex, borderFields, circleDirectionLeft, 3, true))
+                        if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
                         {
                             int black = (int)info[1];
                             int white = (int)info[2];
 
-                            T("CheckStraight black " + black + " white " + white + " mod " + ex % 4);
+                            T("CheckStraight Small black " + black + " white " + white + " mod " + ex % 4);
 
                             int whiteDiff = white - black;
                             int nowWCount = 0;
-                            int nowWCountLeft = 0;
                             int nowBCount = 0;
-                            int nowBCountLeft = 0;
                             int laterWCount = 0;
                             int laterBCount = 0;
 
                             switch (ex % 4)
                             {
                                 case 0:
-                                    nowWCountLeft = nowWCount = ex / 4;
-                                    nowBCountLeft = nowBCount = ex / 4 - 1;
+                                    nowWCount = ex / 4;
+                                    nowBCount = ex / 4 - 1;
                                     laterWCount = ex / 4;
                                     laterBCount = ex / 4;
                                     break;
                                 case 1:
-                                    nowWCountLeft = nowWCount = (ex + 3) / 4;
-                                    nowBCountLeft = nowBCount = (ex - 5) / 4;
+                                    nowWCount = (ex - 1) / 4;
+                                    nowBCount = (ex - 1) / 4;
                                     laterWCount = (ex - 1) / 4;
-                                    laterBCount = (ex - 5) / 4;
+                                    laterBCount = (ex - 1) / 4;
                                     break;
                                 case 2:
-                                    if (ex == 2)
-                                    {
-                                        nowWCount = 0;
-                                        nowWCountLeft = 1;
-                                    }
-                                    else
-                                    {
-                                        nowWCountLeft = nowWCount = (ex + 2) / 4;
-                                        nowBCountLeft = nowBCount = (ex - 2) / 4;
-                                        laterWCount = (ex - 2) / 4;
-                                        laterBCount = (ex - 2) / 4;
-                                    }
+                                    nowWCount = (ex + 2) / 4;
+                                    nowBCount = (ex - 2) / 4;
+                                    laterWCount = (ex - 2) / 4;
+                                    laterBCount = (ex - 2) / 4;
                                     break;
                                 case 3:
-                                    nowWCountLeft = nowWCount = (ex + 1) / 4;
-                                    nowBCountLeft = (ex - 7) / 4;
+                                    nowWCount = (ex + 1) / 4;
                                     nowBCount = (ex - 3) / 4;
-                                    laterWCount = (ex + 1) / 4;
-                                    laterBCount = (ex - 3) / 4;
+                                    laterWCount = (ex - 3) / 4;
+                                    laterBCount = (ex + 1) / 4;
                                     break;
                             }
 
                             if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
                             {
-                                T("Cannot enter now up");
-                                forbidden.Add(new int[] { x + sx, y + sy });
-                                AddExamAreas();
-                                areaPairFields.Add((List<int[]>)info[3]);
-                            }
-                            if (!(whiteDiff <= nowWCountLeft && whiteDiff >= -nowBCountLeft))
-                            {
-                                T("Cannot enter now left");
-                                forbidden.Add(new int[] { x + lx, y + ly });
+                                T("CheckStraight Small cannot enter now");
+                                forbidden.Add(new int[] { this.x + lx, y + ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
                             if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                             {
-                                T("Cannot enter later");
-                                forbidden.Add(new int[] { x - lx, y - ly });
+                                T("CheckStraight Small cannot enter later");
+                                forbidden.Add(new int[] { this.x + sx, y + sy });
+                                forbidden.Add(new int[] { this.x - lx, y - ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
@@ -2831,12 +2928,45 @@ namespace OneWayLabyrinth
                     // Second case, Triple Area
                     // 2024_0516_2
                     // Rotated: 2024_0516_3
-                    if (InTakenRel(0, 4) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 4))
-                    {
-                        int directionFieldIndex = InTakenIndexRel(0, 4);
-                        int leftIndex = InTakenIndexRel(1, 4);
 
-                        if (leftIndex > directionFieldIndex)
+                    // See also 665575 for alternative start obstacle placement
+                    bool circleValid = false;
+
+                    if ((InTakenRel(0, 4) || InTakenRel(-1, 4)) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 3))
+                    {
+                        if (InTakenRel(0, 4))
+                        {
+                            int directionFieldIndex = InTakenIndexRel(0, 4);
+                            int sideIndex = InTakenIndexRel(1, 4);
+
+                            if (sideIndex != -1)
+                            {
+                                if (sideIndex > directionFieldIndex)
+                                {
+                                    circleValid = true;
+                                }
+
+                            }
+                            else
+                            {
+                                sideIndex = InTakenIndexRel(-1, 4);
+                                if (directionFieldIndex > sideIndex)
+                                {
+                                    circleValid = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            int directionFieldIndex = InTakenIndexRel(-1, 4);
+                            int sideIndex = InTakenIndexRel(-2, 4);
+                            if (directionFieldIndex > sideIndex)
+                            {
+                                circleValid = true;
+                            }
+                        }
+
+                        if (circleValid)
                         {
                             // second circle true, but we need to check if the area is pair
                             ResetExamAreas();

@@ -908,7 +908,6 @@ namespace OneWayLabyrinth
                         {
                             newArr.Add(line);
                             startTimerValue = (long)(float.Parse(parts[1]) * 1000);
-                            T(parts[1], startTimerValue);
                         }
                         else
                         {
