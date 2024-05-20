@@ -1403,21 +1403,11 @@ Big area:<br />
 <img src="References/spacer.svg" height="23" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" /></div><div class="rightNum">111</div></td></tr><tr><td class="left"><div>There is an area with a straight border line of maximum 3 fields, with the obstacle being in the upper left corner. The farthest border field cannot be the exit, the line needs to go downwards from it, but another area is created with one of the obstacles on the up side.<br />
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" /></div><div class="rightNum">111</div></td></tr><tr><td class="left"><div>What is common in these rules?<br />
 <br />
-<img align="top" src="References/double area.svg" width="19.047619047619%" /><br />
-<br />
-The live end can be at 3 different places in relation to the area.<br />
-<br />
-When checking the conditions for the first area, these are the fields that need to be empty:<br />
-<br />
-<img align="top" src="References/double area case 1.svg" width="9.5238095238095%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/double area case 2.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/double area case 3.svg" width="14.285714285714%" /><br />
-<br />
-Notice that the first two cases can exist simultaneously. Then we examine the smaller area (second case); the obstacle in the first will create a C-shape with the exit of that area.<br />
-All three has to be applied rotated clockwise as well.<br />
-And the first pattern can be rotated counter-clockwise too.<br />
-<br />
-<img align="top" src="References/double area case 4.svg" width="23.809523809524%" /></div><div class="leftNum">116</div></td>
+<img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="19.047619047619%" /><br />
+<img src="References/spacer.svg" height="23" /><br />
+<img align="top" src="References/rules/13_old/Straight Mid Across 3 End Area 2.svg" width="19.047619047619%" /></div><div class="leftNum">116</div></td>
 <td class="right"><div>As a reminder:<br />
 <br />
 <img align="top" src="References/462.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Double Area C-Shape.svg" width="23.809523809524%" /><br />
@@ -1448,34 +1438,9 @@ Obviously, at 1 distance we cannot step right, but neither can we at 2 distance 
 <br />
 Reviewing those 2-distance rules, we can see that many of them has a double area (one of which is a C-shape). They cannot be solved with the single area patterns. It is best to re-enable the whole set even if it is a repetition in other cases. <br />
 <br />
-Per our expectation, the program stops at the next double area case. What is common in these rules?<br />
+Per our expectation, the program stops at the next double area case.<br />
 <br />
-<img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="19.047619047619%" /><br />
-<img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/rules/13_old/Straight Mid Across 3 End Area 2.svg" width="19.047619047619%" /></div><div class="rightNum">115</div></td></tr><tr><td class="left"><div>Double Area Stair 2 - although looking similar - will have a somewhat different solution.<br />
-<br />
-<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="23.809523809524%" /><br />
-<br />
-Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden.<br />
-<br />
-Accordingly, there will be 3 ways the rule is rotated.<br />
-<br />
-<img align="top" src="References/2024_0516_6.svg" width="38.095238095238%" /><br />
-<img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/2024_0516_7.svg" width="38.095238095238%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_8.svg" width="38.095238095238%" /></div><div class="leftNum">120</div></td>
-<td class="right"><div>Can the border line be longer?<br />
-<br />
-<img align="top" src="References/double area 1.svg" width="9.5238095238095%" /><br />
-<br />
-If we look at 4 distance: It is true that if the area is 1W and we step forward, only one white field remains on the border, but we can also exit immediately, leaving a 3-long border line and a 0W area. Then, the area can be entered at the second white and exited at the last black.<br />
-<br />
-The next stop is similar in concept (Square 4 x 2 C-Shape and Square 4 x 2 Area): When we exit the first area, there are two close obstacles on either side:<br />
-<br />
-<img align="top" src="References/rules/9_old/Square 4 x 2 C-Shape.svg" width="23.809523809524%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Square 4 x 2 Area.svg" width="23.809523809524%" /><br />
-<br />
- The pattern is rotated counter-clockwise.<br />
-<br />
-<img align="top" src="References/2024_0516.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_1.svg" width="42.857142857143%" /></div><div class="rightNum">117</div></td></tr><tr><td class="left"><div>We can see that the mechanism is not limited to a few cases, but it can go on indefinitely. If after exiting the area, there are repeated C-shapes on the left side (a stair shape), the right side obstacle may be far away, as in this example:<br />
+<img align="top" src="References/2024_22328.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_22328_1.svg" width="42.857142857143%" /></div><div class="rightNum">115</div></td></tr><tr><td class="left"><div>We can see that the mechanism is not limited to a few cases, but it can go on indefinitely. If after exiting the area, there are repeated C-shapes on the left side (a stair shape), the right side obstacle may be far away, as in this example:<br />
 <br />
 <img align="top" src="References/2024_0512.svg" width="47.619047619048%" /><br />
 <br />
@@ -1485,7 +1450,49 @@ But let's build the program step by step, based on the discovered 9 x 9 rules. T
 <img align="top" src="References/rules/9_old/Triple Area.svg" width="23.809523809524%" /><br />
 <br />
 If the area is pair, the exit field will be straight in the middle, and the next step is one to the right. That's where we can check for close obstacles on either side.<br />
-Stepping to the left is already disabled in the single area straight obstacle rule. Otherwise, the pattern is rotated, like in the previous case.</div><div class="leftNum">118</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+Stepping to the left is already disabled in the single area straight obstacle rule. Otherwise, the pattern is rotated, like in the previous case.</div><div class="leftNum">120</div></td>
+<td class="right"><div>There is an area with a straight border line of maximum 3 fields, with the obstacle being in the upper left corner. The farthest border field cannot be the exit, the line needs to go downwards from it, but another area is created with one of the obstacles on the up side.<br />
+<br />
+<img align="top" src="References/double area.svg" width="19.047619047619%" /><br />
+<br />
+The live end can be in 3 different positions in relation to the area.<br />
+<br />
+When checking the conditions for the first area, these are the fields that need to be empty:<br />
+<br />
+<img align="top" src="References/double area case 1.svg" width="9.5238095238095%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/double area case 2.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/double area case 3.svg" width="14.285714285714%" /><br />
+<br />
+Notice that the first two cases can exist simultaneously. Then we examine the smaller area (second case); the obstacle in the first will create a C-shape with the exit of that area.<br />
+All three has to be applied rotated clockwise as well.<br />
+And the first pattern can be rotated counter-clockwise too.<br />
+<br />
+<img align="top" src="References/double area case 1 rotated.svg" width="23.809523809524%" /></div><div class="rightNum">117</div></td></tr><tr><td class="left"><div><img align="top" src="References/double area case 3 border.svg" width="14.285714285714%" /><br />
+<br />
+In the third case we assume that since the area is impair, the number of white fields are greater than of the blacks. But what if it is the opposite, and we get here?<br />
+<br />
+<img align="top" src="References/743059_1.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/743059.svg" width="42.857142857143%" /><br />
+<br />
+Then the close obstacle on the left side is moved one field down too.<br />
+<br />
+<img align="top" src="References/double area 1.svg" width="19.047619047619%" /></div><div class="leftNum">118</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"><div>Can the border line be longer?<br />
+<br />
+<img align="top" src="References/double area 4 dist.svg" width="9.5238095238095%" /><br />
+<br />
+If we look at 4 distance: It is true that if the area is 1W and we step forward, only one white field remains on the border, but we can also exit immediately, leaving a 3-long border line and a 0W area. Then, the area can be entered at the second white and exited at the last black.<br />
+<br />
+The next stop is similar in concept (Square 4 x 2 C-Shape and Square 4 x 2 Area): When we exit the first area, there are two close obstacles on either side:<br />
+<br />
+<img align="top" src="References/rules/9_old/Square 4 x 2 C-Shape.svg" width="23.809523809524%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Square 4 x 2 Area.svg" width="23.809523809524%" /><br />
+<br />
+ The pattern is rotated counter-clockwise.<br />
+<br />
+<img align="top" src="References/2024_0516.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_1.svg" width="42.857142857143%" /></div><div class="rightNum">119</div></td></tr><tr><td class="left"><div>If we didn't have the taken field marked with A, the straight obstacle rule would rightfully disable the left field.<br />
+<br />
+<img align="top" src="References/2024_0517.svg" width="28.571428571429%" /><br />
+<br />
+But, since we want to keep the field next to the furthest border field empty, we need to apply a rule for the smaller area. This will be the same as in the 0 horizontal distance small area case.<br />
+<br />
+<img align="top" src="References/straight right small.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/4pair up.svg" width="9.5238095238095%" /></div><div class="leftNum">124</div></td>
 <td class="right"><div>The first obstacle is not necessarily straight ahead. It can be positioned 1 right, and then we get a C-Shape with it when we exit the area.<br />
 <br />
 <img align="top" src="References/665575.svg" width="42.857142857143%" /><br />
@@ -1495,20 +1502,30 @@ Double Area Stair will be a 4-step sequence.<br />
 <img align="top" src="References/Double Area Stair numbered.svg" width="33.333333333333%" /><br />
 <br />
 After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a mid across close obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and a close across obstacle on the right.<br />
-We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.</div><div class="rightNum">119</div></td></tr><tr><td class="left"></td>
+We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.</div><div class="rightNum">121</div></td></tr><tr><td class="left"><div>Double Area Stair 2 - although looking similar - will have a somewhat different solution.<br />
+<br />
+<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="23.809523809524%" /><br />
+<br />
+Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden.<br />
+<br />
+Accordingly, there will be 3 ways the rule is rotated.<br />
+<br />
+<img align="top" src="References/2024_0516_6.svg" width="38.095238095238%" /><br />
+<img src="References/spacer.svg" height="23" /><br />
+<img align="top" src="References/2024_0516_7.svg" width="38.095238095238%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_8.svg" width="38.095238095238%" /></div><div class="leftNum">122</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
 <td class="right"><div>Seemingly, we have now covered all the discovered 9 x 9 rules, except Triple Area Exit down, which comes at 18 million.<br />
 <br />
 <img align="top" src="References/18665383.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.571428571429%" /><br />
 <br />
 But if we re-run the program, we get stuck already at 641 027.<br />
 <br />
-<img align="top" src="References/641027.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/641027_1.svg" width="42.857142857143%" /></div><div class="rightNum">121</div></td></tr><tr><td class="left"><div>If we didn't have the taken field marked with A, the straight obstacle rule would rightfully disable the left field.<br />
+<img align="top" src="References/641027.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/641027_1.svg" width="42.857142857143%" /></div><div class="rightNum">123</div></td></tr><tr><td class="left"></td>
+<td class="right"><div>740 293 is similar, only instead of a double C-shape, there is a C-shape on one side and a close obstacle on the other.<br />
 <br />
-<img align="top" src="References/2024_0517.svg" width="28.571428571429%" /><br />
+<img align="top" src="References/740293.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/740293_1.svg" width="42.857142857143%" /><br />
 <br />
-But, since we want to keep the field next to the furthest border field empty, we need to apply a rule for the smaller area. This will be the same as in the 0 horizontal distance small area case.<br />
-<br />
-<img align="top" src="References/straight right small.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/4pair up.svg" width="9.5238095238095%" /><br />
+A single area rule with the obstacle A is not able to solve it - there are equal amount of black and white fields in the area.<br />
+Instead, we should apply the sequence algorithm.<br />
 <br />
 <!--The solution will be a universal single area case we have missed, and this will also solve Triple Area Exit Down.<br />
 <br />
@@ -1523,7 +1540,7 @@ The second picture is the probable point of choice.<br />
 <br />
 <img align="top" src="References/51015231.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/51015231_1.svg" width="42.857142857143%" />--><br />
 <br />
-<!-- Is checking next step posibilities necessary? --></div><div class="leftNum">122</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<!-- Write about optimizing performance / checking close rules first. Is checking next step posibilities necessary? Add 743 056 case to Check3DoubleArea in documentation; add general case where the farthest corner field has to be stepped on separately. There we should check for close obstacles. --></div><div class="rightNum">125</div></td></tr><tr><td class="left"><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
 <td class="right"></td></tr>
  
 </table>

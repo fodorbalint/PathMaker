@@ -49,13 +49,13 @@ namespace OneWayLabyrinth
 		int[] rightField = new int[] { };
 		List<int[]> directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } }; //down, right, up, left
         int foundSectionStart, foundSectionEnd;
-        //bool CShape = false;
-        bool CShapeLeft = false;
-        bool CShapeRight = false;
+        bool CShape = false;
+        //bool CShapeLeft = false;
+        //bool CShapeRight = false;
 
-        bool closeStraight = false;
-        bool closeMidAcross = false;
-        bool closeAcross = false;
+        //bool closeStraight = false;
+        //bool closeMidAcross = false;
+        //bool closeAcross = false;
 
         bool isNextStep = false;
 
@@ -103,6 +103,7 @@ namespace OneWayLabyrinth
 		{
 			possible = new List<int[]>();
 			forbidden = new List<int[]>();
+            List<int[]> newPossible;
 
             count = path.Count;
 			if (count < 2)
@@ -141,7 +142,7 @@ namespace OneWayLabyrinth
 					y0 = path[count - 2][1];
 				}
 
-				int i;
+                int i;
 				for (i = 0; i < 4; i++)
 				{
 					//last movement: down, right, up, left
@@ -264,11 +265,13 @@ namespace OneWayLabyrinth
                             }
                         }
 
-						//if the only possible field is a future field, we don't need to check more. This will prevent unnecessary exits, as in 0804.
+                        /*if the only possible field is a future field, we don't need to check more. This will prevent unnecessary exits, as in 0804.
 
-						if (isMain && possible.Count == 1 && InFutureStartAbs(possible[0])) break;
+						if (isMain && possible.Count == 1 && InFutureStartAbs(possible[0])) break;*/
 
-						//CShape = false;
+                        if (isMain && possible.Count == 1) break;
+
+                        //CShape = false;
 
                         if (!isMain)
                         {
@@ -284,11 +287,44 @@ namespace OneWayLabyrinth
                         }
                         else
                         {
-                            this.isNextStep = isNextStep;
+                            // this.isNextStep = isNextStep;
 
-                            closeStraight = false;
+                            // To speed up execution, we check for a C-Shape and close obstacle first. If only one possible field remains, we don't check more. If it is an error, we will see it later.
+
+                            CShape = false;                            
+
+                            CheckCShape();
+
+                            if (CShape) break;
+
+                            closeStraightSmall = false;
+                            closeMidAcrossSmall = false;
+                            closeAcrossSmall = false;
+                            closeStraightLarge = false;
+                            closeMidAcrossLarge = false;
+
+                            CheckNearField();
+
+                            if (closeStraightSmall || closeMidAcrossSmall || closeAcrossSmall || closeStraightLarge || closeMidAcrossLarge) break;
+
+                            CheckNearBorder();
+                            CheckAreaNearBorder();
+
+                            newPossible = new();
+                            foreach (int[] field in possible)
+                            {
+                                if (!InForbidden(field))
+                                {
+                                    newPossible.Add(field);
+                                }
+                            }
+                            possible = newPossible;
+
+                            if (possible.Count == 1) break;
+
+                            /*closeStraight = false;
                             closeMidAcross = false;
-                            closeAcross = false;
+                            closeAcross = false;*/
 
                             T("CheckStraight");
                             CheckStraight();
@@ -304,15 +340,17 @@ namespace OneWayLabyrinth
 
                             T("CheckLeftRightCorner");
                             CheckLeftRightCorner();                           
-                            if (!closeStraight && !closeMidAcross && !closeAcross)
-                            {
-                                T("CheckLeftRightAreaBig");
-                                CheckLeftRightAreaBig();
-                                T("CheckLeftRightAreaUpBig");
-                                CheckLeftRightAreaUpBig();
-                                T("CheckLeftRightCornerBig");
-                                CheckLeftRightCornerBig();
-                            }
+                            /*if (!closeStraight && !closeMidAcross && !closeAcross)
+                            {*/
+
+                            T("CheckLeftRightAreaBig");
+                            CheckLeftRightAreaBig();
+                            T("CheckLeftRightAreaUpBig");
+                            CheckLeftRightAreaUpBig();
+                            T("CheckLeftRightCornerBig");
+                            CheckLeftRightCornerBig();
+
+                            //}
 
                             T("CheckDirectionalArea");
                             CheckDirectionalArea();
@@ -322,12 +360,8 @@ namespace OneWayLabyrinth
                             Check3DoubleAreaRotated();
                             T("CheckSequence");
                             CheckSequence();
-
-                            //CheckNearBorder();
-                            CheckNearField();
-                            //CheckAreaNearBorder();
                             
-                            RunRules();
+                            //RunRules();
 
                             /*if (size >= 7)
                             {
@@ -397,20 +431,19 @@ namespace OneWayLabyrinth
 				}
 			}
 
-			List<int[]> newPossible = new List<int[]>();
+			newPossible = new();
 
-			foreach (int[] field in possible)
+            foreach (int[] field in possible)
 			{
 				if (!InForbidden(field))
 				{
 					newPossible.Add(field);
 				}
 			}
-
-			possible = newPossible;
+            possible = newPossible;
 
             // for debugging
-             return;
+            return;
 
             if (isNextStep) return;
 
@@ -480,9 +513,11 @@ namespace OneWayLabyrinth
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    if ((InTakenRel(2, 0) || InBorderRel(2, 0)) && (InTakenRel(1, -1) || InBorderRel(1, -1)) && !InTakenRel(1, 0) && !InCornerRel(1, 0))
+                    if ((InTakenRel(2, 0) || InBorderRel(2, 0)) &&
+                        (InTakenRel(1, -1) || InBorderRel(1, -1)) &&
+                        !InTakenRel(1, 0) && !InBorderRel(1, 0) && !InCornerRel(1, 0))
                     {
-                        //CShape = true;
+                        CShape = true;
                         /*if (j == 0)
                         {
                             if (i == 0)
@@ -497,6 +532,7 @@ namespace OneWayLabyrinth
                         forbidden.Add(new int[] { x + sx, y + sy });
                         forbidden.Add(new int[] { x - lx, y - ly });
                     }
+
                     int s0 = sx;
                     int s1 = sy;
                     sx = -lx;
@@ -783,7 +819,7 @@ namespace OneWayLabyrinth
                     {
                         if (ex == 1) // C-shape straight or straight and side movement is disabled
                         {
-                            closeStraight = true;
+                            //closeStraight = true;
 
                             forbidden.Add(new int[] { x - lx, y - ly });
                             if (InTakenRel(1, 1) || InBorderRel(1, 1))
@@ -1593,6 +1629,8 @@ namespace OneWayLabyrinth
                 {
                     if (ex == 1)
                     {
+                        // closeMidAcross = true;
+
                         forbidden.Add(new int[] { x + sx, y + sy });
                         forbidden.Add(new int[] { x - lx, y - ly });
                     }
@@ -1850,7 +1888,7 @@ namespace OneWayLabyrinth
                     {
                         if (hori == 2 && vert == 2) // close across
                         {
-                            closeAcross = true;
+                            //closeAcross = true;
 
                             forbidden.Add(new int[] { x + sx, y + sy });
                             forbidden.Add(new int[] { x - lx, y - ly });
@@ -2442,135 +2480,146 @@ namespace OneWayLabyrinth
 
         public void CheckDirectionalArea()
         {
-            for (int j = 0; j < 2; j++)
+            for (int i = 0; i < 2; i++)
             {
-                if (InTakenRel(1, 0) || InBorderRel(1, 0) || InTakenRel(2, 0) || InBorderRel(2, 0))
+                for (int j = 0; j < 2; j++)
                 {
-                    lx = -lx;
-                    ly = -ly;
-                    continue;
-                }
-
-                bool circleDirectionLeft = (j == 0) ? true : false;
-                int hori = 0;
-                int vert = 1;
-
-                while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
-                {
-                    bool circleValid = false;
-                    hori++;
-
-                    while (hori <= vert + 3 && !InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                    if (!(InTakenRel(1, 0) || InBorderRel(1, 0) || InTakenRel(2, 0) || InBorderRel(2, 0)))
                     {
-                        hori++;
-                    }
+                        bool circleDirectionLeft = (i == 0) ? true : false;
+                        int hori = 0;
+                        int vert = 1;
 
-                    // After stepping to side, we need to step down if the area contains more than the border line
-
-                    if (hori == vert + 3 && !InTakenRel(hori - 1, vert + 1) && !InBorderRel(hori - 1, vert + 1) && !InTakenRel(hori - 2, vert + 1) && !InTakenRel(hori - 3, vert + 1))
-                    {
-                        if (InBorderRel(hori, vert))
+                        while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
                         {
-                            int i1 = InBorderIndexRel(hori, vert);
-                            int i2 = InBorderIndexRel(hori, vert + 1);
+                            bool circleValid = false;
+                            hori++;
 
-                            if (i2 > i1)
+                            while (hori <= vert + 3 && !InTakenRel(hori, vert) && !InBorderRel(hori, vert))
                             {
-                                circleValid = true;
-                            }
-                        }
-                        else
-                        {
-                            int i1 = InTakenIndexRel(hori, vert);
-                            int i2 = InTakenIndexRel(hori, vert + 1);
-
-                            if (i2 != -1)
-                            {
-                                if (i2 < i1)
-                                {
-                                    circleValid = true;
-
-                                }
-                            }
-                            else
-                            {
-                                i2 = InTakenIndexRel(hori, vert - 1);
-                                if (i2 > i1)
-                                {
-                                    circleValid = true;
-                                }
-                            }
-                        }
-
-                        if (circleValid)
-                        {
-                            bool takenFound = false;
-                            List<int[]> borderFields = new();
-
-                            for (int i = hori - 2; i >= 2; i--)
-                            {
-                                if (InTakenRel(i, i - 1) || InTakenRel(i, i - 2))
-                                {
-                                    takenFound = true;
-                                    break;
-                                }
-                                borderFields.Add(new int[] { i, i - 1 });
-                                borderFields.Add(new int[] { i, i - 2 });
+                                hori++;
                             }
 
-                            if (!takenFound)
+                            // After stepping to side, we need to step down if the area contains more than the border line
+
+                            if (hori == vert + 3 && !InTakenRel(hori - 1, vert + 1) && !InBorderRel(hori - 1, vert + 1) && !InTakenRel(hori - 2, vert + 1) && !InTakenRel(hori - 3, vert + 1))
                             {
-                                ResetExamAreas();
-
-                                if (CountAreaRel(1, 0, hori - 1, hori - 3, borderFields, circleDirectionLeft, 3, true))
+                                if (InBorderRel(hori, vert))
                                 {
-                                    int black = (int)info[1];
-                                    int white = (int)info[2];
+                                    int i1 = InBorderIndexRel(hori, vert);
+                                    int i2 = InBorderIndexRel(hori, vert + 1);
 
-                                    if (black == white)
+                                    if (i2 > i1)
                                     {
-                                        int thisX = x;
-                                        int thisY = y;
-                                        int thisLx = lx;
-                                        int thisLy = ly;
+                                        circleValid = true;
+                                    }
+                                }
+                                else
+                                {
+                                    int i1 = InTakenIndexRel(hori, vert);
+                                    int i2 = InTakenIndexRel(hori, vert + 1);
 
-                                        // opposite side of the relation of the area to the live end
-                                        lx = -lx;
-                                        ly = -ly;
-
-                                        // check all the corners if there is a close obstacle that would disable the horizontal far direction
-                                        for (int i = 2; i <= hori - 2; i++)
+                                    if (i2 != -1)
+                                    {
+                                        if (i2 < i1)
                                         {
-                                            x = thisX + thisLx * i + sx * (i - 1);
-                                            y = thisY + thisLy * i + sy * (i - 1);
-                                            if (CheckNearFieldSmall())
+                                            circleValid = true;
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        i2 = InTakenIndexRel(hori, vert - 1);
+                                        if (i2 > i1)
+                                        {
+                                            circleValid = true;
+                                        }
+                                    }
+                                }
+
+                                if (circleValid)
+                                {
+                                    bool takenFound = false;
+                                    List<int[]> borderFields = new();
+
+                                    for (int k = hori - 2; k >= 2; k--)
+                                    {
+                                        if (InTakenRel(k, k - 1) || InTakenRel(k, k - 2))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+                                        borderFields.Add(new int[] { k, k - 1 });
+                                        borderFields.Add(new int[] { k, k - 2 });
+                                    }
+
+                                    if (!takenFound)
+                                    {
+                                        ResetExamAreas();
+
+                                        if (CountAreaRel(1, 0, hori - 1, hori - 3, borderFields, circleDirectionLeft, 3, true))
+                                        {
+                                            int black = (int)info[1];
+                                            int white = (int)info[2];
+
+                                            if (black == white)
                                             {
-                                                T("CheckDirectionalArea at " + thisX + " " + thisY);
-                                                forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
+                                                int thisX = x;
+                                                int thisY = y;
+                                                int thisLx = lx;
+                                                int thisLy = ly;
+
+                                                // opposite side of the relation of the area to the live end
+                                                lx = -lx;
+                                                ly = -ly;
+
+                                                // check all the corners if there is a close obstacle that would disable the horizontal far direction
+                                                for (int k = 2; k <= hori - 2; k++)
+                                                {
+                                                    x = thisX + thisLx * k + sx * (k - 1);
+                                                    y = thisY + thisLy * k + sy * (k - 1);
+                                                    if (CheckNearFieldSmall())
+                                                    {
+                                                        T("CheckDirectionalArea at " + thisX + " " + thisY + " obstacle encountered at " + x + " " + y);
+                                                        AddExamAreas();
+
+                                                        forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
+                                                    }
+                                                }
+
+                                                x = thisX;
+                                                y = thisY;
+                                                lx = thisLx;
+                                                ly = thisLy;
                                             }
                                         }
-
-                                        x = thisX;
-                                        y = thisY;
-                                        lx = thisLx;
-                                        ly = thisLy;
+                                    }
+                                    else
+                                    {
+                                        T("arealine taken");
                                     }
                                 }
                             }
-                            else
-                            {
-                                T("arealine taken");
-                            }
+
+                            vert++;
+                            hori = vert - 1;
                         }
                     }
-
-                    vert++;
-                    hori = vert - 1;
+                    
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
                 }
-
-                lx = -lx;
-                ly = -ly;
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
             }
+            sx = thisSx;
+            sy = thisSy;
             lx = thisLx;
             ly = thisLy;
         }
@@ -2682,6 +2731,40 @@ namespace OneWayLabyrinth
                             if (CheckNearFieldSmall2())
                             {
                                 T("Check3DoubleArea at " + thisX + " " + thisY);
+                                AddExamAreas();
+                                forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
+                            }
+
+                            x = thisX;
+                            y = thisY;
+                            lx = thisLx;
+                            ly = thisLy;
+                            sx = thisSx;
+                            sy = thisSy;
+                        } 
+                        // 743 059, exit at middle then first border field
+                        else if (circleParity == 1 && black == white + 1)
+                        {
+                            int thisX = x;
+                            int thisY = y;
+                            int thisSx = sx;
+                            int thisSy = sy;
+                            int thisLx = lx;
+                            int thisLy = ly;
+
+                            x = x + endX * lx + (endY - 1) * thisSx;
+                            y = y + endX * ly + (endY - 1) * thisSy;
+
+                            int[] rotatedDir = RotateDir(lx, ly, i);
+                            lx = rotatedDir[0];
+                            ly = rotatedDir[1];
+                            rotatedDir = RotateDir(sx, sy, i);
+                            sx = rotatedDir[0];
+                            sy = rotatedDir[1];
+
+                            if (CheckNearFieldSmall2())
+                            {
+                                T("Check3DoubleArea impair black > white at " + thisX + " " + thisY);
                                 AddExamAreas();
                                 forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
                             }
@@ -2818,23 +2901,24 @@ namespace OneWayLabyrinth
             }
 
             // C-Shape
-            if (InTakenRel(2, 0) && !InTakenRel(1, 0))
+            // Right side can make C-shape with future line as in 740 293.
+            if (InTakenRel(2, 0) && InTakenRel(1, -1) && !InTakenRel(1, 0))
             {
-                // index checking is actually not necessary when this function is only used with Check3DoubleArea. The first obstacle goes left, so this cannot go to an opposite direction
-                int middleIndex = InTakenIndexRel(2, 0);
-                int sideIndex = InTakenIndexRel(2, -1);
+                T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
+                ret = true;
 
-                if (sideIndex > middleIndex)
-                {
-                    T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
-                    ret = true;
+                newExitField = new int[] { x + lx + sx, y + ly + sy };
+                newDirectionRotated = false;
+            }
 
-                    if (leftSide)
-                    {
-                        newExitField = new int[] { x + lx + sx, y + ly + sy };
-                        newDirectionRotated = false;
-                    }
-                }
+            //C-Shape up, only left side should have it
+            if (leftSide && InTakenRel(0, 2) && InTakenRel(1, 1) && !InTakenRel(0, 1))
+            {
+                T("CheckNearFieldSmall2 C-Shape up, left side " + leftSide);
+                ret = true;
+
+                newExitField = new int[] { x - lx + sx, y - ly + sy };
+                newDirectionRotated = true;
             }
 
             // close mid across
@@ -2934,6 +3018,7 @@ namespace OneWayLabyrinth
 
                     if ((InTakenRel(0, 4) || InTakenRel(-1, 4)) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 3))
                     {
+                        T("Second case first circle");
                         if (InTakenRel(0, 4))
                         {
                             int directionFieldIndex = InTakenIndexRel(0, 4);
@@ -2985,9 +3070,15 @@ namespace OneWayLabyrinth
                                     int thisLx = lx;
                                     int thisLy = ly;
 
+                                    List<int[]> thisPath = Copy(path);
+                                    // necessary for checking C-shape on the left side
+                                    path.Add(new int[] { x + 3 * sx, y + 3 * sy });
+
                                     // step after exiting area:
                                     x = x - lx + 2 * sx;
                                     y = y - ly + 2 * sy;
+
+                                    //only necessary if recursive function will be used: path.Add(new int[] { x, y });
 
                                     int[] rotatedDir = RotateDir(lx, ly, i);
                                     lx = rotatedDir[0];
@@ -3014,6 +3105,7 @@ namespace OneWayLabyrinth
                                     ly = thisLy;
                                     sx = thisSx;
                                     sy = thisSy;
+                                    path = thisPath;
                                 }
                             }
                         }
@@ -3049,9 +3141,13 @@ namespace OneWayLabyrinth
                                     int thisLx = lx;
                                     int thisLy = ly;
 
+                                    List<int[]> thisPath = Copy(path);
+                                    path.Add(new int[] { x + sx, y + sy });
                                     // step after exiting area:
                                     x = x - lx + 2 * sx;
                                     y = y - ly + 2 * sy;
+
+                                    path.Add(new int[] { x, y });
 
                                     int[] rotatedDir = RotateDir(lx, ly, i);
                                     lx = rotatedDir[0];
@@ -3075,6 +3171,7 @@ namespace OneWayLabyrinth
                                     ly = thisLy;
                                     sx = thisSx;
                                     sy = thisSy;
+                                    path = thisPath;
                                 }
                             }
                         }
@@ -3134,9 +3231,13 @@ namespace OneWayLabyrinth
                                     int thisLx = lx;
                                     int thisLy = ly;
 
+                                    List<int[]> thisPath = Copy(path);
+                                    path.Add(new int[] { x + sx, y + sy });
                                     // step after exiting area:
                                     x = x + 2 * sx;
                                     y = y + 2 * sy;
+
+                                    path.Add(new int[] { x, y });
 
                                     int[] rotatedDir = RotateDir(lx, ly, i);
                                     lx = rotatedDir[0];
@@ -3159,6 +3260,7 @@ namespace OneWayLabyrinth
                                     ly = thisLy;
                                     sx = thisSx;
                                     sy = thisSy;
+                                    path = thisPath;
                                 }
                             }
                         }
@@ -3194,6 +3296,8 @@ namespace OneWayLabyrinth
 
         public bool CheckSequenceRecursive(int j)
         {
+            newExitField = new int[] { 0, 0 };
+
             bool leftSideClose = CheckNearFieldSmall2(true);
             bool rightSideClose = CheckNearFieldSmall2(false);
 
@@ -3201,12 +3305,15 @@ namespace OneWayLabyrinth
             {
                 return true;
             }
-            else if (leftSideClose && !rightSideClose)
+            // right side close can happen with the future line
+            // for now, we only take the right side C-shape into account as it happens in 740 293. Other close obstacles we don't check.
+            else if ((leftSideClose || rightSideClose) && newExitField[0] != 0)
             {
-                T("CheckSequenceRecursive left side only x " + newExitField[0] + " y " + newExitField[1] + " direction rotated " + newDirectionRotated);
+                T("CheckSequenceRecursive left or right side only x " + newExitField[0] + " y " + newExitField[1] + " direction rotated " + newDirectionRotated);
 
                 x = newExitField[0];
                 y = newExitField[1];
+                path.Add(new int[] { x, y });
 
                 if (newDirectionRotated)
                 {

@@ -1706,7 +1706,13 @@ Previously, we represented it like this:
 
 Reviewing those 2-distance rules, we can see that many of them has a double area (one of which is a C-shape). They cannot be solved with the single area patterns. It is best to re-enable the whole set even if it is a repetition in other cases. 
 
-Per our expectation, the program stops at the next double area case. What is common in these rules?
+Per our expectation, the program stops at the next double area case.
+
+<img align="top" src="References/2024_22328.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_22328_1.svg" width="9" />
+
+<!---->
+
+What is common in these rules?
 
 <img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="4" />
 <img src="References/spacer.svg" height="23" />
@@ -1718,7 +1724,7 @@ There is an area with a straight border line of maximum 3 fields, with the obsta
 
 <img align="top" src="References/double area.svg" width="4" />
 
-The live end can be at 3 different places in relation to the area.
+The live end can be in 3 different positions in relation to the area.
 
 When checking the conditions for the first area, these are the fields that need to be empty:
 
@@ -1728,13 +1734,25 @@ Notice that the first two cases can exist simultaneously. Then we examine the sm
 All three has to be applied rotated clockwise as well.
 And the first pattern can be rotated counter-clockwise too.
 
-<img align="top" src="References/double area case 4.svg" width="5" />
+<img align="top" src="References/double area case 1 rotated.svg" width="5" />
+
+<!---->
+
+<img align="top" src="References/double area case 3 border.svg" width="3" />
+
+In the third case we assume that since the area is impair, the number of white fields are greater than of the blacks. But what if it is the opposite, and we get here?
+
+<img align="top" src="References/743059_1.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/743059.svg" width="9" />
+
+Then the close obstacle on the left side is moved one field down too.
+
+<img align="top" src="References/double area 1.svg" width="4" />
 
 <!---->
 
 Can the border line be longer?
 
-<img align="top" src="References/double area 1.svg" width="2" />
+<img align="top" src="References/double area 4 dist.svg" width="2" />
 
 If we look at 4 distance: It is true that if the area is 1W and we step forward, only one white field remains on the border, but we can also exit immediately, leaving a 3-long border line and a 0W area. Then, the area can be entered at the second white and exited at the last black.
 
@@ -1807,6 +1825,15 @@ But, since we want to keep the field next to the furthest border field empty, we
 
 <img align="top" src="References/straight right small.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/4pair up.svg" width="2" />
 
+<!---->
+
+740 293 is similar, only instead of a double C-shape, there is a C-shape on one side and a close obstacle on the other.
+
+<img align="top" src="References/740293.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/740293_1.svg" width="9" />
+
+A single area rule with the obstacle A is not able to solve it - there are equal amount of black and white fields in the area.
+Instead, we should apply the sequence algorithm.
+
 <!--The solution will be a universal single area case we have missed, and this will also solve Triple Area Exit Down.
 
 <img align="top" src="References/xdist_closed.svg" width="6" />
@@ -1820,4 +1847,4 @@ The second picture is the probable point of choice.
 
 <img align="top" src="References/51015231.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231_1.svg" width="9" />-->
 
-<!-- Is checking next step posibilities necessary? -->
+<!-- Write about optimizing performance / checking close rules first. Is checking next step posibilities necessary? Add 743 056 case to Check3DoubleArea in documentation; add general case where the farthest corner field has to be stepped on separately. There we should check for close obstacles. -->

@@ -573,7 +573,7 @@ namespace OneWayLabyrinth
             }
             else lastDirection = 0;
 
-            if (loadFile.IndexOf("_") != -1)
+            if (loadFile.IndexOf("_") > 0)
             {
                 string[] arr = loadFile.Split("_");
                 fileCompletedCount = int.Parse(arr[0]);
@@ -4562,7 +4562,7 @@ namespace OneWayLabyrinth
         private void SKElement_PaintSurface2(object sender, SKPaintSurfaceEventArgs e)
         {
             int ruleSize = size;
-            while (!File.Exists("rules/" + ruleSize + "/" + (string)((SKElement)sender).Tag + ".svg") && size > 3)
+            while (!File.Exists("rules/" + ruleSize + "/" + (string)((SKElement)sender).Tag + ".svg") && ruleSize > 3)
             {
                 ruleSize -= 2; 
             }
