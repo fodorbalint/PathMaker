@@ -361,7 +361,7 @@ namespace OneWayLabyrinth
                             T("CheckSequence");
                             CheckSequence();
                             
-                            //RunRules();
+                            RunRules();
 
                             /*if (size >= 7)
                             {
@@ -2499,7 +2499,6 @@ namespace OneWayLabyrinth
                             {
                                 hori++;
                             }
-
                             // After stepping to side, we need to step down if the area contains more than the border line
 
                             if (hori == vert + 3 && !InTakenRel(hori - 1, vert + 1) && !InBorderRel(hori - 1, vert + 1) && !InTakenRel(hori - 2, vert + 1) && !InTakenRel(hori - 3, vert + 1))
@@ -2584,6 +2583,11 @@ namespace OneWayLabyrinth
                                                         AddExamAreas();
 
                                                         forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
+                                                        // field behind, only relevant when rotated up
+                                                        if (j == 1)
+                                                        {
+                                                            forbidden.Add(new int[] { thisX - sx, thisY - sy });
+                                                        }
                                                     }
                                                 }
 
@@ -3070,9 +3074,9 @@ namespace OneWayLabyrinth
                                     int thisLx = lx;
                                     int thisLy = ly;
 
-                                    List<int[]> thisPath = Copy(path);
+                                    //List<int[]> thisPath = Copy(path);
                                     // necessary for checking C-shape on the left side
-                                    path.Add(new int[] { x + 3 * sx, y + 3 * sy });
+                                    //path.Add(new int[] { x + 3 * sx, y + 3 * sy });
 
                                     // step after exiting area:
                                     x = x - lx + 2 * sx;
@@ -3105,7 +3109,7 @@ namespace OneWayLabyrinth
                                     ly = thisLy;
                                     sx = thisSx;
                                     sy = thisSy;
-                                    path = thisPath;
+                                    //path = thisPath;
                                 }
                             }
                         }
@@ -3141,13 +3145,13 @@ namespace OneWayLabyrinth
                                     int thisLx = lx;
                                     int thisLy = ly;
 
-                                    List<int[]> thisPath = Copy(path);
-                                    path.Add(new int[] { x + sx, y + sy });
+                                    //List<int[]> thisPath = Copy(path);
+                                    //path.Add(new int[] { x + sx, y + sy });
                                     // step after exiting area:
                                     x = x - lx + 2 * sx;
                                     y = y - ly + 2 * sy;
 
-                                    path.Add(new int[] { x, y });
+                                    //path.Add(new int[] { x, y });
 
                                     int[] rotatedDir = RotateDir(lx, ly, i);
                                     lx = rotatedDir[0];
@@ -3171,7 +3175,7 @@ namespace OneWayLabyrinth
                                     ly = thisLy;
                                     sx = thisSx;
                                     sy = thisSy;
-                                    path = thisPath;
+                                    //path = thisPath;
                                 }
                             }
                         }
@@ -3231,13 +3235,13 @@ namespace OneWayLabyrinth
                                     int thisLx = lx;
                                     int thisLy = ly;
 
-                                    List<int[]> thisPath = Copy(path);
-                                    path.Add(new int[] { x + sx, y + sy });
+                                    //List<int[]> thisPath = Copy(path);
+                                    //path.Add(new int[] { x + sx, y + sy });
                                     // step after exiting area:
                                     x = x + 2 * sx;
                                     y = y + 2 * sy;
 
-                                    path.Add(new int[] { x, y });
+                                    //path.Add(new int[] { x, y });
 
                                     int[] rotatedDir = RotateDir(lx, ly, i);
                                     lx = rotatedDir[0];
@@ -3260,7 +3264,7 @@ namespace OneWayLabyrinth
                                     ly = thisLy;
                                     sx = thisSx;
                                     sy = thisSy;
-                                    path = thisPath;
+                                    //path = thisPath;
                                 }
                             }
                         }
@@ -3307,13 +3311,14 @@ namespace OneWayLabyrinth
             }
             // right side close can happen with the future line
             // for now, we only take the right side C-shape into account as it happens in 740 293. Other close obstacles we don't check.
-            else if ((leftSideClose || rightSideClose) && newExitField[0] != 0)
+            else if (leftSideClose)
+            //else if ((leftSideClose || rightSideClose) && newExitField[0] != 0)
             {
                 T("CheckSequenceRecursive left or right side only x " + newExitField[0] + " y " + newExitField[1] + " direction rotated " + newDirectionRotated);
 
                 x = newExitField[0];
                 y = newExitField[1];
-                path.Add(new int[] { x, y });
+                //path.Add(new int[] { x, y });
 
                 if (newDirectionRotated)
                 {

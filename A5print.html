@@ -1486,13 +1486,40 @@ The next stop is similar in concept (Square 4 x 2 C-Shape and Square 4 x 2 Area)
 <br />
  The pattern is rotated counter-clockwise.<br />
 <br />
-<img align="top" src="References/2024_0516.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_1.svg" width="42.857142857143%" /></div><div class="rightNum">119</div></td></tr><tr><td class="left"><div>If we didn't have the taken field marked with A, the straight obstacle rule would rightfully disable the left field.<br />
+<img align="top" src="References/2024_0516.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_1.svg" width="42.857142857143%" /></div><div class="rightNum">119</div></td></tr><tr><td class="left"><div>Now, take a look at the following two cases. The first is the well-known Triple Area Exit Down, at over 18 million, while the other comes at around 51 million.<br />
 <br />
-<img align="top" src="References/2024_0517.svg" width="28.571428571429%" /><br />
+<img align="top" src="References/18665383 future.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/51015231 future.svg" width="42.857142857143%" /><br />
 <br />
-But, since we want to keep the field next to the furthest border field empty, we need to apply a rule for the smaller area. This will be the same as in the 0 horizontal distance small area case.<br />
+In the first, we can only step left. In the second, we cannot step left.<br />
+It is easy to see that the pattern can be longer. If there is a stair shape downwards with 3 fields at the bottom, there will be a stair backwards, which conflicts with the obstacle on the left (D).<br />
+But there are more things that need to be present:<br />
+- There should be an obstacle at 2 distance straight ahead to start with.<br />
+- If the B and C weren't taken, the area could be filled.<br />
 <br />
-<img align="top" src="References/straight right small.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/4pair up.svg" width="9.5238095238095%" /></div><div class="leftNum">124</div></td>
+What is the simplest algorithm to apply?<br />
+<br />
+<!--<br />
+<br />
+A similar concept will be used when solving Triple Area Exit Down (at over 18 million): The furthest border field have a taken field next to, which limits the possibilities of entering and exiting an area. <br />
+<br />
+<img align="top" src="References/18665383.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.571428571429%" /><br />
+<br />
+Previously we used open corners:<br />
+<br />
+<img align="top" src="References/xdist.svg" width="28.571428571429%" /><br />
+<br />
+Now we have to make calculations for the close corner cases:<br />
+<br />
+<img align="top" src="References/xdist_closed.svg" width="28.571428571429%" /><br />
+<br />
+In this specific case, the distance is 3, and the area is 1 black.--><br />
+<br />
+<!--Now I give you another case to think about. It was discovered by the program previously as 51 015 231.<br />
+The second picture is the probable point of choice.<br />
+<br />
+<img align="top" src="References/51015231.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/51015231_1.svg" width="42.857142857143%" />--><br />
+<br />
+<!-- Write about optimizing performance / checking close rules first. Is checking next step posibilities necessary? Add 743 056 case to Check3DoubleArea in documentation; add general case where the farthest corner field has to be stepped on separately. There we should check for close obstacles. --></div><div class="leftNum">124</div></td>
 <td class="right"><div>The first obstacle is not necessarily straight ahead. It can be positioned 1 right, and then we get a C-Shape with it when we exit the area.<br />
 <br />
 <img align="top" src="References/665575.svg" width="42.857142857143%" /><br />
@@ -1513,34 +1540,15 @@ Accordingly, there will be 3 ways the rule is rotated.<br />
 <img align="top" src="References/2024_0516_6.svg" width="38.095238095238%" /><br />
 <img src="References/spacer.svg" height="23" /><br />
 <img align="top" src="References/2024_0516_7.svg" width="38.095238095238%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_8.svg" width="38.095238095238%" /></div><div class="leftNum">122</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
-<td class="right"><div>Seemingly, we have now covered all the discovered 9 x 9 rules, except Triple Area Exit down, which comes at 18 million.<br />
+<td class="right"><div>We get stuch at 641 027 in a case that was previously solved with Double C-Shape.<br />
 <br />
-<img align="top" src="References/18665383.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.571428571429%" /><br />
+<img align="top" src="References/641027.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/641027_1.svg" width="42.857142857143%" /><br />
 <br />
-But if we re-run the program, we get stuck already at 641 027.<br />
+If we didn't have the taken field marked with A, the straight obstacle rule would rightfully disable the left field.<br />
 <br />
-<img align="top" src="References/641027.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/641027_1.svg" width="42.857142857143%" /></div><div class="rightNum">123</div></td></tr><tr><td class="left"></td>
-<td class="right"><div>740 293 is similar, only instead of a double C-shape, there is a C-shape on one side and a close obstacle on the other.<br />
+<img align="top" src="References/2024_0517.svg" width="28.571428571429%" /><br />
 <br />
-<img align="top" src="References/740293.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/740293_1.svg" width="42.857142857143%" /><br />
+But, since we want to keep the field next to the furthest border field empty, we need to apply a rule for the smaller area. This will be the same as in the 0 horizontal distance small area case.<br />
 <br />
-A single area rule with the obstacle A is not able to solve it - there are equal amount of black and white fields in the area.<br />
-Instead, we should apply the sequence algorithm.<br />
-<br />
-<!--The solution will be a universal single area case we have missed, and this will also solve Triple Area Exit Down.<br />
-<br />
-<img align="top" src="References/xdist_closed.svg" width="28.571428571429%" /><br />
-<br />
-Previously we used an open corner. In this case, it is closed which will give different possibilities for white and black field count.<br />
-<br />
-In our specific case, the area is 2 black.<br />
-<br />
-Now I give you another case to think about. It was discovered by the program previously as 51 015 231.<br />
-The second picture is the probable point of choice.<br />
-<br />
-<img align="top" src="References/51015231.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/51015231_1.svg" width="42.857142857143%" />--><br />
-<br />
-<!-- Write about optimizing performance / checking close rules first. Is checking next step posibilities necessary? Add 743 056 case to Check3DoubleArea in documentation; add general case where the farthest corner field has to be stepped on separately. There we should check for close obstacles. --></div><div class="rightNum">125</div></td></tr><tr><td class="left"><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
-<td class="right"></td></tr>
- 
+<img align="top" src="References/straight right small.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/4pair up.svg" width="9.5238095238095%" /></div><div class="rightNum">123</div></td></tr> 
 </table>

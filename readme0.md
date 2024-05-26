@@ -1807,15 +1807,9 @@ Accordingly, there will be 3 ways the rule is rotated.
 
 <!---->
 
-Seemingly, we have now covered all the discovered 9 x 9 rules, except Triple Area Exit down, which comes at 18 million.
-
-<img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />
-
-But if we re-run the program, we get stuck already at 641 027.
+We get stuch at 641 027 in a case that was previously solved with Double C-Shape.
 
 <img align="top" src="References/641027.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/641027_1.svg" width="9" />
-
-<!---->
 
 If we didn't have the taken field marked with A, the straight obstacle rule would rightfully disable the left field.
 
@@ -1827,22 +1821,35 @@ But, since we want to keep the field next to the furthest border field empty, we
 
 <!---->
 
-740 293 is similar, only instead of a double C-shape, there is a C-shape on one side and a close obstacle on the other.
+Now, take a look at the following two cases. The first is the well-known Triple Area Exit Down, at over 18 million, while the other comes at around 51 million.
 
-<img align="top" src="References/740293.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/740293_1.svg" width="9" />
+<img align="top" src="References/18665383 future.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231 future.svg" width="9" />
 
-A single area rule with the obstacle A is not able to solve it - there are equal amount of black and white fields in the area.
-Instead, we should apply the sequence algorithm.
+In the first, we can only step left. In the second, we cannot step left.
+It is easy to see that the pattern can be longer. If there is a stair shape downwards with 3 fields at the bottom, there will be a stair backwards, which conflicts with the obstacle on the left (D).
+But there are more things that need to be present:
+- There should be an obstacle at 2 distance straight ahead to start with.
+- If the B and C weren't taken, the area could be filled.
 
-<!--The solution will be a universal single area case we have missed, and this will also solve Triple Area Exit Down.
+What is the simplest algorithm to apply?
+
+<!--
+
+A similar concept will be used when solving Triple Area Exit Down (at over 18 million): The furthest border field have a taken field next to, which limits the possibilities of entering and exiting an area. 
+
+<img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />
+
+Previously we used open corners:
+
+<img align="top" src="References/xdist.svg" width="6" />
+
+Now we have to make calculations for the close corner cases:
 
 <img align="top" src="References/xdist_closed.svg" width="6" />
 
-Previously we used an open corner. In this case, it is closed which will give different possibilities for white and black field count.
+In this specific case, the distance is 3, and the area is 1 black.-->
 
-In our specific case, the area is 2 black.
-
-Now I give you another case to think about. It was discovered by the program previously as 51 015 231.
+<!--Now I give you another case to think about. It was discovered by the program previously as 51 015 231.
 The second picture is the probable point of choice.
 
 <img align="top" src="References/51015231.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231_1.svg" width="9" />-->

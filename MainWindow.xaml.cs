@@ -106,6 +106,7 @@ namespace OneWayLabyrinth
 		public bool inFuture = false;
 		int inFutureIndex = -1;
 		int insertIndex = -1;
+        int drawFutureIndex = int.MaxValue;
 
 		string loadFile = "";
 		string svgName = "";
@@ -644,6 +645,7 @@ namespace OneWayLabyrinth
             futureSections = new List<int[]>();
             futureSectionMerges = new List<int[]>();
             futureSectionMergesHistory = new List<List<object>>();
+            drawFutureIndex = int.MaxValue;
         }
 
         private void CheckSize()
@@ -3694,12 +3696,13 @@ namespace OneWayLabyrinth
 			int startX = 1;
 			int startY = 1;
 
-            //string color = "#ff0000";
-            //string opacity = "0.15";
+            // #ff0000, opacity 0.15
             string color = "#e2bcbc"; // checker grid must not show through the main line
+            // #0000ff, opacity 0.15
+            string futureColor = "#bcbce2";
 
             string backgrounds = "\t<rect width=\"1\" height=\"1\" x=\"" + (startX - 1) + "\" y=\"" + (startY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"1\" />\r\n";
-            //string backgrounds = "\t<rect width=\"1\" height=\"1\" x=\"" + (startX - 1) + "\" y=\"" + (startY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
+
 			savePath = size + "|1-" + startX + "," + startY + ";";
 			string completedPathCode = "";
 
@@ -3733,8 +3736,7 @@ namespace OneWayLabyrinth
 					opacity = "0.25";
 				}*/
 
-                backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"1\" />\r\n";
-                //backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
+                backgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + (i > drawFutureIndex ? futureColor : color) + "\" fill-opacity=\"1\" />\r\n";
 
                 foreach (int direction in possibleDirections[i])
 				{
@@ -3953,10 +3955,8 @@ namespace OneWayLabyrinth
 					int[] field = future.path[i];
 					newX = field[0];
 					newY = field[1];
-
-					color = "#0000ff";
-					string opacity = "0.15";
-					futureBackgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\r\n";
+					
+					futureBackgrounds += "\t<rect width=\"1\" height=\"1\" x=\"" + (newX - 1) + "\" y=\"" + (newY - 1) + "\" fill=\"" + futureColor + "\" fill-opacity=\"1\" />\r\n";
 
 					if (startItem)
 					{
@@ -4626,6 +4626,13 @@ namespace OneWayLabyrinth
             {
                 ExtractDifference();
             }
+            else if (e.Key == Key.F && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                if (!isTaskRunning)
+                {
+                    drawFutureIndex = taken.path.Count - 1;
+                }                
+            }
             else if (CapsLock || Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
 
 				int direction = -1;
@@ -4855,32 +4862,35 @@ namespace OneWayLabyrinth
         }
 
         private void ExtractDifference()
-		{
-			string[] complete = File.ReadAllLines("completedPaths.txt");
-            string[] incomplete = File.ReadAllLines("completedPaths_1.txt");
-			if (!Directory.Exists("diff"))
-			{
-				Directory.CreateDirectory("diff");
-			}
-
-			int count = 0;
-			int i = 0;
-			for (int c = 0; c < complete.Length; c++)
-			{
-				string lineC = complete[c];
-				string lineiC = incomplete[i];
-
-				if (lineC != lineiC)
-				{
-					File.WriteAllText("diff/" + (c + 1) + ".txt", lineC);
-					count++;
-				}
-				else
-				{
-                    i++;
+        {
+            if (File.Exists("completedPaths.txt") && File.Exists("completedPaths_1.txt"))
+            {
+                string[] complete = File.ReadAllLines("completedPaths.txt");
+                string[] incomplete = File.ReadAllLines("completedPaths_1.txt");
+                if (!Directory.Exists("diff"))
+                {
+                    Directory.CreateDirectory("diff");
                 }
-            }
-			M(count + " differences extracted.", 0);
+
+                int count = 0;
+                int i = 0;
+                for (int c = 0; c < complete.Length; c++)
+                {
+                    string lineC = complete[c];
+                    string lineiC = incomplete[i];
+
+                    if (lineC != lineiC)
+                    {
+                        File.WriteAllText("diff/" + (c + 1) + ".txt", lineC);
+                        count++;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+                M(count + " differences extracted.", 0);
+            }			
         }
     }
 }
