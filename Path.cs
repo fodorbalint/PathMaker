@@ -78,6 +78,13 @@ namespace OneWayLabyrinth
 
         List<object> info;
 
+        public bool DirectionalArea, DoubleArea1, DoubleArea2, DoubleArea3, DoubleArea4, DoubleArea1Rotated, Sequence1, Sequence2, Sequence3, DownStairClose, DownStair = false;
+
+        // defined in PathRules.cs
+        /*List<string> activeRules;
+        List<List<int[]>> activeRulesForbiddenFields;
+        List<int[]> activeRuleSizes;*/
+
         public Path(MainWindow window, int size, List<int[]> path, List<int[]>? path2, bool isMain)
 		{
 			this.window = window;
@@ -291,8 +298,12 @@ namespace OneWayLabyrinth
 
                             // To speed up execution, we check for a C-Shape and close obstacle first. If only one possible field remains, we don't check more. If it is an error, we will see it later.
 
-                            CShape = false;                            
+                            CShape = false;
+                            DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
 
+                            activeRules = new();
+                            activeRulesForbiddenFields = new();
+                            activeRuleSizes = new();                         
                             CheckCShape();
 
                             if (CShape) break;
@@ -351,6 +362,7 @@ namespace OneWayLabyrinth
                             CheckLeftRightCornerBig();
 
                             //}
+                            List<int[]> startForbiddenFields = Copy(forbidden);
 
                             T("CheckDirectionalArea");
                             CheckDirectionalArea();
@@ -360,8 +372,14 @@ namespace OneWayLabyrinth
                             Check3DoubleAreaRotated();
                             T("CheckSequence");
                             CheckSequence();
-                            
-                            RunRules();
+                            T("CheckDownStair");
+                            CheckDownStair();
+
+                            T("DirectionalArea: " + DirectionalArea + "\n" + "DoubleArea1: " + DoubleArea1 + "\n" + "DoubleArea2: " + DoubleArea2 + "\n" + "DoubleArea3: " + DoubleArea3 + "\n" + "DoubleArea4: " + DoubleArea4 + "\n" + "DoubleArea1Rotated: " + DoubleArea1Rotated + "\n" + "Sequence1: " + Sequence1 + "\n" + "Sequence2: " + Sequence2 + "\n" + "Sequence3: " + Sequence3 + "\n" + "DownStairClose: " + DownStairClose + "\n" + "DownStair: " + DownStair);
+
+                            window.ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
+
+                            // RunRules();
 
                             /*if (size >= 7)
                             {
@@ -2491,18 +2509,17 @@ namespace OneWayLabyrinth
                         int vert = 1;
 
                         while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
-                        {
-                            bool circleValid = false;
-                            hori++;
-
+                        {     
                             while (hori <= vert + 3 && !InTakenRel(hori, vert) && !InBorderRel(hori, vert))
                             {
                                 hori++;
                             }
                             // After stepping to side, we need to step down if the area contains more than the border line
-
+                            // Check if the top row is empty, so we can exit the area.
                             if (hori == vert + 3 && !InTakenRel(hori - 1, vert + 1) && !InBorderRel(hori - 1, vert + 1) && !InTakenRel(hori - 2, vert + 1) && !InTakenRel(hori - 3, vert + 1))
                             {
+                                bool circleValid = false;
+
                                 if (InBorderRel(hori, vert))
                                 {
                                     int i1 = InBorderIndexRel(hori, vert);
@@ -2542,20 +2559,23 @@ namespace OneWayLabyrinth
                                     List<int[]> borderFields = new();
 
                                     for (int k = hori - 2; k >= 2; k--)
-                                    {
-                                        if (InTakenRel(k, k - 1) || InTakenRel(k, k - 2))
-                                        {
-                                            takenFound = true;
-                                            break;
-                                        }
+                                    {                                        
                                         borderFields.Add(new int[] { k, k - 1 });
                                         borderFields.Add(new int[] { k, k - 2 });
                                     }
 
+                                    // bottom and top row already checked for emptiness
+                                    for (int k = hori - 2; k >= 3; k--)
+                                    {
+                                        if (InTakenRel(k, k - 2) || InTakenRel(k - 1, k - 2))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+                                    }
+
                                     if (!takenFound)
                                     {
-                                        ResetExamAreas();
-
                                         if (CountAreaRel(1, 0, hori - 1, hori - 3, borderFields, circleDirectionLeft, 3, true))
                                         {
                                             int black = (int)info[1];
@@ -2577,10 +2597,15 @@ namespace OneWayLabyrinth
                                                 {
                                                     x = thisX + thisLx * k + sx * (k - 1);
                                                     y = thisY + thisLy * k + sy * (k - 1);
+
                                                     if (CheckNearFieldSmall())
                                                     {
                                                         T("CheckDirectionalArea at " + thisX + " " + thisY + " obstacle encountered at " + x + " " + y);
-                                                        AddExamAreas();
+
+                                                        DirectionalArea = true;
+                                                        activeRules.Add("Directional Area");
+                                                        activeRuleSizes.Add(new int[] { 7, 6 });
+                                                        activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisLx, thisY + thisLy } });
 
                                                         forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
                                                         // field behind, only relevant when rotated up
@@ -2641,6 +2666,7 @@ namespace OneWayLabyrinth
                     int startX = 0, startY = 0, endX = 0, endY = 0;
                     int forbidX = 0, forbidY = 0;
                     int circleParity = 0;
+                    int caseNumber = 0;
 
                     List<int[]> borderFields = new();
 
@@ -2663,6 +2689,7 @@ namespace OneWayLabyrinth
                             forbidY = 1;
                             borderFields.Add(new int[] { 0, 2 });
                             circleParity = 0;
+                            caseNumber = 1;
                         }
                     }
 
@@ -2683,6 +2710,7 @@ namespace OneWayLabyrinth
                             forbidY = 0;
                             borderFields = new();
                             circleParity = 0;
+                            caseNumber = 2;
                         }
                     }
 
@@ -2703,17 +2731,16 @@ namespace OneWayLabyrinth
                             forbidY = 0;
                             borderFields.Add(new int[] { 1, 2 });
                             circleParity = 1;
+                            caseNumber = 3;
                         }
                     }
-
-                    ResetExamAreas();
 
                     if (circleValid && CountAreaRel(startX, startY, endX, endY, borderFields, circleDirectionLeft, 2, true))
                     {
                         int black = (int)info[1];
                         int white = (int)info[2];
 
-                        if (circleParity == 0 && black == white || circleParity == 1 && white == black + 1)
+                        if (circleParity == 0 && black == white || circleParity == 1 && black == white + 1)
                         {
                             int thisX = x;
                             int thisY = y;
@@ -2722,9 +2749,6 @@ namespace OneWayLabyrinth
                             int thisLx = lx;
                             int thisLy = ly;
 
-                            x = x + endX * lx + endY * thisSx;
-                            y = y + endX * ly + endY * thisSy;
-
                             int[] rotatedDir = RotateDir(lx, ly, i);
                             lx = rotatedDir[0];
                             ly = rotatedDir[1];
@@ -2732,46 +2756,52 @@ namespace OneWayLabyrinth
                             sx = rotatedDir[0];
                             sy = rotatedDir[1];
 
-                            if (CheckNearFieldSmall2())
+                            if (caseNumber < 3)
                             {
-                                T("Check3DoubleArea at " + thisX + " " + thisY);
-                                AddExamAreas();
-                                forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
+                                x = x + endX * thisLx + endY * thisSx;
+                                y = y + endX * thisLy + endY * thisSy;
+
+                                if (CheckNearFieldSmall1()) // check only mid across
+                                {
+                                    T("Check3DoubleArea case 1 or 2 at " + thisX + " " + thisY);
+
+                                    switch (caseNumber)
+                                    {
+                                        case 1:
+                                            DoubleArea1 = true;
+                                            activeRules.Add("Double Area first case");
+                                            activeRuleSizes.Add(new int[] { 4, 6 });
+                                            break;
+                                        case 2:
+                                            DoubleArea2 = true;
+                                            activeRules.Add("Double Area second case");
+                                            activeRuleSizes.Add(new int[] { 4, 5 });
+                                            break;
+                                    }
+
+                                    activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy } });
+
+                                    forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
+                                }
                             }
-
-                            x = thisX;
-                            y = thisY;
-                            lx = thisLx;
-                            ly = thisLy;
-                            sx = thisSx;
-                            sy = thisSy;
-                        } 
-                        // 743 059, exit at middle then first border field
-                        else if (circleParity == 1 && black == white + 1)
-                        {
-                            int thisX = x;
-                            int thisY = y;
-                            int thisSx = sx;
-                            int thisSy = sy;
-                            int thisLx = lx;
-                            int thisLy = ly;
-
-                            x = x + endX * lx + (endY - 1) * thisSx;
-                            y = y + endX * ly + (endY - 1) * thisSy;
-
-                            int[] rotatedDir = RotateDir(lx, ly, i);
-                            lx = rotatedDir[0];
-                            ly = rotatedDir[1];
-                            rotatedDir = RotateDir(sx, sy, i);
-                            sx = rotatedDir[0];
-                            sy = rotatedDir[1];
-
-                            if (CheckNearFieldSmall2())
+                            else
                             {
-                                T("Check3DoubleArea impair black > white at " + thisX + " " + thisY);
-                                AddExamAreas();
-                                forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
-                            }
+                                x = x + endX * thisLx + (endY - 1) * thisSx;
+                                y = y + endX * thisLy + (endY - 1) * thisSy;
+
+                                if (CheckNearFieldSmall1()) // check mid across or across
+                                {
+                                    T("Check3DoubleArea case 3 at " + thisX + " " + thisY);
+
+                                    DoubleArea3 = true;
+                                    activeRules.Add("Double Area third case");
+                                    activeRuleSizes.Add(new int[] { 4, 5 });
+
+                                    activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy } });
+
+                                    forbidden.Add(new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy });
+                                }                           
+                            }                            
 
                             x = thisX;
                             y = thisY;
@@ -2800,6 +2830,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
+        // same as Down Stair when area is small, find example
         public void Check3DoubleAreaRotated() // Take only the first case and rotate it.
         {
             for (int j = 0; j < 2; j++)
@@ -2827,8 +2858,6 @@ namespace OneWayLabyrinth
                     }
                 }
 
-                ResetExamAreas();
-
                 if (circleValid && CountAreaRel(sx, sy, ex, ey, borderFields, circleDirectionLeft, 2, true))
                 {
                     int black = (int)info[1];
@@ -2842,10 +2871,16 @@ namespace OneWayLabyrinth
                         x = x + ex * lx + ey * thisSx;
                         y = y + ex * ly + ey * thisSy;
 
-                        if (CheckNearFieldSmall2())
+                        // Checking C-Shape not necessary, side straight will take care of it, because area is 1B.
+                        if (CheckNearFieldSmall1())
                         {
                             T("Check3DoubleAreaRotated at " + thisX + " " + thisY);
-                            AddExamAreas();
+
+                            DoubleArea1Rotated = true;
+                            activeRules.Add("Double Area first case rotated");
+                            activeRuleSizes.Add(new int[] { 6, 4 });
+                            activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + lx, thisY + ly } });
+
                             forbidden.Add(new int[] { thisX + lx, thisY + ly });
                         }
 
@@ -2861,23 +2896,41 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        public bool CheckNearFieldSmall() // for use only with Directional Area
+        public bool CheckNearFieldSmall() // for use only with Directional Area and DownStair
         {
-            // empty fields already checked
-            // close mid across
-            if (InTakenRel(1, 2)) // && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+            // close mid across. In DirectionalArea, the empty fields are already checked.
+            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
             {
                 int middleIndex = InTakenIndexRel(1, 2);
                 int sideIndex = InTakenIndexRel(2, 2);
 
                 if (sideIndex > middleIndex)
                 {
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool CheckNearFieldSmall1() // for use only with Double Area case 1, 2, 3 and 1 rotated
+        {
+            // close mid across. In DirectionalArea, the empty fields are already checked.
+            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+            {
+                int middleIndex = InTakenIndexRel(1, 2);
+                int sideIndex = InTakenIndexRel(2, 2);
+
+                if (sideIndex > middleIndex)
+                {
+
                     return true;
                 }
             }
 
             // close across
-            if (InTakenRel(2, 2)) // && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
             {
                 int middleIndex = InTakenIndexRel(2, 2);
                 int sideIndex = InTakenIndexRel(3, 2);
@@ -2894,7 +2947,7 @@ namespace OneWayLabyrinth
         int[] newExitField = new int[] { 0, 0 };
         bool newDirectionRotated = false; // if rotated, it is CW on left side
 
-        public bool CheckNearFieldSmall2(bool leftSide = true) // for use with Check3DoubleArea
+        public bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
         {
             bool ret = false;
 
@@ -2905,15 +2958,30 @@ namespace OneWayLabyrinth
             }
 
             // C-Shape
-            // Right side can make C-shape with future line as in 740 293.
-            if (InTakenRel(2, 0) && InTakenRel(1, -1) && !InTakenRel(1, 0))
+            // Checking for InTakenRel(1, -1) is not possible, because in Sequence first case, we are exiting the area at the middle border field.
+            // But when it comes to the right side, it is necessary, otherwise we can detect a C-shape with the live end as in 213.
+            if (leftSide)
             {
-                T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
-                ret = true;
+                if (InTakenRel(2, 0) && !InTakenRel(1, 0))
+                {
+                    T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
+                    ret = true;
 
-                newExitField = new int[] { x + lx + sx, y + ly + sy };
-                newDirectionRotated = false;
+                    newExitField = new int[] { x + lx + sx, y + ly + sy };
+                    newDirectionRotated = false;
+                }
             }
+            else
+            {
+                if (InTakenRel(2, 0) && InTakenRel(1, -1) && !InTakenRel(1, 0))
+                {
+                    T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
+                    ret = true;
+
+                    newExitField = new int[] { x + lx + sx, y + ly + sy };
+                    newDirectionRotated = false;
+                }
+            }            
 
             //C-Shape up, only left side should have it
             if (leftSide && InTakenRel(0, 2) && InTakenRel(1, 1) && !InTakenRel(0, 1))
@@ -2945,7 +3013,7 @@ namespace OneWayLabyrinth
                 }
             }
 
-            // close across
+            // close across. Checking empty fields necessary, see 29558469
             if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
             {
                 int middleIndex = InTakenIndexRel(2, 2);
@@ -3009,11 +3077,9 @@ namespace OneWayLabyrinth
 
                 for (int j = 0; j < 2; j++)
                 {
-                    // First case, Square 4 x 2 C-Shape / Square 4 x 2 Area: Works with third case
-                    // 2024_0516
-                    // Rotated: 2024_0516_1
-
-                    // Second case, Triple Area
+                    // First case
+                    
+                    // Triple Area
                     // 2024_0516_2
                     // Rotated: 2024_0516_3
 
@@ -3022,7 +3088,6 @@ namespace OneWayLabyrinth
 
                     if ((InTakenRel(0, 4) || InTakenRel(-1, 4)) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 3))
                     {
-                        T("Second case first circle");
                         if (InTakenRel(0, 4))
                         {
                             int directionFieldIndex = InTakenIndexRel(0, 4);
@@ -3058,8 +3123,6 @@ namespace OneWayLabyrinth
                         if (circleValid)
                         {
                             // second circle true, but we need to check if the area is pair
-                            ResetExamAreas();
-
                             if (CountAreaRel(0, 1, 0, 3, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 2, true))
                             {
                                 int black = (int)info[1];
@@ -3094,11 +3157,15 @@ namespace OneWayLabyrinth
                                     bool leftSideClose = CheckNearFieldSmall2(true);
                                     bool rightSideClose = CheckNearFieldSmall2(false);
 
+                                    T("lr", leftSideClose, rightSideClose);
                                     if (leftSideClose && rightSideClose)
                                     {
-                                        AddExamAreas();
+                                        Sequence1 = true;
+                                        activeRules.Add("Sequence first case");
+                                        activeRuleSizes.Add(new int[] { 1, 1 });
+                                        activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisSx, thisY + thisSy } });
 
-                                        T("CheckSequence case 2 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                                        T("CheckSequence case 1 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
                                         // Due to CheckStraight, stepping left is already disabled
                                         forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
                                     }
@@ -3115,7 +3182,13 @@ namespace OneWayLabyrinth
                         }
                     }
 
-                    // Third case, Double Area Stair
+                    // Second case
+
+                    // Square 4 x 2 C-Shape / Square 4 x 2 Area
+                    // 2024_0516
+                    // Rotated: 2024_0516_1
+
+                    // Double Area Stair
                     // 2024_0516_4
                     // Rotated: 2024_0516_5
                     if (InTakenRel(0, 3) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(-1, 3))
@@ -3125,8 +3198,6 @@ namespace OneWayLabyrinth
 
                         if (leftIndex > directionFieldIndex)
                         {
-                            ResetExamAreas();
-
                             if (CountAreaRel(0, 1, 0, 2, null, circleDirectionLeft, 2, true))
                             {
                                 int black = (int)info[1];
@@ -3134,10 +3205,6 @@ namespace OneWayLabyrinth
 
                                 if (black == white)
                                 {
-                                    // first circle true
-
-                                    T("CheckSequence third case start area true", lx, ly, sx, sy);
-
                                     int thisX = x;
                                     int thisY = y;
                                     int thisSx = sx;
@@ -3162,9 +3229,12 @@ namespace OneWayLabyrinth
 
                                     if (CheckSequenceRecursive(i))
                                     {
-                                        AddExamAreas();
+                                        Sequence2 = true;
+                                        activeRules.Add("Sequence second case");
+                                        activeRuleSizes.Add(new int[] { 1, 1 });
+                                        activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisLx, thisY + thisLy }, new int[] { thisX + thisSx, thisY + thisSy }});
 
-                                        T("CheckSequence case 3 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                                        T("CheckSequence case 2 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
                                         forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
                                         forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
                                     }
@@ -3198,7 +3268,7 @@ namespace OneWayLabyrinth
             lx = thisLx;
             ly = thisLy;
 
-            // Fourth case, Double Area Stair 2
+            // Third case, Double Area Stair 2
             // 2024_0516_6
             // Rotated both ways: 2024_0516_7, 2024_0516_8
 
@@ -3215,8 +3285,6 @@ namespace OneWayLabyrinth
 
                         if (leftIndex > directionFieldIndex)
                         {
-                            ResetExamAreas();
-
                             if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 2, true))
                             {
                                 int black = (int)info[1];
@@ -3226,7 +3294,7 @@ namespace OneWayLabyrinth
                                 {
                                     // first circle true
 
-                                    T("CheckSequence fourth case start area true");
+                                    T("CheckSequence third case start area true");
 
                                     int thisX = x;
                                     int thisY = y;
@@ -3252,9 +3320,12 @@ namespace OneWayLabyrinth
 
                                     if (CheckSequenceRecursive(i))
                                     {
-                                        AddExamAreas();
+                                        Sequence3 = true;
+                                        activeRules.Add("Sequence third case");
+                                        activeRuleSizes.Add(new int[] { 1, 1 });
+                                        activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisSx, thisY + thisSy } });
 
-                                        T("CheckSequence case 4 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                                        T("CheckSequence case 3 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
                                         forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
                                     }
 
@@ -3314,7 +3385,7 @@ namespace OneWayLabyrinth
             else if (leftSideClose)
             //else if ((leftSideClose || rightSideClose) && newExitField[0] != 0)
             {
-                T("CheckSequenceRecursive left or right side only x " + newExitField[0] + " y " + newExitField[1] + " direction rotated " + newDirectionRotated);
+                T("CheckSequenceRecursive left side only x " + newExitField[0] + " y " + newExitField[1] + " direction rotated " + newDirectionRotated);
 
                 x = newExitField[0];
                 y = newExitField[1];
@@ -3336,6 +3407,117 @@ namespace OneWayLabyrinth
             {
                 return false;
             }
+        }
+
+        private void CheckDownStair()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    bool TripleAreaExitDown = false;
+
+                    if (InTakenRel(0, 3) && !InTakenRel(0, 2) && !InTakenRel(0, 1))
+                    {
+                        int thisX = x;
+                        int thisY = y;
+
+                        x = thisX + sx;
+                        y = thisY + sy;
+
+                        if (CheckDownStair2())
+                        {
+                            DownStairClose = true;
+                            activeRules.Add("Down Stair Close");
+                            activeRuleSizes.Add(new int[] { 1, 1 });
+                            activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisSx, thisY + thisSy }, new int[] { thisX - lx, thisY - ly } });
+
+                            T("CheckDownStair close: Triple Area Exit Down, cannot step up and right", i, j);
+                            
+                            TripleAreaExitDown = true;
+                            forbidden.Add(new int[] { thisX + sx, thisY + sy });
+                            forbidden.Add(new int[] { thisX - lx, thisY - ly });
+                        }
+
+                        x = thisX;
+                        y = thisY;
+                    }
+
+                    if (!TripleAreaExitDown && CheckDownStair2())
+                    {
+                        DownStair = true;
+                        activeRules.Add("Down Stair");
+                        activeRuleSizes.Add(new int[] { 7, 8 });
+                        activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + lx, y + ly } });
+
+                        T("CheckDownStair far, cannot step left", i, j);
+
+                        forbidden.Add(new int[] { x + lx, y + ly });
+                    }
+
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        public bool CheckDownStair2()
+        {
+            if (!InTakenRel(1, 0))
+            {
+                int hori = 1;
+                int vert = -1;
+
+
+                while (!InTakenRel(hori, vert) && InTakenRel(hori, vert - 1))
+                {
+                    hori++;
+                    vert--;
+                }
+
+                if (InTakenRel(hori, vert) && !InTakenRel(hori + 1, vert + 1) && InTakenRel(hori + 2, vert + 1))
+                {
+                    hori++;
+                    vert += 2;
+
+                    while (!InTakenRel(hori, vert) && vert <= 0)
+                    {
+                        int thisX = x;
+                        int thisY = y;
+
+                        x = thisX + lx * hori + sx * vert;
+                        y = thisY + ly * hori + sy * vert;
+
+                        if (CheckNearFieldSmall())
+                        {
+                            x = thisX;
+                            y = thisY;
+
+                            return true;  
+                        }
+
+                        x = thisX;
+                        y = thisY;
+
+                        hori--;
+                        vert++;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public void CheckNearField()

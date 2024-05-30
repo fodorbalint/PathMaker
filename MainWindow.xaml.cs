@@ -137,7 +137,7 @@ namespace OneWayLabyrinth
 		bool settingsOpen = false;
         int numberOfRuns = 0;
         int numberOfCompleted = 0;
-        int saveFrequency = 10000;
+        int saveFrequency = 100000;
         bool saveConcise = false; // save only routes without their possibilities in one file
         bool showChecker = true;
 
@@ -293,10 +293,8 @@ namespace OneWayLabyrinth
 
             int i;
             
-            if (isTaskRunning) // only record new rule when its forbidden fields were not created by other rules. More complicated rules can be true together with simpler rules that already added the necessary forbiden fields, like in 349170
-            {
-                forbiddenFields.Add(startForbiddenFields);
-
+            if (isTaskRunning) // only record new rule when its forbidden fields were not created by other rules. More complicated rules can be true together with simpler rules that already added the necessary forbidden fields, like in 349170
+            {                
                 /*i = 0;
                 foreach (List<int[]> forbiddenField in forbiddenFields)
                 {
@@ -329,31 +327,30 @@ namespace OneWayLabyrinth
                         {
                             List<int[]> newRuleForbiddenFields = forbiddenFields[ruleNo];
 
-                            for (i = 0; i < forbiddenFields.Count; i++)
+                            // only remove the same fields as what is contained in startforbiddenFields.
+                            // other rules can be true simultaneously.
+
+                            foreach (int[] field in startForbiddenFields)
                             {
-                                if (i != ruleNo)
+                                for (int j = newRuleForbiddenFields.Count - 1; j >= 0; j--)
                                 {
-                                    foreach (int[] field in forbiddenFields[i])
+                                    int[] newField = newRuleForbiddenFields[j];
+                                    if (field[0] == newField[0] && field[1] == newField[1])
                                     {
-                                        for (int j = newRuleForbiddenFields.Count - 1; j >= 0 ; j--)
-                                        {
-                                            int[] newField = newRuleForbiddenFields[j];
-                                            if (field[0] == newField[0] && field[1] == newField[1])
-                                            {
-                                                newRuleForbiddenFields.RemoveAt(j);
-                                            }
-                                        }
+                                        newRuleForbiddenFields.RemoveAt(j);
                                     }
                                 }
                             }
 
-                            if (newRuleForbiddenFields.Count != 0) // it has at least one unique forbidden field which is empty
+                            // the unique forbidden field(s) has to be empty
+                            if (newRuleForbiddenFields.Count != 0)
                             {
                                 foreach (int[] field in newRuleForbiddenFields)
                                 {
                                     if (!InTaken(field[0], field[1]))
                                     {
                                         arr.Add(completedCount + ": " + rule);
+                                        // if two different positions of the same path number are saved, there will be appended _1, _2 etc.
                                         SavePath(false);
                                         break;
                                     }
@@ -368,29 +365,19 @@ namespace OneWayLabyrinth
                 }
                 else
                 {
-                    // when two rules disable the same fields, the forbidden fields of the first will be removed, then the forbidden fields of the second will remain unique 
                     List<string> arr = new();
                     foreach (string rule in rules)
                     {
-                        T("ruleNo " + ruleNo);
                         List<int[]> newRuleForbiddenFields = forbiddenFields[ruleNo]; // does not copy, it is a reference assignment
 
-                        for (i = 0; i < forbiddenFields.Count; i++)
+                        foreach (int[] field in startForbiddenFields)
                         {
-                            if (i != ruleNo)
+                            for (int j = newRuleForbiddenFields.Count - 1; j >= 0; j--)
                             {
-                                T("i " + i);
-                                foreach (int[] field in forbiddenFields[i])
+                                int[] newField = newRuleForbiddenFields[j];
+                                if (field[0] == newField[0] && field[1] == newField[1])
                                 {
-                                    for (int j = newRuleForbiddenFields.Count - 1; j >= 0; j--)
-                                    {
-                                        int[] newField = newRuleForbiddenFields[j];
-                                        if (field[0] == newField[0] && field[1] == newField[1])
-                                        {
-                                            T("remove at " + j);
-                                            newRuleForbiddenFields.RemoveAt(j);
-                                        }
-                                    }
+                                    newRuleForbiddenFields.RemoveAt(j);
                                 }
                             }
                         }
@@ -3680,7 +3667,19 @@ namespace OneWayLabyrinth
             }
             else
             {
-                File.WriteAllText("incomplete/" + completedCount + ".txt", savePath);
+                if (File.Exists("incomplete/" + completedCount + ".txt"))
+                {
+                    int i = 1;
+                    while(File.Exists("incomplete/" + completedCount + "_" + i + ".txt"))
+                    {
+                        i++;
+                    }
+                    File.WriteAllText("incomplete/" + completedCount + "_" + i + ".txt", savePath);
+                }
+                else
+                {
+                    File.WriteAllText("incomplete/" + completedCount + ".txt", savePath);
+                }                
             }            
         }
 
@@ -4561,21 +4560,18 @@ namespace OneWayLabyrinth
 
         private void SKElement_PaintSurface2(object sender, SKPaintSurfaceEventArgs e)
         {
-            int ruleSize = size;
-            while (!File.Exists("rules/" + ruleSize + "/" + (string)((SKElement)sender).Tag + ".svg") && ruleSize > 3)
+            if (File.Exists("rules/" + (string)((SKElement)sender).Tag + ".svg"))
             {
-                ruleSize -= 2; 
-            }
-            if (ruleSize == 3) return; // rule does not exist
-            var canvas = e.Surface.Canvas;
-            canvas.Clear(SKColors.White);
+                var canvas = e.Surface.Canvas;
+                canvas.Clear(SKColors.White);
 
-            var svg = new SkiaSharp.Extended.Svg.SKSvg();
-            var picture = svg.Load("rules/" + ruleSize + "/" + (string)((SKElement)sender).Tag + ".svg");
+                var svg = new SkiaSharp.Extended.Svg.SKSvg();
+                var picture = svg.Load("rules/" + (string)((SKElement)sender).Tag + ".svg");
 
-            var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
-            e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
-            e.Surface.Canvas.DrawPicture(picture);
+                var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
+                e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
+                e.Surface.Canvas.DrawPicture(picture);
+            }            
         }
 
 
