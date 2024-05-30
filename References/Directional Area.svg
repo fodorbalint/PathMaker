@@ -3,13 +3,13 @@
 		svg { background-color: white; }
 	</style>
 	<!-- 2 3 4 -->
-	<path d="M 1 2 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
+	<path d="M 1 2 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
 	<path d="M 1.8 2.5 h -0.6 l 0.2 -0.2 l -0.2 0.2 l 0.2 0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 3 2 4 -->
-	<path d="M 2 1 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
+	<path d="M 2 1 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
 	<path d="M 2.8 1.5 h -0.6 l 0.2 -0.2 l -0.2 0.2 l 0.2 0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 4 1 4 -->
-	<path d="M 3 0 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
+	<path d="M 3 0 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
 	<path d="M 3.8 0.5 h -0.6 l 0.2 -0.2 l -0.2 0.2 l 0.2 0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 1 6 1 -->
 	<path d="M 0 5 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
@@ -37,6 +37,8 @@
 	<path d="M 5 1 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />
 	<!--1-->
 	<!--2-->
+	<!-- 2 6 12 -->
+	<path d="M 1.2 5.2 l 0.6 0.6 M 1.2 5.8 l 0.6 -0.6" fill="white" fill-opacity="0" stroke="red" stroke-width="0.05" stroke-linecap="round" />
 	<!--3-->
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 6" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 6" />
@@ -68,5 +70,5 @@ A 0.5 0.5 0 0 0 4.5 3
 A 0.5 0.5 0 0 1 5 2.5
 L 5.5 2.5" fill="white" fill-opacity="0" stroke="blue" stroke-width="0.05" stroke-linecap="round" />
 
-	<path fill="transparent" stroke="black" stroke-width="0.06" stroke-linecap="round" d="M 1 5 h 1 v -1 h 1 v -1 h 1 v -1 h 2" />
+	<path d="M 1 5 h 1 v -1 h 1 v -1 h 1 v -1 h 2 v 0.25 h -1.75 v 1 h -1 v 1 h -1 v 1 h -1.25 z" fill="#008000" fill-opacity="0.25" />
 </svg>

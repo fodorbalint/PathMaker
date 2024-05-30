@@ -540,17 +540,7 @@ A pair area is created with the obstacle 3 distance away, so if we step into it,
 
 <img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="4" />
 
-Beware of disabling the left field. If the count area end field is excluded from the area, the area will be impair, thus we will exit at the count area start field, coming from the middle.<br />
-
-<!---->
-
-But if the obstacle in the upper right corner is moved down, even this will be impossible.
-
-<img align="top" src="References/rules/13_old/Straight Mid Across 3 End Area 2.svg" width="4" />
-
-We can recreate this example on 13 x 13.
-
-<img align="top" src="References/1229.svg" width="13" />
+Should the left field be disabled too? Yes. We still have to exit at the middle, but the count area start and end field cannot be filled simultaneously.
 
 <!---->
 
@@ -1719,9 +1709,9 @@ Per our expectation, the program stops at the next double area case.
 
 What is common in these rules?
 
-<img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="4" />
+<img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Mid Across 3 End C.svg" width="2" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="3" />
 <img src="References/spacer.svg" height="23" />
-<img align="top" src="References/rules/13_old/Straight Mid Across 3 End Area 2.svg" width="4" />
+<img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="4" />
 
 <!---->
 
@@ -1731,8 +1721,9 @@ There is an area with a straight border line of maximum 3 fields, with the obsta
 
 The live end can be in 3 different positions in relation to the area. All patterns can be rotated clockwise, but the first can also be rotated counter-clockwise, shown in the fourth picture.
 
-When exiting the area, we check for mid across and across obstacles on the left side.
-Why can C-shape checking be omitted? It is already solved by the single area universal rules.
+When exiting the area, we check for mid across and across obstacles on the left side. Why can C-shape checking be omitted? It is already solved by the single area universal rules.
+
+And the left forbidden field in the first rule is already disabled too.
 
 Take a better look at the third.
 The reason the line is not exiting from the corner is that there is one more black field than white:
@@ -1787,9 +1778,9 @@ Stepping to the left is already disabled in the single area straight obstacle ru
 
 <!---->
 
-The first obstacle is not necessarily straight ahead. It can be positioned 1 right, and then we get a C-Shape with it when we exit the area.
+The first obstacle is not necessarily straight ahead. It can be positioned 1 right, and then we get a C-Shape with it when we exit the area. The best representation of the rule I can give is seen on the right.
 
-<img align="top" src="References/665575.svg" width="9" />
+<img align="top" src="References/665575.svg" width="9" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/Sequence first case.svg" width="6" />
 
 Double Area Stair will be a 4-step sequence.
 
@@ -1814,7 +1805,7 @@ Accordingly, there will be 3 ways the rule is rotated.
 
 <!---->
 
-We get stuch at 641 027 in a case that was previously solved with Double C-Shape.
+We get stuck at 641 027 in a case that was previously solved with Double C-Shape.
 
 <img align="top" src="References/641027.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/641027_1.svg" width="9" />
 
@@ -1891,10 +1882,12 @@ Double Area first case rotated is the same as Down Stair when there is a mid acr
 0529_6: DA first case and first case rotated needs mid across + across
 0529_7: DA second case needs mid across + across
 641261: Directional Area is the same as Sequence first case (also 0530)
-13-size Double Area rule is the same as on 9?
+
 Disable move while task running
 234760: If 2034760 is a Directional Area as well, where the obstacle is across. Find bigger example where Sequence first case is not activated.
 
 Include area parity and forbidden field representation in Double Area cases. Make representation for sequence and Down Stair close.
 
-Replace two images with one where the path changes color at the decision point. -->
+Replace two images with one where the path changes color at the decision point.
+
+Sequence first case left side shouldn't use C-shape up checking, it is for recursive only -->

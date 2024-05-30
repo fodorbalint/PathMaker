@@ -2956,12 +2956,11 @@ namespace OneWayLabyrinth
                 lx = -lx;
                 ly = -ly;
             }
-
-            // C-Shape
-            // Checking for InTakenRel(1, -1) is not possible, because in Sequence first case, we are exiting the area at the middle border field.
-            // But when it comes to the right side, it is necessary, otherwise we can detect a C-shape with the live end as in 213.
-            if (leftSide)
+            else
             {
+                // C-Shape, only left side should have it
+                // Checking for InTakenRel(1, -1) is not possible, because in Sequence first case, we are exiting the area at the middle border field.
+                // But when it comes to the right side (if it was checked), it is necessary, otherwise we can detect a C-shape with the live end as in 213.
                 if (InTakenRel(2, 0) && !InTakenRel(1, 0))
                 {
                     T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
@@ -2970,27 +2969,16 @@ namespace OneWayLabyrinth
                     newExitField = new int[] { x + lx + sx, y + ly + sy };
                     newDirectionRotated = false;
                 }
-            }
-            else
-            {
-                if (InTakenRel(2, 0) && InTakenRel(1, -1) && !InTakenRel(1, 0))
+
+                //C-Shape up
+                if (InTakenRel(0, 2) && InTakenRel(1, 1) && !InTakenRel(0, 1))
                 {
-                    T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
+                    T("CheckNearFieldSmall2 C-Shape up, left side " + leftSide);
                     ret = true;
 
-                    newExitField = new int[] { x + lx + sx, y + ly + sy };
-                    newDirectionRotated = false;
+                    newExitField = new int[] { x - lx + sx, y - ly + sy };
+                    newDirectionRotated = true;
                 }
-            }            
-
-            //C-Shape up, only left side should have it
-            if (leftSide && InTakenRel(0, 2) && InTakenRel(1, 1) && !InTakenRel(0, 1))
-            {
-                T("CheckNearFieldSmall2 C-Shape up, left side " + leftSide);
-                ret = true;
-
-                newExitField = new int[] { x - lx + sx, y - ly + sy };
-                newDirectionRotated = true;
             }
 
             // close mid across
@@ -3122,7 +3110,6 @@ namespace OneWayLabyrinth
 
                         if (circleValid)
                         {
-                            // second circle true, but we need to check if the area is pair
                             if (CountAreaRel(0, 1, 0, 3, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 2, true))
                             {
                                 int black = (int)info[1];
@@ -3154,6 +3141,7 @@ namespace OneWayLabyrinth
                                     sx = rotatedDir[0];
                                     sy = rotatedDir[1];
 
+                                    // does not use C-shape up, only left
                                     bool leftSideClose = CheckNearFieldSmall2(true);
                                     bool rightSideClose = CheckNearFieldSmall2(false);
 
