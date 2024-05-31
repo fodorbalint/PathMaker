@@ -1675,7 +1675,7 @@ that consists equal amount of black and white fields, and we enter now, we will 
 
 <!---->
 
-<img align="top" src="References/Directional Area.svg" width="7" />
+<img align="top" src="References/Directional Area 0.svg" width="7" />
 
 If an area is created with either of the directional obstacles, it cannot be filled.
 
@@ -1764,9 +1764,9 @@ The next stop is similar in concept (Square 4 x 2 C-Shape and Square 4 x 2 Area)
 
 <!---->
 
-We can see that the mechanism is not limited to a few cases, but it can go on indefinitely. If after exiting the area, there are repeated C-shapes on the left side (a stair shape), the right side obstacle may be far away, as in this example:
+We can see that the mechanism is not limited to a few cases, but it can go on indefinitely. If after exiting the area, there are repeated C-shapes on the left side (a stair shape), the right side obstacle may be far away. And the stair can be combined with 2- or maybe 3-long flat walls that make it turn.
 
-<img align="top" src="References/2024_0512.svg" width="10" />
+<img align="top" src="References/2024_0531_5.svg" width="8" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0531_3.svg" width="9" />
 
 A sequence is made from the start area and the close obstacle cases, and this can be programmed.
 But let's build the program step by step, based on the discovered 9 x 9 rules. The second case, Triple Area, uses an area where the obstacle is 3 distance away.
@@ -1780,22 +1780,47 @@ Stepping to the left is already disabled in the single area straight obstacle ru
 
 The first obstacle is not necessarily straight ahead. It can be positioned 1 right, and then we get a C-Shape with it when we exit the area. The best representation of the rule I can give is seen on the right.
 
-<img align="top" src="References/665575.svg" width="9" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/Sequence first case.svg" width="6" />
+<img align="top" src="References/665575.svg" width="9" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/Sequence first case.svg" width="5" />
+
+When determining whether is it necessary to consider the followings after exiting the area, there is nothing else to do than looking through existing examples or create new ones.
+
+- C-shape left
+- Mid across left
+- Across left
+
+- Mid across right
+- Across right
+
+In the original Triple Area case, we had a Mid across on both sides.
+In the case above, we have the same, plus we have a C-shape on the left side as well. But at the same time, the Directional Area rule is activated too.
+So we don't need to include the C-shape into this sequence rule.
+
+<!---->
+
+But we do need the Across on both sides:
+
+<img align="top" src="References/2024_0531_1.svg" width="7" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0531_2.svg" width="7" />
+
+And as for Directional Area, it needs the Across cases, based on this example:
+
+<img align="top" src="References/2034760.svg" width="9" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/Directional Area.svg" width="7" />
+
+<!---->
 
 Double Area Stair will be a 4-step sequence.
 
 <img align="top" src="References/Double Area Stair numbered.svg" width="7" />
 
-After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a mid across close obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and a close across obstacle on the right.
+After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a Mid across obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and an Across obstacle on the right.
 We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.
-
-<!---->
 
 Double Area Stair 2 - although looking similar - will have a somewhat different solution.
 
 <img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="5" />
 
 Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden.
+
+<!---->
 
 Accordingly, there will be 3 ways the rule is rotated.
 
@@ -1821,7 +1846,7 @@ But, since we want to keep the field next to the furthest border field empty, we
 
 Now, take a look at the following two cases. The first is the well-known Triple Area Exit Down, at over 18 million, while the other comes at around 51 million.
 
-<img align="top" src="References/18665383 future.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231 future.svg" width="9" />
+<img align="top" src="References/18665383 marked.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231 marked.svg" width="9" />
 
 In the first, we can only step left. In the second, we cannot step left.
 It is easy to see that the pattern can be longer. If there is a stair shape downwards with 3 fields at the bottom, there will be a stair backwards, which conflicts with the obstacle on the left (D).
@@ -1879,15 +1904,31 @@ Double Area first case rotated is the same as Down Stair when there is a mid acr
 0529_2: Double Area first case does not need left C
 0529_3: Double Area third case becomes first case with the obstacle straight ahead (intending left C)
 0529_4: Double Area third case needs across
-0529_6: DA first case and first case rotated needs mid across + across
-0529_7: DA second case needs mid across + across
-641261: Directional Area is the same as Sequence first case (also 0530)
+0529_6: Double Area first case and first case rotated needs mid across + across
+0529_7: Double Area second case needs mid across + across
+
+Directional Area rule has to be rotated to start with.
 
 Disable move while task running
-234760: If 2034760 is a Directional Area as well, where the obstacle is across. Find bigger example where Sequence first case is not activated.
 
-Include area parity and forbidden field representation in Double Area cases. Make representation for sequence and Down Stair close.
+2034760 Is a Directional Area, where the obstacle is across. Find bigger example where Sequence first case is not activated.
+Is Directional Area activated at all if distance is bigger than 4, or CheckStraight will disable the fields?
 
 Replace two images with one where the path changes color at the decision point.
 
-Sequence first case left side shouldn't use C-shape up checking, it is for recursive only -->
+Sequence second case:
+
+227 130, Square 4 x 2 C-Shape: Mid across / C-shape left, across right
+231 960, Square 4 x 2 Area: Mid across left, across right
+2 022 763, Double Area Stair: C-shape, C-shape left, across right
+19 720 122, Triple Area Stair: Mid across, C-shape left, across right
+0531: Directional Area is the same as Sequence second case (with C-shape on the left at the area exit, only Mid Across seem to exist on the right)
+
+Sequence third case:
+
+2 023 198, Double Area Stair 2 C-shape, C-shape left, across right
+19 720 614, Double Area Stair Area C-shape, mid across left, across right
+
+0531_4: New sequence case
+
+-->

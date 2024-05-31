@@ -1423,7 +1423,7 @@ Take a better look at the third.<br />
 The reason the line is not exiting from the corner is that there is one more black field than white:<br />
 <br />
 <img align="top" src="References/743059_1.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/743059.svg" width="42.857142857143%" /></div><div class="leftNum">116</div></td>
-<td class="right"><div><img align="top" src="References/Directional Area.svg" width="33.333333333333%" /><br />
+<td class="right"><div><img align="top" src="References/Directional Area 0.svg" width="33.333333333333%" /><br />
 <br />
 If an area is created with either of the directional obstacles, it cannot be filled.<br />
 <br />
@@ -1452,9 +1452,9 @@ What is common in these rules?<br />
 <br />
 <img align="top" src="References/rules/9_old/Straight Mid Across 3 End Area.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Mid Across 3 End C.svg" width="9.5238095238095%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across End Area.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="14.285714285714%" /><br />
 <img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="19.047619047619%" /></div><div class="rightNum">115</div></td></tr><tr><td class="left"><div>We can see that the mechanism is not limited to a few cases, but it can go on indefinitely. If after exiting the area, there are repeated C-shapes on the left side (a stair shape), the right side obstacle may be far away, as in this example:<br />
+<img align="top" src="References/rules/9_old/Straight Across 3 End Area.svg" width="19.047619047619%" /></div><div class="rightNum">115</div></td></tr><tr><td class="left"><div>We can see that the mechanism is not limited to a few cases, but it can go on indefinitely. If after exiting the area, there are repeated C-shapes on the left side (a stair shape), the right side obstacle may be far away. And the stair can be combined with 2- or maybe 3-long flat walls that make it turn.<br />
 <br />
-<img align="top" src="References/2024_0512.svg" width="47.619047619048%" /><br />
+<img align="top" src="References/2024_0531_5.svg" width="38.095238095238%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0531_3.svg" width="42.857142857143%" /><br />
 <br />
 A sequence is made from the start area and the close obstacle cases, and this can be programmed.<br />
 But let's build the program step by step, based on the discovered 9 x 9 rules. The second case, Triple Area, uses an area where the obstacle is 3 distance away.<br />
@@ -1484,39 +1484,45 @@ If we look at 4 distance: It is true that if the area is 1W and we step forward,
 <br />
  The pattern is rotated counter-clockwise.<br />
 <br />
-<img align="top" src="References/2024_0516.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_1.svg" width="42.857142857143%" /></div><div class="rightNum">119</div></td></tr><tr><td class="left"><div>Now, take a look at the following two cases. The first is the well-known Triple Area Exit Down, at over 18 million, while the other comes at around 51 million.<br />
-<br />
-<img align="top" src="References/18665383 future.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/51015231 future.svg" width="42.857142857143%" /><br />
-<br />
-In the first, we can only step left. In the second, we cannot step left.<br />
-It is easy to see that the pattern can be longer. If there is a stair shape downwards with 3 fields at the bottom, there will be a stair backwards, which conflicts with the obstacle on the left (D).<br />
-But there are more things that need to be present:<br />
-- There should be an obstacle at 2 distance straight ahead to start with.<br />
-- If the B and C weren't taken, the area could be filled.<br />
-<br />
-What is the simplest algorithm to apply?<br />
-<br />
-In the following, I check these fields as empty, taken or directional taken.</div><div class="leftNum">124</div></td>
-<td class="right"><div>The first obstacle is not necessarily straight ahead. It can be positioned 1 right, and then we get a C-Shape with it when we exit the area. The best representation of the rule I can give is seen on the right.<br />
-<br />
-<img align="top" src="References/665575.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Sequence first case.svg" width="28.571428571429%" /><br />
-<br />
-Double Area Stair will be a 4-step sequence.<br />
-<br />
-<img align="top" src="References/Double Area Stair numbered.svg" width="33.333333333333%" /><br />
-<br />
-After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a mid across close obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and a close across obstacle on the right.<br />
-We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.</div><div class="rightNum">121</div></td></tr><tr><td class="left"><div>Double Area Stair 2 - although looking similar - will have a somewhat different solution.<br />
-<br />
-<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="23.809523809524%" /><br />
-<br />
-Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden.<br />
-<br />
-Accordingly, there will be 3 ways the rule is rotated.<br />
+<img align="top" src="References/2024_0516.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_1.svg" width="42.857142857143%" /></div><div class="rightNum">119</div></td></tr><tr><td class="left"><div>Accordingly, there will be 3 ways the rule is rotated.<br />
 <br />
 <img align="top" src="References/2024_0516_6.svg" width="38.095238095238%" /><br />
 <img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/2024_0516_7.svg" width="38.095238095238%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_8.svg" width="38.095238095238%" /></div><div class="leftNum">122</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<img align="top" src="References/2024_0516_7.svg" width="38.095238095238%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0516_8.svg" width="38.095238095238%" /></div><div class="leftNum">124</div></td>
+<td class="right"><div>The first obstacle is not necessarily straight ahead. It can be positioned 1 right, and then we get a C-Shape with it when we exit the area. The best representation of the rule I can give is seen on the right.<br />
+<br />
+<img align="top" src="References/665575.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Sequence first case.svg" width="23.809523809524%" /><br />
+<br />
+When determining whether is it necessary to consider the followings after exiting the area, there is nothing else to do than looking through existing examples or create new ones.<br />
+<br />
+- C-shape left<br />
+- Mid across left<br />
+- Across left<br />
+<br />
+- Mid across right<br />
+- Across right<br />
+<br />
+In the original Triple Area case, we had a Mid across on both sides.<br />
+In the case above, we have the same, plus we have a C-shape on the left side as well. But at the same time, the Directional Area rule is activated too.<br />
+So we don't need to include the C-shape into this sequence rule.</div><div class="rightNum">121</div></td></tr><tr><td class="left"><div>But we do need the Across on both sides:<br />
+<br />
+<img align="top" src="References/2024_0531_1.svg" width="33.333333333333%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0531_2.svg" width="33.333333333333%" /><br />
+<br />
+And as for Directional Area, it needs the Across cases, based on this example:<br />
+<br />
+<img align="top" src="References/2034760.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Directional Area.svg" width="33.333333333333%" /></div><div class="leftNum">122</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"><div>Double Area Stair will be a 4-step sequence.<br />
+<br />
+<img align="top" src="References/Double Area Stair numbered.svg" width="33.333333333333%" /><br />
+<br />
+After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a Mid across obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and an Across obstacle on the right.<br />
+We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.<br />
+<br />
+Double Area Stair 2 - although looking similar - will have a somewhat different solution.<br />
+<br />
+<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="23.809523809524%" /><br />
+<br />
+Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden.</div><div class="rightNum">123</div></td></tr><tr><td class="left"></td>
 <td class="right"><div>We get stuck at 641 027 in a case that was previously solved with Double C-Shape.<br />
 <br />
 <img align="top" src="References/641027.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/641027_1.svg" width="42.857142857143%" /><br />
@@ -1527,7 +1533,19 @@ If we didn't have the taken field marked with A, the straight obstacle rule woul
 <br />
 But, since we want to keep the field next to the furthest border field empty, we need to apply a rule for the smaller area. This will be the same as in the 0 horizontal distance small area case.<br />
 <br />
-<img align="top" src="References/straight right small.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/4pair up.svg" width="9.5238095238095%" /></div><div class="rightNum">123</div></td></tr><tr><td class="left"></td>
+<img align="top" src="References/straight right small.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/4pair up.svg" width="9.5238095238095%" /></div><div class="rightNum">125</div></td></tr><tr><td class="left"><div>Now, take a look at the following two cases. The first is the well-known Triple Area Exit Down, at over 18 million, while the other comes at around 51 million.<br />
+<br />
+<img align="top" src="References/18665383 marked.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/51015231 marked.svg" width="42.857142857143%" /><br />
+<br />
+In the first, we can only step left. In the second, we cannot step left.<br />
+It is easy to see that the pattern can be longer. If there is a stair shape downwards with 3 fields at the bottom, there will be a stair backwards, which conflicts with the obstacle on the left (D).<br />
+But there are more things that need to be present:<br />
+- There should be an obstacle at 2 distance straight ahead to start with.<br />
+- If the B and C weren't taken, the area could be filled.<br />
+<br />
+What is the simplest algorithm to apply?<br />
+<br />
+In the following, I check these fields as empty, taken or directional taken.</div><div class="leftNum">126</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
 <td class="right"><div><img align="top" src="References/Down Stair.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/CheckDownStairMidAcross.svg" width="9.5238095238095%" /><br />
 <br />
 The area enclosed with red line is repeated downwards left, until both of the fields are taken.<br />
@@ -1572,18 +1590,32 @@ Double Area first case rotated is the same as Down Stair when there is a mid acr
 0529_2: Double Area first case does not need left C<br />
 0529_3: Double Area third case becomes first case with the obstacle straight ahead (intending left C)<br />
 0529_4: Double Area third case needs across<br />
-0529_6: DA first case and first case rotated needs mid across + across<br />
-0529_7: DA second case needs mid across + across<br />
-641261: Directional Area is the same as Sequence first case (also 0530)<br />
+0529_6: Double Area first case and first case rotated needs mid across + across<br />
+0529_7: Double Area second case needs mid across + across<br />
+<br />
+Directional Area rule has to be rotated to start with.<br />
 <br />
 Disable move while task running<br />
-234760: If 2034760 is a Directional Area as well, where the obstacle is across. Find bigger example where Sequence first case is not activated.<br />
 <br />
-Include area parity and forbidden field representation in Double Area cases. Make representation for sequence and Down Stair close.<br />
+2034760 Is a Directional Area, where the obstacle is across. Find bigger example where Sequence first case is not activated.<br />
+Is Directional Area activated at all if distance is bigger than 4, or CheckStraight will disable the fields?<br />
 <br />
 Replace two images with one where the path changes color at the decision point.<br />
 <br />
-Sequence first case left side shouldn't use C-shape up checking, it is for recursive only --></div><div class="rightNum">125</div></td></tr><tr><td class="left"><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
-<td class="right"></td></tr>
- 
+Sequence second case:<br />
+<br />
+227 130, Square 4 x 2 C-Shape: Mid across / C-shape left, across right<br />
+231 960, Square 4 x 2 Area: Mid across left, across right<br />
+2 022 763, Double Area Stair: C-shape, C-shape left, across right<br />
+19 720 122, Triple Area Stair: Mid across, C-shape left, across right<br />
+0531: Directional Area is the same as Sequence second case (with C-shape on the left at the area exit, only Mid Across seem to exist on the right)<br />
+<br />
+Sequence third case:<br />
+<br />
+2 023 198, Double Area Stair 2 C-shape, C-shape left, across right<br />
+19 720 614, Double Area Stair Area C-shape, mid across left, across right<br />
+<br />
+0531_4: New sequence case<br />
+<br />
+--></div><div class="rightNum">127</div></td></tr> 
 </table>

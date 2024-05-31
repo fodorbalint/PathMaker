@@ -306,6 +306,7 @@ namespace OneWayLabyrinth
                             activeRuleSizes = new();                         
                             CheckCShape();
 
+                            /* comment to enable basic rule checking */
                             if (CShape) break;
 
                             closeStraightSmall = false;
@@ -332,6 +333,9 @@ namespace OneWayLabyrinth
                             possible = newPossible;
 
                             if (possible.Count == 1) break;
+
+                            /* uncomment to enable basic rule checking */
+                            // break;
 
                             /*closeStraight = false;
                             closeMidAcross = false;
@@ -364,8 +368,9 @@ namespace OneWayLabyrinth
                             //}
                             List<int[]> startForbiddenFields = Copy(forbidden);
 
+                            /* If distance is over 3, single area rules seem to disable the needed directions. For 3 distance, we use Sequence first case.
                             T("CheckDirectionalArea");
-                            CheckDirectionalArea();
+                            CheckDirectionalArea(); */
                             T("Check3DoubleArea");
                             Check3DoubleArea();
                             T("Check3DoubleAreaRotated");
@@ -2598,13 +2603,13 @@ namespace OneWayLabyrinth
                                                     x = thisX + thisLx * k + sx * (k - 1);
                                                     y = thisY + thisLy * k + sy * (k - 1);
 
-                                                    if (CheckNearFieldSmall())
+                                                    if (CheckNearFieldSmall1())
                                                     {
                                                         T("CheckDirectionalArea at " + thisX + " " + thisY + " obstacle encountered at " + x + " " + y);
 
                                                         DirectionalArea = true;
                                                         activeRules.Add("Directional Area");
-                                                        activeRuleSizes.Add(new int[] { 7, 6 });
+                                                        activeRuleSizes.Add(new int[] { 7, 7 });
                                                         activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisLx, thisY + thisLy } });
 
                                                         forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
@@ -2944,6 +2949,42 @@ namespace OneWayLabyrinth
             return false;
         }
 
+        public bool CheckNearFieldSmall1_5() // for use only with Double Area case 1, 2, 3 and 1 rotated
+        {
+            // C-shape (left)
+            if ((InTakenRel(2, 0) || InBorderRel(2, 0)) && !InTakenRel(1, 0))
+            {
+                return true;
+            }
+
+            // close mid across. In DirectionalArea, the empty fields are already checked.
+            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+            {
+                int middleIndex = InTakenIndexRel(1, 2);
+                int sideIndex = InTakenIndexRel(2, 2);
+
+                if (sideIndex > middleIndex)
+                {
+
+                    return true;
+                }
+            }
+
+            // close across
+            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+            {
+                int middleIndex = InTakenIndexRel(2, 2);
+                int sideIndex = InTakenIndexRel(3, 2);
+
+                if (sideIndex > middleIndex)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         int[] newExitField = new int[] { 0, 0 };
         bool newDirectionRotated = false; // if rotated, it is CW on left side
 
@@ -3074,9 +3115,19 @@ namespace OneWayLabyrinth
                     // See also 665575 for alternative start obstacle placement
                     bool circleValid = false;
 
-                    if ((InTakenRel(0, 4) || InTakenRel(-1, 4)) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 3))
+                    if (((InBorderRelExact(0, 4) && !InCornerRel(0, 3)) || InTakenRel(0, 4) || InTakenRel(-1, 4)) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 3))
                     {
-                        if (InTakenRel(0, 4))
+                        if (InBorderRelExact(0, 4))
+                        {
+                            int directionFieldIndex = InBorderIndexRel(0, 4);
+                            int sideIndex = InBorderIndexRel(1, 4);
+
+                            if (sideIndex < directionFieldIndex)
+                            {
+                                circleValid = true;
+                            }
+                        }
+                        else if (InTakenRel(0, 4))
                         {
                             int directionFieldIndex = InTakenIndexRel(0, 4);
                             int sideIndex = InTakenIndexRel(1, 4);
@@ -3142,19 +3193,26 @@ namespace OneWayLabyrinth
                                     sy = rotatedDir[1];
 
                                     // does not use C-shape up, only left
-                                    bool leftSideClose = CheckNearFieldSmall2(true);
-                                    bool rightSideClose = CheckNearFieldSmall2(false);
+                                    bool leftSideClose = CheckNearFieldSmall1_5();
 
-                                    T("lr", leftSideClose, rightSideClose);
+                                    lx = -lx;
+                                    ly = -ly;
+
+                                    bool rightSideClose = CheckNearFieldSmall1();
+
+                                    lx = -lx;
+                                    ly = -ly;
+
                                     if (leftSideClose && rightSideClose)
                                     {
                                         Sequence1 = true;
                                         activeRules.Add("Sequence first case");
-                                        activeRuleSizes.Add(new int[] { 1, 1 });
+                                        activeRuleSizes.Add(new int[] { 5, 5 });
                                         activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisSx, thisY + thisSy } });
 
                                         T("CheckSequence case 1 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
-                                        // Due to CheckStraight, stepping left is already disabled
+                                        // Due to CheckStraight, stepping left is already disabled when the obstacle is straight ahead. When it is one to the right, we need the left field to be disabled.
+                                        forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
                                         forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
                                     }
 
@@ -4987,6 +5045,19 @@ namespace OneWayLabyrinth
 			if (x <= 0 || x >= size + 1 || y <= 0 || y >= size + 1) return true;
 			return false;
 		}
+
+        public bool InBorderRelExact(int left, int straight)
+        {
+            int x = this.x + left * lx + straight * sx;
+            int y = this.y + left * ly + straight * sy;
+            return InBorderExact(x, y);
+        }
+
+        public bool InBorderExact(int x, int y) // strict mode
+        {
+            if (x == 0 || x == size + 1 || y == 0 || y == size + 1) return true;
+            return false;
+        }
 
         public bool InTakenAbs(int[] field0)
         {

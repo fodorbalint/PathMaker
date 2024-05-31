@@ -268,8 +268,8 @@ namespace OneWayLabyrinth
         {
             if (activeRules)
             {
-                ContainerWindow.Width = 988;
-                MainGrid.ColumnDefinitions[1].Width = new GridLength(300);
+                ContainerWindow.Width = 1008; // accomodates up to 7 x 7 rule grid
+                MainGrid.ColumnDefinitions[1].Width = new GridLength(320);
             }
             else
             {
