@@ -7,6 +7,14 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Console app\Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Console app\Program.cs" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="SkiaSharp" Version="2.88.3" />
 		<PackageReference Include="SkiaSharp.Svg" Version="1.60.0" />

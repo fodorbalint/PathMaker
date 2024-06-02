@@ -1,6 +1,6 @@
-size: 9
+size: 5
 loadFromFile: False
-saveOnCompletion: True
+saveOnCompletion: False
 continueOnCompletion: True
 keepLeft: True
 displayFutureLines: False

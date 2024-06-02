@@ -1906,6 +1906,7 @@ Double Area first case rotated is the same as Down Stair when there is a mid acr
 0529_4: Double Area third case needs across
 0529_6: Double Area first case and first case rotated needs mid across + across
 0529_7: Double Area second case needs mid across + across
+0602: Double Area second case needs to be rotated CCW
 
 Directional Area rule has to be rotated to start with.
 
@@ -1930,5 +1931,7 @@ Sequence third case:
 19 720 614, Double Area Stair Area C-shape, mid across left, across right
 
 0531_4: New sequence case
+
+When stepping back on completion, what if the left and right field is possible? Then we need to turn twice to the right.
 
 -->

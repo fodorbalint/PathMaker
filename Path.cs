@@ -80,6 +80,9 @@ namespace OneWayLabyrinth
 
         public bool DirectionalArea, DoubleArea1, DoubleArea2, DoubleArea3, DoubleArea4, DoubleArea1Rotated, Sequence1, Sequence2, Sequence3, DownStairClose, DownStair = false;
 
+        int[] newExitField = new int[] { 0, 0 };
+        bool newDirectionRotated = false; // if rotated, it is CW on left side
+
         // defined in PathRules.cs
         /*List<string> activeRules;
         List<List<int[]>> activeRulesForbiddenFields;
@@ -298,12 +301,12 @@ namespace OneWayLabyrinth
 
                             // To speed up execution, we check for a C-Shape and close obstacle first. If only one possible field remains, we don't check more. If it is an error, we will see it later.
 
-                            CShape = false;
-                            DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
-
                             activeRules = new();
                             activeRulesForbiddenFields = new();
-                            activeRuleSizes = new();                         
+                            activeRuleSizes = new(); 
+
+                            CShape = false;
+                                                    
                             CheckCShape();
 
                             /* comment to enable basic rule checking */
@@ -336,6 +339,8 @@ namespace OneWayLabyrinth
 
                             /* uncomment to enable basic rule checking */
                             // break;
+
+                            DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
 
                             /*closeStraight = false;
                             closeMidAcross = false;
@@ -572,6 +577,486 @@ namespace OneWayLabyrinth
             sy = thisSy;
             lx = thisLx;
             ly = thisLy;
+        }
+
+        public void CheckNearField()
+        {
+            bool farSideStraightUp = false;
+            bool farSideStraightDown = false;
+            bool farSideMidAcrossUp = false;
+            bool farSideMidAcrossDown = false;
+
+            // for 2-distance simultaneous rules
+            bool farStraightLeft = false;
+            bool farStraightRight = false;
+            bool farSideUp;
+            bool farSideDown;
+
+            // used also for determining if custom rules have to run
+            closeStraightSmall = false;
+            closeMidAcrossSmall = false;
+            closeAcrossSmall = false;
+            closeStraightLarge = false;
+            closeMidAcrossLarge = false;
+            closeAcrossLarge = false;
+
+            for (int i = 0; i < 2; i++)
+            {
+                bool closeStraight = false;
+                bool closeMidAcross = false;
+
+                if (InTakenRel(0, 2) && InTakenRel(1, 2) && !InTakenRel(0, 1))
+                {
+                    closeStraight = true;
+
+                    // needed if C-shape precondition is disabled
+                    if (!InTakenRel(1, 1) && !InTakenRel(-1, 1))
+                    {
+                        forbidden.Add(new int[] { x + sx, y + sy });
+
+                        int middleIndex = InTakenIndexRel(0, 2);
+                        int sideIndex = InTakenIndexRel(1, 2);
+                        if (sideIndex > middleIndex) // area on left
+                        {
+                            closeStraightSmall = true;
+                            forbidden.Add(new int[] { x - lx, y - ly });
+                        }
+                        else
+                        {
+                            closeStraightLarge = true;
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
+                    }
+                }
+
+                if (!closeStraight)
+                {
+                    if (InTakenRel(1, 2) && !InTakenRel(0, 1) && !InTakenRel(1, 1))
+                    {
+                        closeMidAcross = true;
+
+                        forbidden.Add(new int[] { x + sx, y + sy });
+
+                        int middleIndex = InTakenIndexRel(1, 2);
+                        int sideIndex = InTakenIndexRel(2, 2);
+                        if (sideIndex > middleIndex)
+                        {
+                            closeMidAcrossSmall = true;
+                            forbidden.Add(new int[] { x - lx, y - ly });
+                        }
+                        else
+                        {
+                            closeMidAcrossLarge = true;
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
+                    }
+                }
+
+                if (!closeStraight && !closeMidAcross)
+                {
+                    if (InTakenRel(2, 2) && !InTakenRel(0, 1) && !InTakenRel(1, 1) && !InTakenRel(2, 1))
+                    {
+                        int middleIndex = InTakenIndexRel(2, 2);
+                        int sideIndex = InTakenIndexRel(3, 2);
+                        if (sideIndex > middleIndex)
+                        {
+                            closeAcrossSmall = true;
+                            forbidden.Add(new int[] { x + sx, y + sy });
+                            forbidden.Add(new int[] { x - lx, y - ly });
+                        }
+                        else
+                        {
+                            closeAcrossLarge = true;
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
+                    }
+                }
+
+                lx = -lx;
+                ly = -ly;
+            }
+            lx = thisLx;
+            ly = thisLy;
+
+            // Far rules shouldn't be checked until close rules are checked on both sides, see 305112. Here, close straight is only true on the right side, but left side far rules get checked before.
+            // A close rule may be true on one side, but on the other side there can be a far rule, like in 1307639. The close rule has to be large in this case.
+
+            // A large close mid across on one side can have a small far across on the other side.
+            // A large close across on one side can have a small far mid across / across on the other side.
+            // Only the last case needs to be examined. All the other close rules have two fields disabled.
+
+            if (!closeStraightSmall && !closeMidAcrossSmall && !closeAcrossSmall && !closeStraightLarge && !closeMidAcrossLarge)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    bool farStraight = false;
+                    bool farMidAcross = false;
+
+                    if (InTakenRel(0, 3) && InTakenRel(1, 3) && !InTakenRel(0, 2) && !InTakenRel(0, 1)) // 0, 2: 1225; 0, 1: 1226
+                    {
+                        T("Far straight");
+                        farStraight = true;
+
+                        int middleIndex = InTakenIndexRel(0, 3);
+                        int sideIndex = InTakenIndexRel(1, 3);
+                        if (sideIndex > middleIndex) // area on left
+                        {
+                            if (!InTakenRel(1, 2) && !InTakenRel(2, 2)) // 1,2: 1019_4, 2,2: 1019_5
+                            {
+                                T("Far straight small");
+                                if (i == 0) farStraightLeft = true; else farStraightRight = true;
+
+                                bool circleDirectionLeft = i == 0 ? true : false;
+                                if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
+                                {
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                }
+                                else if (InTakenRel(-2, 1) && InTakenRel(-1, 0) && !InTakenRel(-1, 1))
+                                {
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                }
+                            }
+                        }
+                        else // area on right
+                        {
+                            if (!InTakenRel(-1, 2) && !InTakenRel(-2, 2)) // -1, 2: 1019_6, -2, 2: 1019_7
+                            {
+                                T("Far straight large");
+                                bool circleDirectionLeft = i == 0 ? false : true;
+                                if (CountAreaRel(-1, 1, -1, 2, null, circleDirectionLeft, 1))
+                                {
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                                else if (InTakenRel(2, 1) && InTakenRel(1, 0) && !InTakenRel(1, 1))
+                                {
+                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                }
+                            }
+                        }
+                    }
+
+                    if (!farStraight)
+                    {
+                        if (InTakenRel(1, 3) && InTakenRel(2, 3) && !InTakenRel(0, 2) && !InTakenRel(1, 2) && !InTakenRel(0, 1)) // 0, 2; 1, 2: 1019_3
+                        {
+                            T("Far mid across");
+                            farMidAcross = true;
+
+                            int middleIndex = InTakenIndexRel(1, 3);
+                            int sideIndex = InTakenIndexRel(2, 3);
+                            if (sideIndex > middleIndex) // area on left
+                            {
+                                if (!InTakenRel(2, 2)) // 2, 2: 1019
+                                {
+                                    T("Far mid across small");
+                                    if (i == 0) farStraightLeft = true; else farStraightRight = true;
+                                    bool circleDirectionLeft = i == 0 ? true : false;
+                                    if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                    }
+                                    else if (InTakenRel(-2, 1) && InTakenRel(-1, 0) && !InTakenRel(-1, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                    }
+                                }
+                            }
+                            else // area on right
+                            {
+                                if (!InTakenRel(-1, 2)) // -1, 2: 1019_1
+                                {
+                                    T("Far mid across large");
+                                    bool circleDirectionLeft = i == 0 ? false : true;
+                                    if (CountAreaRel(0, 1, 0, 2, null, circleDirectionLeft, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                    else if (InTakenRel(2, 1) && InTakenRel(1, 0) && !InTakenRel(1, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!farMidAcross)
+                        {
+                            if (InTakenRel(2, 3) && InTakenRel(3, 3) && !InTakenRel(0, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 2) && !InTakenRel(0, 1))
+                            {
+                                T("Far across");
+                                int middleIndex = InTakenIndexRel(2, 3);
+                                int sideIndex = InTakenIndexRel(3, 3);
+                                if (sideIndex > middleIndex) // area on left
+                                {
+                                    T("Far across small");
+                                    if (i == 0) farStraightLeft = true; else farStraightRight = true;
+                                    bool circleDirectionLeft = i == 0 ? true : false;
+                                    if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                    }
+                                    else
+                                    {
+                                        if (InTakenRel(-2, 1) && InTakenRel(-1, 0) && !InTakenRel(-1, 1))
+                                        {
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                        }
+                                        /*if (InTakenRel(1, 4) && !InTakenRel(1, 3)) // end C, there is a separate rule for that now
+                                        {
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                        }*/
+                                    }
+                                }
+                                else // area on right
+                                {
+                                    T("Far across large");
+                                    if (!InTakenRel(-1, 2))
+                                    {
+                                        bool circleDirectionLeft = i == 0 ? false : true;
+                                        if (CountAreaRel(0, 1, 1, 2, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 0))
+                                        {
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                        }
+                                        else if (InTakenRel(2, 1) && InTakenRel(1, 0) && !InTakenRel(1, 1))
+                                        {
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    lx = -lx;
+                    ly = -ly;
+                }
+                lx = thisLx;
+                ly = thisLy;
+            }
+
+            if (farStraightLeft && farStraightRight) // 9:234256
+            {
+                T("farStraightLeft and farStraightRight true");
+                forbidden.Add(new int[] { x + sx, y + sy });
+            }
+
+            // left/right side rules
+            // When any of the close rules are present, even close across large, examining side rules is not necessary. Example: 1019_8
+            if (!closeStraightSmall && !closeMidAcrossSmall && !closeAcrossSmall && !closeStraightLarge && !closeMidAcrossLarge && !closeAcrossLarge)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    bool closeSideStraight = false;
+                    bool closeSideMidAcross = false;
+                    bool closeSideAcross = false;
+                    farSideUp = false;
+                    farSideDown = false;
+                    farSideStraightUp = false;
+                    farSideStraightDown = false;
+                    farSideMidAcrossUp = false;
+                    farSideMidAcrossDown = false;
+                    bool circleDirectionLeft = i == 0 ? false : true;
+
+                    if (InTakenRel(2, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1))
+                    {
+                        closeSideStraight = true;
+
+                        // needed if C-Shape precondition is disabled
+                        if (!InTakenRel(1, -1))
+                        {
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
+                    }
+
+                    if (!closeSideStraight)
+                    {
+                        if (!InTakenRel(1, 0) && !InTakenRel(1, 1) && (InTakenRel(2, 1) || InTakenRel(2, -1) && !InTakenRel(1, -1)))
+                        {
+                            closeSideMidAcross = true;
+                            forbidden.Add(new int[] { x + lx, y + ly });
+                        }
+                    }
+
+                    if (!closeSideStraight && !closeSideMidAcross)
+                    {
+                        if (InTakenRel(2, 2) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2))
+                        {
+                            closeSideAcross = true;
+                            // fields forbidden in straight rules
+                        }
+                    }
+
+                    if (!closeSideStraight && !closeSideMidAcross && !closeSideAcross)
+                    {
+                        if (InTakenRel(3, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2))
+                        {
+                            int middleIndex = InTakenIndexRel(3, 0);
+                            if (InTakenRel(3, 1)) // up side taken
+                            {
+                                T("farSideStraight up");
+                                farSideStraightUp = true;
+
+                                int sideIndex = InTakenIndexRel(3, 1);
+                                if (sideIndex > middleIndex) // area up
+                                {
+                                    farSideUp = true;
+
+                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                    else if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                }
+                            }
+                            if (InTakenRel(3, -1)) // down side taken, we need to check sepearately from up side, in order to establish farSideStraightDown
+                            {
+                                T("farSideStraight down");
+                                farSideStraightDown = true;
+
+                                int sideIndex = InTakenIndexRel(3, -1);
+                                if (sideIndex < middleIndex) // area up
+                                {
+                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                    else if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                }
+                                else
+                                {
+                                    farSideDown = true;
+                                }
+                            }
+                        }
+
+                        if (!farSideStraightUp && !farSideStraightDown)
+                        {
+                            if (InTakenRel(3, 1) && InTakenRel(3, 2) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2)) // mid across up
+                            {
+                                T("farSideMidAcross up");
+                                farSideMidAcrossUp = true;
+
+                                int middleIndex = InTakenIndexRel(3, 1);
+                                int sideIndex = InTakenIndexRel(3, 2);
+                                if (sideIndex > middleIndex) // area up
+                                {
+                                    farSideUp = true;
+
+                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                    else if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                }
+                            }
+
+                            if (InTakenRel(3, -1) && InTakenRel(3, -2) && !InTakenRel(1, -1) && !InTakenRel(1, 0) && !InTakenRel(1, 1)) // mid across down, 1,1: 1021_8
+                            {
+                                T("farSideMidAcross down");
+                                farSideMidAcrossDown = true;
+
+                                int middleIndex = InTakenIndexRel(3, -1);
+                                int sideIndex = InTakenIndexRel(3, -2);
+                                if (sideIndex < middleIndex) // area up
+                                {
+                                    if (CountAreaRel(1, 0, 2, 0, null, circleDirectionLeft, 1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                    else if (InTakenRel(1, -2))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                }
+                                else
+                                {
+                                    farSideDown = true;
+                                }
+                            }
+                        }
+
+                        // there can be a far side across in the opposite direction of a far side straight or mid across situation
+                        if (!farSideStraightUp && !farSideMidAcrossUp && InTakenRel(3, 2) && InTakenRel(3, 3) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2)) // 1,2: 1021
+                        {
+                            T("farSideAcross up");
+
+                            int middleIndex = InTakenIndexRel(3, 2);
+                            int sideIndex = InTakenIndexRel(3, 3);
+                            if (sideIndex > middleIndex) // area up
+                            {
+                                farSideUp = true;
+
+                                if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
+                                {
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                                else
+                                {
+                                    if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
+                                    {
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                    /*if (InTakenRel(4, 1) && !InTakenRel(3, 1)) // end C
+                                    {
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                    }*/
+                                }
+                            }
+                        }
+
+                        if (!farSideStraightDown && !farSideMidAcrossDown && InTakenRel(3, -2) && InTakenRel(3, -3) && !InTakenRel(1, -1) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(2, -2)) // 2,-2: 630259
+                        {
+                            T("farSideAcross down");
+
+                            int middleIndex = InTakenIndexRel(3, -2);
+                            int sideIndex = InTakenIndexRel(3, -3);
+
+                            if (sideIndex < middleIndex) // area up
+                            {
+                                if (CountAreaRel(1, 0, 2, -1, new List<int[]> { new int[] { 2, 0 } }, circleDirectionLeft, 0))
+                                {
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                                else if (InTakenRel(1, -2))
+                                {
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
+                            }
+                            else
+                            {
+                                farSideDown = true;
+                            }
+                        }
+                    }
+
+                    if (farSideUp && farSideDown) // 9:234256
+                    {
+                        T("farSideUp and farSideDown true");
+                        forbidden.Add(new int[] { x + lx, y + ly });
+                    }
+
+                    lx = -lx;
+                    ly = -ly;
+                }
+                lx = thisLx;
+                ly = thisLy;
+            }
+
+            // we cannot have close side across down going down when farSideUp is true, because the area down has only one entrance.
         }
 
 		public void CheckFutureCShape() // Even future line can make a straight C-shape, see 0727_1
@@ -1025,15 +1510,15 @@ namespace OneWayLabyrinth
                             if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
                             {
                                 T("CheckStraight Small cannot enter now");
-                                forbidden.Add(new int[] { this.x + lx, y + ly });
+                                forbidden.Add(new int[] { x + lx, y + ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
                             if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                             {
                                 T("CheckStraight Small cannot enter later");
-                                forbidden.Add(new int[] { this.x + sx, y + sy });
-                                forbidden.Add(new int[] { this.x - lx, y - ly });
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                forbidden.Add(new int[] { x - lx, y - ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
@@ -1200,7 +1685,6 @@ namespace OneWayLabyrinth
             lx = thisLx;
             ly = thisLy;
         }
-
 
         public void CheckSideStraightBig()
         {
@@ -1473,15 +1957,15 @@ namespace OneWayLabyrinth
                             if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
                             {
                                 T("CheckLeftRightArea cannot enter now");
-                                forbidden.Add(new int[] { this.x + lx, y + ly });
+                                forbidden.Add(new int[] { x + lx, y + ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
                             if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                             {
                                 T("CheckLeftRightArea cannot enter later");
-                                forbidden.Add(new int[] { this.x + sx, y + sy });
-                                forbidden.Add(new int[] { this.x - lx, y - ly });
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                forbidden.Add(new int[] { x - lx, y - ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
@@ -1533,7 +2017,7 @@ namespace OneWayLabyrinth
                 {
                     if (ex == 1)
                     {
-                        forbidden.Add(new int[] { this.x + lx, y + ly });
+                        forbidden.Add(new int[] { x + lx, y + ly });
                     }
                     else
                     {
@@ -1592,15 +2076,15 @@ namespace OneWayLabyrinth
                             if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
                             {
                                 T("CheckLeftRightAreaBig cannot enter now");
-                                forbidden.Add(new int[] { this.x + sx, y + sy });
-                                forbidden.Add(new int[] { this.x - lx, y - ly });
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                forbidden.Add(new int[] { x - lx, y - ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
                             if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                             {
                                 T("CheckLeftRightArea cannot enter later");
-                                forbidden.Add(new int[] { this.x + lx, y + ly });
+                                forbidden.Add(new int[] { x + lx, y + ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
@@ -1713,15 +2197,15 @@ namespace OneWayLabyrinth
                             if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
                             {
                                 T("CheckLeftRightAreaUp cannot enter now");
-                                forbidden.Add(new int[] { this.x + lx, y + ly });
+                                forbidden.Add(new int[] { x + lx, y + ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
                             if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                             {
                                 T("CheckLeftRightAreaUp cannot enter later");
-                                forbidden.Add(new int[] { this.x + sx, y + sy });
-                                forbidden.Add(new int[] { this.x - lx, y - ly });
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                forbidden.Add(new int[] { x - lx, y - ly });
                                 AddExamAreas();
                                 areaPairFields.Add((List<int[]>)info[3]);
                             }
@@ -1928,16 +2412,16 @@ namespace OneWayLabyrinth
                             List<int[]> borderFields = new();
 
                             int nowWCount, nowBCount, laterWCount, laterBCount;
-                            int x, n;
+                            int a, n;
 
                             //check if all fields on the border line is free
                             if (vert == hori)
                             {
-                                x = hori - 1;
+                                a = hori - 1;
                                 nowWCount = 0;
-                                nowBCount = x - 1;
+                                nowBCount = a - 1;
                                 laterWCount = -1;// means B = 1
-                                laterBCount = x - 1;
+                                laterBCount = a - 1;
 
                                 for (int i = 1; i < hori; i++)
                                 {
@@ -1971,7 +2455,7 @@ namespace OneWayLabyrinth
                             }
                             else if (hori > vert)
                             {
-                                x = vert - 1;
+                                a = vert - 1;
                                 n = (hori - vert - (hori - vert) % 2) / 2;
 
                                 if ((hori - vert) % 2 == 0)
@@ -1984,24 +2468,24 @@ namespace OneWayLabyrinth
                                     {
                                         nowWCount = 0;
                                     }
-                                    nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
+                                    nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
                                     laterWCount = (n - n % 2) / 2;
-                                    laterBCount = x + (n - n % 2) / 2;
+                                    laterBCount = a + (n - n % 2) / 2;
                                 }
                                 else
                                 {
                                     if (n > 0)
                                     {
-                                        nowWCount = x + (n - n % 2) / 2;
+                                        nowWCount = a + (n - n % 2) / 2;
                                         laterBCount = (n + 2 - (n + 2) % 2) / 2;
                                     }
                                     else
                                     {
-                                        nowWCount = x - 1;
+                                        nowWCount = a - 1;
                                         laterBCount = 0;
                                     }
                                     nowBCount = (n + 1 - (n + 1) % 2) / 2;
-                                    laterWCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
+                                    laterWCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
 
                                 }
 
@@ -2047,20 +2531,20 @@ namespace OneWayLabyrinth
                             }
                             else // vert > hori
                             {
-                                x = hori - 1;
+                                a = hori - 1;
                                 n = (vert - hori - (vert - hori) % 2) / 2;
 
                                 if ((vert - hori) % 2 == 0)
                                 {
                                     nowWCount = (n + 1 - (n + 1) % 2) / 2;
-                                    nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
+                                    nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
                                     laterWCount = (n - n % 2) / 2;
-                                    laterBCount = x + (n - n % 2) / 2;
+                                    laterBCount = a + (n - n % 2) / 2;
                                 }
                                 else
                                 {
                                     nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;
-                                    nowBCount = x - 1 + (n - n % 2) / 2;
+                                    nowBCount = a - 1 + (n - n % 2) / 2;
                                     if (n > 0)
                                     {
                                         laterWCount = 1 + (n - n % 2) / 2;
@@ -2069,7 +2553,7 @@ namespace OneWayLabyrinth
                                     {
                                         laterWCount = 0;
                                     }
-                                    laterBCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
+                                    laterBCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
                                 }
 
                                 for (int i = 1; i < hori; i++)
@@ -2150,15 +2634,15 @@ namespace OneWayLabyrinth
                                     if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
                                     {
                                         T("CheckLeftRightCorner cannot enter now");
-                                        forbidden.Add(new int[] { this.x + lx, y + ly });
+                                        forbidden.Add(new int[] { x + lx, y + ly });
                                         AddExamAreas();
                                         areaPairFields.Add((List<int[]>)info[3]);
                                     }
                                     if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                                     {
                                         T("CheckLeftRightCorner cannot enter later");
-                                        forbidden.Add(new int[] { this.x + sx, y + sy });
-                                        forbidden.Add(new int[] { this.x - lx, y - ly });
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
                                         AddExamAreas();
                                         areaPairFields.Add((List<int[]>)info[3]);
                                     }
@@ -2239,16 +2723,16 @@ namespace OneWayLabyrinth
                             List<int[]> borderFields = new();
 
                             int nowWCount, nowWCountRight, nowBCount, laterWCount, laterBCount;
-                            int x, n;
+                            int a, n;
 
                             //check if all fields on the border line is free
                             if (vert == hori)
                             {
-                                x = hori - 1;
+                                a = hori - 1;
                                 nowWCountRight = nowWCount = 0;
-                                nowBCount = x - 1;
+                                nowBCount = a - 1;
                                 laterWCount = -1;// means B = 1
-                                laterBCount = x - 1;
+                                laterBCount = a - 1;
 
                                 for (int i = 1; i < hori; i++)
                                 {
@@ -2282,20 +2766,20 @@ namespace OneWayLabyrinth
                             }
                             else if (hori > vert)
                             {
-                                x = vert - 1;
+                                a = vert - 1;
                                 n = (hori - vert - (hori - vert) % 2) / 2;
 
                                 if ((hori - vert) % 2 == 0)
                                 {
                                     nowWCountRight = nowWCount = (n + 1 - (n + 1) % 2) / 2;
-                                    nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
+                                    nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
                                     laterWCount = (n - n % 2) / 2;
-                                    laterBCount = x + (n - n % 2) / 2;
+                                    laterBCount = a + (n - n % 2) / 2;
                                 }
                                 else
                                 {
                                     nowWCountRight = nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;
-                                    nowBCount = x - 1 + (n - n % 2) / 2;
+                                    nowBCount = a - 1 + (n - n % 2) / 2;
                                     if (n > 0)
                                     {
                                         laterWCount = 1 + (n - n % 2) / 2;
@@ -2304,7 +2788,7 @@ namespace OneWayLabyrinth
                                     {
                                         laterWCount = 0;
                                     }
-                                    laterBCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
+                                    laterBCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
                                 }
 
                                 for (int i = 1; i < vert; i++)
@@ -2360,7 +2844,7 @@ namespace OneWayLabyrinth
                             }
                             else // vert > hori
                             {
-                                x = hori - 1;
+                                a = hori - 1;
                                 n = (vert - hori - (vert - hori) % 2) / 2;
 
                                 if ((vert - hori) % 2 == 0)
@@ -2374,25 +2858,25 @@ namespace OneWayLabyrinth
                                         nowWCount = 0;
                                         nowWCountRight = 1;
                                     }
-                                    nowBCount = x + (n - 1 - (n - 1) % 2) / 2;
+                                    nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
                                     laterWCount = (n - n % 2) / 2;
-                                    laterBCount = x + (n - n % 2) / 2;
+                                    laterBCount = a + (n - n % 2) / 2;
                                 }
                                 else
                                 {
                                     if (n > 0)
                                     {
-                                        nowWCountRight = nowWCount = x + (n - n % 2) / 2;
+                                        nowWCountRight = nowWCount = a + (n - n % 2) / 2;
                                         laterBCount = (n + 2 - (n + 2) % 2) / 2;
                                     }
                                     else
                                     {
-                                        nowWCount = x - 1;
-                                        nowWCountRight = x;
+                                        nowWCount = a - 1;
+                                        nowWCountRight = a;
                                         laterBCount = 0;
                                     }
                                     nowBCount = (n + 1 - (n + 1) % 2) / 2;
-                                    laterWCount = x - 1 + (n + 1 - (n + 1) % 2) / 2;
+                                    laterWCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
 
                                 }
 
@@ -2463,21 +2947,21 @@ namespace OneWayLabyrinth
                                     if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
                                     {
                                         T("CheckLeftRightCornerBig cannot enter now up");
-                                        forbidden.Add(new int[] { this.x + sx, y + sy });
+                                        forbidden.Add(new int[] { x + sx, y + sy });
                                         AddExamAreas();
                                         areaPairFields.Add((List<int[]>)info[3]);
                                     }
                                     if (!(whiteDiff <= nowWCountRight && whiteDiff >= -nowBCount)) // not in range
                                     {
                                         T("CheckLeftRightCornerBig cannot enter now right");
-                                        forbidden.Add(new int[] { this.x - lx, y - ly });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
                                         AddExamAreas();
                                         areaPairFields.Add((List<int[]>)info[3]);
                                     }
                                     if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                                     {
                                         T("CheckLeftRightCornerBig cannot enter later");
-                                        forbidden.Add(new int[] { this.x + lx, y + ly });
+                                        forbidden.Add(new int[] { x + lx, y + ly });
                                         AddExamAreas();
                                         areaPairFields.Add((List<int[]>)info[3]);
                                     }
@@ -2772,7 +3256,7 @@ namespace OneWayLabyrinth
 
                                     switch (caseNumber)
                                     {
-                                        case 1:
+                                        case 1: // 0601
                                             DoubleArea1 = true;
                                             activeRules.Add("Double Area first case");
                                             activeRuleSizes.Add(new int[] { 4, 6 });
@@ -2899,203 +3383,6 @@ namespace OneWayLabyrinth
             }
             lx = thisLx;
             ly = thisLy;
-        }
-
-        public bool CheckNearFieldSmall() // for use only with Directional Area and DownStair
-        {
-            // close mid across. In DirectionalArea, the empty fields are already checked.
-            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
-            {
-                int middleIndex = InTakenIndexRel(1, 2);
-                int sideIndex = InTakenIndexRel(2, 2);
-
-                if (sideIndex > middleIndex)
-                {
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public bool CheckNearFieldSmall1() // for use only with Double Area case 1, 2, 3 and 1 rotated
-        {
-            // close mid across. In DirectionalArea, the empty fields are already checked.
-            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
-            {
-                int middleIndex = InTakenIndexRel(1, 2);
-                int sideIndex = InTakenIndexRel(2, 2);
-
-                if (sideIndex > middleIndex)
-                {
-
-                    return true;
-                }
-            }
-
-            // close across
-            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
-            {
-                int middleIndex = InTakenIndexRel(2, 2);
-                int sideIndex = InTakenIndexRel(3, 2);
-
-                if (sideIndex > middleIndex)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public bool CheckNearFieldSmall1_5() // for use only with Double Area case 1, 2, 3 and 1 rotated
-        {
-            // C-shape (left)
-            if ((InTakenRel(2, 0) || InBorderRel(2, 0)) && !InTakenRel(1, 0))
-            {
-                return true;
-            }
-
-            // close mid across. In DirectionalArea, the empty fields are already checked.
-            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
-            {
-                int middleIndex = InTakenIndexRel(1, 2);
-                int sideIndex = InTakenIndexRel(2, 2);
-
-                if (sideIndex > middleIndex)
-                {
-
-                    return true;
-                }
-            }
-
-            // close across
-            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
-            {
-                int middleIndex = InTakenIndexRel(2, 2);
-                int sideIndex = InTakenIndexRel(3, 2);
-
-                if (sideIndex > middleIndex)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        int[] newExitField = new int[] { 0, 0 };
-        bool newDirectionRotated = false; // if rotated, it is CW on left side
-
-        public bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
-        {
-            bool ret = false;
-
-            if (!leftSide)
-            {
-                lx = -lx;
-                ly = -ly;
-            }
-            else
-            {
-                // C-Shape, only left side should have it
-                // Checking for InTakenRel(1, -1) is not possible, because in Sequence first case, we are exiting the area at the middle border field.
-                // But when it comes to the right side (if it was checked), it is necessary, otherwise we can detect a C-shape with the live end as in 213.
-                if (InTakenRel(2, 0) && !InTakenRel(1, 0))
-                {
-                    T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
-                    ret = true;
-
-                    newExitField = new int[] { x + lx + sx, y + ly + sy };
-                    newDirectionRotated = false;
-                }
-
-                //C-Shape up
-                if (InTakenRel(0, 2) && InTakenRel(1, 1) && !InTakenRel(0, 1))
-                {
-                    T("CheckNearFieldSmall2 C-Shape up, left side " + leftSide);
-                    ret = true;
-
-                    newExitField = new int[] { x - lx + sx, y - ly + sy };
-                    newDirectionRotated = true;
-                }
-            }
-
-            // close mid across
-            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
-            {
-                int middleIndex = InTakenIndexRel(1, 2);
-                int sideIndex = InTakenIndexRel(2, 2);
-
-                if (sideIndex > middleIndex)
-                {
-                    T("CheckNearFieldSmall2 close mid across, left side " + leftSide);
-                    ret = true;
-
-                    if (leftSide)
-                    {
-                        // mid across overwrites C-shape
-                        newExitField = new int[] { x + sx, y + sy };
-                        newDirectionRotated = true;
-                    }
-                }
-            }
-
-            // close across. Checking empty fields necessary, see 29558469
-            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
-            {
-                int middleIndex = InTakenIndexRel(2, 2);
-                int sideIndex = InTakenIndexRel(3, 2);
-
-                if (sideIndex > middleIndex)
-                {
-                    T("CheckNearFieldSmall2 close across, left side " + leftSide);
-                    ret = true;
-
-                    if (leftSide)
-                    {
-                        newExitField = new int[] { x + lx + sx, y + ly + sy };
-                        newDirectionRotated = true;
-                    }
-                }
-            }
-
-            if (!leftSide)
-            {
-                lx = -lx;
-                ly = -ly;
-            }
-
-            return ret;
-        }
-
-        private int[] RotateDir(int xDiff, int yDiff, int ccw)
-        {
-            List<int[]> directions;
-
-            if (ccw == 0) // clockwise
-            {
-                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { -1, 0 }, new int[] { 0, -1 }, new int[] { 1, 0 } };
-            }
-            else // counter-clockwise
-            {
-                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
-            }
-
-            int currentDirection = -1;
-            foreach (int[] direction in directions)
-            {
-                currentDirection++;
-                if (direction[0] == xDiff && direction[1] == yDiff)
-                {
-                    break;
-                }
-            }
-
-            int turnedDirection = currentDirection == 3 ? 0 : currentDirection + 1;
-
-            return directions[turnedDirection];
         }
 
         private void CheckSequence()
@@ -3566,486 +3853,199 @@ namespace OneWayLabyrinth
             return false;
         }
 
-        public void CheckNearField()
+        public bool CheckNearFieldSmall() // for use only with Directional Area and DownStair
         {
-            bool farSideStraightUp = false;
-            bool farSideStraightDown = false;
-            bool farSideMidAcrossUp = false;
-            bool farSideMidAcrossDown = false;
-
-            // for 2-distance simultaneous rules
-            bool farStraightLeft = false;
-            bool farStraightRight = false;
-            bool farSideUp;
-            bool farSideDown;
-
-            // used also for determining if custom rules have to run
-            closeStraightSmall = false;
-            closeMidAcrossSmall = false;
-            closeAcrossSmall = false;
-            closeStraightLarge = false;
-            closeMidAcrossLarge = false;
-            closeAcrossLarge = false;
-
-            for (int i = 0; i < 2; i++)
+            // close mid across. In DirectionalArea, the empty fields are already checked.
+            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
             {
-                bool closeStraight = false;
-                bool closeMidAcross = false;
+                int middleIndex = InTakenIndexRel(1, 2);
+                int sideIndex = InTakenIndexRel(2, 2);
 
-                if (InTakenRel(0, 2) && InTakenRel(1, 2) && !InTakenRel(0, 1))
+                if (sideIndex > middleIndex)
                 {
-                    closeStraight = true;
 
-                    // needed if C-shape precondition is disabled
-                    if (!InTakenRel(1, 1) && !InTakenRel(-1, 1))
-                    {
-                        forbidden.Add(new int[] { x + sx, y + sy });
-
-                        int middleIndex = InTakenIndexRel(0, 2);
-                        int sideIndex = InTakenIndexRel(1, 2);
-                        if (sideIndex > middleIndex) // area on left
-                        {
-                            closeStraightSmall = true;
-                            forbidden.Add(new int[] { x - lx, y - ly });
-                        }
-                        else
-                        {
-                            closeStraightLarge = true;
-                            forbidden.Add(new int[] { x + lx, y + ly });
-                        }
-                    }
+                    return true;
                 }
+            }
 
-                if (!closeStraight)
+            return false;
+        }
+
+        public bool CheckNearFieldSmall1() // for use only with Double Area case 1, 2, 3 and 1 rotated
+        {
+            // close mid across. In DirectionalArea, the empty fields are already checked.
+            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+            {
+                int middleIndex = InTakenIndexRel(1, 2);
+                int sideIndex = InTakenIndexRel(2, 2);
+
+                if (sideIndex > middleIndex)
                 {
-                    if (InTakenRel(1, 2) && !InTakenRel(0, 1) && !InTakenRel(1, 1))
-                    {
-                        closeMidAcross = true;
 
-                        forbidden.Add(new int[] { x + sx, y + sy });
-
-                        int middleIndex = InTakenIndexRel(1, 2);
-                        int sideIndex = InTakenIndexRel(2, 2);
-                        if (sideIndex > middleIndex)
-                        {
-                            closeMidAcrossSmall = true;
-                            forbidden.Add(new int[] { x - lx, y - ly });
-                        }
-                        else
-                        {
-                            closeMidAcrossLarge = true;
-                            forbidden.Add(new int[] { x + lx, y + ly });
-                        }
-                    }
+                    return true;
                 }
+            }
 
-                if (!closeStraight && !closeMidAcross)
+            // close across
+            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+            {
+                int middleIndex = InTakenIndexRel(2, 2);
+                int sideIndex = InTakenIndexRel(3, 2);
+
+                if (sideIndex > middleIndex)
                 {
-                    if (InTakenRel(2, 2) && !InTakenRel(0, 1) && !InTakenRel(1, 1) && !InTakenRel(2, 1))
-                    {
-                        int middleIndex = InTakenIndexRel(2, 2);
-                        int sideIndex = InTakenIndexRel(3, 2);
-                        if (sideIndex > middleIndex)
-                        {
-                            closeAcrossSmall = true;
-                            forbidden.Add(new int[] { x + sx, y + sy });
-                            forbidden.Add(new int[] { x - lx, y - ly });
-                        }
-                        else
-                        {
-                            closeAcrossLarge = true;
-                            forbidden.Add(new int[] { x + lx, y + ly });
-                        }
-                    }
+                    return true;
                 }
+            }
 
+            return false;
+        }
+
+        public bool CheckNearFieldSmall1_5() // for use only with Double Area case 1, 2, 3 and 1 rotated
+        {
+            // C-shape (left)
+            if ((InTakenRel(2, 0) || InBorderRel(2, 0)) && !InTakenRel(1, 0))
+            {
+                return true;
+            }
+
+            // close mid across. In DirectionalArea, the empty fields are already checked.
+            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+            {
+                int middleIndex = InTakenIndexRel(1, 2);
+                int sideIndex = InTakenIndexRel(2, 2);
+
+                if (sideIndex > middleIndex)
+                {
+
+                    return true;
+                }
+            }
+
+            // close across
+            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+            {
+                int middleIndex = InTakenIndexRel(2, 2);
+                int sideIndex = InTakenIndexRel(3, 2);
+
+                if (sideIndex > middleIndex)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
+        {
+            bool ret = false;
+
+            if (!leftSide)
+            {
                 lx = -lx;
                 ly = -ly;
             }
-            lx = thisLx;
-            ly = thisLy;
-
-            // Far rules shouldn't be checked until close rules are checked on both sides, see 305112. Here, close straight is only true on the right side, but left side far rules get checked before.
-            // A close rule may be true on one side, but on the other side there can be a far rule, like in 1307639. The close rule has to be large in this case.
-
-            // A large close mid across on one side can have a small far across on the other side.
-            // A large close across on one side can have a small far mid across / across on the other side.
-            // Only the last case needs to be examined. All the other close rules have two fields disabled.
-
-            if (!closeStraightSmall && !closeMidAcrossSmall && !closeAcrossSmall && !closeStraightLarge && !closeMidAcrossLarge)
+            else
             {
-                for (int i = 0; i < 2; i++)
+                // C-Shape, only left side should have it
+                // Checking for InTakenRel(1, -1) is not possible, because in Sequence first case, we are exiting the area at the middle border field.
+                // But when it comes to the right side (if it was checked), it is necessary, otherwise we can detect a C-shape with the live end as in 213.
+                if (InTakenRel(2, 0) && !InTakenRel(1, 0))
                 {
-                    bool farStraight = false;
-                    bool farMidAcross = false;
+                    T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
+                    ret = true;
 
-                    if (InTakenRel(0, 3) && InTakenRel(1, 3) && !InTakenRel(0, 2) && !InTakenRel(0, 1)) // 0, 2: 1225; 0, 1: 1226
-                    {
-                        T("Far straight");
-                        farStraight = true;
-
-                        int middleIndex = InTakenIndexRel(0, 3);
-                        int sideIndex = InTakenIndexRel(1, 3);
-                        if (sideIndex > middleIndex) // area on left
-                        {
-                            if (!InTakenRel(1, 2) && !InTakenRel(2, 2)) // 1,2: 1019_4, 2,2: 1019_5
-                            {
-                                T("Far straight small");
-                                if (i == 0) farStraightLeft = true; else farStraightRight = true;
-
-                                bool circleDirectionLeft = i == 0 ? true : false;
-                                if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
-                                {
-                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                    forbidden.Add(new int[] { x - lx, y - ly });
-                                }
-                                else if (InTakenRel(-2, 1) && InTakenRel(-1, 0) && !InTakenRel(-1, 1))
-                                {
-                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                }
-                            }
-                        }
-                        else // area on right
-                        {
-                            if (!InTakenRel(-1, 2) && !InTakenRel(-2, 2)) // -1, 2: 1019_6, -2, 2: 1019_7
-                            {
-                                T("Far straight large");
-                                bool circleDirectionLeft = i == 0 ? false : true;
-                                if (CountAreaRel(-1, 1, -1, 2, null, circleDirectionLeft, 1))
-                                {
-                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                    forbidden.Add(new int[] { x + lx, y + ly });
-                                }
-                                else if (InTakenRel(2, 1) && InTakenRel(1, 0) && !InTakenRel(1, 1))
-                                {
-                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                }
-                            }
-                        }
-                    }
-
-                    if (!farStraight)
-                    {
-                        if (InTakenRel(1, 3) && InTakenRel(2, 3) && !InTakenRel(0, 2) && !InTakenRel(1, 2) && !InTakenRel(0, 1)) // 0, 2; 1, 2: 1019_3
-                        {
-                            T("Far mid across");
-                            farMidAcross = true;
-
-                            int middleIndex = InTakenIndexRel(1, 3);
-                            int sideIndex = InTakenIndexRel(2, 3);
-                            if (sideIndex > middleIndex) // area on left
-                            {
-                                if (!InTakenRel(2, 2)) // 2, 2: 1019
-                                {
-                                    T("Far mid across small");
-                                    if (i == 0) farStraightLeft = true; else farStraightRight = true;
-                                    bool circleDirectionLeft = i == 0 ? true : false;
-                                    if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        forbidden.Add(new int[] { x - lx, y - ly });
-                                    }
-                                    else if (InTakenRel(-2, 1) && InTakenRel(-1, 0) && !InTakenRel(-1, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                    }
-                                }
-                            }
-                            else // area on right
-                            {
-                                if (!InTakenRel(-1, 2)) // -1, 2: 1019_1
-                                {
-                                    T("Far mid across large");
-                                    bool circleDirectionLeft = i == 0 ? false : true;
-                                    if (CountAreaRel(0, 1, 0, 2, null, circleDirectionLeft, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                    else if (InTakenRel(2, 1) && InTakenRel(1, 0) && !InTakenRel(1, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                    }
-                                }
-                            }
-                        }
-
-                        if (!farMidAcross)
-                        {
-                            if (InTakenRel(2, 3) && InTakenRel(3, 3) && !InTakenRel(0, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 2) && !InTakenRel(0, 1))
-                            {
-                                T("Far across");
-                                int middleIndex = InTakenIndexRel(2, 3);
-                                int sideIndex = InTakenIndexRel(3, 3);
-                                if (sideIndex > middleIndex) // area on left
-                                {
-                                    T("Far across small");
-                                    if (i == 0) farStraightLeft = true; else farStraightRight = true;
-                                    bool circleDirectionLeft = i == 0 ? true : false;
-                                    if (CountAreaRel(1, 1, 1, 2, null, circleDirectionLeft, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        forbidden.Add(new int[] { x - lx, y - ly });
-                                    }
-                                    else
-                                    {
-                                        if (InTakenRel(-2, 1) && InTakenRel(-1, 0) && !InTakenRel(-1, 1))
-                                        {
-                                            forbidden.Add(new int[] { x + sx, y + sy });
-                                        }
-                                        /*if (InTakenRel(1, 4) && !InTakenRel(1, 3)) // end C, there is a separate rule for that now
-                                        {
-                                            forbidden.Add(new int[] { x + lx, y + ly });
-                                        }*/
-                                    }
-                                }
-                                else // area on right
-                                {
-                                    T("Far across large");
-                                    if (!InTakenRel(-1, 2))
-                                    {
-                                        bool circleDirectionLeft = i == 0 ? false : true;
-                                        if (CountAreaRel(0, 1, 1, 2, new List<int[]> { new int[] { 0, 2 } }, circleDirectionLeft, 0))
-                                        {
-                                            forbidden.Add(new int[] { x + sx, y + sy });
-                                            forbidden.Add(new int[] { x + lx, y + ly });
-                                        }
-                                        else if (InTakenRel(2, 1) && InTakenRel(1, 0) && !InTakenRel(1, 1))
-                                        {
-                                            forbidden.Add(new int[] { x + sx, y + sy });
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    lx = -lx;
-                    ly = -ly;
+                    newExitField = new int[] { x + lx + sx, y + ly + sy };
+                    newDirectionRotated = false;
                 }
-                lx = thisLx;
-                ly = thisLy;
-            }
 
-            if (farStraightLeft && farStraightRight) // 9:234256
-            {
-                T("farStraightLeft and farStraightRight true");
-                forbidden.Add(new int[] { x + sx, y + sy });
-            }
-
-            // left/right side rules
-            // When any of the close rules are present, even close across large, examining side rules is not necessary. Example: 1019_8
-            if (!closeStraightSmall && !closeMidAcrossSmall && !closeAcrossSmall && !closeStraightLarge && !closeMidAcrossLarge && !closeAcrossLarge)
-            {
-                for (int i = 0; i < 2; i++)
+                //C-Shape up
+                if (InTakenRel(0, 2) && InTakenRel(1, 1) && !InTakenRel(0, 1))
                 {
-                    bool closeSideStraight = false;
-                    bool closeSideMidAcross = false;
-                    bool closeSideAcross = false;
-                    farSideUp = false;
-                    farSideDown = false;
-                    farSideStraightUp = false;
-                    farSideStraightDown = false;
-                    farSideMidAcrossUp = false;
-                    farSideMidAcrossDown = false;
-                    bool circleDirectionLeft = i == 0 ? false : true;
+                    T("CheckNearFieldSmall2 C-Shape up, left side " + leftSide);
+                    ret = true;
 
-                    if (InTakenRel(2, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1))
-                    {
-                        closeSideStraight = true;
-
-                        // needed if C-Shape precondition is disabled
-                        if (!InTakenRel(1, -1))
-                        {
-                            forbidden.Add(new int[] { x + lx, y + ly });
-                        }
-                    }
-
-                    if (!closeSideStraight)
-                    {
-                        if (!InTakenRel(1, 0) && !InTakenRel(1, 1) && (InTakenRel(2, 1) || InTakenRel(2, -1) && !InTakenRel(1, -1)))
-                        {
-                            closeSideMidAcross = true;
-                            forbidden.Add(new int[] { x + lx, y + ly });
-                        }
-                    }
-
-                    if (!closeSideStraight && !closeSideMidAcross)
-                    {
-                        if (InTakenRel(2, 2) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2))
-                        {
-                            closeSideAcross = true;
-                            // fields forbidden in straight rules
-                        }
-                    }
-
-                    if (!closeSideStraight && !closeSideMidAcross && !closeSideAcross)
-                    {
-                        if (InTakenRel(3, 0) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2))
-                        {
-                            int middleIndex = InTakenIndexRel(3, 0);
-                            if (InTakenRel(3, 1)) // up side taken
-                            {
-                                T("farSideStraight up");
-                                farSideStraightUp = true;
-
-                                int sideIndex = InTakenIndexRel(3, 1);
-                                if (sideIndex > middleIndex) // area up
-                                {
-                                    farSideUp = true;
-
-                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                    else if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                }
-                            }
-                            if (InTakenRel(3, -1)) // down side taken, we need to check sepearately from up side, in order to establish farSideStraightDown
-                            {
-                                T("farSideStraight down");
-                                farSideStraightDown = true;
-
-                                int sideIndex = InTakenIndexRel(3, -1);
-                                if (sideIndex < middleIndex) // area up
-                                {
-                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                    else if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                }
-                                else
-                                {
-                                    farSideDown = true;
-                                }
-                            }
-                        }
-
-                        if (!farSideStraightUp && !farSideStraightDown)
-                        {
-                            if (InTakenRel(3, 1) && InTakenRel(3, 2) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2)) // mid across up
-                            {
-                                T("farSideMidAcross up");
-                                farSideMidAcrossUp = true;
-
-                                int middleIndex = InTakenIndexRel(3, 1);
-                                int sideIndex = InTakenIndexRel(3, 2);
-                                if (sideIndex > middleIndex) // area up
-                                {
-                                    farSideUp = true;
-
-                                    if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                    else if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                }
-                            }
-
-                            if (InTakenRel(3, -1) && InTakenRel(3, -2) && !InTakenRel(1, -1) && !InTakenRel(1, 0) && !InTakenRel(1, 1)) // mid across down, 1,1: 1021_8
-                            {
-                                T("farSideMidAcross down");
-                                farSideMidAcrossDown = true;
-
-                                int middleIndex = InTakenIndexRel(3, -1);
-                                int sideIndex = InTakenIndexRel(3, -2);
-                                if (sideIndex < middleIndex) // area up
-                                {
-                                    if (CountAreaRel(1, 0, 2, 0, null, circleDirectionLeft, 1))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                    else if (InTakenRel(1, -2))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                }
-                                else
-                                {
-                                    farSideDown = true;
-                                }
-                            }
-                        }
-
-                        // there can be a far side across in the opposite direction of a far side straight or mid across situation
-                        if (!farSideStraightUp && !farSideMidAcrossUp && InTakenRel(3, 2) && InTakenRel(3, 3) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2)) // 1,2: 1021
-                        {
-                            T("farSideAcross up");
-
-                            int middleIndex = InTakenIndexRel(3, 2);
-                            int sideIndex = InTakenIndexRel(3, 3);
-                            if (sideIndex > middleIndex) // area up
-                            {
-                                farSideUp = true;
-
-                                if (CountAreaRel(1, 1, 2, 1, null, circleDirectionLeft, 1))
-                                {
-                                    forbidden.Add(new int[] { x + lx, y + ly });
-                                }
-                                else
-                                {
-                                    if ((InTakenRel(1, -2) || InBorderRel(1, -2)) && !InTakenRel(1, -1))
-                                    {
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                    /*if (InTakenRel(4, 1) && !InTakenRel(3, 1)) // end C
-                                    {
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                    }*/
-                                }
-                            }
-                        }
-
-                        if (!farSideStraightDown && !farSideMidAcrossDown && InTakenRel(3, -2) && InTakenRel(3, -3) && !InTakenRel(1, -1) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(2, -2)) // 2,-2: 630259
-                        {
-                            T("farSideAcross down");
-
-                            int middleIndex = InTakenIndexRel(3, -2);
-                            int sideIndex = InTakenIndexRel(3, -3);
-
-                            T(sideIndex + " " + middleIndex);
-                            if (sideIndex < middleIndex) // area up
-                            {
-                                if (CountAreaRel(1, 0, 2, -1, new List<int[]> { new int[] { 2, 0 } }, circleDirectionLeft, 0))
-                                {
-                                    forbidden.Add(new int[] { x + lx, y + ly });
-                                }
-                                else if (InTakenRel(1, -2))
-                                {
-                                    forbidden.Add(new int[] { x + lx, y + ly });
-                                }
-                            }
-                            else
-                            {
-                                farSideDown = true;
-                            }
-                        }
-                    }
-
-                    if (farSideUp && farSideDown) // 9:234256
-                    {
-                        T("farSideUp and farSideDown true");
-                        forbidden.Add(new int[] { x + lx, y + ly });
-                    }
-
-                    lx = -lx;
-                    ly = -ly;
+                    newExitField = new int[] { x - lx + sx, y - ly + sy };
+                    newDirectionRotated = true;
                 }
-                lx = thisLx;
-                ly = thisLy;
             }
 
-            // we cannot have close side across down going down when farSideUp is true, because the area down has only one entrance.
+            // close mid across
+            if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+            {
+                int middleIndex = InTakenIndexRel(1, 2);
+                int sideIndex = InTakenIndexRel(2, 2);
+
+                if (sideIndex > middleIndex)
+                {
+                    T("CheckNearFieldSmall2 close mid across, left side " + leftSide);
+                    ret = true;
+
+                    if (leftSide)
+                    {
+                        // mid across overwrites C-shape
+                        newExitField = new int[] { x + sx, y + sy };
+                        newDirectionRotated = true;
+                    }
+                }
+            }
+
+            // close across. Checking empty fields necessary, see 29558469
+            if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+            {
+                int middleIndex = InTakenIndexRel(2, 2);
+                int sideIndex = InTakenIndexRel(3, 2);
+
+                if (sideIndex > middleIndex)
+                {
+                    T("CheckNearFieldSmall2 close across, left side " + leftSide);
+                    ret = true;
+
+                    if (leftSide)
+                    {
+                        newExitField = new int[] { x + lx + sx, y + ly + sy };
+                        newDirectionRotated = true;
+                    }
+                }
+            }
+
+            if (!leftSide)
+            {
+                lx = -lx;
+                ly = -ly;
+            }
+
+            return ret;
         }
+
+        private int[] RotateDir(int xDiff, int yDiff, int ccw)
+        {
+            List<int[]> directions;
+
+            if (ccw == 0) // clockwise
+            {
+                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { -1, 0 }, new int[] { 0, -1 }, new int[] { 1, 0 } };
+            }
+            else // counter-clockwise
+            {
+                directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
+            }
+
+            int currentDirection = -1;
+            foreach (int[] direction in directions)
+            {
+                currentDirection++;
+                if (direction[0] == xDiff && direction[1] == yDiff)
+                {
+                    break;
+                }
+            }
+
+            int turnedDirection = currentDirection == 3 ? 0 : currentDirection + 1;
+
+            return directions[turnedDirection];
+        }        
 
         // 21 x 21
 
@@ -4866,12 +4866,12 @@ namespace OneWayLabyrinth
                     T("endsquare: " + efield[0] + " " + efield[1]);
                 } */
 
-                count = endSquares.Count;
+                int eCount = endSquares.Count;
 
                 // it should never happen if the above algorithm is bug-free.
-                if (startSquares.Count != count)
+                if (startSquares.Count != eCount)
                 {
-                    T("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
+                    T("Count of start and end squares are inequal: " + startSquares.Count + " " + eCount);
                     foreach (int[] f in startSquares)
                     {
                         T("startSquares " + f[0] + " " + f[1]);
@@ -4882,11 +4882,11 @@ namespace OneWayLabyrinth
                     }
 
                     window.errorInWalkthrough = true;
-                    window.StopAll("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
+                    window.StopAll("Count of start and end squares are inequal: " + startSquares.Count + " " + eCount);
                     return false;
                 }
 
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < eCount; i++)
                 {
                     area += endSquares[i][0] - startSquares[i][0] + 1;
                 }

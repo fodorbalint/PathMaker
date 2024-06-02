@@ -909,8 +909,9 @@ namespace OneWayLabyrinth
                         File.WriteAllLines("log_performance.txt", newArr);
                     }
                 }
+                completedCount = fileCompletedCount; 
                 lastTimerValue = startTimerValue;
-                
+
                 source = new CancellationTokenSource();
                 CancellationToken token = source.Token;
                 Task task = new Task(() => DoThread(), token);
@@ -923,8 +924,7 @@ namespace OneWayLabyrinth
         }
 
         private void DoThread()
-        {
-            completedCount = fileCompletedCount;            
+        {           
             do
             {
                 Timer_Tick(null, null);
@@ -1124,7 +1124,6 @@ namespace OneWayLabyrinth
 		{
 			if (isTaskRunning && messageCode != -1 && messageCode != 3) // 3 indicats halfway walkthrough
             {
-                T("NextClick error in walkthrough");
 				errorInWalkthrough = true;
 				return;
             }
@@ -1145,42 +1144,72 @@ namespace OneWayLabyrinth
                 if ((continueCheck == true || isTaskRunning) && keepLeftCheck == true)
                 {
 					bool rightFound = false;
-					nextDirection = -1;
-					int c;
+                    nextDirection = -1;
+                    bool oppositeFound;
+                    bool leftFound;
+                    int count;
 
-					do
-					{
-						PreviousStep(true);
-						c = taken.path.Count;
+                    do
+                    {
+                        PreviousStep(true);
 
-						int[] startField = taken.path[c - 2];
-						int[] newField = taken.path[c - 1];
-						int startX = startField[0];
-						int startY = startField[1];
-						int newX = newField[0];
-						int newY = newField[1];
+                        count = taken.path.Count;
 
-						for (int i = 0; i < 4; i++)
-						{
-							if (directions[i][0] == newX - startX && directions[i][1] == newY - startY)
-							{
-								foreach (int direction in possibleDirections[c - 1])
-								{
-									if (direction == i - 1 || i == 0 && direction == 3)
-									{
-										rightFound = true;
-										break;
-									} 
-								}
-								if (rightFound)
-								{
-									nextDirection = i == 0 ? 3 : i - 1;
-									PreviousStep(true);
-								}
-							}
-						}
+                        int[] prevField;
+                        if (count > 2)
+                        {
+                            prevField = taken.path[count - 3];
+                        }
+                        else
+                        {
+                            prevField = new int[] { 0, 1 };
+                        }
+                        int[] startField = taken.path[count - 2];
+                        int[] newField = taken.path[count - 1];
+                        int prevX = prevField[0];
+                        int prevY = prevField[1];
+                        int startX = startField[0];
+                        int startY = startField[1];
+                        int newX = newField[0];
+                        int newY = newField[1];
 
-					} while (!rightFound && c > 2);
+                        int firstDir = FindDirection(startX - prevX, startY - prevY);
+                        int secondDir = FindDirection(newX - startX, newY - startY);
+
+                        oppositeFound = false;
+
+                        foreach (int direction in possibleDirections[count - 1]) // last but one element of possible directions
+                        {
+                            if (direction != secondDir && direction % 2 == secondDir % 2) // two difference
+                            {
+                                // opposite is found, but we don't know yet if it is on the left or right side. First example 19802714.
+
+                                if (secondDir == firstDir + 1 || firstDir == 3 && secondDir == 0)
+                                { // line turned to left. The opposite direction is on the right side
+                                    oppositeFound = true;
+                                }
+                                // else line turned to right.
+                            }
+                            if (direction == secondDir - 1 || secondDir == 0 && direction == 3)
+                            {
+                                rightFound = true;
+                                break;
+                            }
+                        }
+
+                        if (rightFound) // right and maybe opposite directions exist
+                        {
+                            nextDirection = secondDir == 0 ? 3 : secondDir - 1;
+                            PreviousStep(true);
+                        }
+                        else if (oppositeFound) // only opposite direction
+                        {
+                            nextDirection = secondDir < 2 ? secondDir + 2 : secondDir - 2;
+                            rightFound = true;
+                            PreviousStep(true);
+                        }
+
+                    } while (!rightFound && count > 2);
 
 					if (!rightFound)
 					{
@@ -1194,8 +1223,9 @@ namespace OneWayLabyrinth
                             StopTimer();
                         }
                     }
-					else if (c == 2)
+					else if (count == 2)
 					{
+                        T("halfway");
                         M("Halfway: " + completedCount + " walkthroughs are completed.", 3);
                         Dispatcher.Invoke(() =>
                         {
@@ -1303,7 +1333,7 @@ namespace OneWayLabyrinth
             if (nextDirection != -1)
             {
                 bool determined = false;
-                int lastDirectionTemp = -1;
+                int newDirectionTemp = -1;
 
                 int[] newField = new int[] { };
                 if (nextDirection == -2)
@@ -1343,18 +1373,18 @@ namespace OneWayLabyrinth
                         }
                         if (foundLeft)
                         {
-                            lastDirectionTemp = newDirections[i];
-                            newField = new int[] { taken.x + directions[lastDirectionTemp][0], taken.y + directions[lastDirectionTemp][1] };
+                            newDirectionTemp = newDirections[i];
+                            newField = new int[] { taken.x + directions[newDirectionTemp][0], taken.y + directions[newDirectionTemp][1] };
                         }
                         else if (foundStraight)
                         {
-                            lastDirectionTemp = lastDirection;
-                            newField = new int[] { taken.x + directions[lastDirectionTemp][0], taken.y + directions[lastDirectionTemp][1] };
+                            newDirectionTemp = lastDirection;
+                            newField = new int[] { taken.x + directions[newDirectionTemp][0], taken.y + directions[newDirectionTemp][1] };
                         }
                         else //only right is possible
                         {
-                            lastDirectionTemp = newDirections[0];
-                            newField = new int[] { taken.x + directions[lastDirectionTemp][0], taken.y + directions[lastDirectionTemp][1] };
+                            newDirectionTemp = newDirections[0];
+                            newField = new int[] { taken.x + directions[newDirectionTemp][0], taken.y + directions[newDirectionTemp][1] };
                         }
                     }
                 }
@@ -1375,7 +1405,7 @@ namespace OneWayLabyrinth
                 {
                     if (!determined)
                     {
-                        lastDirection = lastDirectionTemp;
+                        lastDirection = newDirectionTemp;
                     }
 
                     return true;
@@ -3663,6 +3693,7 @@ namespace OneWayLabyrinth
 
             if (isCompleted)
             {
+                // prevent saving on upstart
                 if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedCount + "_" + completedPathCode + ".txt", savePath);
             }
             else

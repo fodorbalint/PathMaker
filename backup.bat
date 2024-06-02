@@ -2,6 +2,7 @@
 xcopy "." "c:\Users\fodor\OneDrive\Documents\OneWayLabyrinth" /h /i /c /k /r /y
 :: Manual deletion of unused files will be needed
 xcopy "References" "c:\Users\fodor\OneDrive\Documents\OneWayLabyrinth\References" /h /i /c /k /e /r /y
+xcopy "Console app" "c:\Users\fodor\OneDrive\Documents\OneWayLabyrinth\Console app" /h /i /c /k /e /r /y
 
 :: Standalone program files
 :: Should not be deleted if we are running the program there: del "c:\Users\fodor\OneDrive\Documents\OneWayLabyrinth project\program\*" /s /q
