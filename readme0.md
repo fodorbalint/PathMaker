@@ -155,10 +155,12 @@ And these are the rest of the rules:
 
 - This is what I started the 7 x 7 introduction with. I will call it Future L.
 
-<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="7" /><br />
-<img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="3" /><img src="References/spacer.svg" width="4" /><img align="top" src="References/Future 2 x 3 Start End 465.svg" width="7" /><br />
-<img src="References/spacer.svg" height="23" /><br /><!---->
+<img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="7" />
+<img src="References/spacer.svg" height="23" />
+<img align="top" src="References/rules/7/Future 2 x 3 Start End.svg" width="3" /><img src="References/spacer.svg" width="4" /><img align="top" src="References/Future 2 x 3 Start End 465.svg" width="7" />
+
+<!---->
+
 <img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Future 3 x 3 Start End 1861.svg" width="7" />
 
 - And these are the remaining size-specific rules. Future 2 x 2 Start End, Future 2 x 3 Start End and Future 3 x 3 Start End.
@@ -1617,7 +1619,7 @@ Now: 1W -> -1B = (D+1)/4 W -> (D-7)/4 B
 Later: 1W -> 0B = (D+1)/4 W -> (D-3)/4 B
 (single rule)
 
-D % 4 = 5:
+D % 4 = 1:
 
 Now: 2W -> 0B = (D+3)/4 W -> (D-5)/4 B
 Later: 1W -> 0B = (D-1)/4 W -> (D-5)/4 B
@@ -1719,40 +1721,40 @@ There is an area with a straight border line of maximum 3 fields, with the obsta
 
 <img align="top" src="References/Double Area first case.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Double Area second case.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Double Area third case.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Double Area first case rotated.svg" width="6" />
 
-The live end can be in 3 different positions in relation to the area. All patterns can be rotated clockwise, but the first can also be rotated counter-clockwise, shown in the fourth picture.
+The live end can be in 3 different positions in relation to the area. All patterns can be rotated clockwise, but the first can also be rotated counter-clockwise, shown in the fourth picture. I will call this group of rules Double Area.
 
-When exiting the area, we check for mid across and across obstacles on the left side. Why can C-shape checking be omitted? It is already solved by the single area universal rules.
+When exiting the first area, we check for mid across and across obstacles on the left side. Why can C-shape checking be omitted? It is already solved by the single area universal rules.
 
 And the left forbidden field in the first rule is already disabled too.
+
+<!---->
 
 Take a better look at the third.
 The reason the line is not exiting from the corner is that there is one more black field than white:
 
 <img align="top" src="References/743059_1.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/743059.svg" width="9" />
 
-<!---->
-
-So far, we simply assumed that it is the opposite, just because the area is impair, but such case does not exist. Because of the single area rule with the obstacle, the step to get there is disabled. In the following example the desired area is 1B. So is the area defined by the obstacle.
+So far, we simply assumed that it is the opposite, just because the area is impair, but such a case does not exist. Because of the single area rule with the obstacle, the step to get there is disabled. In the following example the desired area is 1B. So is the area defined by the obstacle on the right.
 
 <img align="top" src="References/2024_0530_1.svg" width="7" />
+
+<!---->
 
 When checking the conditions for the first area, these are the fields that need to be empty:
 
 <img align="top" src="References/double area case 1.svg" width="2" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double area case 2.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double area case 3.svg" width="3" />
 
-<!---->
-
 Notice that the first two cases can exist simultaneously. Then we examine the smaller area (second case); the obstacle in the first will create a C-shape with the exit of that area and the leftwards step will be disabled by the single area rule:
 
 <img align="top" src="References/2024_0530_2.svg" width="8" />
+
+<!---->
 
 Can the border line be longer?
 
 <img align="top" src="References/double area 4 dist.svg" width="2" />
 
 If we look at 4 distance: It is true that if the area is 1W and we step forward, only one white field remains on the border, but we can also exit immediately, leaving a 3-long border line and a 0W area. Then, the area can be entered at the second white and exited at the last black.
-
-<!---->
 
 The next stop is similar in concept (Square 4 x 2 C-Shape and Square 4 x 2 Area): When we exit the first area, there are two close obstacles on either side:
 
@@ -1801,24 +1803,27 @@ But we do need the Across on both sides:
 
 <img align="top" src="References/2024_0531_1.svg" width="7" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0531_2.svg" width="7" />
 
-And as for Directional Area, it needs the Across cases, based on this example:
+Notice that if the first obstacle placement 4 straight, 1 right, the Directional Area will be activated too at minimal distance.
 
 <img align="top" src="References/2034760.svg" width="9" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/Directional Area.svg" width="7" />
+
+I have rotated the rule to accomodate both fields that need to be distabled, as well as I added the Across cases for a yellow obstacle. While in theory this is a workable rule, is there a case where the distance to the first obstacle is greater than 3? When I tried to recreate such a scenario, one of the single area rules got in the way.
+It is okay to deactivate Directional Area until we get stuck because of the lack of it.
 
 <!---->
 
 Double Area Stair will be a 4-step sequence.
 
-<img align="top" src="References/Double Area Stair numbered.svg" width="7" />
+<img align="top" src="References/Double Area Stair numbered.svg" width="7" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/Sequence second case.svg" width="5" />
 
 After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a Mid across obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and an Across obstacle on the right.
 We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.
 
 Double Area Stair 2 - although looking similar - will have a somewhat different solution.
 
-<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="5" />
+<img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="5" /><img align="top" src="References/spacer.svg" width="1" /><img align="top" src="References/Sequence third case.svg" width="4" />
 
-Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden.
+Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden. And if we step right, we have a chance to fill the right-side area first.
 
 <!---->
 
@@ -1846,7 +1851,7 @@ But, since we want to keep the field next to the furthest border field empty, we
 
 Now, take a look at the following two cases. The first is the well-known Triple Area Exit Down, at over 18 million, while the other comes at around 51 million.
 
-<img align="top" src="References/18665383 marked.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231 marked.svg" width="9" />
+<img align="top" src="References/18677343 marked.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/51015231 marked.svg" width="9" />
 
 In the first, we can only step left. In the second, we cannot step left.
 It is easy to see that the pattern can be longer. If there is a stair shape downwards with 3 fields at the bottom, there will be a stair backwards, which conflicts with the obstacle on the left (D).
@@ -1860,7 +1865,7 @@ In the following, I check these fields as empty, taken or directional taken.
 
 <!---->
 
-<img align="top" src="References/Down Stair.svg" width="7" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/CheckDownStairMidAcross.svg" width="2" />
+<img align="top" src="References/Down Stair 0.svg" width="7" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/CheckDownStairMidAcross.svg" width="2" />
 
 The area enclosed with red line is repeated downwards left, until both of the fields are taken.
 For each return step, I check a mid across directional field. Their right and down field need to be empty as well.
@@ -1871,6 +1876,49 @@ Why is C-shape checking to the left unnecessary? It is already taken care of.
 
 To accomodate the Triple Area Exit Down case, let's first check the presence of an obstacle straight ahead at 3 vertical distance. Stepping one forward, we can apply the same procedure.
 
+<!---->
+
+The program will soon find a case where there return obstacle is in Across position. So we can add it to the rule.
+
+<img align="top" src="References/53144883.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Down Stair.svg" width="8" />
+
+At 59 million, a similar case emerges, but the Stair pattern is not able to solve it. Instead, we can apply the first case of Double Area rotated when stepping one straight.
+
+<img align="top" src="References/59434452.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Double Area first case rotated next.svg" width="7" />
+
+<!---->
+
+Notice, this could have solved the Triple Area Exit Down as well, but there can be constructed a case where the Next Step Stair pattern will work alone:
+
+<img align="top" src="References/2024_0604.svg" width="8" />
+
+Soon we encounter a situation that could have been solved by a single area algorithm if we rotated the pattern:
+
+<img align="top" src="References/59438645.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0604_1.svg" width="7" />
+
+<!---->
+
+And in fact we can take the x and y distance obstacle rule and have it rotated three ways to simplify the program code. And we can group all cases like this. Previously I thought it is only necessary to check the obstacles around the half circle in front of the live end, but an obstacle behind can have an effect too. It is because we do not only have two options to choose from (enter now or later), but there is difference between the "enter now" fields too.
+
+<img align="top" src="References/corner 3 rotation.svg" width="9" />
+<img src="References/spacer.svg" height="23" />
+<img align="top" src="References/up 3 rotation.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up big 3 rotation.svg" width="9" />
+<img src="References/spacer.svg" height="23" />
+<img align="top" src="References/straight 3 rotation.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small 3 rotation.svg" width="9" />
+
+When disabling a field in a rule, pay attention to its rotation. When the area is large, the direction opposite to the obstacle may be disabled, but doing so is an error in case of a small area.  
+
+<!---->
+
+At 121 million, there is a modification of the original Stair pattern, where two extra fields are added to the bottom. We have to create a more universal rule.
+
+<img align="top" src="References/121666014.svg" width="9" />
+
+If we analyze this specific case in terms of a single area, it can be represented like this:
+
+<img align="top" src="References/121m.svg" width="4" />
+
+The area is 1B, so we can enter now, but the corner black will be filled in itself later, which conflicts with the second obstacle. We have to review the single area rules to add this check to every case where a corner border field is filled separately.
 
 
 <!--

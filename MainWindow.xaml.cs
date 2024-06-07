@@ -268,8 +268,8 @@ namespace OneWayLabyrinth
         {
             if (activeRules)
             {
-                ContainerWindow.Width = 1008; // accomodates up to 7 x 7 rule grid
-                MainGrid.ColumnDefinitions[1].Width = new GridLength(320);
+                ContainerWindow.Width = 1048; // accomodates up to 7 x 7 rule grid
+                MainGrid.ColumnDefinitions[1].Width = new GridLength(360);
             }
             else
             {
@@ -883,6 +883,7 @@ namespace OneWayLabyrinth
                 if (fileCompletedCount == 0 || !File.Exists("log_performance.txt"))
                 {
                     File.WriteAllText("log_performance.txt", "");
+                    File.WriteAllText("log_rules.txt", "");
                     startTimerValue = 0;
                 }
                 else // continue where we left off
@@ -1084,8 +1085,6 @@ namespace OneWayLabyrinth
 
         private int Move(int directionIndex)
         {
-            T("Move x " + taken.x + " y " + taken.y + " directionIndex " + directionIndex);
-
             List<int> possibleFields = possibleDirections[possibleDirections.Count - 1].ToList<int>();
             if (possibleFields.IndexOf(directionIndex) != -1)
             {
@@ -1225,7 +1224,6 @@ namespace OneWayLabyrinth
                     }
 					else if (count == 2)
 					{
-                        T("halfway");
                         M("Halfway: " + completedCount + " walkthroughs are completed.", 3);
                         Dispatcher.Invoke(() =>
                         {
@@ -1317,10 +1315,8 @@ namespace OneWayLabyrinth
 
         private bool NextStep()
         {
-            T("NextStep taken.possible.Count: " + taken.possible.Count + " errorInWalkthrough " + errorInWalkthrough);
             if (!isTaskRunning && taken.possible.Count == 0)
             {
-                T("Removing last element due to no options");
                 PreviousStep(false);
                 return false;
             }
@@ -1347,18 +1343,11 @@ namespace OneWayLabyrinth
                         // Find the most left field. It is possible to have the left and right field but not straight when the program steps back from an impair count area situation.
                         int[] newDirections = possibleDirections[possibleDirections.Count - 1];
 
-                        T("Keeping left, lastDirection " + lastDirection);
-                        foreach (int dir in newDirections)
-                        {
-                            T("Direction in last possibles: " + dir);
-                        }
-
                         bool foundLeft = false;
                         bool foundStraight = false;
                         int i = 0;
                         for (i = 0; i < newDirections.Length; i++)
                         {
-                            T("NextStep, lastDirection: " + lastDirection);
                             int leftDirection = lastDirection == 3 ? 0 : lastDirection + 1;
                             if (newDirections[i] == leftDirection)
                             {
@@ -1390,7 +1379,6 @@ namespace OneWayLabyrinth
                 }
                 else
                 {
-                    T("Determined next direction " + nextDirection);
                     determined = true;
                     newField = new int[] { taken.x + directions[nextDirection][0], taken.y + directions[nextDirection][1] };
                     lastDirection = nextDirection;
@@ -1427,7 +1415,7 @@ namespace OneWayLabyrinth
             taken.x = x;
             taken.y = y;
 
-            T("AddNextStep newX " + x + " newY " + y);
+            T("\nAddNextStep " + x + " " + y);
 
             taken.path.Add(new int[] { x, y });
 
@@ -2786,11 +2774,9 @@ namespace OneWayLabyrinth
 
         private void NextStepPossibilities()
         {
-            T("NextStepPossibilities main, inFuture: " + inFuture + " inFutureIndex: " + inFutureIndex + " errorInWalkthrough " + errorInWalkthrough);
             if (calculateFuture && inFuture)
             {   
                 int[] futureField = future.path[inFutureIndex];
-                T("Possible: " + futureField[0] + " " + futureField[1]);
                 taken.possible = new List<int[]> { new int[] { futureField[0], futureField[1] } };
             }
             else
@@ -2977,8 +2963,6 @@ namespace OneWayLabyrinth
 					futureLoop.RemoveAt(index);
 					futureLoopSelectedSection.RemoveAt(index);
 				}*/
-
-				T("previousStep not forbidden removed taken and possibleDirs inFuture: " + inFuture);
 
 				if (futureIndex.Count > 0) //the last element of futureIndex is not the highest if not the most recent future path was extended last time.
 				{
@@ -3893,7 +3877,6 @@ namespace OneWayLabyrinth
 					t += s + ", ";
 				}
 				t = t.Substring(0, t.Length - 2) + "\n";
-				T(t);
 			}
             foreach (List<object> obj in futureSectionMergesHistory)
             {
@@ -3909,7 +3892,6 @@ namespace OneWayLabyrinth
                     t = t.Substring(0, t.Length - 2) + "\n";
                 }                
             }
-			T(t);
 
             bool prevStartItem = false;
 
