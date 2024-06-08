@@ -1843,9 +1843,17 @@ If we didn't have the taken field marked with A, the straight obstacle rule woul
 
 <img align="top" src="References/2024_0517.svg" width="6" />
 
-But, since we want to keep the field next to the furthest border field empty, we need to apply a rule for the smaller area. This will be the same as in the 0 horizontal distance small area case.
+We defined the rule to have that field empty, so if the line exits there, it can go somewhere. But this way of thinking is flawed. We don't need to check if that field is empty. If not, some other big area rule will probably prevent getting stuck.
 
-<img align="top" src="References/straight right small.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/4pair up.svg" width="2" />
+<!---->
+
+In the next case, the area is 1W. So if we enter now by stepping straight, we should exit at the last border field. But stepping straight is already disabled.
+
+<img align="top" src="References/2024_0607_2.svg" width="6" />
+
+Similarly, at 4 distance we cannot even recreate a 1B area if there is an obstacle right to the farthest border field.
+
+<img align="top" src="References/2024_0607.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0607_1.svg" width="6" />
 
 <!---->
 
@@ -1900,25 +1908,60 @@ Soon we encounter a situation that could have been solved by a single area algor
 
 And in fact we can take the x and y distance obstacle rule and have it rotated three ways to simplify the program code. And we can group all cases like this. Previously I thought it is only necessary to check the obstacles around the half circle in front of the live end, but an obstacle behind can have an effect too. It is because we do not only have two options to choose from (enter now or later), but there is difference between the "enter now" fields too.
 
-<img align="top" src="References/corner 3 rotation.svg" width="9" />
+<img align="top" src="References/corner 3 rotation.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 rotation.svg" width="9" />
 <img src="References/spacer.svg" height="23" />
 <img align="top" src="References/up 3 rotation.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up big 3 rotation.svg" width="9" />
-<img src="References/spacer.svg" height="23" />
-<img align="top" src="References/straight 3 rotation.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small 3 rotation.svg" width="9" />
 
+In addition to the gray fields, the area border fields are checked for being empty too.
 When disabling a field in a rule, pay attention to its rotation. When the area is large, the direction opposite to the obstacle may be disabled, but doing so is an error in case of a small area.  
 
 <!---->
 
 At 121 million, there is a modification of the original Stair pattern, where two extra fields are added to the bottom. We have to create a more universal rule.
 
-<img align="top" src="References/121666014.svg" width="9" />
+<img align="top" src="References/121670752.svg" width="9" />
 
 If we analyze this specific case in terms of a single area, it can be represented like this:
 
-<img align="top" src="References/121m.svg" width="4" />
+<img align="top" src="References/areaup corner 4 orig.svg" width="4" />
 
 The area is 1B, so we can enter now, but the corner black will be filled in itself later, which conflicts with the second obstacle. We have to review the single area rules to add this check to every case where a corner border field is filled separately.
+
+<!---->
+
+We have seen that the second obstacle can be both mid across and across. From 3 to 6 distances they will look like this:
+
+<img align="top" src="References/areaup corner 3.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 4.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 5.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 6.svg" width="4" />
+
+In which area conditions do we run into the issue?
+
+3 distance: 
+Enter now, left: 2W
+
+4 distance:
+Enter now, left: 1B
+Enter now, straight: 1B
+
+5 distance:
+
+No condition. 2W can be completed without relying on the corner white field.
+
+6 distance:
+
+No condition. 1B can be completed without relying on the corner black field.
+
+<!---->
+
+The area to be checked is not exactly the same as in the single area rule with the same obstacle placement. Compare:
+
+<img align="top" src="References/up 3 rotation.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up 3 rotation double.svg" width="9" />
+
+That means, we have to check the new border fields for being empty, and the number for the original area will be:
+
+For 3 distance: 1W
+For 4 distance: 1B
+
+A similar approach can be used to incorporate the Double Area cases. More on that later.
 
 
 <!--

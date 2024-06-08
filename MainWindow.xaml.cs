@@ -121,7 +121,7 @@ namespace OneWayLabyrinth
 		int lastDirection = -1;
 		bool saveCheck, loadCheck, continueCheck;
 		public bool keepLeftCheck;
-        public int completedCount, fileCompletedCount;
+        public long completedCount, fileCompletedCount;
 		bool completedWalkthrough = false;
         public bool errorInWalkthrough = false;
 		bool toReload = false;
@@ -136,7 +136,7 @@ namespace OneWayLabyrinth
         bool displayExits = true;
 		bool settingsOpen = false;
         int numberOfRuns = 0;
-        int numberOfCompleted = 0;
+        long numberOfCompleted = 0;
         int saveFrequency = 100000;
         bool saveConcise = false; // save only routes without their possibilities in one file
         bool showChecker = true;
@@ -897,7 +897,7 @@ namespace OneWayLabyrinth
                         if (int.Parse(parts[0]) <= fileCompletedCount)
                         {
                             newArr.Add(line);
-                            startTimerValue = (long)(float.Parse(parts[1]) * 1000);
+                            startTimerValue = (long)(float.Parse(parts[1]));
                         }
                         else
                         {

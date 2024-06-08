@@ -1524,13 +1524,16 @@ Double Area Stair 2 - although looking similar - will have a somewhat different 
 <br />
 <img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="23.809523809524%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Sequence third case.svg" width="19.047619047619%" /><br />
 <br />
-Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden. And if we step right, we have a chance to fill the right-side area first.</div><div class="rightNum">123</div></td></tr><tr><td class="left"><div>The program will soon find a case where there return obstacle is in Across position. So we can add it to the rule.<br />
+Because of the start area obstacle, only the forward field will be forbidden. If we step left, the entry point to the area will be of different color, and we do not exit next to the obstacle, but at the field marked forbidden. And if we step right, we have a chance to fill the right-side area first.</div><div class="rightNum">123</div></td></tr><tr><td class="left"><div><img align="top" src="References/Down Stair 0.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/CheckDownStairMidAcross.svg" width="9.5238095238095%" /><br />
 <br />
-<img align="top" src="References/53144883.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Down Stair.svg" width="38.095238095238%" /><br />
+The area enclosed with red line is repeated downwards left, until both of the fields are taken.<br />
+For each return step, I check a mid across directional field. Their right and down field need to be empty as well.<br />
 <br />
-At 59 million, a similar case emerges, but the Stair pattern is not able to solve it. Instead, we can apply the first case of Double Area rotated when stepping one straight.<br />
+Why is C-shape checking to the left unnecessary? It is already taken care of.<br />
 <br />
-<img align="top" src="References/59434452.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Double Area first case rotated next.svg" width="33.333333333333%" /></div><div class="leftNum">128</div></td>
+<img align="top" src="References/2024_0528.svg" width="38.095238095238%" /><br />
+<br />
+To accomodate the Triple Area Exit Down case, let's first check the presence of an obstacle straight ahead at 3 vertical distance. Stepping one forward, we can apply the same procedure.</div><div class="leftNum">128</div></td>
 <td class="right"><div>We get stuck at 641 027 in a case that was previously solved with Double C-Shape.<br />
 <br />
 <img align="top" src="References/641027.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/641027_1.svg" width="42.857142857143%" /><br />
@@ -1539,9 +1542,14 @@ If we didn't have the taken field marked with A, the straight obstacle rule woul
 <br />
 <img align="top" src="References/2024_0517.svg" width="28.571428571429%" /><br />
 <br />
-But, since we want to keep the field next to the furthest border field empty, we need to apply a rule for the smaller area. This will be the same as in the 0 horizontal distance small area case.<br />
+We defined the rule to have that field empty, so if the line exits there, it can go somewhere. But this way of thinking is flawed. We don't need to check if that field is empty. If not, some other big area rule will probably prevent getting stuck.</div><div class="rightNum">125</div></td></tr><tr><td class="left"><div>In the next case, the area is 1W. So if we enter now by stepping straight, we should exit at the last border field. But stepping straight is already disabled.<br />
 <br />
-<img align="top" src="References/straight right small.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/4pair up.svg" width="9.5238095238095%" /></div><div class="rightNum">125</div></td></tr><tr><td class="left"><div>Now, take a look at the following two cases. The first is the well-known Triple Area Exit Down, at over 18 million, while the other comes at around 51 million.<br />
+<img align="top" src="References/2024_0607_2.svg" width="28.571428571429%" /><br />
+<br />
+Similarly, at 4 distance we cannot even recreate a 1B area if there is an obstacle right to the farthest border field.<br />
+<br />
+<img align="top" src="References/2024_0607.svg" width="28.571428571429%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0607_1.svg" width="28.571428571429%" /></div><div class="leftNum">126</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"><div>Now, take a look at the following two cases. The first is the well-known Triple Area Exit Down, at over 18 million, while the other comes at around 51 million.<br />
 <br />
 <img align="top" src="References/18677343 marked.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/51015231 marked.svg" width="42.857142857143%" /><br />
 <br />
@@ -1553,41 +1561,65 @@ But there are more things that need to be present:<br />
 <br />
 What is the simplest algorithm to apply?<br />
 <br />
-In the following, I check these fields as empty, taken or directional taken.</div><div class="leftNum">126</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
-<td class="right"><div><img align="top" src="References/Down Stair 0.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/CheckDownStairMidAcross.svg" width="9.5238095238095%" /><br />
+In the following, I check these fields as empty, taken or directional taken.</div><div class="rightNum">127</div></td></tr><tr><td class="left"><div>At 121 million, there is a modification of the original Stair pattern, where two extra fields are added to the bottom. We have to create a more universal rule.<br />
 <br />
-The area enclosed with red line is repeated downwards left, until both of the fields are taken.<br />
-For each return step, I check a mid across directional field. Their right and down field need to be empty as well.<br />
+<img align="top" src="References/121670752.svg" width="42.857142857143%" /><br />
 <br />
-Why is C-shape checking to the left unnecessary? It is already taken care of.<br />
+If we analyze this specific case in terms of a single area, it can be represented like this:<br />
 <br />
-<img align="top" src="References/2024_0528.svg" width="38.095238095238%" /><br />
+<img align="top" src="References/areaup corner 4 orig.svg" width="19.047619047619%" /><br />
 <br />
-To accomodate the Triple Area Exit Down case, let's first check the presence of an obstacle straight ahead at 3 vertical distance. Stepping one forward, we can apply the same procedure.</div><div class="rightNum">127</div></td></tr><tr><td class="left"></td>
-<td class="right"><div>Notice, this could have solved the Triple Area Exit Down as well, but there can be constructed a case where the Next Step Stair pattern will work alone:<br />
+The area is 1B, so we can enter now, but the corner black will be filled in itself later, which conflicts with the second obstacle. We have to review the single area rules to add this check to every case where a corner border field is filled separately.</div><div class="leftNum">132</div></td>
+<td class="right"><div>The program will soon find a case where there return obstacle is in Across position. So we can add it to the rule.<br />
+<br />
+<img align="top" src="References/53144883.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Down Stair.svg" width="38.095238095238%" /><br />
+<br />
+At 59 million, a similar case emerges, but the Stair pattern is not able to solve it. Instead, we can apply the first case of Double Area rotated when stepping one straight.<br />
+<br />
+<img align="top" src="References/59434452.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Double Area first case rotated next.svg" width="33.333333333333%" /></div><div class="rightNum">129</div></td></tr><tr><td class="left"><div>Notice, this could have solved the Triple Area Exit Down as well, but there can be constructed a case where the Next Step Stair pattern will work alone:<br />
 <br />
 <img align="top" src="References/2024_0604.svg" width="38.095238095238%" /><br />
 <br />
 Soon we encounter a situation that could have been solved by a single area algorithm if we rotated the pattern:<br />
 <br />
-<img align="top" src="References/59438645.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0604_1.svg" width="33.333333333333%" /></div><div class="rightNum">129</div></td></tr><tr><td class="left"><div>And in fact we can take the x and y distance obstacle rule and have it rotated three ways to simplify the program code. And we can group all cases like this. Previously I thought it is only necessary to check the obstacles around the half circle in front of the live end, but an obstacle behind can have an effect too. It is because we do not only have two options to choose from (enter now or later), but there is difference between the "enter now" fields too.<br />
+<img align="top" src="References/59438645.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0604_1.svg" width="33.333333333333%" /></div><div class="leftNum">130</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"><div>And in fact we can take the x and y distance obstacle rule and have it rotated three ways to simplify the program code. And we can group all cases like this. Previously I thought it is only necessary to check the obstacles around the half circle in front of the live end, but an obstacle behind can have an effect too. It is because we do not only have two options to choose from (enter now or later), but there is difference between the "enter now" fields too.<br />
 <br />
-<img align="top" src="References/corner 3 rotation.svg" width="42.857142857143%" /><br />
+<img align="top" src="References/corner 3 rotation.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight 3 rotation.svg" width="42.857142857143%" /><br />
 <img src="References/spacer.svg" height="23" /><br />
 <img align="top" src="References/up 3 rotation.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/up big 3 rotation.svg" width="42.857142857143%" /><br />
-<img src="References/spacer.svg" height="23" /><br />
-<img align="top" src="References/straight 3 rotation.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight small 3 rotation.svg" width="42.857142857143%" /><br />
 <br />
-When disabling a field in a rule, pay attention to its rotation. When the area is large, the direction opposite to the obstacle may be disabled, but doing so is an error in case of a small area.</div><div class="leftNum">130</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
-<td class="right"><div>At 121 million, there is a modification of the original Stair pattern, where two extra fields are added to the bottom. We have to create a more universal rule.<br />
+In addition to the gray fields, the area border fields are checked for being empty too.<br />
+When disabling a field in a rule, pay attention to its rotation. When the area is large, the direction opposite to the obstacle may be disabled, but doing so is an error in case of a small area.</div><div class="rightNum">131</div></td></tr><tr><td class="left"></td>
+<td class="right"><div>We have seen that the second obstacle can be both mid across and across. From 3 to 6 distances they will look like this:<br />
 <br />
-<img align="top" src="References/121666014.svg" width="42.857142857143%" /><br />
+<img align="top" src="References/areaup corner 3.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 4.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 5.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 6.svg" width="19.047619047619%" /><br />
 <br />
-If we analyze this specific case in terms of a single area, it can be represented like this:<br />
+In which area conditions do we run into the issue?<br />
 <br />
-<img align="top" src="References/121m.svg" width="19.047619047619%" /><br />
+3 distance: <br />
+Enter now, left: 2W<br />
 <br />
-The area is 1B, so we can enter now, but the corner black will be filled in itself later, which conflicts with the second obstacle. We have to review the single area rules to add this check to every case where a corner border field is filled separately.<br />
+4 distance:<br />
+Enter now, left: 1B<br />
+Enter now, straight: 1B<br />
+<br />
+5 distance:<br />
+<br />
+No condition. 2W can be completed without relying on the corner white field.<br />
+<br />
+6 distance:<br />
+<br />
+No condition. 1B can be completed without relying on the corner black field.</div><div class="rightNum">133</div></td></tr><tr><td class="left"><div>The area to be checked is not exactly the same as in the single area rule with the same obstacle placement. Compare:<br />
+<br />
+<img align="top" src="References/up 3 rotation.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/up 3 rotation double.svg" width="42.857142857143%" /><br />
+<br />
+That means, we have to check the new border fields for being empty, and the number for the original area will be:<br />
+<br />
+For 3 distance: 1W<br />
+For 4 distance: 1B<br />
+<br />
+A similar approach can be used to incorporate the Double Area cases. More on that later.<br />
 <br />
 <br />
 <!--<br />
@@ -1651,5 +1683,7 @@ Sequence third case:<br />
 <br />
 When stepping back on completion, what if the left and right field is possible? Then we need to turn twice to the right.<br />
 <br />
---></div><div class="rightNum">131</div></td></tr> 
+--></div><div class="leftNum">134</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"></td></tr>
+ 
 </table>

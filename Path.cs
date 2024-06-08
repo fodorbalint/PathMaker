@@ -311,7 +311,7 @@ namespace OneWayLabyrinth
                             closeMidAcrossLarge = false;
 
                             // needed for far left and right case 234320
-                            CheckNearField();
+                            //CheckNearField();
 
                             if (closeStraightSmall || closeMidAcrossSmall || closeAcrossSmall || closeStraightLarge || closeMidAcrossLarge) break;
 
@@ -1216,9 +1216,9 @@ namespace OneWayLabyrinth
 
                     // if (-1, dist - 1) was border, all the remaining fields will be in the area. 
                     // If that field is taken, a big corner case will be true
-                    // But we need circleValid, for 2 distance, in case CheckNearField is not called first..
+                    // But we need circleValid, for 2 distance, in case CheckNearField is not called first.
 
-                    if (dist == 2 || dist > 2 && !InBorderRel(-1, dist - 1) && !InTakenRel(-1, dist - 1))
+                    if (dist == 2 || dist > 2 && !InBorderRel(-1, dist - 1))
                     {
                         if (InBorderRel(0, dist))
                         {
@@ -1377,118 +1377,6 @@ namespace OneWayLabyrinth
                             }
                         }
                     }
-                    else if (dist > 2 && (InBorderRel(-1, dist - 1) || InTakenRel(-1, dist - 1)))
-                    {
-                        bool foundTaken = false;
-                        for (int k = 1; k < dist; k++)
-                        {
-                            if (InTakenRel(1, k))
-                            {
-                                foundTaken = true;
-                                break;
-                            }
-                        }
-
-                        if (!foundTaken) // area same as in LeftRightAreaUp
-                        {
-                            if (InBorderRel(0, dist))
-                            {
-                                int i1 = InBorderIndexRel(0, dist);
-                                int i2 = InBorderIndexRel(1, dist);
-
-                                if (i1 > i2)
-                                {
-                                    circleValid = true;
-                                }
-                            }
-                            else
-                            {
-                                // the right side should be taken, so we don't need to check more
-                                int i1 = InTakenIndexRel(0, dist);
-                                int i2 = InTakenIndexRel(-1, dist);
-
-                                if (i1 > i2)
-                                {
-                                    circleValid = true;
-                                }
-                            }
-
-                            if (circleValid)
-                            {
-                                if (ex > 2)
-                                {
-                                    for (int k = ex - 1; k >= 2; k--)
-                                    {
-                                        borderFields.Add(new int[] { 1, k });
-                                    }
-                                }
-
-                                ResetExamAreas();
-
-                                if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
-                                {
-                                    int black = (int)info[1];
-                                    int white = (int)info[2];
-
-                                    int whiteDiff = white - black;
-                                    int nowWCount = 0;
-                                    int nowBCount = 0;
-                                    int laterWCount = 0;
-                                    int laterBCount = 0;
-
-                                    switch (ex % 4)
-                                    {
-                                        case 0:
-                                            nowWCount = ex / 4;
-                                            nowBCount = ex / 4 - 1;
-                                            laterWCount = ex / 4;
-                                            laterBCount = ex / 4;
-                                            break;
-                                        case 1:
-                                            nowWCount = (ex - 1) / 4;
-                                            nowBCount = (ex - 1) / 4;
-                                            laterWCount = (ex - 1) / 4;
-                                            laterBCount = (ex - 1) / 4;
-                                            break;
-                                        case 2:
-                                            nowWCount = (ex + 2) / 4;
-                                            nowBCount = (ex - 2) / 4;
-                                            laterWCount = (ex - 2) / 4;
-                                            laterBCount = (ex - 2) / 4;
-                                            break;
-                                        case 3:
-                                            nowWCount = (ex + 1) / 4;
-                                            nowBCount = (ex - 3) / 4;
-                                            laterWCount = (ex - 3) / 4;
-                                            laterBCount = (ex + 1) / 4;
-                                            break;
-                                    }
-
-                                    bool ruleTrue = false;
-
-                                    if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
-                                    {
-                                        ruleTrue = true;
-                                        T("Straight small: Cannot enter now");
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                    }
-                                    if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
-                                    {
-                                        ruleTrue = true;
-                                        T("Straight small: Cannot enter later");
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        forbidden.Add(new int[] { x - lx, y - ly });
-                                    }
-
-                                    if (ruleTrue)
-                                    {
-                                        AddExamAreas();
-                                        areaPairFields.Add((List<int[]>)info[3]);
-                                    }
-                                }
-                            }
-                        }
-                    }
 
                     if (j == 0) // rotate down (CCW): small area
                     {
@@ -1549,6 +1437,17 @@ namespace OneWayLabyrinth
                         }
                     }
 
+                    // double area addition
+                    bool found = false;
+                    for (int k = 1; k < dist; k++)
+                    {
+                        if (InTaken(0, k))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
                     if (circleValid)
                     {
                         // Not actual with CheckNearField being applied at first.
@@ -1581,6 +1480,8 @@ namespace OneWayLabyrinth
                                 int laterWCount = 0;
                                 int laterBCount = 0;
 
+                                bool ruleTrue = false;
+
                                 switch (ex % 4)
                                 {
                                     case 0:
@@ -1588,6 +1489,18 @@ namespace OneWayLabyrinth
                                         nowBCount = ex / 4 - 1;
                                         laterWCount = ex / 4;
                                         laterBCount = ex / 4;
+
+                                        if (!found && (
+                                            (InTakenRel(-2, dist) && !InTakenRel(-1, dist) && !InTakenRel(-2, dist - 1))
+                                            ||
+                                            (InTakenRel(-2, dist - 1) && !InTakenRel(-1, dist - 1) && !InTakenRel(-2, dist - 2))
+                                            ) && -whiteDiff == ex / 4)
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp double: Cannot enter now left and later up");
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                        }
                                         break;
                                     case 1:
                                         nowWCount = (ex - 1) / 4;
@@ -1606,10 +1519,19 @@ namespace OneWayLabyrinth
                                         nowBCount = (ex - 3) / 4;
                                         laterWCount = (ex - 3) / 4;
                                         laterBCount = (ex + 1) / 4;
+
+                                        if (!found && (
+                                            (InTakenRel(-2, dist) && !InTakenRel(-1, dist) && !InTakenRel(-2, dist - 1))
+                                            ||
+                                            (InTakenRel(-2, dist - 1) && !InTakenRel(-1, dist - 1) && !InTakenRel(-2, dist - 2))
+                                            ) && whiteDiff == (ex + 1) / 4)
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp double: Cannot enter now left");
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                        }
                                         break;
                                 }
-
-                                bool ruleTrue = false;
 
                                 if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
                                 {
