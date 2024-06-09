@@ -1929,28 +1929,33 @@ The area is 1B, so we can enter now, but the corner black will be filled in itse
 
 <!---->
 
-We have seen that the second obstacle can be both mid across and across. From 3 to 6 distances they will look like this:
-
-<img align="top" src="References/areaup corner 3.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 4.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 5.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 6.svg" width="4" />
-
+We have seen that the second obstacle can be both mid across and across.
 In which area conditions do we run into the issue?
 
-3 distance: 
-Enter now, left: 2W
+3 distance:
+
+<img align="top" src="References/areaup corner 3 2W.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 3 1W.svg" width="4" />
+
+On the left, we start by stepping left, and the area is 2W.
+On the other hand, if we step straight, and the area is 1W, it does not create an issue.
 
 4 distance:
-Enter now, left: 1B
-Enter now, straight: 1B
 
-5 distance:
+<img align="top" src="References/areaup corner 4.svg" width="4" />
 
-No condition. 2W can be completed without relying on the corner white field.
+If we step left, it is not possible to exit at the first black (due to the two white fields that cannot be filled simultaneously) and then fill the corner black later.
 
-6 distance:
-
-No condition. 1B can be completed without relying on the corner black field.
+If we step straight, 1B is possible.
 
 <!---->
+
+5 and 6 distance:
+
+<img align="top" src="References/areaup corner 5.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 6.svg" width="4" />
+
+No condition. 2W and 1B can be completed without relying on the corner field.
+
+Where the issue is present, the numbers of possible white or black lines will increase by one for every 4 distance added.
 
 The area to be checked is not exactly the same as in the single area rule with the same obstacle placement. Compare:
 
@@ -1961,7 +1966,38 @@ That means, we have to check the new border fields for being empty, and the numb
 For 3 distance: 1W
 For 4 distance: 1B
 
-A similar approach can be used to incorporate the Double Area cases. More on that later.
+<!---->
+
+A similar approach can be used to incorporate the Double Area cases.
+
+<img align="top" src="References/double area case 1 line 3.svg" width="4" />
+
+We can see that if W = B, then we will step downwards from the corner to exit the area. And that it is only possible to enter by stepping straight.
+
+But if we add 4 extra distance, should we increase the allowed number of black to black lines, the whites, or should they remain equal?
+
+<img align="top" src="References/double area case 1 line 7 w=b.svg" width="4" />
+
+If W = B, and we step straight, the area can be filled with two lines without a problem. The same can be done if we step left.
+If the area is 1W, we can fill the area with one line either way.
+
+<!---->
+
+<img align="top" src="References/double area case 1 line 7 1b.svg" width="4" />
+
+If the area is 1B, we cannot step left to start with. If we step straight, then the situation will be reproduced.
+
+For the original area, the numbers will be:
+For 3 distance: 1B
+For 7 distance: 2B etc.
+
+If we look at the 4-distance case, it is evident that even with an 1W area, there is no issue with the second obstacle.
+
+<img align="top" src="References/areaup corner 4 closed.svg" width="4" />
+
+I have removed the mid across obstacle, because if it was there, it would create a single area rule where the straight option is disabled.
+
+
 
 
 <!--

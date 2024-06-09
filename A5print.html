@@ -1590,36 +1590,21 @@ Soon we encounter a situation that could have been solved by a single area algor
 <img align="top" src="References/up 3 rotation.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/up big 3 rotation.svg" width="42.857142857143%" /><br />
 <br />
 In addition to the gray fields, the area border fields are checked for being empty too.<br />
-When disabling a field in a rule, pay attention to its rotation. When the area is large, the direction opposite to the obstacle may be disabled, but doing so is an error in case of a small area.</div><div class="rightNum">131</div></td></tr><tr><td class="left"></td>
-<td class="right"><div>We have seen that the second obstacle can be both mid across and across. From 3 to 6 distances they will look like this:<br />
+When disabling a field in a rule, pay attention to its rotation. When the area is large, the direction opposite to the obstacle may be disabled, but doing so is an error in case of a small area.</div><div class="rightNum">131</div></td></tr><tr><td class="left"><div><img align="top" src="References/double area case 1 line 7 1b.svg" width="19.047619047619%" /><br />
 <br />
-<img align="top" src="References/areaup corner 3.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 4.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 5.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 6.svg" width="19.047619047619%" /><br />
+If the area is 1B, we cannot step left to start with. If we step straight, then the situation will be reproduced.<br />
 <br />
-In which area conditions do we run into the issue?<br />
+For the original area, the numbers will be:<br />
+For 3 distance: 1B<br />
+For 7 distance: 2B etc.<br />
 <br />
-3 distance: <br />
-Enter now, left: 2W<br />
+If we look at the 4-distance case, it is evident that even with an 1W area, there is no issue with the second obstacle.<br />
 <br />
-4 distance:<br />
-Enter now, left: 1B<br />
-Enter now, straight: 1B<br />
+<img align="top" src="References/areaup corner 4 closed.svg" width="19.047619047619%" /><br />
 <br />
-5 distance:<br />
+I have removed the mid across obstacle, because if it was there, it would create a single area rule where the straight option is disabled.<br />
 <br />
-No condition. 2W can be completed without relying on the corner white field.<br />
 <br />
-6 distance:<br />
-<br />
-No condition. 1B can be completed without relying on the corner black field.</div><div class="rightNum">133</div></td></tr><tr><td class="left"><div>The area to be checked is not exactly the same as in the single area rule with the same obstacle placement. Compare:<br />
-<br />
-<img align="top" src="References/up 3 rotation.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/up 3 rotation double.svg" width="42.857142857143%" /><br />
-<br />
-That means, we have to check the new border fields for being empty, and the number for the original area will be:<br />
-<br />
-For 3 distance: 1W<br />
-For 4 distance: 1B<br />
-<br />
-A similar approach can be used to incorporate the Double Area cases. More on that later.<br />
 <br />
 <br />
 <!--<br />
@@ -1683,7 +1668,49 @@ Sequence third case:<br />
 <br />
 When stepping back on completion, what if the left and right field is possible? Then we need to turn twice to the right.<br />
 <br />
---></div><div class="leftNum">134</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
-<td class="right"></td></tr>
- 
+--></div><div class="leftNum">136</div></td>
+<td class="right"><div>We have seen that the second obstacle can be both mid across and across.<br />
+In which area conditions do we run into the issue?<br />
+<br />
+3 distance:<br />
+<br />
+<img align="top" src="References/areaup corner 3 2W.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 3 1W.svg" width="19.047619047619%" /><br />
+<br />
+On the left, we start by stepping left, and the area is 2W.<br />
+On the other hand, if we step straight, and the area is 1W, it does not create an issue.<br />
+<br />
+4 distance:<br />
+<br />
+<img align="top" src="References/areaup corner 4.svg" width="19.047619047619%" /><br />
+<br />
+If we step left, it is not possible to exit at the first black (due to the two white fields that cannot be filled simultaneously) and then fill the corner black later.<br />
+<br />
+If we step straight, 1B is possible.</div><div class="rightNum">133</div></td></tr><tr><td class="left"><div>5 and 6 distance:<br />
+<br />
+<img align="top" src="References/areaup corner 5.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 6.svg" width="19.047619047619%" /><br />
+<br />
+No condition. 2W and 1B can be completed without relying on the corner field.<br />
+<br />
+Where the issue is present, the numbers of possible white or black lines will increase by one for every 4 distance added.<br />
+<br />
+The area to be checked is not exactly the same as in the single area rule with the same obstacle placement. Compare:<br />
+<br />
+<img align="top" src="References/up 3 rotation.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/up 3 rotation double.svg" width="42.857142857143%" /><br />
+<br />
+That means, we have to check the new border fields for being empty, and the number for the original area will be:<br />
+<br />
+For 3 distance: 1W<br />
+For 4 distance: 1B</div><div class="leftNum">134</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"><div>A similar approach can be used to incorporate the Double Area cases.<br />
+<br />
+<img align="top" src="References/double area case 1 line 3.svg" width="19.047619047619%" /><br />
+<br />
+We can see that if W = B, then we will step downwards from the corner to exit the area. And that it is only possible to enter by stepping straight.<br />
+<br />
+But if we add 4 extra distance, should we increase the allowed number of black to black lines, the whites, or should they remain equal?<br />
+<br />
+<img align="top" src="References/double area case 1 line 7 w=b.svg" width="19.047619047619%" /><br />
+<br />
+If W = B, and we step straight, the area can be filled with two lines without a problem. The same can be done if we step left.<br />
+If the area is 1W, we can fill the area with one line either way.</div><div class="rightNum">135</div></td></tr> 
 </table>

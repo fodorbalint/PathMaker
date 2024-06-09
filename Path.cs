@@ -353,9 +353,8 @@ namespace OneWayLabyrinth
                             
                             //T("CheckDirectionalArea");
                             CheckDirectionalArea(); */
+                            //T("Check3DoubleArea");
                             Check3DoubleArea();
-                            //T("Check3DoubleAreaRotated");
-                            Check3DoubleAreaRotated();
                             //T("CheckSequence");
                             CheckSequence();
                             //T("CheckDownStair");
@@ -1524,11 +1523,20 @@ namespace OneWayLabyrinth
                                             (InTakenRel(-2, dist) && !InTakenRel(-1, dist) && !InTakenRel(-2, dist - 1))
                                             ||
                                             (InTakenRel(-2, dist - 1) && !InTakenRel(-1, dist - 1) && !InTakenRel(-2, dist - 2))
-                                            ) && whiteDiff == (ex + 1) / 4)
+                                            ))
                                         {
-                                            ruleTrue = true;
-                                            T("LeftRightAreaUp double: Cannot enter now left");
-                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                            if (whiteDiff == (ex + 1) / 4)
+                                            {
+                                                ruleTrue = true;
+                                                T("LeftRightAreaUp double: Cannot enter now left");
+                                                forbidden.Add(new int[] { x + lx, y + ly });
+                                            }
+                                            else if (-whiteDiff == (ex + 1) / 4)
+                                            {
+                                                ruleTrue = true;
+                                                T("LeftRightAreaUp Double Area: Cannot enter later straight");
+                                                forbidden.Add(new int[] { x + sx, y + sy });
+                                            }
                                         }
                                         break;
                                 }
@@ -2274,29 +2282,6 @@ namespace OneWayLabyrinth
 
                     List<int[]> borderFields = new();
 
-                    // First two cases can be simultaneously true, as in 2024_0505. If the bigger area is pair, so is the smaller, which would cause a C-shape with the obstacle in (1, 4). So we can just examine the smaller area. borderFields needs to be reset in that case.
-
-                    if (InTakenRel(1, 4) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(0, 4) && !InTakenRel(1, 1) && !InTakenRel(1, 3))
-                    {
-                        int i1 = InTakenIndexRel(1, 4);
-                        int i2 = InTakenIndexRel(2, 4);
-
-                        if (i2 > i1)
-                        {
-                            circleValid = true;
-
-                            startX = 0;
-                            startY = 1;
-                            endX = 0;
-                            endY = 3;
-                            forbidX = 0;
-                            forbidY = 1;
-                            borderFields.Add(new int[] { 0, 2 });
-                            circleParity = 0;
-                            caseNumber = 1;
-                        }
-                    }
-
                     if (InTakenRel(2, 3) && !InTakenRel(1, 0) && !InTakenRel(1, 1) && !InTakenRel(1, 2) && !InTakenRel(1, 3) && !InTakenRel(0, 2) && !InTakenRel(2, 2))
                     {
                         int i1 = InTakenIndexRel(2, 3);
@@ -2312,7 +2297,6 @@ namespace OneWayLabyrinth
                             endY = 2;
                             forbidX = 1;
                             forbidY = 0;
-                            borderFields = new();
                             circleParity = 0;
                             caseNumber = 2;
                         }
@@ -2360,28 +2344,18 @@ namespace OneWayLabyrinth
                             sx = rotatedDir[0];
                             sy = rotatedDir[1];
 
-                            if (caseNumber < 3)
+                            if (caseNumber == 2)
                             {
                                 x = x + endX * thisLx + endY * thisSx;
                                 y = y + endX * thisLy + endY * thisSy;
 
                                 if (CheckNearFieldSmall1()) // check only mid across
                                 {
-                                    T("Check3DoubleArea case 1 or 2 at " + thisX + " " + thisY);
+                                    T("Check3DoubleArea case 2 at " + thisX + " " + thisY);
 
-                                    switch (caseNumber)
-                                    {
-                                        case 1: // 0601
-                                            DoubleArea1 = true;
-                                            activeRules.Add("Double Area first case");
-                                            activeRuleSizes.Add(new int[] { 4, 6 });
-                                            break;
-                                        case 2:
-                                            DoubleArea2 = true;
-                                            activeRules.Add("Double Area second case");
-                                            activeRuleSizes.Add(new int[] { 4, 5 });
-                                            break;
-                                    }
+                                    DoubleArea2 = true;
+                                    activeRules.Add("Double Area second case");
+                                    activeRuleSizes.Add(new int[] { 4, 5 });
 
                                     activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + forbidX * thisLx + forbidY * thisSx, thisY + forbidX * thisLy + forbidY * thisSy } });
 
@@ -2434,7 +2408,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        public bool Check3DoubleAreaRotated(int side = -1) // Take only the first case and rotate it.
+        public bool Check3DoubleAreaRotated(int side = -1) // Take only the first case and rotate it. Next step checking will need it, otherwise it is built into AreaUp.
         {
             for (int i = 0; i < 2; i++)
             {
