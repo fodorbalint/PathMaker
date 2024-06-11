@@ -1291,7 +1291,7 @@ The following rules are active, in addition to the universal one that disables t
 <img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined 2.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9_old/Double C-Shape.svg" width="3" />
 
 There are three more black fields in the area than white, so there is not enough vertical distance for entering and exiting that many times.<br />
-The straight-to-side algorithm has to be rotated upwards, so we get this:
+The straight-to-side algorithm has to be rotated upwards and mirrored, so we get this:
 
 <img align="top" src="References/4pair up.svg" width="2" />
 
@@ -1343,9 +1343,9 @@ Double C-Shape Determined:
 
 <!---->
 
-The number of black fields is one more than the white. Without the size-specific rule, we could step straight. Let me remind you that this rule is based upon the Double C-Shape. If we stepped straight and then into the area, we would come out in the middle, creating two C-shapes.<br />
+The number of black fields is one more than the whites. Without the size-specific rule, we could step straight. Let me remind you that this rule is based upon the Double C-Shape. If we stepped straight and then into the area, we would come out in the middle, creating two C-shapes.<br />
 What this actually means is that there would be two fields of the same color that cannot be filled simultaneously.<br />
-If we now extended the area to include the 4 fields straight ahead, there would be still one more black than white, and by stepping straight, to a white field, it is clear that a black to black line cannot be drawn.<br />
+If we now extended the area to include the 4 fields straight ahead, there would be still one more black than white, and by stepping straight to a white field, it is clear that a black to black line cannot be drawn.<br />
 An extension of the universal rule is necessary to include cases of a "big" area where the obstacle is on the other side of the live end.
 
 <img align="top" src="References/4pair up big.svg" width="3" />
@@ -1374,15 +1374,20 @@ Later: 1W -> 1B = (D-1)/4 W -> (D-1)/4 B<br />
 
 D % 4 = 2:
 
-Now: 2W -> 1B = (D+2)/4 W -> (D-2)/4 B<br />
+Now right: 2W -> 1B = (D+2)/4 W -> (D-2)/4 B<br />
+Now straight: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
 Later: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
 (single rule)
 
 <!---->
 
+The reason there is a difference between the straight and right field in the last case is that if we enter straight and exit, a 5-distance borderline will remain with 2 white and 3 black fields. So we will not be able to draw a white to white line.
+
 While this will not solve the case above (we are not able to step left), we can construct one where it is of use when the Double C-Shape Determined rule is turned off.
 
 <img align="top" src="References/2024_0328_2.svg" width="8" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0328_3.svg" width="8" />
+
+<!---->
 
 We can now continue working out all scenarios.
 
@@ -2039,9 +2044,26 @@ In the third rotation position, where the first obstacle is behind on the right 
 It has to be said that at this point, the 9 x 9 grid is complete with this set of rules.
 My program ran through the left side in 45 hours, producing the expected number of walkthroughs of 1 344 153 757.
 
-The are a few examples on bigger boards that get stuck, but I am evidently missing some cases of the single area rules.
+The are a few examples on bigger boards that get stuck, but I am evidently missing some cases of the single area rules. Before we progress with the theory above, let's look at some examples.
+
+<img align="top" src="References/2024_0611_6.svg" width="10" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0611_6_2.svg" width="10" />
+
+We have to enter after stepping left, but there is a C-shape on the other side.
+For now, we have to specify an explicit horizontal and vertical distance of 4 and 2, and have the condition that the area is 1B in order to disable the left field.
+
+<!---->
+
+<img align="top" src="References/2024_0611_4.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0611_4_2.svg" width="9" />
+
+For this one, the base conditions are the same, and we need to check for a far mid across obstacle. The x and y distance rule has to be rotated in the fourth direction.
+
+<img align="top" src="References/2024_0611_5.svg" width="8" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0611_5_2.svg" width="8" />
+
+The same C-shape as in the first case, just with a closer obstacle and W = B area.
 
 <!--
+
+<img align="top" src="References/2024_0611_3.svg" width="9" />
 
 2 688 307 514
 1 344 153 757
@@ -2063,6 +2085,13 @@ The are a few examples on bigger boards that get stuck, but I am evidently missi
 1.3897
 
 1400 trillion => 1445 trillion
+
+2024_0611_6: No need for checking next step. (page 108)
+
+Check if opposite empty fields should be disabled at certain rotations of the 4 rule groups.
+
+LeftRightAreaUpBig rule presentation on page 97: there is an empty field to the right of the obstacle, which is inconsistent with the examples given. Either change the rule representation and correct it later or change the example / rule.
+
 
 x and y distance obstacle: we check empty fields from the middle line, but it may not be necessary, sequence might be avoided.
 
