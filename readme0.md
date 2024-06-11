@@ -1721,7 +1721,7 @@ There is an area with a straight border line of maximum 3 fields, with the obsta
 
 <img align="top" src="References/Double Area first case.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Double Area second case.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Double Area third case.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Double Area first case rotated.svg" width="6" />
 
-The live end can be in 3 different positions in relation to the area. All patterns can be rotated clockwise, but the first can also be rotated counter-clockwise, shown in the fourth picture. I will call this group of rules Double Area.
+The live end can be in 3 different positions in relation to the area. All patterns can be rotated clockwise, but the first can also be rotated counter-clockwise, shown in the fourth picture. I call this group of rules Double Area.
 
 When exiting the first area, we check for mid across and across obstacles on the left side. Why can C-shape checking be omitted? It is already solved by the single area universal rules.
 
@@ -1968,7 +1968,7 @@ For 4 distance: 1B
 
 <!---->
 
-A similar approach can be used to incorporate the Double Area cases.
+A similar approach can be used to incorporate the Double Area cases. Here the difference is that at the corner border field, the line is going from the inside of the area to the next last border field. The second obstacles have to be moved one upwards.
 
 <img align="top" src="References/double area case 1 line 3.svg" width="4" />
 
@@ -1995,12 +1995,76 @@ If we look at the 4-distance case, it is evident that even with an 1W area, ther
 
 <img align="top" src="References/areaup corner 4 closed.svg" width="4" />
 
-I have removed the mid across obstacle, because if it was there, it would create a single area rule where the straight option is disabled.
+<!---->
 
+At 5 distance, W = B can be filled without issue.
 
+<img align="top" src="References/areaup corner 5 w=b.svg" width="4" />
 
+At 6 distance, 2W for left movement will result in the problem.
+
+<img align="top" src="References/areaup corner 6 2w left.svg" width="4" />
+
+But this case should not occur, because at 7 distance, we are prevented to step straight. In case we were to come from the right side, the x horizontal and y vertical distance rule group has to be updated. More on that later.
+
+<!---->
+
+Let's finish this set and look at an 1W area for straight movement. It can go through.
+
+<img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 6 1w straight.svg" width="4" />
+
+Now we take the second case of Double Area:
+
+<img align="top" src="References/double area case 2 line 2.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double area case 2 line 6.svg" width="4" />
+
+On the left, we step left, and the area is W = B. If we extend the distance, the rule will be valid at 1B as we would expect.
+
+<!---->
+
+The third case is:
+
+<img align="top" src="References/double area case 3 line 3.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double area case 3 line 7.svg" width="4" />
+
+At 3 distance, we step left, and the area is 1B.
+At 7 distance, it is 2B.
+
+When integrating the rule, pay attention to its rotation. If the obstacles are on the right side, the left field also has to be disabled.
+
+<img align="top" src="References/2024_0610.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0610_1.svg" width="5" />
+
+In the third rotation position, where the first obstacle is behind on the right side, all 3 directions would have to be disabled. Therefore, it is safe to say, such a situation does not exist.
+
+<!---->
+
+It has to be said that at this point, the 9 x 9 grid is complete with this set of rules.
+My program ran through the left side in 45 hours, producing the expected number of walkthroughs of 1 344 153 757.
+
+The are a few examples on bigger boards that get stuck, but I am evidently missing some cases of the single area rules.
 
 <!--
+
+2 688 307 514
+1 344 153 757
+
+104/2 = 52
+111712/104 = 1074.15
+2 688 307 514 / 111 712 = 24064.63
+
++16 fields
++24 fields
++32 fields
+
+1.2801
+	0.0574
+1.3375
+	0.0331
+1.3706
+	0.0191
+1.3897
+
+1400 trillion => 1445 trillion
+
+x and y distance obstacle: we check empty fields from the middle line, but it may not be necessary, sequence might be avoided.
 
 A similar concept will be used when solving Triple Area Exit Down (at over 18 million): The furthest border field have a taken field next to, which limits the possibilities of entering and exiting an area. 
 

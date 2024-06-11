@@ -42,12 +42,14 @@
 	M 0.5 2.5
 	h 0.5
 	a 0.5 0.5 0 0 1 0.5 0.5
-	v 0.5" fill="white" fill-opacity="0" stroke="white" stroke-width="0.1" stroke-linecap="round" />
+	a 0.5 0.5 0 0 0 0.5 0.5
+	h 0.5" fill="white" fill-opacity="0" stroke="white" stroke-width="0.1" stroke-linecap="round" />
 	<path d="
 	M 0.5 2.5
 	h 0.5
 	a 0.5 0.5 0 0 1 0.5 0.5
-	v 0.5" fill="white" fill-opacity="0" stroke="blue" stroke-width="0.05" stroke-linecap="round" />
+	a 0.5 0.5 0 0 0 0.5 0.5
+	h 0.5" fill="white" fill-opacity="0" stroke="blue" stroke-width="0.05" stroke-linecap="round" />
 
 	<path d="
 	M 0.5 4.5

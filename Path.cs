@@ -1489,15 +1489,11 @@ namespace OneWayLabyrinth
                                         laterWCount = ex / 4;
                                         laterBCount = ex / 4;
 
-                                        if (!found && (
-                                            (InTakenRel(-2, dist) && !InTakenRel(-1, dist) && !InTakenRel(-2, dist - 1))
-                                            ||
-                                            (InTakenRel(-2, dist - 1) && !InTakenRel(-1, dist - 1) && !InTakenRel(-2, dist - 2))
-                                            ) && -whiteDiff == ex / 4)
+                                        // 0610_4, 0610_5
+                                        if (!found && -whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex - 1))
                                         {
                                             ruleTrue = true;
-                                            T("LeftRightAreaUp double: Cannot enter now left and later up");
-                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                            T("LeftRightAreaUp open corner 4: Cannot step straight");
                                             forbidden.Add(new int[] { x + sx, y + sy });
                                         }
                                         break;
@@ -1512,6 +1508,14 @@ namespace OneWayLabyrinth
                                         nowBCount = (ex - 2) / 4;
                                         laterWCount = (ex - 2) / 4;
                                         laterBCount = (ex - 2) / 4;
+
+                                        // We cannot get to the 2- or 6-distance case if the other rules are applied. 0611_1
+                                        /*if (!found && whiteDiff == (ex + 2) / 4 && CheckNearFieldSmallRel(0, ex))
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp closed corner 2: Cannot step left");
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                        }*/
                                         break;
                                     case 3:
                                         nowWCount = (ex + 1) / 4;
@@ -1519,22 +1523,19 @@ namespace OneWayLabyrinth
                                         laterWCount = (ex - 3) / 4;
                                         laterBCount = (ex + 1) / 4;
 
-                                        if (!found && (
-                                            (InTakenRel(-2, dist) && !InTakenRel(-1, dist) && !InTakenRel(-2, dist - 1))
-                                            ||
-                                            (InTakenRel(-2, dist - 1) && !InTakenRel(-1, dist - 1) && !InTakenRel(-2, dist - 2))
-                                            ))
+                                        if (!found)
                                         {
-                                            if (whiteDiff == (ex + 1) / 4)
+                                            if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(0, ex - 1))
                                             {
                                                 ruleTrue = true;
-                                                T("LeftRightAreaUp double: Cannot enter now left");
+                                                T("LeftRightAreaUp open corner 3: Cannot step left");
                                                 forbidden.Add(new int[] { x + lx, y + ly });
                                             }
-                                            else if (-whiteDiff == (ex + 1) / 4)
+                                            // 0611
+                                            if (-whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(0, ex))
                                             {
                                                 ruleTrue = true;
-                                                T("LeftRightAreaUp Double Area: Cannot enter later straight");
+                                                T("LeftRightAreaUp closed corner 3: Cannot step straight");
                                                 forbidden.Add(new int[] { x + sx, y + sy });
                                             }
                                         }
@@ -2037,6 +2038,39 @@ namespace OneWayLabyrinth
                                         int whiteDiff = white - black;
 
                                         bool ruleTrue = false;
+
+                                        // need to be generalized for larger than 1 vertical distance
+                                        if (vert == 2)
+                                        {
+                                            if (hori % 4 == 3) //0610, 0610_1
+                                            {
+                                                if (-whiteDiff == (hori - 3) / 4 && CheckNearFieldSmallRel2(2, 1))
+                                                {
+                                                    ruleTrue = true;
+                                                    T("LeftRightCornerBig closed corner 2, 3: Cannot step straight");
+                                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                                    if (j == 0)
+                                                    {
+                                                        T("Default rotation, cannot step left");
+                                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                                    }
+                                                }
+                                            }
+                                            if (hori % 4 == 0)  //0610, 0610_1
+                                            {
+                                                if (-whiteDiff == hori / 4 && CheckNearFieldSmallRel2(2, 1))
+                                                {
+                                                    ruleTrue = true;
+                                                    T("LeftRightCornerBig open corner 2, 4: Cannot step straight");
+                                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                                    if (j == 0)
+                                                    {
+                                                        T("Default rotation, cannot step left");
+                                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                                    }
+                                                }
+                                            }
+                                        }
 
                                         if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
                                         {
@@ -3175,6 +3209,31 @@ namespace OneWayLabyrinth
             }
 
             return ret;
+        }
+
+
+        // obstacle right side of the field in question, area up
+        // mid across and across fields
+        // used for LeftRightAreaUp
+        bool CheckNearFieldSmallRel(int x, int y)
+        {
+            if (InTakenRel(x - 2, y + 1) && !InTakenRel(x - 1, y + 1) && !InTakenRel(x - 2, y) ||
+                InTakenRel(x - 2, y + 2) && !InTakenRel(x - 1, y + 2) && !InTakenRel(x - 2, y + 1))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // first obstacle to left up, second left down in first case of LeftRightCornerBig
+        bool CheckNearFieldSmallRel2(int x, int y)
+        {
+            if (InTakenRel(x + 1, y - 2) && !InTakenRel(x + 1, y - 1) && !InTakenRel(x, y - 2) ||
+                InTakenRel(x + 2, y - 2) && !InTakenRel(x + 2, y - 1) && !InTakenRel(x + 1, y - 2))
+            {
+                return true;
+            }
+            return false;
         }
 
         private int[] RotateDir(int xDiff, int yDiff, int ccw)
