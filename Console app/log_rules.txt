@@ -1,9 +1,0 @@
-462: Sequence first case
-22328: Double Area first case rotated
-22328: Down Stair
-22328: Double Area second case
-227250: Sequence second case
-740293: Double Area third case
-2023482: Sequence third case
-18677355: Double Area first case rotated next
-18677355: Down Stair next

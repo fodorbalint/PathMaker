@@ -1374,20 +1374,16 @@ Later: 1W -> 1B = (D-1)/4 W -> (D-1)/4 B<br />
 
 D % 4 = 2:
 
-Now right: 2W -> 1B = (D+2)/4 W -> (D-2)/4 B<br />
-Now straight: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
+Now: 2W -> 1B = (D+2)/4 W -> (D-2)/4 B<br />
+If the distance is 2, the area has to be W = B if we enter now by stepping straight.
 Later: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
 (single rule)
 
 <!---->
 
-The reason there is a difference between the straight and right field in the last case is that if we enter straight and exit, a 5-distance borderline will remain with 2 white and 3 black fields. So we will not be able to draw a white to white line.
-
 While this will not solve the case above (we are not able to step left), we can construct one where it is of use when the Double C-Shape Determined rule is turned off.
 
 <img align="top" src="References/2024_0328_2.svg" width="8" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0328_3.svg" width="8" />
-
-<!---->
 
 We can now continue working out all scenarios.
 
@@ -2044,7 +2040,7 @@ In the third rotation position, where the first obstacle is behind on the right 
 It has to be said that at this point, the 9 x 9 grid is complete with this set of rules.
 My program ran through the left side in 45 hours, producing the expected number of walkthroughs of 1 344 153 757.
 
-The are a few examples on bigger boards that get stuck, but I am evidently missing some cases of the single area rules. Before we progress with the theory above, let's look at some examples.
+The are a few examples on bigger boards that get stuck, but I don't think they are unsolvable. Let's see if we can fit them into the system we have built up so far.
 
 <img align="top" src="References/2024_0611_6.svg" width="10" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0611_6_2.svg" width="10" />
 

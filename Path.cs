@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -56,6 +57,12 @@ namespace OneWayLabyrinth
         //bool closeStraight = false;
         //bool closeMidAcross = false;
         //bool closeAcross = false;
+
+        // rotation at which if we step straight, an area is created on both sides that we need to enter.
+        // 234212, 522267
+        int nextStepEnterLeft = -1;
+        int nextStepEnterRight = -1;
+
 
         bool isNextStep = false;
 
@@ -298,7 +305,7 @@ namespace OneWayLabyrinth
 
                             /* ---- uncomment to enable basic rule checking first ---- */
                             
-                            CShape = false;
+                            /*CShape = false;
                              
                             CheckCShape();
 
@@ -328,7 +335,7 @@ namespace OneWayLabyrinth
                             }
                             possible = newPossible;
 
-                            if (possible.Count == 1) break;
+                            if (possible.Count == 1) break;*/
 
                             /* ---- uncomment to disable advanced rules ---- */
                             // break;
@@ -337,15 +344,43 @@ namespace OneWayLabyrinth
                             Straight3J = -1;
                             DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
                             DoubleAreaFirstCaseRotatedNext = DownStairNext = false;
+                            nextStepEnterLeft = -1;
+                            nextStepEnterRight = -1;
 
-                            T("CheckStraight");
+                            T("CheckCShapeNext");
+                            CheckCShapeNext();
+                            T("CheckStraight " + ShowForbidden());
                             CheckStraight();
-                            T("CheckLeftRightAreaUp");
+                            T("CheckLeftRightAreaUp " + ShowForbidden());
                             CheckLeftRightAreaUp();
-                            T("CheckLeftRightAreaUpBig");
+                            T("CheckLeftRightAreaUpBig " + ShowForbidden());
                             CheckLeftRightAreaUpBig();
-                            T("CheckLeftRightCornerBig");
-                            CheckLeftRightCornerBig();
+                            T("CheckLeftRightCorner " + ShowForbidden());
+                            CheckLeftRightCorner();
+
+                            T("NextStepEnter " + nextStepEnterLeft + " " + nextStepEnterRight);
+
+                            // 0611_4, 0611_5, 0611_6, 234212, 522267
+                            // 0 and 0 or 1 and 3. Beware of 1 and -1.
+                            // Overwrite order: 3, 0, 1 (See 802973 and 2020799)
+                            if (nextStepEnterLeft == 0 && nextStepEnterRight == 0 || nextStepEnterLeft + nextStepEnterRight == 4 && Math.Abs(nextStepEnterLeft - nextStepEnterRight) == 2)
+                            {
+                                switch (nextStepEnterLeft)
+                                {
+                                    case 0:
+                                        T("Next step double area, cannot step straight");
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        break;
+                                    case 1:
+                                        T("Next step double area, cannot step right");
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                        break;
+                                    case 3:
+                                        T("Next step double area, cannot step left");
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                        break;
+                                }
+                            }
 
                             List<int[]> startForbiddenFields = Copy(forbidden);
 
@@ -1194,7 +1229,7 @@ namespace OneWayLabyrinth
             }
         }
 
-        public void CheckStraight()
+        void CheckStraight()
         {
             for (int i = 0; i < 2; i++)
             {
@@ -1259,14 +1294,27 @@ namespace OneWayLabyrinth
                             {
                                 T("Close straight", i, j);
                                 forbidden.Add(new int[] { x - lx, y - ly });
+                                // not a C-shape
                                 if (!(InTakenRel(1, 1) || InBorderRel(1, 1)))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                 }
-                                else // C-shape
+                                else
                                 {
-                                    forbidden.Add(new int[] { x - sx, y - sy });
+                                    // C-shape left
+                                    if (j == 1)
+                                    {
+                                        forbidden.Add(new int[] { x - sx, y - sy });
+                                    }
+                                    
                                 }
+
+                                // only one option remains
+                                sx = thisSx;
+                                sy = thisSy;
+                                lx = thisLx;
+                                ly = thisLy;
+                                return;
                             }
                             else
                             {
@@ -1334,6 +1382,8 @@ namespace OneWayLabyrinth
                                             laterBCount = (ex - 3) / 4;
                                             break;
                                     }
+
+                                    // T(black, white, nowWCount, nowBCount, nowWCountLeft, nowBCountLeft, laterWCount, laterBCount);
 
                                     bool ruleTrue = false;
 
@@ -1405,192 +1455,223 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        public void CheckLeftRightAreaUp()
+        void CheckLeftRightAreaUp()
         {
             for (int i = 0; i < 2; i++)
-            {
+            {                
                 bool circleDirectionLeft = (i == 0) ? true : false;
 
-                for (int j = 0; j < 3; j++) // j = 1: small area, j = 2: big area
+                for (int j = 0; j < 4; j++) // same rotations as LeftRightCorner
                 {
-
-                    bool circleValid = false;
-                    int dist = 1;
-                    List<int[]> borderFields = new();
-
-                    while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
+                    if (j != 2)
                     {
-                        dist++;
-                    }
+                        bool circleValid = false;
+                        int dist = 1;
+                        List<int[]> borderFields = new();
 
-                    int ex = dist - 1;
-
-                    if (ex != 0 && !InTakenRel(0, dist))
-                    {
-                        int i1 = InTakenIndexRel(1, dist);
-                        int i2 = InTakenIndexRel(2, dist);
-
-                        if (i2 > i1)
+                        while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
                         {
-                            circleValid = true;
+                            dist++;
                         }
-                    }
 
-                    // double area addition
-                    bool found = false;
-                    for (int k = 1; k < dist; k++)
-                    {
-                        if (InTaken(0, k))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
+                        int ex = dist - 1;
 
-                    if (circleValid)
-                    {
-                        // Not actual with CheckNearField being applied at first.
-                        if (ex == 1) // close mid across
+                        if (ex != 0 && !InTakenRel(0, dist))
                         {
-                            T("Close mid across", i, j);
-                            forbidden.Add(new int[] { x + sx, y + sy });
-                            forbidden.Add(new int[] { x - lx, y - ly });
-                        }
-                        else
-                        {
-                            if (ex > 2)
+                            int i1 = InTakenIndexRel(1, dist);
+                            int i2 = InTakenIndexRel(2, dist);
+
+                            if (i2 > i1)
                             {
-                                for (int k = ex - 1; k >= 2; k--)
-                                {
-                                    borderFields.Add(new int[] { 1, k });
-                                }
+                                circleValid = true;
                             }
+                        }
 
-                            ResetExamAreas();
-
-                            if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                        // double area addition
+                        bool found = false;
+                        for (int k = 1; k < dist; k++)
+                        {
+                            if (InTaken(0, k))
                             {
-                                int black = (int)info[1];
-                                int white = (int)info[2];
+                                found = true;
+                                break;
+                            }
+                        }
 
-                                int whiteDiff = white - black;
-                                int nowWCount = 0;
-                                int nowBCount = 0;
-                                int laterWCount = 0;
-                                int laterBCount = 0;
-
-                                bool ruleTrue = false;
-
-                                switch (ex % 4)
+                        if (circleValid)
+                        {                            
+                            // Not actual with CheckNearField being applied at first.
+                            if (ex == 1) // close mid across j = 0 or 2
+                            {
+                                T("Close mid across", i, j);
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                if (j == 0)
                                 {
-                                    case 0:
-                                        nowWCount = ex / 4;
-                                        nowBCount = ex / 4 - 1;
-                                        laterWCount = ex / 4;
-                                        laterBCount = ex / 4;
-
-                                        // 0610_4, 0610_5
-                                        if (!found && -whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex - 1))
-                                        {
-                                            ruleTrue = true;
-                                            T("LeftRightAreaUp open corner 4: Cannot step straight");
-                                            forbidden.Add(new int[] { x + sx, y + sy });
-                                        }
-                                        break;
-                                    case 1:
-                                        nowWCount = (ex - 1) / 4;
-                                        nowBCount = (ex - 1) / 4;
-                                        laterWCount = (ex - 1) / 4;
-                                        laterBCount = (ex - 1) / 4;
-                                        break;
-                                    case 2:
-                                        nowWCount = (ex + 2) / 4;
-                                        nowBCount = (ex - 2) / 4;
-                                        laterWCount = (ex - 2) / 4;
-                                        laterBCount = (ex - 2) / 4;
-
-                                        // We cannot get to the 2- or 6-distance case if the other rules are applied. 0611_1
-                                        /*if (!found && whiteDiff == (ex + 2) / 4 && CheckNearFieldSmallRel(0, ex))
-                                        {
-                                            ruleTrue = true;
-                                            T("LeftRightAreaUp closed corner 2: Cannot step left");
-                                            forbidden.Add(new int[] { x + lx, y + ly });
-                                        }*/
-                                        break;
-                                    case 3:
-                                        nowWCount = (ex + 1) / 4;
-                                        nowBCount = (ex - 3) / 4;
-                                        laterWCount = (ex - 3) / 4;
-                                        laterBCount = (ex + 1) / 4;
-
-                                        if (!found)
-                                        {
-                                            if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(0, ex - 1))
-                                            {
-                                                ruleTrue = true;
-                                                T("LeftRightAreaUp open corner 3: Cannot step left");
-                                                forbidden.Add(new int[] { x + lx, y + ly });
-                                            }
-                                            // 0611
-                                            if (-whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(0, ex))
-                                            {
-                                                ruleTrue = true;
-                                                T("LeftRightAreaUp closed corner 3: Cannot step straight");
-                                                forbidden.Add(new int[] { x + sx, y + sy });
-                                            }
-                                        }
-                                        break;
-                                }
-
-                                if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
-                                {
-                                    ruleTrue = true;
-                                    T("LeftRightAreaUp: Cannot enter now");
-                                    forbidden.Add(new int[] { x + lx, y + ly });
-                                }
-                                if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
-                                {
-                                    ruleTrue = true;
-                                    T("LeftRightAreaUp: Cannot enter later");
-                                    forbidden.Add(new int[] { x + sx, y + sy });
                                     forbidden.Add(new int[] { x - lx, y - ly });
                                 }
-                                else // We can enter later, check for start C on the opposite side (if the obstacle is up on the left, we check the straight field for next step C, not the right field.) 
-                                // 466
+
+                                // only one option remains
+                                sx = thisSx;
+                                sy = thisSy;
+                                lx = thisLx;
+                                ly = thisLy;
+                                return;
+                            }
+                            else
+                            {
+                                if (ex > 2)
                                 {
-                                    if (ex == 2 && !InTakenRel(-1, 1) && (InTakenRel(-2, 1) || InBorderRel(-2, 1)) && InTakenRel(-1, 0))
+                                    for (int k = ex - 1; k >= 2; k--)
                                     {
-                                        ruleTrue = true;
-                                        T("LeftRightAreaUp start C", i, j);
-                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        borderFields.Add(new int[] { 1, k });
                                     }
                                 }
 
-                                if (ruleTrue)
+                                ResetExamAreas();
+
+                                if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
                                 {
-                                    AddExamAreas();
-                                    areaPairFields.Add((List<int[]>)info[3]);
+                                    int black = (int)info[1];
+                                    int white = (int)info[2];
+
+                                    int whiteDiff = white - black;
+                                    int nowWCount = 0;
+                                    int nowBCount = 0;
+                                    int laterWCount = 0;
+                                    int laterBCount = 0;
+
+                                    bool ruleTrue = false;
+
+                                    switch (ex % 4)
+                                    {
+                                        case 0:
+                                            nowWCount = ex / 4;
+                                            nowBCount = ex / 4 - 1;
+                                            laterWCount = ex / 4;
+                                            laterBCount = ex / 4;
+
+                                            // 0610_4, 0610_5
+                                            if (!found && -whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex - 1))
+                                            {
+                                                ruleTrue = true;
+                                                T("LeftRightAreaUp open corner 4: Cannot step straight");
+                                                forbidden.Add(new int[] { x + sx, y + sy });
+                                            }
+                                            break;
+                                        case 1:
+                                            nowWCount = (ex - 1) / 4;
+                                            nowBCount = (ex - 1) / 4;
+                                            laterWCount = (ex - 1) / 4;
+                                            laterBCount = (ex - 1) / 4;
+                                            break;
+                                        case 2:
+                                            nowWCount = (ex + 2) / 4;
+                                            nowBCount = (ex - 2) / 4;
+                                            laterWCount = (ex - 2) / 4;
+                                            laterBCount = (ex - 2) / 4;
+
+                                            // We cannot get to the 2- or 6-distance case if the other rules are applied. 0611_1
+                                            /*if (!found && whiteDiff == (ex + 2) / 4 && CheckNearFieldSmallRel(0, ex))
+                                            {
+                                                ruleTrue = true;
+                                                T("LeftRightAreaUp closed corner 2: Cannot step left");
+                                                forbidden.Add(new int[] { x + lx, y + ly });
+                                            }*/
+                                            break;
+                                        case 3:
+                                            nowWCount = (ex + 1) / 4;
+                                            nowBCount = (ex - 3) / 4;
+                                            laterWCount = (ex - 3) / 4;
+                                            laterBCount = (ex + 1) / 4;
+
+                                            if (!found)
+                                            {
+                                                if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(0, ex - 1))
+                                                {
+                                                    ruleTrue = true;
+                                                    T("LeftRightAreaUp open corner 3: Cannot step left");
+                                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                                }
+                                                // 0611
+                                                if (-whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(0, ex))
+                                                {
+                                                    ruleTrue = true;
+                                                    T("LeftRightAreaUp closed corner 3: Cannot step straight");
+                                                    forbidden.Add(new int[] { x + sx, y + sy });
+                                                }
+                                            }
+                                            break;
+                                    }
+
+                                    if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
+                                    {
+                                        ruleTrue = true;
+                                        T("LeftRightAreaUp: Cannot enter now");
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                    if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                                    {
+                                        ruleTrue = true;
+                                        T("LeftRightAreaUp: Cannot enter later");
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                    }
+                                    else if (j != 2) // We can enter later, check for start C on the opposite side (if the obstacle is up on the left, we check the straight field for next step C, not the right field.) 
+                                         // 466
+                                    {
+                                        if (ex == 2)
+                                        {
+                                            ruleTrue = true;
+                                            if (i == 0)
+                                            {
+                                                if (nextStepEnterLeft == -1)
+                                                {
+                                                    nextStepEnterLeft = j;
+                                                }
+                                                else if (nextStepEnterLeft == 3 && (j == 0 || j == 1))
+                                                {
+                                                    nextStepEnterLeft = j;
+                                                }
+                                                else if (nextStepEnterLeft == 0 && j == 1)
+                                                {
+                                                    nextStepEnterLeft = j;
+                                                }   
+                                            }
+                                            else
+                                            {
+                                                if (nextStepEnterRight == -1)
+                                                {
+                                                    nextStepEnterRight = j;
+                                                }
+                                                else if (nextStepEnterRight == 3 && (j == 0 || j == 1))
+                                                {
+                                                    nextStepEnterRight = j;
+                                                }
+                                                else if (nextStepEnterRight == 0 && j == 1)
+                                                {
+                                                    nextStepEnterRight = j;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (ruleTrue)
+                                    {
+                                        AddExamAreas();
+                                        areaPairFields.Add((List<int[]>)info[3]);
+                                    }
                                 }
                             }
                         }
                     }
 
-                    if (j == 0) // rotate down (CCW): small area
-                    {
-                        int l0 = lx;
-                        int l1 = ly;
-                        lx = -sx;
-                        ly = -sy;
-                        sx = l0;
-                        sy = l1;
-                    }
-                    else if (j == 1) // rotate up (CW): big area
-                    {
-                        lx = -lx;
-                        ly = -ly;
-                        sx = -sx;
-                        sy = -sy;
-                    }
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
                 }
                 sx = thisSx;
                 sy = thisSy;
@@ -1603,7 +1684,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        public void CheckLeftRightAreaUpBig()
+        void CheckLeftRightAreaUpBig()
         {
             for (int i = 0; i < 2; i++)
             {
@@ -1636,10 +1717,21 @@ namespace OneWayLabyrinth
                     if (circleValid)
                     {
                         // Not actual with CheckNearField being applied at first.
-                        if (ex == 1) // close mid across big
+                        if (ex == 1) // close mid across big j = 0 or 1
                         {
+                            T("Close mid across big", i, j);
                             forbidden.Add(new int[] { x + sx, y + sy });
-                            forbidden.Add(new int[] { x + lx, y + ly });
+                            if (j == 0)
+                            {
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                            }
+
+                            // only one option remains
+                            sx = thisSx;
+                            sy = thisSy;
+                            lx = thisLx;
+                            ly = thisLy;
+                            return;
                         }
                         else
                         {
@@ -1680,11 +1772,18 @@ namespace OneWayLabyrinth
                                         laterBCount = (ex - 1) / 4;
                                         break;
                                     case 2:
-                                        nowWCountRight = (ex + 2) / 4;
-                                        nowWCount = (ex - 2) / 4; // 0611_2
-                                        nowBCount = (ex - 2) / 4;
-                                        laterWCount = (ex - 2) / 4;
-                                        laterBCount = (ex - 2) / 4;
+                                        if (ex == 2)
+                                        {
+                                            nowWCountRight = 1;
+                                            nowWCount = 0;
+                                        }
+                                        else
+                                        {
+                                            nowWCountRight = nowWCount = (ex + 2) / 4;
+                                            nowBCount = (ex - 2) / 4;
+                                            laterWCount = (ex - 2) / 4;
+                                            laterBCount = (ex - 2) / 4;
+                                        }
                                         break;
                                     case 3:
                                         nowWCountRight = nowWCount = (ex + 1) / 4;
@@ -1693,6 +1792,8 @@ namespace OneWayLabyrinth
                                         laterBCount = (ex - 3) / 4;
                                         break;
                                 }
+
+                                // T("upbig", i, j, black, white, nowWCount, nowBCount, nowWCountRight, laterWCount, laterBCount);
 
                                 bool ruleTrue = false;
 
@@ -1752,11 +1853,15 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        public void CheckLeftRightCornerBig() // rotate down (CCW): 59438645 for behind and up for small area 
+        void CheckLeftRightCorner() // rotations:
+                                           // j = 0: small area up left -> CW ->
+                                           // j = 1: big area up right -> CW -> 
+                                           // j = 2: big area down right -> CW ->
+                                           // j = 3: small area down left
         {
             for (int i = 0; i < 2; i++)
             {
-                bool circleDirectionLeft = (i == 0) ? false : true;
+                bool circleDirectionLeft = (i == 0) ? true : false;
 
                 for (int j = 0; j < 4; j++)
                 {
@@ -1784,7 +1889,7 @@ namespace OneWayLabyrinth
                         if (!InTakenRel(hori, vert - 1))
                         {
                             int i1 = InTakenIndexRel(hori, vert);
-                            int i2 = InTakenIndexRel(hori, vert + 1);
+                            int i2 = InTakenIndexRel(hori + 1, vert);
 
                             if (i2 > i1)
                             {
@@ -1794,13 +1899,24 @@ namespace OneWayLabyrinth
 
                         if (circleValid)
                         {
-                            if (hori == 2 && vert == 2) // close across, big if j = 0
+                            if (hori == 2 && vert == 2) // close across, small if j = 0, big if j = 1
                             {
-                                T("Close across", i, j);
-                                forbidden.Add(new int[] { x + lx, y + ly });
-                                if (j == 2) // close across small
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                if (j == 0) // close across small
                                 {
-                                    forbidden.Add(new int[] { x - sx, y - sy });
+                                    T("Close across small", i);
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+
+                                    // only one option remains
+                                    sx = thisSx;
+                                    sy = thisSy;
+                                    lx = thisLx;
+                                    ly = thisLy;
+                                    return;
+                                }
+                                else if (j == 1)
+                                {
+                                    T("Close across big", i);
                                 }
                             }
                             else
@@ -1812,14 +1928,14 @@ namespace OneWayLabyrinth
                                 int straight2 = vert - 1;
                                 List<int[]> borderFields = new();
 
-                                int nowWCount, nowWCountRight, nowBCount, laterWCount, laterBCount;
+                                int nowWCount, nowWCountDown, nowBCount, laterWCount, laterBCount;
                                 int a, n;
 
                                 //check if all fields on the border line is free
                                 if (vert == hori)
                                 {
                                     a = hori - 1;
-                                    nowWCountRight = nowWCount = 0;
+                                    nowWCountDown = nowWCount = 0;
                                     nowBCount = a - 1;
                                     laterWCount = -1;// means B = 1
                                     laterBCount = a - 1;
@@ -1828,7 +1944,7 @@ namespace OneWayLabyrinth
                                     {
                                         if (k < hori - 1)
                                         {
-                                            if (InTakenRel(k, k) || InTakenRel(k, k + 1))
+                                            if (InTakenRel(k, k) || InTakenRel(k + 1, k))
                                             {
                                                 takenFound = true;
                                                 break;
@@ -1845,12 +1961,12 @@ namespace OneWayLabyrinth
 
                                         if (k == 1)
                                         {
-                                            borderFields.Add(new int[] { 1, 2 });
+                                            borderFields.Add(new int[] { 2, 1 });
                                         }
                                         else if (k < hori - 1)
                                         {
                                             borderFields.Add(new int[] { k, k });
-                                            borderFields.Add(new int[] { k, k + 1 });
+                                            borderFields.Add(new int[] { k + 1, k });
                                         }
                                     }
                                 }
@@ -1861,14 +1977,92 @@ namespace OneWayLabyrinth
 
                                     if ((hori - vert) % 2 == 0)
                                     {
-                                        nowWCountRight = nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                        if (n > 1)
+                                        {
+                                            nowWCountDown = nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                        }
+                                        else
+                                        {
+                                            nowWCount = 0;
+                                            nowWCountDown = 1;
+                                        }
                                         nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
                                         laterWCount = (n - n % 2) / 2;
                                         laterBCount = a + (n - n % 2) / 2;
                                     }
                                     else
                                     {
-                                        nowWCountRight = nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;
+                                        if (n > 0)
+                                        {
+                                            nowWCountDown = nowWCount = a + (n - n % 2) / 2;
+                                            laterBCount = (n + 2 - (n + 2) % 2) / 2;
+                                        }
+                                        else
+                                        {
+                                            nowWCount = a - 1;
+                                            nowWCountDown = a;
+                                            laterBCount = 0;
+                                        }
+                                        nowBCount = (n + 1 - (n + 1) % 2) / 2;
+                                        laterWCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
+
+                                    }
+
+                                    for (int k = 1; k <= hori - vert; k++)
+                                    {
+                                        if (InTakenRel(k, 1))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+
+                                        if (k > 1)
+                                        {
+                                            borderFields.Add(new int[] { k, 1 });
+                                        }
+                                    }
+
+                                    for (int k = 1; k < vert; k++)
+                                    {
+                                        if (k < vert - 1)
+                                        {
+                                            if (InTakenRel(hori - vert + k, k) || InTakenRel(hori - vert + k + 1, k))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (InTakenRel(hori - vert + k, k))
+                                            {
+                                                takenFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (k < vert - 1)
+                                        {
+                                            borderFields.Add(new int[] { hori - vert + k, k });
+                                            borderFields.Add(new int[] { hori - vert + k + 1, k });
+                                        }
+                                    }
+                                }
+                                else // vert > hori
+                                {
+                                    a = hori - 1;
+                                    n = (vert - hori - (vert - hori) % 2) / 2;
+
+                                    if ((vert - hori) % 2 == 0)
+                                    {
+                                        nowWCountDown = nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                        nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
+                                        laterWCount = (n - n % 2) / 2;
+                                        laterBCount = a + (n - n % 2) / 2;
+                                    }
+                                    else
+                                    {
+                                        nowWCountDown = nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;
                                         nowBCount = a - 1 + (n - n % 2) / 2;
                                         if (n > 0)
                                         {
@@ -1881,11 +2075,11 @@ namespace OneWayLabyrinth
                                         laterBCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
                                     }
 
-                                    for (int k = 1; k < vert; k++)
+                                    for (int k = 1; k < hori; k++)
                                     {
-                                        if (k < vert - 1 && vert > 2)
+                                        if (k < hori - 1 && hori > 2)
                                         {
-                                            if (InTakenRel(k, k) || InTakenRel(k, k + 1))
+                                            if (InTakenRel(k, k) || InTakenRel(k + 1, k))
                                             {
                                                 takenFound = true;
                                                 break;
@@ -1900,16 +2094,16 @@ namespace OneWayLabyrinth
                                             }
                                         }
 
-                                        if (vert > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
+                                        if (hori > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
                                         {
                                             if (k == 1)
                                             {
-                                                borderFields.Add(new int[] { 1, 2 });
+                                                borderFields.Add(new int[] { 2, 1 });
                                             }
-                                            else if (k < vert - 1)
+                                            else if (k < hori - 1)
                                             {
                                                 borderFields.Add(new int[] { k, k });
-                                                borderFields.Add(new int[] { k, k + 1 });
+                                                borderFields.Add(new int[] { k + 1, k });
                                             }
                                             else
                                             {
@@ -1918,95 +2112,17 @@ namespace OneWayLabyrinth
                                         }
                                     }
 
-                                    for (int k = 1; k <= hori - vert; k++)
-                                    {
-                                        if (InTakenRel(vert - 1 + k, vert - 1))
-                                        {
-                                            takenFound = true;
-                                            break;
-                                        }
-
-                                        if (k < hori - vert)
-                                        {
-                                            borderFields.Add(new int[] { vert - 1 + k, vert - 1 });
-                                        }
-                                    }
-                                }
-                                else // vert > hori
-                                {
-                                    a = hori - 1;
-                                    n = (vert - hori - (vert - hori) % 2) / 2;
-
-                                    if ((vert - hori) % 2 == 0)
-                                    {
-                                        if (n > 1)
-                                        {
-                                            nowWCountRight = nowWCount = (n + 1 - (n + 1) % 2) / 2;
-                                        }
-                                        else
-                                        {
-                                            nowWCount = 0;
-                                            nowWCountRight = 1;
-                                        }
-                                        nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
-                                        laterWCount = (n - n % 2) / 2;
-                                        laterBCount = a + (n - n % 2) / 2;
-                                    }
-                                    else
-                                    {
-                                        if (n > 0)
-                                        {
-                                            nowWCountRight = nowWCount = a + (n - n % 2) / 2;
-                                            laterBCount = (n + 2 - (n + 2) % 2) / 2;
-                                        }
-                                        else
-                                        {
-                                            nowWCount = a - 1;
-                                            nowWCountRight = a;
-                                            laterBCount = 0;
-                                        }
-                                        nowBCount = (n + 1 - (n + 1) % 2) / 2;
-                                        laterWCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
-
-                                    }
-
                                     for (int k = 1; k <= vert - hori; k++)
                                     {
-                                        if (InTakenRel(1, k))
+                                        if (InTakenRel(hori - 1 + k, hori - 1))
                                         {
                                             takenFound = true;
                                             break;
                                         }
 
-                                        if (k > 1)
+                                        if (k < vert - hori)
                                         {
-                                            borderFields.Add(new int[] { 1, k });
-                                        }
-                                    }
-
-                                    for (int k = 1; k < hori; k++)
-                                    {
-                                        if (k < hori - 1)
-                                        {
-                                            if (InTakenRel(k, vert - hori + k) || InTakenRel(k, vert - hori + k + 1))
-                                            {
-                                                takenFound = true;
-                                                break;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (InTakenRel(k, vert - hori + k))
-                                            {
-                                                takenFound = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if (k < hori - 1)
-                                        {
-                                            borderFields.Add(new int[] { k, vert - hori + k });
-                                            borderFields.Add(new int[] { k, vert - hori + k + 1 });
+                                            borderFields.Add(new int[] { hori - 1, hori - 1 + k });
                                         }
                                     }
                                 }
@@ -2033,39 +2149,39 @@ namespace OneWayLabyrinth
                                         bool ruleTrue = false;
 
                                         // need to be generalized for larger than 1 vertical distance
-                                        if (vert == 2)
+                                        if (hori == 2)
                                         {
-                                            if (hori % 4 == 3) //0610, 0610_1
+                                            if (vert % 4 == 3) //0610, 0610_1
                                             {
-                                                if (-whiteDiff == (hori - 3) / 4 && CheckNearFieldSmallRel2(2, 1))
+                                                if (-whiteDiff == (vert - 3) / 4 && CheckNearFieldSmallRel(1, 2))
                                                 {
                                                     
-                                                    if (j != 3) // no small small area, straight field is taken
+                                                    if (j != 3) // no small small area, left field is taken
                                                     {
                                                         ruleTrue = true;
-                                                        T("LeftRightCornerBig closed corner 2, 3: Cannot step straight");
-                                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                                        if (j == 0)
+                                                        T("LeftRightCorner closed corner 2, 3: Cannot step left");
+                                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                                        if (j == 1) // big area
                                                         {
-                                                            T("Default rotation, cannot step left");
-                                                            forbidden.Add(new int[] { x - lx, y - ly });
+                                                            T("LeftRightCorner closed corner 2, 3: Cannot step down");
+                                                            forbidden.Add(new int[] { x - sx, y - sy });
                                                         }
                                                     }
                                                 }
                                             }
-                                            if (hori % 4 == 0)  //0610_2, 0610_3
+                                            if (vert % 4 == 0)  //0610_2, 0610_3
                                             {
-                                                if (-whiteDiff == hori / 4 && CheckNearFieldSmallRel2(2, 1))
+                                                if (-whiteDiff == vert / 4 && CheckNearFieldSmallRel(1, 2))
                                                 {
-                                                    if (j != 3) // no small small area, straight field is taken
+                                                    if (j != 3) // no small small area, left field is taken
                                                     {
                                                         ruleTrue = true;
-                                                        T("LeftRightCornerBig open corner 2, 4: Cannot  step straight");
-                                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                                        T("LeftRightCorner open corner 2, 4: Cannot  step left");
+                                                        forbidden.Add(new int[] { x + lx, y + ly });
                                                         if (j == 0)
                                                         {
-                                                            T("Default rotation, cannot step left");
-                                                            forbidden.Add(new int[] { x - lx, y - ly });
+                                                            T("LeftRightCorner closed corner 2, 4: Cannot step down");
+                                                            forbidden.Add(new int[] { x - sx, y - sy });
                                                         }
                                                     }
                                                 }
@@ -2074,60 +2190,71 @@ namespace OneWayLabyrinth
 
                                         if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
                                         {
-                                            ruleTrue = true;
-                                            T("LeftRightCornerBig " + i + " " + j + ": Cannot enter now up");
-                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                            if (j != 3)
+                                            {
+                                                ruleTrue = true;
+                                                T("LeftRightCorner " + i + " " + j + ": Cannot enter now left");
+                                                forbidden.Add(new int[] { x + lx, y + ly });
+                                            }   
                                         }
-                                        if (!(whiteDiff <= nowWCountRight && whiteDiff >= -nowBCount)) // not in range
+                                        if (!(whiteDiff <= nowWCountDown && whiteDiff >= -nowBCount)) // not in range
                                         {
-                                            ruleTrue = true;
-                                            T("LeftRightCornerBig " + i + " " + j + ": Cannot enter now right");
-                                            forbidden.Add(new int[] { x - lx, y - ly });
+                                            if (j != 3)
+                                            {
+                                                ruleTrue = true;
+                                                T("LeftRightCorner " + i + " " + j + ": Cannot enter now down");
+                                                forbidden.Add(new int[] { x - sx, y - sy });
+                                            }
                                         }
                                         if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                                         {
                                             ruleTrue = true;
-                                            T("LeftRightCornerBig " + i + " " + j + ": Cannot enter later");
-                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                            T("LeftRightCorner " + i + " " + j + ": Cannot enter later");
+                                            forbidden.Add(new int[] { x + sx, y + sy });
                                             // for small area
-                                            if (j == 2)
+                                            if (j == 0)
                                             {
-                                                forbidden.Add(new int[] { x - sx, y - sy });
+                                                forbidden.Add(new int[] { x - lx, y - ly });
                                             }
                                         }
-                                        else // We can enter later, but if we step straight, we have to enter afterwards. Check for pattern on the opposite side (if the obstacle is up on the left, we check the straight field for next step C, not the right field.) 
-                                             // 0611_6
+                                        else if (j != 2) // We can enter later, but if we step straight, we have to enter afterwards. Check for pattern on the opposite side (if the obstacle is up on the left, we check the straight field for next step C, not the right field.) 
+                                            // When j = 2, the enter later field is the field behind.
+                                            
                                         {
-                                            if (hori == 4 && vert == 2 && -whiteDiff == 1)
+                                            // 0611_6
+                                            if ((hori == 2 && vert == 3 && whiteDiff == 0) || 
+                                                (hori == 2 && vert == 4 && -whiteDiff == 1))
                                             {
-                                                // C-shape 0611_6
-                                                if (!InTakenRel(1, -1) && (InTakenRel(1, -2) || InBorderRel(1, -2)) && InTakenRel(0, -1))
+                                                ruleTrue = true;
+                                                if (i == 0)
                                                 {
-                                                    ruleTrue = true;
-                                                    T("LeftRightCornerBig hori 4 start C", i, j);
-                                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                                    if (nextStepEnterLeft == -1)
+                                                    {
+                                                        nextStepEnterLeft = j;
+                                                    }
+                                                    else if (nextStepEnterLeft == 3 && (j == 0 || j == 1))
+                                                    {
+                                                        nextStepEnterLeft = j;
+                                                    }
+                                                    else if (nextStepEnterLeft == 0 && j == 1)
+                                                    {
+                                                        nextStepEnterLeft = j;
+                                                    }
                                                 }
-                                            }
-
-                                            if (hori == 3 && vert == 2 && -whiteDiff == 0)
-                                            {
-                                                // C-shape 0611_5
-                                                if (!InTakenRel(1, -1) && (InTakenRel(1, -2) || InBorderRel(1, -2)) && InTakenRel(0, -1))
+                                                else
                                                 {
-                                                    ruleTrue = true;
-                                                    T("LeftRightCornerBig hori 3 start C", i, j);
-                                                    forbidden.Add(new int[] { x + lx, y + ly });
-                                                }
-                                            }
-
-                                            if (hori == 4 && vert == 2 && -whiteDiff == 1)
-                                            {
-                                                // Far mid across 0611_4
-                                                if (InTakenRel(3, -1) && !InTakenRel(3, 0) && !InTakenRel(2, -1))
-                                                {
-                                                    ruleTrue = true;
-                                                    T("LeftRightCornerBig far mid across", i, j);
-                                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                                    if (nextStepEnterRight == -1)
+                                                    {
+                                                        nextStepEnterRight = j;
+                                                    }
+                                                    else if (nextStepEnterRight == 3 && (j == 0 || j == 1))
+                                                    {
+                                                        nextStepEnterRight = j;
+                                                    }
+                                                    else if (nextStepEnterRight == 0 && j == 1)
+                                                    {
+                                                        nextStepEnterRight = j;
+                                                    }
                                                 }
                                             }
                                         }
@@ -2139,10 +2266,6 @@ namespace OneWayLabyrinth
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    T("arealine taken");
-                                }
                             }
                         }
 
@@ -2150,31 +2273,13 @@ namespace OneWayLabyrinth
                         hori = 1;
                     }
 
-                    if (j == 0) // rotate down (CCW): behind obstacle
-                    {
-                        int l0 = lx;
-                        int l1 = ly;
-                        lx = -sx;
-                        ly = -sy;
-                        sx = l0;
-                        sy = l1;
-                    }
-                    else if (j == 1) // rotate up (CW): small area
-                    {
-                        lx = -lx;
-                        ly = -ly;
-                        sx = -sx;
-                        sy = -sy;
-                    }
-                    else if (j == 2) // rotate up again (CW): small area
-                    {
-                        int s0 = sx;
-                        int s1 = sy;
-                        sx = -lx;
-                        sy = -ly;
-                        lx = s0;
-                        ly = s1;
-                    }
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
                 }
                 sx = thisSx;
                 sy = thisSy;
@@ -3113,10 +3218,71 @@ namespace OneWayLabyrinth
             return ret;
         }
 
+        // used in LeftRightCorner
+        void CheckCShapeNext() // 0611_5, 0611_6
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? false : true;
+
+                for (int j = 0; j < 4; j++)
+                {
+                    if (j != 2 && !InTakenRel(1, 1) && (InTakenRel(2, 1) || InBorderRel(2, 1)) && InTakenRel(1, 0))
+                    {
+                        if (i == 0)
+                        {
+                            if (nextStepEnterLeft == -1)
+                            {
+                                nextStepEnterLeft = j;
+                            }
+                            else if (nextStepEnterLeft == 3 && (j == 0 || j == 1))
+                            {
+                                nextStepEnterLeft = j;
+                            }
+                            else if (nextStepEnterLeft == 0 && j == 1)
+                            {
+                                nextStepEnterLeft = j;
+                            }
+                        }
+                        else
+                        {
+                            if (nextStepEnterRight == -1)
+                            {
+                                nextStepEnterRight = j;
+                            }
+                            else if (nextStepEnterRight == 3 && (j == 0 || j == 1))
+                            {
+                                nextStepEnterRight = j;
+                            }
+                            else if (nextStepEnterRight == 0 && j == 1)
+                            {
+                                nextStepEnterRight = j;
+                            }
+                        }
+                    }
+
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
 
         // obstacle right side of the field in question, area up
         // mid across and across fields
-        // used for LeftRightAreaUp
+        // used for LeftRightAreaUp and LeftRightCorner
         bool CheckNearFieldSmallRel(int x, int y)
         {
             if (InTakenRel(x - 2, y + 1) && !InTakenRel(x - 1, y + 1) && !InTakenRel(x - 2, y))
@@ -3130,27 +3296,6 @@ namespace OneWayLabyrinth
             {
                 int i1 = InTakenIndexRel(x - 2, y + 2);
                 int i2 = InTakenIndexRel(x - 2, y + 3);
-
-                if (i2 > i1) return true;
-            }
-            return false;
-        }
-
-        // first obstacle to left up, second left down in first case of LeftRightCornerBig
-        bool CheckNearFieldSmallRel2(int x, int y)
-        {
-            if (InTakenRel(x + 1, y - 2) && !InTakenRel(x + 1, y - 1) && !InTakenRel(x, y - 2))
-            {
-                int i1 = InTakenIndexRel(x + 1, y - 2);
-                int i2 = InTakenIndexRel(x + 2, y - 2);
-
-                if (i2 > i1) return true;
-
-            }
-            if (InTakenRel(x + 2, y - 2) && !InTakenRel(x + 2, y - 1) && !InTakenRel(x + 1, y - 2))
-            {
-                int i1 = InTakenIndexRel(x + 2, y - 2);
-                int i2 = InTakenIndexRel(x + 3, y - 2);
 
                 if (i2 > i1) return true;
             }
@@ -3449,11 +3594,14 @@ namespace OneWayLabyrinth
             examAreaLineDirections.Add(circleDirectionLeft);
 
             int area = 0;
-            List<int[]> startSquares = new List<int[]>();
-            List<int[]> endSquares = new List<int[]>();
+            List<int[]> startSquares = new();
+            List<int[]> endSquares = new();
 
             if (areaLine.Count > 2)
             {
+                int thisStartX = startX;
+                int thisStartY = startY;
+
                 int[] startCandidate = new int[] { limitX, minY };
                 int[] endCandidate = new int[] { limitX, minY };
 
@@ -3477,26 +3625,45 @@ namespace OneWayLabyrinth
 
                 int otherX = limitX;
                 bool oneRow = true;
+                bool startRepeat = false;
+                bool startRepeat1 = false;
+                bool startRepeat2 = false;
 
+                int i = 0;
                 foreach (int[] field in areaLine)
                 {
                     int x = field[0];
                     int y = field[1];
 
-                    if (circleDirectionLeft && x < otherX)
+                    if (y == minY)
                     {
-                        otherX = x;
-                    }
-                    else if (!circleDirectionLeft && x > otherX)
-                    {
-                        otherX = x;
+                        if (circleDirectionLeft && x < otherX)
+                        {
+                            otherX = x;
+                        }
+                        else if (!circleDirectionLeft && x > otherX)
+                        {
+                            otherX = x;
+                        }
                     }
 
                     if (y != minY)
                     {
                         oneRow = false;
-                        break;
                     }
+
+                    if (x == limitX && y == minY && i != startIndex)
+                    {
+                        startRepeat = true;
+                    }
+                    i++;
+                }
+
+                // 214111, first row should not be added to start and end squares
+                // crossing over the live end is only a problem if we return. An L-shape like 31817 is no problem.
+                if (startRepeat && (!circleDirectionLeft && limitX < this.x && otherX > this.x || circleDirectionLeft && limitX > this.x && otherX < this.x) && minY == this.y - 1 && !InTakenAbs(leftField) && !InTakenAbs(rightField))
+                {
+                    startRepeat1 = true;
                 }
 
                 if (oneRow)
@@ -3514,7 +3681,20 @@ namespace OneWayLabyrinth
                 }
                 else
                 {
-                    for (int i = 1; i < areaLine.Count; i++)
+                    /* Test algorithm with all cases in References/countarea folder:
+                     * 1
+                     * 6
+                     * 198
+                     * 348
+                     * 22323
+                     * 2024_0611_7
+                     * 2024_0611_8
+                     */
+
+                    int x = 0;
+                    int y = 0;
+
+                    for (i = 1; i < areaLine.Count; i++)
                     {
                         int index = startIndex + i;
                         if (index >= areaLine.Count)
@@ -3522,129 +3702,208 @@ namespace OneWayLabyrinth
                             index -= areaLine.Count;
                         }
                         int[] field = areaLine[index];
-                        int fieldX = field[0];
-                        int fieldY = field[1];
+                        x = field[0];
+                        y = field[1];
+                        int[] square;
 
-                        if (debug2) T("field x " + field[0] + " y " + field[1] + " currentY " + currentY + " startCandidate " + startCandidate[0] + " " + startCandidate[1] + " endCandidate " + endCandidate[0] + " " + endCandidate[1]);
+                        if (debug2) T("field x " + x + " y " + y + " currentY " + currentY + " startCandidate " + startCandidate[0] + " " + startCandidate[1] + " endCandidate " + endCandidate[0] + " " + endCandidate[1]);
 
-                        if (fieldY > currentY)
+                        if (y > currentY)
                         {
                             if (circleDirectionLeft)
                             {
-                                //in the case where where the previous row was a closed peak, but an open dip was preceding it: the previous end field should have the same y and lower x
-                                if (endSquares.Count > 0)
+                                // we descend first
+                                if (startSquares.Count == 0 && endSquares.Count == 0)
                                 {
-                                    int[] square = endSquares[endSquares.Count - 1];
-                                    int x = square[0];
-                                    int y = square[1];
-
-                                    if (y == fieldY - 1 && x <= fieldX)
+                                    // In case of 214111, we add the first field to the start square. It will be removed in the end to prevent a duplicate, but an ascension needs a start field to be present.
+                                    // Second condition is to prevent 22495 where the after the start, we step down.
+                                    if (!startRepeat1 || startRepeat1 && x == limitX)
                                     {
-                                        startSquares.Add(startCandidate);
-                                        endSquares.Add(endCandidate);
-                                        startCandidate = endCandidate = field;
-                                        currentY = fieldY;
-                                        continue;
-                                    }
-                                }
-
-                                if (startSquares.Count > 0)
-                                {
-                                    int[] square = startSquares[startSquares.Count - 1];
-                                    int x = square[0];
-                                    int y = square[1];
-
-                                    if (y == fieldY)
-                                    {
-                                        //the previous row was a closed peak
-                                        if (x <= fieldX)
+                                        if (singleField)
                                         {
-                                            endSquares.Add(endCandidate);
                                             startSquares.Add(startCandidate);
                                         }
-                                        // else: open peak, no start and end should be marked
+                                        // 348, first row is walked through when we descend. But 198 should not add end square.
+                                        else if (startCandidate[0] != endCandidate[0] && x == limitX)
+                                        {
+                                            startSquares.Add(startCandidate);
+                                        }
+                                        endSquares.Add(endCandidate);
                                     }
-                                    else // stair down right or left, any possible start field is higher up
+                                    else
                                     {
+                                        startRepeat2 = true;
                                         endSquares.Add(endCandidate);
                                     }
                                 }
-                                else // stair, no start fields exist
+                                else
                                 {
-                                    if (singleField)
+                                    // no open peak on the bottom without having startsquares and endsquares -> descending
+                                    // no closed peak on the bottom without having endsquares -> ascending
+                                    // no open peak on the top without having endsquares -> ascending
+                                    // no closed peak on the top without having endsquares -> descending
+
+                                    // we have a startsquare after descending from the top row
+
+                                    if (startSquares.Count > 0)
                                     {
-                                        startSquares.Add(startCandidate);
+                                        square = startSquares[startSquares.Count - 1];
+                                        startX = square[0];
+                                        startY = square[1];
+
+                                        if (y == startY)
+                                        {
+                                            // open peak on the bottom
+                                            if (x < startX)
+                                            {
+                                                startCandidate = endCandidate = field;
+                                                currentY = y;
+                                                continue;
+                                            }
+                                            else
+                                            {
+                                                // closed peak on the top
+                                                startSquares.Add(startCandidate);
+                                                endSquares.Add(endCandidate);
+                                                startCandidate = endCandidate = field;
+                                                currentY = y;
+                                                continue;
+                                            }
+                                        }
+                                        else if (y == startY + 1)
+                                        {
+                                            // first row after open peak on the bottom: stair left down or straight down
+                                            if (x < startX)
+                                            {
+                                                endSquares.Add(endCandidate);
+                                                startCandidate = endCandidate = field;
+                                                currentY = y;
+                                                continue;
+                                            }
+                                        }
                                     }
-                                    // 3: The top row is walked through when we descend first. Beware of 198 where we do not descend at the limitX.
-                                    else if (endSquares.Count == 0 && startCandidate[0] != endCandidate[0] && fieldX == limitX) 
+
+                                    square = endSquares[endSquares.Count - 1];
+                                    endX = square[0];
+                                    endY = square[1];
+
+                                    if (y == endY + 1)
                                     {
-                                        startSquares.Add(startCandidate);
+                                        // closed peak on the top, preceded by and open peak
+                                        if (x > endX)
+                                        {
+                                            startSquares.Add(startCandidate);
+                                            endSquares.Add(endCandidate);
+                                        }
                                     }
-                                    endSquares.Add(endCandidate);
+                                    // stair left down or straight down
+                                    else
+                                    {
+                                        endSquares.Add(endCandidate);
+                                    }
                                 }
                             }
                             else
                             {
-                                if (startSquares.Count > 0)
+                                if (startSquares.Count == 0 && endSquares.Count == 0)
                                 {
-                                    int[] square = startSquares[startSquares.Count - 1];
-                                    int x = square[0];
-                                    int y = square[1];
-
-                                    if (y == fieldY - 1 && x >= fieldX)
+                                    // In case of 214111, we add the first field to the start square. It will be removed in the end to prevent a duplicate, but an ascension needs a start field to be present.
+                                    // Second condition is to prevent 22495 where the after the start, we step down.
+                                    if (!startRepeat1 || startRepeat1 && x == limitX)
                                     {
-                                        startSquares.Add(startCandidate);
-                                        endSquares.Add(endCandidate);
-                                        startCandidate = endCandidate = field;
-                                        currentY = fieldY;
-                                        continue;
-                                    }
-                                }
-
-                                if (endSquares.Count > 0)
-                                {
-                                    int[] square = endSquares[endSquares.Count - 1];
-                                    int x = square[0];
-                                    int y = square[1];
-
-                                    if (y == fieldY)
-                                    {
-                                        //the previous row was a closed peak
-                                        if (x >= fieldX)
+                                        if (singleField)
                                         {
-                                            startSquares.Add(startCandidate);
                                             endSquares.Add(endCandidate);
                                         }
-                                        // else: open peak, no start and end should be marked
+                                        // 348, first row is walked through when we descend. But 198 should not add end square.
+                                        else if (startCandidate[0] != endCandidate[0] && x == limitX)
+                                        {
+                                            endSquares.Add(endCandidate);
+                                        }
+                                        startSquares.Add(startCandidate);
                                     }
                                     else
                                     {
+                                        startRepeat2 = true;
                                         startSquares.Add(startCandidate);
                                     }
                                 }
                                 else
                                 {
-                                    if (singleField)
+                                    // no open peak on the bottom without having endsquares and startsquares -> descending
+                                    // no closed peak on the bottom without having startsquares -> ascending
+                                    // no open peak on the top without having startsquares -> ascending
+                                    // no closed peak on the top without having startsquares -> descending
+
+                                    // we have a startsquare after descending from the top row
+
+                                    if (endSquares.Count > 0)
                                     {
-                                        endSquares.Add(endCandidate);
+                                        square = endSquares[endSquares.Count - 1];
+                                        endX = square[0];
+                                        endY = square[1];
+
+                                        if (y == endY)
+                                        {
+                                            // open peak on the bottom
+                                            if (x > endX)
+                                            {
+                                                startCandidate = endCandidate = field;
+                                                currentY = y;
+                                                continue;
+                                            }
+                                            else
+                                            {
+                                                // closed peak on the top
+                                                startSquares.Add(startCandidate);
+                                                endSquares.Add(endCandidate);
+                                                startCandidate = endCandidate = field;
+                                                currentY = y;
+                                                continue;
+                                            }
+                                        }
+                                        else if (y == endY + 1)
+                                        {
+                                            // first row after open peak on the bottom: stair right down or straight down
+                                            if (x > endX)
+                                            {
+                                                startSquares.Add(startCandidate);
+                                                startCandidate = endCandidate = field;
+                                                currentY = y;
+                                                continue;
+                                            }
+                                        }
                                     }
-                                    // 3: The top row is walked through when we descend first. Beware of 198 where we do not descend at the limitX.
-                                    else if (startSquares.Count == 0 && startCandidate[0] != endCandidate[0] && fieldX == limitX)
+
+                                    square = startSquares[startSquares.Count - 1];
+                                    startX = square[0];
+                                    startY = square[1];
+
+                                    if (y == startY + 1)
                                     {
-                                        endSquares.Add(endCandidate);
+                                        // closed peak on the top, preceded by an open peak
+                                        if (x < startX)
+                                        {
+                                            startSquares.Add(startCandidate);
+                                            endSquares.Add(endCandidate);
+                                        }
                                     }
-                                    startSquares.Add(startCandidate);
+                                    // stair right down or straight down
+                                    else
+                                    {
+                                        startSquares.Add(startCandidate);
+                                    }
                                 }
                             }
                             startCandidate = endCandidate = field;
                         }
-                        else if (fieldY == currentY)
+                        else if (y == currentY)
                         {
-                            if (fieldX < startCandidate[0])
+                            if (x < startCandidate[0])
                             {
                                 startCandidate = field;
                             }
-                            else if (fieldX > endCandidate[0])
+                            else if (x > endCandidate[0])
                             {
                                 endCandidate = field;
                             }
@@ -3653,43 +3912,60 @@ namespace OneWayLabyrinth
                         {
                             if (circleDirectionLeft)
                             {
-                                if (startSquares.Count > 0)
-                                {
-                                    int[] square = startSquares[startSquares.Count - 1];
-                                    int x = square[0];
-                                    int y = square[1];
+                                square = endSquares[endSquares.Count - 1];
+                                endX = square[0];
+                                endY = square[1];
 
-                                    if (y == fieldY + 1 && x >= fieldX)
+                                if (y == endY)
+                                {
+                                    // open peak on the top
+                                    if (x > endX)
                                     {
+                                        startCandidate = endCandidate = field;
+                                        currentY = y;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        // closed peak on the bottom
                                         startSquares.Add(startCandidate);
                                         endSquares.Add(endCandidate);
                                         startCandidate = endCandidate = field;
-                                        currentY = fieldY;
+                                        currentY = y;
+                                        continue;
+                                    }
+                                }
+                                else if (y == endY - 1)
+                                {
+                                    // first row after an open peak on the top: stair right up or straight up
+                                    if (x > endX)
+                                    {
+                                        startSquares.Add(startCandidate);
+                                        startCandidate = endCandidate = field;
+                                        currentY = y;
                                         continue;
                                     }
                                 }
 
-                                if (endSquares.Count > 0)
-                                {
-                                    int[] square = endSquares[endSquares.Count - 1];
-                                    int x = square[0];
-                                    int y = square[1];
+                                square = startSquares[startSquares.Count - 1];
+                                startX = square[0];
+                                startY = square[1];
 
-                                    if (y == fieldY)
+                                if (y == startY - 1)
+                                {
+                                    // closed peak on bottom, preceded by an open peak
+                                    if (x < startX)
                                     {
-                                        //the previous row was a closed peak
-                                        if (x >= fieldX)
-                                        {
-                                            startSquares.Add(startCandidate);
-                                            endSquares.Add(endCandidate);
-                                        }
-                                        // else: open peak, no start and end should be marked
+                                        startSquares.Add(startCandidate);
+                                        endSquares.Add(endCandidate);
                                     }
+                                    // first row after an open peak on the top: stair right up or straight up
                                     else
                                     {
                                         startSquares.Add(startCandidate);
                                     }
                                 }
+                                // stair right up or straight up
                                 else
                                 {
                                     startSquares.Add(startCandidate);
@@ -3697,43 +3973,55 @@ namespace OneWayLabyrinth
                             }
                             else
                             {
-                                if (endSquares.Count > 0)
-                                {
-                                    int[] square = endSquares[endSquares.Count - 1];
-                                    int x = square[0];
-                                    int y = square[1];
+                                square = startSquares[startSquares.Count - 1];
+                                startX = square[0];
+                                startY = square[1];
 
-                                    if (y == fieldY + 1 && x <= fieldX)
+                                if (y == startY)
+                                {
+                                    // open peak on the top
+                                    if (x < startX)
                                     {
+                                        startCandidate = endCandidate = field;
+                                        currentY = y;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        // closed peak on the bottom
                                         startSquares.Add(startCandidate);
                                         endSquares.Add(endCandidate);
                                         startCandidate = endCandidate = field;
-                                        currentY = fieldY;
+                                        currentY = y;
+                                        continue;
+                                    }
+                                }
+                                else if (y == startY - 1)
+                                {
+                                    // first row after an open peak on the top: stair left up or straight up
+                                    if (x < startX)
+                                    {
+                                        endSquares.Add(endCandidate);
+                                        startCandidate = endCandidate = field;
+                                        currentY = y;
                                         continue;
                                     }
                                 }
 
-                                if (startSquares.Count > 0)
-                                {
-                                    int[] square = startSquares[startSquares.Count - 1];
-                                    int x = square[0];
-                                    int y = square[1];
+                                square = endSquares[endSquares.Count - 1];
+                                endX = square[0];
+                                endY = square[1];
 
-                                    if (y == fieldY)
+                                if (y == endY - 1)
+                                {
+                                    // closed peak on bottom, preceded by an open peak
+                                    if (x > endX)
                                     {
-                                        //the previous row was a closed peak
-                                        if (x <= fieldX)
-                                        {
-                                            endSquares.Add(endCandidate);
-                                            startSquares.Add(startCandidate);
-                                        }
-                                        // else: open peak, no start and end should be marked
-                                    }
-                                    else
-                                    {
+                                        startSquares.Add(startCandidate);
                                         endSquares.Add(endCandidate);
                                     }
                                 }
+                                // stair left up or straight up
                                 else
                                 {
                                     endSquares.Add(endCandidate);
@@ -3741,98 +4029,88 @@ namespace OneWayLabyrinth
                             }
                             startCandidate = endCandidate = field;
                         }
-                        currentY = fieldY;
+                        currentY = y;
                     }
 
                     //add last field
                     if (circleDirectionLeft)
                     {
-                        if (singleField)
+                        // 0611_8, checkstraight straight: we finish on the left side of the top row. End should not be added as it is the same as the first end field.
+
+                        // 350: checkstraight straight: end row is a bottom row, it acts as a closed peak, so end square should be added.
+                        if (x < endCandidate[0] && y == minY + 1)
                         {
-                            // L-shape
-                            if (endSquares.Count == 1)
+                            int[] square = endSquares[endSquares.Count - 1];
+                            endX = square[0];
+                            endY = square[1];
+
+                            if (y > endY)
                             {
                                 endSquares.Add(endCandidate);
-                                startSquares.Add(startCandidate);
-                            }                            
-                            // add startCandidate, unless the last row is an open dip
-                            else
-                            {
-                                int[] square = endSquares[endSquares.Count - 1];
-                                int y = square[1];
-
-                                if (y != currentY - 1)
-                                {
-                                    startSquares.Add(startCandidate);
-                                }
                             }
-
                         }
-                        else
-                        {
-                            // 22323: Last end square is the same as the first
-                            if (endSquares[endSquares.Count - 1][0] == endSquares[0][0] && endSquares[endSquares.Count - 1][1] == endSquares[0][1])
-                            {
 
-                                // remove first end square as it does not have a matching start. Without this, the number of start and end squares will be inequal. Beware of 348.
-                                if (endSquares.Count > 1)
-                                {
-                                    endSquares.RemoveAt(0);
-                                }
-                                endSquares.Add(endCandidate);
-                                startSquares.Add(startCandidate);
-                            }
-                            else
+                        // 1273: L-shape, end row finishes on the right, below minY. We need to add a closed bottom peak. The last end square should be above and at the same x position or right.
+                        if (x == endCandidate[0] && y == minY + 1)
+                        {
+                            int[] square = endSquares[endSquares.Count - 1];
+                            endX = square[0];
+                            endY = square[1];
+
+                            if (y > endY && x <= endX)
                             {
-                                startSquares.Add(startCandidate);
+                                endSquares.Add(endCandidate);
                             }
+                        }
+
+                        startSquares.Add(startCandidate);
+
+                        if (startRepeat2)
+                        {
+                            endSquares.RemoveAt(0);
                         }
                     }
                     else
                     {
-                        if (singleField)
+
+                        // 0611_8, checkstraight straight: we finish on the left side of the top row. End should not be added as it is the same as the first end field.
+
+                        // 350: checkstraight straight: end row is a bottom row, it acts as a closed peak, so end square should be added.
+                        if (x > startCandidate[0] && y == minY + 1)
                         {
-                            // L-shape
-                            if (startSquares.Count == 1)
+                            int[] square = startSquares[startSquares.Count - 1];
+                            startX = square[0];
+                            startY = square[1];
+
+                            if (y > startY)
                             {
                                 startSquares.Add(startCandidate);
-                                endSquares.Add(endCandidate);
                             }
-                            // add startCandidate, unless the last row is an open dip
-                            else
-                            {
-                                int[] square = startSquares[startSquares.Count - 1];
-                                int y = square[1];
-
-                                if (y != currentY - 1)
-                                {
-                                    endSquares.Add(endCandidate);
-                                }
-                            }
-
                         }
-                        else
-                        {
-                            // 22323: Last start square is the same as the first
-                            if (startSquares[startSquares.Count - 1][0] == startSquares[0][0] && startSquares[startSquares.Count - 1][1] == startSquares[0][1])
-                            {
-                                // remove first start square as it does not have a matching end. Without this, the number of start and end squares will be inequal. Beware of 348.
-                                if (startSquares.Count > 1)
-                                {
-                                    startSquares.RemoveAt(0);
-                                }
-                                startSquares.Add(startCandidate);
-                                endSquares.Add(endCandidate);
 
-                                
-                            }
-                            else
+                        // 1273: L-shape, end row finishes on the left, below minY. We need to add a closed bottom peak. The last end square should be above and at the same x position or left.
+                        if (x == startCandidate[0] && y == minY + 1)
+                        {
+                            int[] square = startSquares[startSquares.Count - 1];
+                            startX = square[0];
+                            startY = square[1];
+
+                            if (y > startY && x <= startX)
                             {
-                                endSquares.Add(endCandidate);
+                                startSquares.Add(startCandidate);
                             }
-                            
+                        }
+
+                        endSquares.Add(endCandidate);
+
+                        if (startRepeat2)
+                        {
+                            startSquares.RemoveAt(0);
                         }
                     }
+
+                    startX = thisStartX;
+                    startY = thisStartY;
                 }
 
                 if (debug2)
@@ -3868,12 +4146,36 @@ namespace OneWayLabyrinth
                     return false;
                 }
 
-                for (int i = 0; i < eCount; i++)
+                for (i = 0; i < eCount; i++)
                 {
                     area += endSquares[i][0] - startSquares[i][0] + 1;
                 }
             }
-            else area = areaLine.Count;
+            else // area is 2. No rule will be applies, but the black and white field counts have to be right.
+            {
+                area = areaLine.Count;
+
+                if (startY == endY)
+                {
+                    if (startX < endX)
+                    {
+                        startSquares.Add(new int[] { startX, startY });
+                        endSquares.Add(new int[] { endX, endY });
+                    }
+                    else
+                    {
+                        startSquares.Add(new int[] { endX, endY });
+                        endSquares.Add(new int[] { startX, startY });
+                    }
+                }
+                else
+                {
+                    startSquares.Add(new int[] { startX, startY });
+                    startSquares.Add(new int[] { endX, endY });
+                    endSquares.Add(new int[] { startX, startY });
+                    endSquares.Add(new int[] { endX, endY });
+                }
+            }
 
             if (debug) T("Count area: " + area);
             
@@ -4332,7 +4634,25 @@ namespace OneWayLabyrinth
                 result += ", " + o[i];
             }
             Trace.WriteLine(result);
-		}
+            MainWindow.logger.LogDebug("----------------------------- " + result);
+        }
+
+        public string ShowForbidden()
+        {
+            string s = "";
+            foreach (int[] field in forbidden)
+            {
+                s += field[0] + "," + field[1] + "; ";
+            }
+            if (s.Length > 2)
+            {
+                return s.Substring(0, s.Length - 2);
+            }
+            else
+            {
+                return "";
+            }            
+        }
 
         private List<int[]> Copy(List<int[]> obj)
         {

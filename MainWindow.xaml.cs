@@ -28,6 +28,8 @@ using OpenTK.Graphics.ES11;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 /*
 
@@ -143,23 +145,26 @@ namespace OneWayLabyrinth
 
         public bool calculateFuture = false; // does not allow a future line body or end to be a possibility. Stepped on future lines are followed through without checking possibilities on the way.
         Stopwatch watch;
-
+        public static ILogger<MainWindow> logger;
+        public string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
         // ----- Initialize -----
 
-
         public MainWindow()
 		{
-			Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            
             InitializeComponent();
+
+            logger = App.ServiceProvider.GetRequiredService<ILogger<MainWindow>>();
+
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
 			timer = new DispatcherTimer();
 			timer.Tick += Timer_Tick;
 
-			if (File.Exists("settings.txt"))
+            T(baseDir);
+			if (File.Exists(baseDir + "settings.txt"))
 			{
-				string[] lines = File.ReadAllLines("settings.txt");
+				string[] lines = File.ReadAllLines(baseDir + "settings.txt");
 				string[] arr = lines[0].Split(": ");
 				size = int.Parse(arr[1]);				
 				arr = lines[1].Split(": ");
@@ -237,7 +242,7 @@ namespace OneWayLabyrinth
 				InitializeList();
 			}
 
-			if (File.Exists("settings.txt") && size.ToString() != Size.Text || !File.Exists("settings.txt"))
+			if (File.Exists(baseDir + "settings.txt") && size.ToString() != Size.Text || !File.Exists(baseDir + "settings.txt"))
 			{
                 Size.Text = size.ToString();
                 SaveSettings(null, null);
@@ -308,9 +313,9 @@ namespace OneWayLabyrinth
 
                 int ruleNo = 0;
 
-                if (File.Exists("log_rules.txt"))
+                if (File.Exists(baseDir + "log_rules.txt"))
                 {
-                    List<string> arr = File.ReadAllLines("log_rules.txt").ToList();
+                    List<string> arr = File.ReadAllLines(baseDir + "log_rules.txt").ToList();
                     int startCount = arr.Count;
                     
                     foreach (string rule in rules)
@@ -361,7 +366,7 @@ namespace OneWayLabyrinth
                         ruleNo++;
                     }
 
-                    if (arr.Count > startCount) File.WriteAllLines("log_rules.txt", arr);
+                    if (arr.Count > startCount) File.WriteAllLines(baseDir + "log_rules.txt", arr);
                 }
                 else
                 {
@@ -397,7 +402,7 @@ namespace OneWayLabyrinth
 
                         ruleNo++;
                     }
-                    File.WriteAllLines("log_rules.txt", arr);
+                    File.WriteAllLines(baseDir + "log_rules.txt", arr);
                 }
 
                 return;
@@ -439,10 +444,10 @@ namespace OneWayLabyrinth
         private void ReadDir()
         {
             loadFile = "";
-            string[] files = Directory.GetFiles("./", "*.txt");
+            string[] files = Directory.GetFiles(baseDir, "*.txt");
             foreach (string file in files)
             {
-                string fileName = file.Substring(2);
+                string fileName = System.IO.Path.GetFileName(file);
                 if (fileName != "settings.txt" && fileName != "log.txt" && fileName != "log_rules.txt" && fileName != "log_performance.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
                 {
                     loadFile = fileName;
@@ -453,7 +458,7 @@ namespace OneWayLabyrinth
 
         private void LoadFromFile()
         {
-            string content = File.ReadAllText(loadFile);
+            string content = File.ReadAllText(baseDir + loadFile);
             string[] loadPath;
             bool circleDirectionLeft = true;
             inFuture = false;
@@ -564,7 +569,7 @@ namespace OneWayLabyrinth
             if (loadFile.IndexOf("_") > 0)
             {
                 string[] arr = loadFile.Split("_");
-                fileCompletedCount = int.Parse(arr[0]);
+                fileCompletedCount = long.Parse(arr[0]);
             }
             else
             {
@@ -799,7 +804,7 @@ namespace OneWayLabyrinth
             string saveName = (errorInWalkthrough && completedCount > 0) ? completedCount + ".txt" : DateTime.Today.Year + "_" + DateTime.Today.Month.ToString("00") + DateTime.Today.Day.ToString("00") + ".txt";
 
             T("Saving " + saveName);
-			File.WriteAllText(saveName, savePath);
+			File.WriteAllText(baseDir + saveName, savePath);
 		}
 
         private void Next_Click(object sender, RoutedEventArgs e)
@@ -879,22 +884,22 @@ namespace OneWayLabyrinth
                 completedWalkthrough = false;
                 errorInWalkthrough = false;
                 MessageLine.Visibility = Visibility.Visible;
-                if (saveConcise) File.WriteAllText("completedPaths.txt", "");
-                if (fileCompletedCount == 0 || !File.Exists("log_performance.txt"))
+                if (saveConcise) File.WriteAllText(baseDir + "completedPaths.txt", "");
+                if (fileCompletedCount == 0 || !File.Exists(baseDir + "log_performance.txt"))
                 {
-                    File.WriteAllText("log_performance.txt", "");
-                    File.WriteAllText("log_rules.txt", "");
+                    File.WriteAllText(baseDir + "log_performance.txt", "");
+                    File.WriteAllText(baseDir + "log_rules.txt", "");
                     startTimerValue = 0;
                 }
                 else // continue where we left off
                 {
-                    List<string> arr = File.ReadAllLines("log_performance.txt").ToList();
+                    List<string> arr = File.ReadAllLines(baseDir + "log_performance.txt").ToList();
                     List<string> newArr = new();
 
                     foreach (string line in arr)
                     {
                         string[] parts = line.Split(" ");
-                        if (int.Parse(parts[0]) <= fileCompletedCount)
+                        if (long.Parse(parts[0]) <= fileCompletedCount)
                         {
                             newArr.Add(line);
                             startTimerValue = (long)(float.Parse(parts[1]));
@@ -907,7 +912,7 @@ namespace OneWayLabyrinth
 
                     if (newArr.Count > 0)
                     {
-                        File.WriteAllLines("log_performance.txt", newArr);
+                        File.WriteAllLines(baseDir + "log_performance.txt", newArr);
                     }
                 }
                 completedCount = fileCompletedCount; 
@@ -1063,23 +1068,23 @@ namespace OneWayLabyrinth
 
             string linesStr = string.Join("\n", lines);
 
-            if (File.Exists("settings.txt"))
+            if (File.Exists(baseDir + "settings.txt"))
             {
-                string fileContent = File.ReadAllText("settings.txt");
+                string fileContent = File.ReadAllText(baseDir + "settings.txt");
                 int pos = fileContent.IndexOf("appliedSize");
 
                 if (pos != -1)
                 {
-                    File.WriteAllText("settings.txt", linesStr + "\n" + fileContent.Substring(pos));
+                    File.WriteAllText(baseDir + "settings.txt", linesStr + "\n" + fileContent.Substring(pos));
                 }
                 else
                 {
-                    File.WriteAllLines("settings.txt", lines);
+                    File.WriteAllLines(baseDir + "settings.txt", lines);
                 }
             }
             else
             {
-                File.WriteAllLines("settings.txt", lines);
+                File.WriteAllLines(baseDir + "settings.txt", lines);
             }            
         }
 
@@ -1281,7 +1286,7 @@ namespace OneWayLabyrinth
                                 pathStr += field[0] + ","+ field[1] + ";";
                             }
                             pathStr = pathStr.Substring(0, pathStr.Length - 1);
-                            if (saveConcise) File.AppendAllText("completedPaths.txt", pathStr + "\n");
+                            if (saveConcise) File.AppendAllText(baseDir + "completedPaths.txt", pathStr + "\n");
                             Dispatcher.Invoke(() =>
                             {
                                 if (!(makeStats && !keepLeftCheck))
@@ -1295,7 +1300,7 @@ namespace OneWayLabyrinth
                                 SavePath();
                                 long elapsed = watch.ElapsedMilliseconds + startTimerValue;
                                 long periodValue = elapsed - lastTimerValue;
-                                File.AppendAllText("log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + " " + (periodValue - periodValue % 1000) / 1000 + "." + periodValue % 1000 + "\n" );
+                                File.AppendAllText(baseDir + "log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + " " + (periodValue - periodValue % 1000) / 1000 + "." + periodValue % 1000 + "\n" );
 
                                 lastTimerValue = elapsed;
                             }
@@ -1415,7 +1420,8 @@ namespace OneWayLabyrinth
             taken.x = x;
             taken.y = y;
 
-            T("\nAddNextStep " + x + " " + y);
+            T("\n");
+            T("AddNextStep " + x + " " + y);
 
             taken.path.Add(new int[] { x, y });
 
@@ -3580,7 +3586,7 @@ namespace OneWayLabyrinth
             }
             savePath = savePath.Substring(0, savePath.Length - 1);
 
-			File.WriteAllText("uncompleted.txt", savePath);
+			File.WriteAllText(baseDir + "uncompleted.txt", savePath);
         }
 
         private void SavePath(bool isCompleted = true) // used in fast run mode
@@ -3678,22 +3684,22 @@ namespace OneWayLabyrinth
             if (isCompleted)
             {
                 // prevent saving on upstart
-                if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedCount + "_" + completedPathCode + ".txt", savePath);
+                if (loadFile != "" && File.ReadAllText(baseDir + loadFile) != savePath || loadFile == "") File.WriteAllText(baseDir + "completed/" + completedCount + "_" + completedPathCode + ".txt", savePath);
             }
             else
             {
-                if (File.Exists("incomplete/" + completedCount + ".txt"))
+                if (File.Exists(baseDir + "incomplete/" + completedCount + ".txt"))
                 {
                     int i = 1;
-                    while(File.Exists("incomplete/" + completedCount + "_" + i + ".txt"))
+                    while(File.Exists(baseDir + "incomplete/" + completedCount + "_" + i + ".txt"))
                     {
                         i++;
                     }
-                    File.WriteAllText("incomplete/" + completedCount + "_" + i + ".txt", savePath);
+                    File.WriteAllText(baseDir + "incomplete/" + completedCount + "_" + i + ".txt", savePath);
                 }
                 else
                 {
-                    File.WriteAllText("incomplete/" + completedCount + ".txt", savePath);
+                    File.WriteAllText(baseDir + "incomplete/" + completedCount + ".txt", savePath);
                 }                
             }            
         }
@@ -4272,11 +4278,12 @@ namespace OneWayLabyrinth
             Canvas.Tag = tag;
             svgName =  tag + ".svg";
 
-			File.WriteAllText(svgName, content);
+            T(baseDir);
+			File.WriteAllText(baseDir + svgName, content);
             
             if (completedPathCode != "")
 			{
-				if (loadFile != "" && File.ReadAllText(loadFile) != savePath || loadFile == "") File.WriteAllText("completed/" + completedPathCode + ".txt", savePath);
+				if (loadFile != "" && File.ReadAllText(baseDir + loadFile) != savePath || loadFile == "") File.WriteAllText(baseDir + "completed/" + completedPathCode + ".txt", savePath);
 			}
 			Canvas.InvalidateVisual();
 		}
@@ -4559,12 +4566,12 @@ namespace OneWayLabyrinth
         private void SKElement_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             string fileName = (string)((SKElement)sender).Tag + ".svg";
-            if (!File.Exists(fileName)) return;
+            if (!File.Exists(baseDir + fileName)) return;
             var canvas = e.Surface.Canvas;
             canvas.Clear(SKColors.White);
 
             var svg = new SkiaSharp.Extended.Svg.SKSvg();
-            var picture = svg.Load(fileName);
+            var picture = svg.Load(baseDir + fileName);
 
             var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
             e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
@@ -4573,13 +4580,13 @@ namespace OneWayLabyrinth
 
         private void SKElement_PaintSurface2(object sender, SKPaintSurfaceEventArgs e)
         {
-            if (File.Exists("rules/" + (string)((SKElement)sender).Tag + ".svg"))
+            if (File.Exists(baseDir + "rules/" + (string)((SKElement)sender).Tag + ".svg"))
             {
                 var canvas = e.Surface.Canvas;
                 canvas.Clear(SKColors.White);
 
                 var svg = new SkiaSharp.Extended.Svg.SKSvg();
-                var picture = svg.Load("rules/" + (string)((SKElement)sender).Tag + ".svg");
+                var picture = svg.Load(baseDir + "rules/" + (string)((SKElement)sender).Tag + ".svg");
 
                 var fit = e.Info.Rect.AspectFit(svg.CanvasSize.ToSizeI());
                 e.Surface.Canvas.Scale(fit.Width / svg.CanvasSize.Width);
@@ -4774,12 +4781,12 @@ namespace OneWayLabyrinth
 
         public void CL()
         {
-            File.Delete("log.txt");
+            File.Delete(baseDir + "log.txt");
         }
 
         public void L(string s)
 		{
-			File.AppendAllText("log.txt", s + "\n");
+			File.AppendAllText(baseDir + "log.txt", s + "\n");
 		}
 
         public void M(object o, int code)
@@ -4814,6 +4821,7 @@ namespace OneWayLabyrinth
                 result += ", " + o[i];
             }
             Trace.WriteLine(result);
+            logger.LogDebug("----------------------------- " + result);
         }
 
         private void TracePossible()
@@ -4872,13 +4880,13 @@ namespace OneWayLabyrinth
 
         private void ExtractDifference()
         {
-            if (File.Exists("completedPaths.txt") && File.Exists("completedPaths_1.txt"))
+            if (File.Exists(baseDir + "completedPaths.txt") && File.Exists(baseDir + "completedPaths_1.txt"))
             {
-                string[] complete = File.ReadAllLines("completedPaths.txt");
-                string[] incomplete = File.ReadAllLines("completedPaths_1.txt");
-                if (!Directory.Exists("diff"))
+                string[] complete = File.ReadAllLines(baseDir + "completedPaths.txt");
+                string[] incomplete = File.ReadAllLines(baseDir + "completedPaths_1.txt");
+                if (!Directory.Exists(baseDir + "diff"))
                 {
-                    Directory.CreateDirectory("diff");
+                    Directory.CreateDirectory(baseDir + "diff");
                 }
 
                 int count = 0;
@@ -4890,7 +4898,7 @@ namespace OneWayLabyrinth
 
                     if (lineC != lineiC)
                     {
-                        File.WriteAllText("diff/" + (c + 1) + ".txt", lineC);
+                        File.WriteAllText(baseDir + "diff/" + (c + 1) + ".txt", lineC);
                         count++;
                     }
                     else
