@@ -2059,6 +2059,8 @@ The same C-shape as in the first case, just with a closer obstacle and W = B are
 
 <!--
 
+Write about changed corner discovery algorithm
+Review CountArea old and new algorithms
 <img align="top" src="References/2024_0611_3.svg" width="9" />
 
 2 688 307 514
