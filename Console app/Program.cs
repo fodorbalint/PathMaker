@@ -1319,6 +1319,13 @@ void CheckLeftRightAreaUp()
                                     nowBCount = (ex - 1) / 4;
                                     laterWCount = (ex - 1) / 4;
                                     laterBCount = (ex - 1) / 4;
+
+                                    // 2024_0618
+                                    if (whiteDiff == laterWCount && InTakenRel(3, 0))
+                                    {
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+                                    }
                                     break;
                                 case 2:
                                     nowWCount = (ex + 2) / 4;
@@ -1585,9 +1592,9 @@ void CheckLeftRightCorner() // rotations:
 
         for (int j = 0; j < 4; j++)
         {
-            if (!InTakenRel(1, 1)) // Can we have an area with a corner if this field is taken? It isn't in the border line.
+            if (!InTakenRel(1, 1) && !InBorderRel(1, 1)) // Can we have an area with a corner if this field is taken? It isn't in the border line.
             {
-                int horiStart = 1;
+                int horiStart = 2;
 
                 // checking taken fields from the middle to side is incomplete: 17699719
                 // instead, we check fields in the first row until an obstacle is found, then we walk around the top-left quarter.
@@ -1943,7 +1950,8 @@ void CheckLeftRightCorner() // rotations:
 
                                         {
                                             // 0611_6
-                                            if ((hori == 2 && vert == 3 && whiteDiff == 0) ||
+                                            // If we can enter later at the hori 2, vert 3 case, the area must be W = B
+                                            if ((hori == 2 && vert == 3) ||
                                                 (hori == 2 && vert == 4 && -whiteDiff == 1))
                                             {
                                                 if (i == 0)

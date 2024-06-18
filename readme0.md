@@ -1247,23 +1247,15 @@ x - 1 + (n - n % 2) / 2.<br />
 Later: The white line count is 1 + (n - n % 2) / 2 if n > 0, and the black line count is x - 1 + (n+1 - (n+1) % 2) / 2.
 
 Next, we will look at the corner discovery algorithm.<br />
-Starting with 1 horizontal and 2 vertical distance, we check if that field is taken.
 
-<img align="top" src="References/cornerDisc 2x3.svg" width="2" />
+<img align="top" src="References/cornerDisc.svg" width="6" />
 
-If so, we mirror sides and start the algorithm on the right side.
-If not, we increase the horizontal distance by one until we find a taken field or run into the border.
+If the field at 1 horizontal and 1 vertical distance is empty, we check the next field in the row until we find a taken or border field.
+Then we walk through the quarter until we get to 0 horizontal distance.
 
-<img align="top" src="References/cornerDisc 6x3.svg" width="6" />
-
-If it is a border field, we increase the vertical distance and start with 1 horizontal distance again.<br />
-Otherwise, we check if the bottom field is free, and by comparing the index of the corner field with the field above, we can determine if the line is going down and left, so the enclosed area is on the side we want.
-
-<img align="top" src="References/cornerDisc 4x3.svg" width="4" />
+If, at any point we step right and then up, a corner field is found. If it is going down and left, the area is on the side we want, and we can apply the rule to it.
 
 <!---->
-
-Now the area can be counted. And after this, we increase the vertical distance by one and stop / mirror sides when a field at one horizontal distance is taken or is the border.
 
 Compare these two cases:
 
@@ -1516,11 +1508,11 @@ While creating a case to verify the newly created rule set, I have encountered t
 It is not possible to continue after stepping upwards.
 But where is the missing part?
 
+<!---->
+
 On the left, the largest area contains 1 more white field than black, and on the right it is 2 more black. It would be possible if the upper left corner was filled, like thís:
 
 <img align="top" src="References/2024_0330_2.svg" width="10" />
-
-<!---->
 
 So it is not any of the small area rules and neither the 0 horizontal distance big area rule that has something to do with it.
 
@@ -1532,13 +1524,13 @@ Can it be a problem?
 We will see, but let's look at one detail: If we step upwards, we have to step left to fill the corner white, otherwise it is only good for an exit, which we do not want if the area contains 1 more white fields than black (for the left representation).
 After this, we step upwards and then left again. We did not enter the area.
 
+<!---->
+
 The 1 added distance case is therefore 0W -> (x-1)B when entering now by stepping upwards and 1W -> (x-1)B when stepping right.
 
 To simplify things, I will specify the cases again using the minimal area representation.
 
 Notice that these are the same as the small area patterns, things are just mirrored, so that the previous horizontal expansion is now vertical. 
-
-<!---->
 
 n = 1
 
@@ -1580,37 +1572,50 @@ Now we can continue the case, but we will find that we cannot go past this point
 <img align="top" src="References/2024_0331_1.svg" width="10" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0331.svg" width="10" />
 
 The picture on the right is the crossroad. If we step upwards, the area can be completed.
-The area between the live end and the corner on the left contains one more black field than white, so the number could be made by stepping left and up, only we cannot step left because of the C-shape. In other words, when stepping left, the line will not be able to continue, but we need to change the programming algorithm in order to see it.
-Now when there is a C-Shape, it is possible to step there, and no other rules will be checked. But C-Shape is just one of the nine cases of area checking.
-
-<img align="top" src="References/allcases2.svg" width="11" />
-
-<!---->
+The area between the live end and the corner on the left contains one more black field than white, so the number could be made by stepping left and up, only we cannot step left because of the C-shape.
+To make things general, we need to look at, in which cases is the only possibility to step left with the area being on the left side. If the situation both exist on the left and the right side, we cannot step straight.
 
 Remember we have made rules previously that take both sides into account, like this:
 
 <img align="top" src="References/checknearfield/2 far mid across across.svg" width="6" />
 
-To combine all cases where after the next step, on the left side only the left field will be possible, and on the right, only the right, is not feasible.
+These cases cannot be solved by single area patterns.
 
-Let's say instead that if one of the possible fields will lead to an impossible situation, we cannot step there. It still results in a usable algorithm.
+<!---->
 
-(An algorithm is usable if the number of operations are on the order of n ^ 2 where n indicates the size of the table.
-An unusable algorithm would require a number of operations on the order of 2 ^ n or more: that is the random path where you just guess the next step until you get an impossible situation, but the crossroad might have been as far back as almost n x n steps.) 
+C-Shape Next:
 
-We are still missing the straight obstacle case:
+<img align="top" src="References/C-Shape Next.svg" width="3" />
+
+0 horizontal distance obstacle, area is W = B:
+
+<img align="top" src="References/AreaUp Next.svg" width="2" />
+
+1 horizontal distance, 2 vertical distance obstacle, area is W = B:
+
+<img align="top" src="References/Corner 2x3 Next.svg" width="3" />
+
+1 horizontal distance, 3 vertical distance obstacle, area is 1B:
+
+<img align="top" src="References/Corner 2x4 Next.svg" width="3" />
+
+This can be calculated for any x and y distance obstacle, but we are still missing some single field rules.
+
+<!---->
+
+Straight obstacle:
 
 <img align="top" src="References/straight left.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight right.svg" width="3" />
 
 Besides all the fields straight ahead, the gray field has to be empty in order to apply the rule.
-
-<!---->
 
 <img align="top" src="References/straight 3.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 4.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 6.svg" width="3" />
 
 Notice the area is the same as with the case where the obstacle is one field to the right, but there is a difference:
 Look at the 3-distance case. Since the obstacle is straight ahead, if we enter now by stepping left, we cannot exit at the black field, because then one of the whites could not have been filled.
 The area can only be filled if it is 1W. (This is the case we previously called Double C-Shape.) Adding 4 extra distance does not make the problem disappear: if we exit at the first black and the previous field was the first white, now we get the 5-distance case with 3 white fields and 2 black. A black to black line is therefore not possible.
+
+<!---->
 
 These are the new values:
 
@@ -1626,11 +1631,11 @@ Now: 2W -> 0B = (D+3)/4 W -> (D-5)/4 B
 Later: 1W -> 0B = (D-1)/4 W -> (D-5)/4 B
 (single rule)
 
-<!---->
-
 Also, pay attention to the 2-distance case. If we enter now by stepping left, 1W is possible. If we step straight, it is 0W. When the distance is 6, there is no difference, because if the step straight, we can exit the area immediately.
 
-Side straight cases, small area:
+For straight left and right cases, the rule can be rotated to left or right.
+
+<!--Side straight cases, small area:
 
 <img align="top" src="References/side straight up.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/side straight down.svg" width="6" />
 
@@ -1644,7 +1649,7 @@ Big area:
 <img src="References/spacer.svg" height="23" />
 <img align="top" src="References/side straight big 3.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/side straight big 4.svg" width="6" />
 <img src="References/spacer.svg" height="23" />
-<img align="top" src="References/side straight big 5.svg" width="7" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/side straight big 6.svg" width="8" />
+<img align="top" src="References/side straight big 5.svg" width="7" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/side straight big 6.svg" width="8" />-->
 
 <!---->
 
@@ -2042,24 +2047,19 @@ My program ran through the left side in 45 hours, producing the expected number 
 
 The are a few examples on bigger boards that get stuck, but I don't think they are unsolvable. Let's see if we can fit them into the system we have built up so far.
 
-<img align="top" src="References/2024_0611_6.svg" width="10" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0611_6_2.svg" width="10" />
+<img align="top" src="References/2024_0618.svg" width="11" />
 
-We have to enter after stepping left, but there is a C-shape on the other side.
-For now, we have to specify an explicit horizontal and vertical distance of 4 and 2, and have the condition that the area is 1B in order to disable the left field.
+It is again about the movement rules on the area border, but it is a new case.
 
-<!---->
+<img align="top" src="References/5 dist up lines.svg" width="4" />
 
-<img align="top" src="References/2024_0611_4.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0611_4_2.svg" width="9" />
-
-For this one, the base conditions are the same, and we need to check for a far mid across obstacle. The x and y distance rule has to be rotated in the fourth direction.
-
-<img align="top" src="References/2024_0611_5.svg" width="8" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/2024_0611_5_2.svg" width="8" />
-
-The same C-shape as in the first case, just with a closer obstacle and W = B area.
+If the area at 5 distance is 1W, we can enter later, but we have to step up from there in order to be able to exit at the farthest white field. The first black field will be filled from left to down.
+The field at 2 distance to the left must therefore not be taken.
 
 <!--
 
-Write about changed corner discovery algorithm
+Fix: When stopping at fx 99 at random run, the number will be used again to save a picture if we again encounter an impossible situation.
+
 Review CountArea old and new algorithms
 <img align="top" src="References/2024_0611_3.svg" width="9" />
 
