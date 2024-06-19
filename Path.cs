@@ -353,6 +353,8 @@ namespace OneWayLabyrinth
                             CheckStraight();
                             T("CheckLeftRightAreaUp " + ShowForbidden());
                             CheckLeftRightAreaUp();
+                            T("CheckLeftRightAreaUpExtended " + ShowForbidden());
+                            CheckLeftRightAreaUpExtended();
                             T("CheckLeftRightAreaUpBig " + ShowForbidden());
                             CheckLeftRightAreaUpBig();
                             T("CheckLeftRightCorner " + ShowForbidden());
@@ -1467,6 +1469,7 @@ namespace OneWayLabyrinth
                     if (j != 2)
                     {
                         bool circleValid = false;
+                        // As 0618_2 shows, 1,1 can be taken.
                         int dist = 1;
                         List<int[]> borderFields = new();
 
@@ -1485,17 +1488,6 @@ namespace OneWayLabyrinth
                             if (i2 > i1)
                             {
                                 circleValid = true;
-                            }
-                        }
-
-                        // double area addition
-                        bool found = false;
-                        for (int k = 1; k < dist; k++)
-                        {
-                            if (InTaken(0, k))
-                            {
-                                found = true;
-                                break;
                             }
                         }
 
@@ -1550,14 +1542,6 @@ namespace OneWayLabyrinth
                                             nowBCount = ex / 4 - 1;
                                             laterWCount = ex / 4;
                                             laterBCount = ex / 4;
-
-                                            // 0610_4, 0610_5
-                                            if (!found && -whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex - 1))
-                                            {
-                                                ruleTrue = true;
-                                                T("LeftRightAreaUp open corner 4: Cannot step straight");
-                                                forbidden.Add(new int[] { x + sx, y + sy });
-                                            }
                                             break;
                                         case 1:
                                             nowWCount = (ex - 1) / 4;
@@ -1579,37 +1563,12 @@ namespace OneWayLabyrinth
                                             nowBCount = (ex - 2) / 4;
                                             laterWCount = (ex - 2) / 4;
                                             laterBCount = (ex - 2) / 4;
-
-                                            // We cannot get to the 2- or 6-distance case if the other rules are applied. 0611_1
-                                            /*if (!found && whiteDiff == (ex + 2) / 4 && CheckNearFieldSmallRel(0, ex))
-                                            {
-                                                ruleTrue = true;
-                                                T("LeftRightAreaUp closed corner 2: Cannot step left");
-                                                forbidden.Add(new int[] { x + lx, y + ly });
-                                            }*/
                                             break;
                                         case 3:
                                             nowWCount = (ex + 1) / 4;
                                             nowBCount = (ex - 3) / 4;
                                             laterWCount = (ex - 3) / 4;
                                             laterBCount = (ex + 1) / 4;
-
-                                            if (!found)
-                                            {
-                                                if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(0, ex - 1))
-                                                {
-                                                    ruleTrue = true;
-                                                    T("LeftRightAreaUp open corner 3: Cannot step left");
-                                                    forbidden.Add(new int[] { x + lx, y + ly });
-                                                }
-                                                // 0611
-                                                if (-whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(0, ex))
-                                                {
-                                                    ruleTrue = true;
-                                                    T("LeftRightAreaUp closed corner 3: Cannot step straight");
-                                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                                }
-                                            }
                                             break;
                                     }
 
@@ -1670,6 +1629,145 @@ namespace OneWayLabyrinth
                                         AddExamAreas();
                                         areaPairFields.Add((List<int[]>)info[3]);
                                     }
+                                }
+                            }
+                        }
+                    }
+
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,1 can be taken.
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 4; j++) // j = 1: small area, j = 2: big area
+                {
+                    if (j != 2)
+                    {
+                        bool circleValid = false;
+
+                        int dist = 2;
+                        List<int[]> borderFields = new();
+
+                        while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
+                        {
+                            dist++;
+                        }
+
+                        int ex = dist - 1;
+
+                        bool found = false;
+                        for (int k = 1; k < dist; k++)
+                        {
+                            if (InTaken(0, k))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        // no close mid across checking here, distance needs to be at least 2
+                        if (ex != 1 && !found && !InTakenRel(0, dist))
+                        {
+                            int i1 = InTakenIndexRel(1, dist);
+                            int i2 = InTakenIndexRel(2, dist);
+
+                            if (i2 > i1)
+                            {
+                                circleValid = true;
+                            }
+                        }
+
+                        if (circleValid)
+                        {
+                            if (ex > 2)
+                            {
+                                for (int k = ex - 1; k >= 2; k--)
+                                {
+                                    borderFields.Add(new int[] { 0, k });
+                                }
+                            }
+
+                            ResetExamAreas();
+
+                            if (CountAreaRel(0, 1, 0, ex, borderFields, circleDirectionLeft, 3, true))
+                            {
+                                int black = (int)info[1];
+                                int white = (int)info[2];
+
+                                int whiteDiff = white - black;
+
+                                bool ruleTrue = false;
+
+                                switch (ex % 4)
+                                {
+                                    case 0:
+                                        // 0610_4, 0610_5, 121670752
+                                        if (-whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex - 1))
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp open corner 4: Cannot step straight");
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                        }
+                                        // 0618_2
+                                        else if (whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex))
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp open corner 4: Cannot step right");
+                                            forbidden.Add(new int[] { x - lx, y - ly });
+                                        }
+                                        break;
+                                    case 1:
+                                        break;
+                                    case 2:
+                                        // We cannot get to the 2- or 6-distance case if the other rules are applied. 0611_1
+                                        /*if (!found && whiteDiff == (ex + 2) / 4 && CheckNearFieldSmallRel(0, ex))
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp closed corner 2: Cannot step left");
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                        }*/
+                                        break;
+                                    case 3:
+                                        if (whiteDiff == (ex + 1) / 4 + 1 && CheckNearFieldSmallRel(0, ex - 1))
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp open corner 3: Cannot step left");
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                        }
+                                        // 0611
+                                        if (-whiteDiff == (ex + 1) / 4 - 1 && CheckNearFieldSmallRel(0, ex))
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp closed corner 3: Cannot step straight");
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                        }
+                                        break;
+                                }
+
+                                if (ruleTrue)
+                                {
+                                    AddExamAreas();
+                                    areaPairFields.Add((List<int[]>)info[3]);
                                 }
                             }
                         }

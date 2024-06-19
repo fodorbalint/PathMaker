@@ -2045,17 +2045,23 @@ In the third rotation position, where the first obstacle is behind on the right 
 It has to be said that at this point, the 9 x 9 grid is complete with this set of rules.
 My program ran through the left side in 45 hours, producing the expected number of walkthroughs of 1 344 153 757.
 
-The are a few examples on bigger boards that get stuck, but I don't think they are unsolvable. Let's see if we can fit them into the system we have built up so far.
+The are a few examples on bigger boards that get stuck, but I don't think they are unsolvable. Let's see if we can fit them into the system we have built up so far. We run the program on 11 x 11, at random.
 
-<img align="top" src="References/2024_0618.svg" width="11" />
+<img align="top" src="References/2024_0618.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/5 dist up lines.svg" width="5" />
 
-It is again about the movement rules on the area border, but it is a new case.
-
-<img align="top" src="References/5 dist up lines.svg" width="4" />
-
-If the area at 5 distance is 1W, we can enter later, but we have to step up from there in order to be able to exit at the farthest white field. The first black field will be filled from left to down.
+It is again about the movement rules on the area border, but it is a new case. If the area at 5 distance is 1W, we can enter later, but we have to step up from there in order to be able to exit at the farthest white field. The first black field will be filled from left to down.
 The field at 2 distance to the left must therefore not be taken.
 
+<!---->
+
+<img align="top" src="References/2024_0618_2.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 4 closed later.svg" width="4" />
+
+It is a closed corner case where the distance to the obstacle is 4, the area is 1W, and we enter later.
+Because the field 1 right and 1 up is taken, the area needs to be defined as:
+
+<img align="top" src="References/4pair up extended.svg" width="3" />
+
+The previous rules can be transferred into this new group.
 <!--
 
 Fix: When stopping at fx 99 at random run, the number will be used again to save a picture if we again encounter an impossible situation.
