@@ -2062,9 +2062,46 @@ Because the field 1 right and 1 up is taken, the area needs to be defined as:
 <img align="top" src="References/4pair up extended.svg" width="3" />
 
 The previous rules can be transferred into this new group.
-<!--
 
-Fix: When stopping at fx 99 at random run, the number will be used again to save a picture if we again encounter an impossible situation.
+<!---->
+
+<img align="top" src="References/2024_0619.svg" width="11" />
+
+At the previous step, the big area is 1W. Because of that, in the next step we cannot go straight or right, but there is a mid across obstacle on the other side. We can also say that the movement on the area borderline conflicts the mid across obstacle. Compare the first case with this:
+
+<img align="top" src="References/5 dist up lines.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/5 dist up lines v2.svg" width="4" />
+
+To group these situations, first we check the area like this:
+
+<img align="top" src="References/up next.svg" width="2" />
+
+<!---->
+
+Then, depending on the distance, we will know that we need to step up after entering the area in the following cases:
+3 distance: 1W
+4 distance: 1B, but this situation cannot arise, because then we wouldn't be able to enter the area now.
+5 distance: 1W
+6 distance: If the area is 1B, it can be filled without having to enter at the first black field or having to step up if we do so.
+
+The rule has three rotations. The obstacle defining the area can be:
+- Up left side
+- Right up side
+- Bottom right side
+
+The second obstacle can be either in mid across or across position relative to the entry point as we have seen in the examples.
+
+If we run statistics now, it turns out that without these area border movement rules, the average number of walkthroughs before getting an error is 293, based on 100 attempts. By adding them, the number increases to 695. It tells us that in over half of the failures, this is the solution.
+This is a useful tool for debugging too. If, by introducing a new rule set, the errors become more frequent, there is a mistake in the algorithm.
+When we finished the 7 x 7 grid, the statistics gave us 5.7 walkthroughs on 11 x 11 using those rules.
+By developing the algorithm further, we have solved 99 % of the cases we could not at that time. We get a little less ratio on a 21 x 21 grid, but of a similar order of magniture: 9 vs. 0.2.
+
+<!---->
+
+We continue with random examples.
+
+<img align="top" src="References/2024_0619_1.svg" width="11" />
+
+<!--
 
 Review CountArea old and new algorithms
 <img align="top" src="References/2024_0611_3.svg" width="9" />

@@ -351,10 +351,12 @@ namespace OneWayLabyrinth
                             CheckCShapeNext();
                             T("CheckStraight " + ShowForbidden());
                             CheckStraight();
+                            T("CheckStraightNext " + ShowForbidden());
+                            CheckStraightNext();
                             T("CheckLeftRightAreaUp " + ShowForbidden());
                             CheckLeftRightAreaUp();
                             T("CheckLeftRightAreaUpExtended " + ShowForbidden());
-                            CheckLeftRightAreaUpExtended();
+                            //CheckLeftRightAreaUpExtended();
                             T("CheckLeftRightAreaUpBig " + ShowForbidden());
                             CheckLeftRightAreaUpBig();
                             T("CheckLeftRightCorner " + ShowForbidden());
@@ -1400,6 +1402,7 @@ namespace OneWayLabyrinth
                                     {
                                         ruleTrue = true;
                                         T("Straight " + i + " " + j + ": Cannot enter now left");
+                                        T(ex, nowWCountLeft, nowWCount, nowBCountLeft, nowBCount, black, white);
                                         if (j != 1) // for left rotation, lx, ly is the down field
                                         {
                                             forbidden.Add(new int[] { x + lx, y + ly });
@@ -1446,6 +1449,121 @@ namespace OneWayLabyrinth
                         sx = -sx;
                         sy = -sy;
                     }
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+
+        // 0618, 0619: When we enter the area, we need to step up. There is a close obstacle the other way inside the area.
+        void CheckStraightNext()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 3; j++) // small area, big area, behind right
+                {
+                    bool circleValid = false;
+                    int dist = 1;
+                    List<int[]> borderFields = new();
+
+                    while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
+                    {
+                        dist++;
+                    }
+
+                    int ex = dist - 1;
+
+                    if (ex >= 3 && ex % 2 == 1)
+                    {
+                        if (InBorderRel(1, dist))
+                        {
+                            int i1 = InBorderIndexRel(1, dist);
+                            int i2 = InBorderIndexRel(2, dist);
+
+                            if (i1 > i2)
+                            {
+                                circleValid = true;
+                            }
+                        }
+                        else
+                        {
+                            int i1 = InTakenIndexRel(1, dist);
+                            int i2 = InTakenIndexRel(2, dist);
+
+                            if (i2 > i1)
+                            {
+                                circleValid = true;
+                            }
+                        }
+                    }
+
+                    if (circleValid)
+                    {
+                        for (int k = ex - 1; k >= 2; k--)
+                        {
+                            borderFields.Add(new int[] { 1, k });
+                        }
+
+                        ResetExamAreas();
+
+                        if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                        {
+                            int black = (int)info[1];
+                            int white = (int)info[2];
+
+                            int whiteDiff = white - black;
+
+                            bool ruleTrue = false;
+
+                            switch (ex % 4)
+                            {
+                                case 1:
+                                    if (whiteDiff == (ex - 1) / 4 && CheckNearFieldSmallRel(1, 2, true))
+                                    {
+                                        ruleTrue = true;
+                                        T("LeftRightAreaUp enter / exit obstacle: Cannot step straight and right");
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        if (j != 2) // the right field relative to the area (left of the main line) is now inside the area.
+                                        {
+                                            forbidden.Add(new int[] { x - lx, y - ly });
+                                        }
+                                    }
+                                    break;
+                                case 3:
+                                    if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(1, 0, true))
+                                    {
+                                        ruleTrue = true;
+                                        T("LeftRightAreaUp enter / exit obstacle: Cannot step left");
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                    }
+                                    break;
+                            }
+
+                            if (ruleTrue)
+                            {
+                                AddExamAreas();
+                                areaPairFields.Add((List<int[]>)info[3]);
+                            }
+                        }
+
+                    }
+
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
                 }
                 sx = thisSx;
                 sy = thisSy;
@@ -1548,15 +1666,6 @@ namespace OneWayLabyrinth
                                             nowBCount = (ex - 1) / 4;
                                             laterWCount = (ex - 1) / 4;
                                             laterBCount = (ex - 1) / 4;
-
-                                            // 2024_0618
-                                            if (whiteDiff == laterWCount && InTakenRel(3, 0))
-                                            {
-                                                ruleTrue = true;
-                                                T("LeftRightAreaUp enter / exit obstacle: Cannot step straight and right");
-                                                forbidden.Add(new int[] { x + sx, y + sy });
-                                                forbidden.Add(new int[] { x - lx, y - ly });
-                                            }
                                             break;
                                         case 2:
                                             nowWCount = (ex + 2) / 4;
@@ -2012,7 +2121,8 @@ namespace OneWayLabyrinth
                             }
 
                             // if we have turned left from a right direction (to upwards), a corner is found
-                            if (currentDirection == 0 && l == 0)
+                            // It has to be left and up. In 0619_2 the walking edge goes below the current position.
+                            if (currentDirection == 0 && l == 0 && nextY >= 1)
                             {
                                 int hori = nextX + 1;
                                 int vert = nextY + 1;
@@ -2269,6 +2379,7 @@ namespace OneWayLabyrinth
                                             ResetExamAreas();
 
                                             // here, true means that count area succeeds, does not run into an error
+
                                             if (CountAreaRel(left1, straight1, left2, straight2, newBorderFields, circleDirectionLeft, 2, true))
                                             {
                                                 int black = (int)info[1];
@@ -3418,21 +3529,41 @@ namespace OneWayLabyrinth
         // obstacle right side of the field in question, area up
         // mid across and across fields
         // used for LeftRightAreaUp and LeftRightCorner
-        bool CheckNearFieldSmallRel(int x, int y)
+        bool CheckNearFieldSmallRel(int x, int y, bool mirrored = false)
         {
-            if (InTakenRel(x - 2, y + 1) && !InTakenRel(x - 1, y + 1) && !InTakenRel(x - 2, y))
+            if (!mirrored)
             {
-                int i1 = InTakenIndexRel(x - 2, y + 1);
-                int i2 = InTakenIndexRel(x - 2, y + 2);
+                if (InTakenRel(x - 2, y + 1) && !InTakenRel(x - 1, y + 1) && !InTakenRel(x - 2, y))
+                {
+                    int i1 = InTakenIndexRel(x - 2, y + 1);
+                    int i2 = InTakenIndexRel(x - 2, y + 2);
 
-                if (i2 > i1) return true;
+                    if (i2 > i1) return true;
+                }
+                if (InTakenRel(x - 2, y + 2) && !InTakenRel(x - 1, y + 2) && !InTakenRel(x - 2, y + 1))
+                {
+                    int i1 = InTakenIndexRel(x - 2, y + 2);
+                    int i2 = InTakenIndexRel(x - 2, y + 3);
+
+                    if (i2 > i1) return true;
+                }
             }
-            if (InTakenRel(x - 2, y + 2) && !InTakenRel(x - 1, y + 2) && !InTakenRel(x - 2, y + 1))
+            else
             {
-                int i1 = InTakenIndexRel(x - 2, y + 2);
-                int i2 = InTakenIndexRel(x - 2, y + 3);
+                if (InTakenRel(x + 2, y - 1) && !InTakenRel(x + 1, y - 1) && !InTakenRel(x + 2, y))
+                {
+                    int i1 = InTakenIndexRel(x + 2, y - 1);
+                    int i2 = InTakenIndexRel(x + 2, y - 2);
 
-                if (i2 > i1) return true;
+                    if (i2 > i1) return true;
+                }
+                if (InTakenRel(x + 2, y - 2) && !InTakenRel(x + 1, y - 2) && !InTakenRel(x + 2, y - 1))
+                {
+                    int i1 = InTakenIndexRel(x + 2, y - 2);
+                    int i2 = InTakenIndexRel(x + 2, y - 3);
+
+                    if (i2 > i1) return true;
+                }
             }
             return false;
         }
@@ -4105,7 +4236,7 @@ namespace OneWayLabyrinth
 
                     window.errorInWalkthrough = true;
                     window.StopAll("Count of start and end squares are inequal: " + startSquares.Count + " " + count);
-                    window.errorInWalkthrough = true;
+                    
                     return false;
                 }
 
@@ -5062,6 +5193,7 @@ namespace OneWayLabyrinth
 
                     window.errorInWalkthrough = true;
                     window.StopAll("Count of start and end squares are inequal: " + startSquares.Count + " " + eCount);
+
                     return false;
                 }
 

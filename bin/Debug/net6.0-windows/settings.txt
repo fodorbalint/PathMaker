@@ -1,13 +1,13 @@
-size: 9
-loadFromFile: True
+size: 11
+loadFromFile: False
 saveOnCompletion: True
 continueOnCompletion: True
 keepLeft: False
 displayFutureLines: False
 displayArea: True
-makeStats: False
+makeStats: True
 activeRules: False
 checkerBoard: True
 appliedSize: 9
-ruleXSize: 3
+ruleXSize: 2
 ruleYSize: 6

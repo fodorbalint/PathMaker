@@ -1,0 +1,35 @@
+<!--|False|False|-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 6">
+	<style>
+		svg { background-color: white; }
+	</style>
+	<!-- 1 1 4 -->
+	<path d="M 0 0 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
+	<path d="M 0.8 0.5 h -0.6 l 0.2 -0.2 l -0.2 0.2 l 0.2 0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
+	<!-- 2 6 1 -->
+	<path d="M 1 5 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
+	<path d="M 1.5 6 v -0.5" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
+	<path d="M 1 6 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
+	<path d="M 1.5 6 v 0.5" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
+	<!--1-->
+	<!-- 1 5 19 -->
+	<path d="M 0 4 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z" fill="#FF4000" fill-opacity="0.25" />
+	<path d="M 0.3 4.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" stroke-linejoin="round" />
+	<!-- 1 2 20 -->
+	<path d="M 0 1 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z" fill="#FF4000" fill-opacity="0.25" />
+	<path d="M 0.3 1.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" stroke-linejoin="round" />
+	<!--2-->
+	<!--3-->
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 6" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 6" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1.99 0 v 6" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 0.01 h 2" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 1 h 2" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 2 h 2" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 3 h 2" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 4 h 2" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 5 h 2" />
+	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 5.99 h 2" />
+
+	<path fill="transparent" stroke="black" stroke-width="0.06" stroke-linecap="round" d="M 1 2 v 2" />
+</svg>

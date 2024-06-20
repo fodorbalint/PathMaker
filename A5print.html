@@ -1687,18 +1687,11 @@ When integrating the rule, pay attention to its rotation. If the obstacles are o
 <br />
 <img align="top" src="References/2024_0610.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0610_1.svg" width="23.809523809524%" /><br />
 <br />
-In the third rotation position, where the first obstacle is behind on the right side, all 3 directions would have to be disabled. Therefore, it is safe to say, such a situation does not exist.</div><div class="rightNum">139</div></td></tr><tr><td class="left"></td>
-<td class="right"><div><img align="top" src="References/2024_0618_2.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 4 closed later.svg" width="19.047619047619%" /><br />
+In the third rotation position, where the first obstacle is behind on the right side, all 3 directions would have to be disabled. Therefore, it is safe to say, such a situation does not exist.</div><div class="rightNum">139</div></td></tr><tr><td class="left"><div>We continue with random examples.<br />
 <br />
-It is a closed corner case where the distance to the obstacle is 4, the area is 1W, and we enter later.<br />
-Because the field 1 right and 1 up is taken, the area needs to be defined as:<br />
+<img align="top" src="References/2024_0619_1.svg" width="52.380952380952%" /><br />
 <br />
-<img align="top" src="References/4pair up extended.svg" width="14.285714285714%" /><br />
-<br />
-The previous rules can be transferred into this new group.<br />
 <!--<br />
-<br />
-Fix: When stopping at fx 99 at random run, the number will be used again to save a picture if we again encounter an impossible situation.<br />
 <br />
 Review CountArea old and new algorithms<br />
 <img align="top" src="References/2024_0611_3.svg" width="42.857142857143%" /><br />
@@ -1792,7 +1785,38 @@ Sequence third case:<br />
 <br />
 When stepping back on completion, what if the left and right field is possible? Then we need to turn twice to the right.<br />
 <br />
---></div><div class="rightNum">141</div></td></tr><tr><td class="left"><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
-<td class="right"></td></tr>
- 
+--></div><div class="leftNum">144</div></td>
+<td class="right"><div><img align="top" src="References/2024_0618_2.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/areaup corner 4 closed later.svg" width="19.047619047619%" /><br />
+<br />
+It is a closed corner case where the distance to the obstacle is 4, the area is 1W, and we enter later.<br />
+Because the field 1 right and 1 up is taken, the area needs to be defined as:<br />
+<br />
+<img align="top" src="References/4pair up extended.svg" width="14.285714285714%" /><br />
+<br />
+The previous rules can be transferred into this new group.</div><div class="rightNum">141</div></td></tr><tr><td class="left"><div><img align="top" src="References/2024_0619.svg" width="52.380952380952%" /><br />
+<br />
+At the previous step, the big area is 1W. Because of that, in the next step we cannot go straight or right, but there is a mid across obstacle on the other side. We can also say that the movement on the area borderline conflicts the mid across obstacle. Compare the first case with this:<br />
+<br />
+<img align="top" src="References/5 dist up lines.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/5 dist up lines v2.svg" width="19.047619047619%" /><br />
+<br />
+To group these situations, first we check the area like this:<br />
+<br />
+<img align="top" src="References/up next.svg" width="9.5238095238095%" /></div><div class="leftNum">142</div><div class="marking1"></div><div class="marking2"></div><div class="marking3"></div><div class="marking4"></div><div class="marking5"></div><div class="marking6"></div></td>
+<td class="right"><div>Then, depending on the distance, we will know that we need to step up after entering the area in the following cases:<br />
+3 distance: 1W<br />
+4 distance: 1B, but this situation cannot arise, because then we wouldn't be able to enter the area now.<br />
+5 distance: 1W<br />
+6 distance: If the area is 1B, it can be filled without having to enter at the first black field or having to step up if we do so.<br />
+<br />
+The rule has three rotations. The obstacle defining the area can be:<br />
+- Up left side<br />
+- Right up side<br />
+- Bottom right side<br />
+<br />
+The second obstacle can be either in mid across or across position relative to the entry point as we have seen in the examples.<br />
+<br />
+If we run statistics now, it turns out that without these area border movement rules, the average number of walkthroughs before getting an error is 293, based on 100 attempts. By adding them, the number increases to 695. It tells us that in over half of the failures, this is the solution.<br />
+This is a useful tool for debugging too. If, by introducing a new rule set, the errors become more frequent, there is a mistake in the algorithm.<br />
+When we finished the 7 x 7 grid, the statistics gave us 5.7 walkthroughs on 11 x 11 using those rules.<br />
+By developing the algorithm further, we have solved 99 % of the cases we could not at that time. We get a little less ratio on a 21 x 21 grid, but of a similar order of magniture: 9 vs. 0.2.</div><div class="rightNum">143</div></td></tr> 
 </table>

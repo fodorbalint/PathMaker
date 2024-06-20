@@ -134,6 +134,8 @@ namespace OneWayLabyrinth
         bool displayFuture = true;
         bool displayArea = true;
 		public bool makeStats;
+        int statsRuns = 100;
+        string failureReason;
         bool activeRules = false;
         bool displayExits = true;
 		bool settingsOpen = false;
@@ -915,7 +917,16 @@ namespace OneWayLabyrinth
                         File.WriteAllLines(baseDir + "log_performance.txt", newArr);
                     }
                 }
-                completedCount = fileCompletedCount; 
+
+                if (makeStats && !keepLeftCheck)
+                {
+                    completedCount = 0;
+                }
+                else
+                {
+                    completedCount = fileCompletedCount;
+                }
+                
                 lastTimerValue = startTimerValue;
 
                 source = new CancellationTokenSource();
@@ -940,19 +951,22 @@ namespace OneWayLabyrinth
 
             if (!source.IsCancellationRequested && makeStats && !keepLeftCheck)
             {
-                if (numberOfRuns < 999)
+                if (numberOfRuns < statsRuns - 1)
                 {
                     numberOfRuns++;
                     numberOfCompleted += completedCount;
                     errorInWalkthrough = false;
                     messageCode = -1;
                     Dispatcher.Invoke(() =>
-                    {
+                    {                        
                         InitializeList();
 
                         T("New list initialized " + taken.path.Count);
                         MessageLine.Visibility = Visibility.Visible;
                         MessageLine.Content = "In " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.";
+                        L("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + failureReason);
+
+                        completedCount = 0;
                         source = new CancellationTokenSource();
                         CancellationToken token = source.Token;
                         Task task = new Task(() => DoThread(), token);
@@ -971,6 +985,7 @@ namespace OneWayLabyrinth
                     {
                         StopTimer();
                         MessageLine.Content = "In " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.";
+                        L("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + failureReason);
                         DrawPath();
                     });
                 }
@@ -995,7 +1010,6 @@ namespace OneWayLabyrinth
                 {
                     isTaskRunning = false;
                     StopTimer(); //in case of countarea inequal error, it is already called.                    
-
                     if (toReload)
                     {
                         toReload = false;
@@ -1014,6 +1028,8 @@ namespace OneWayLabyrinth
                         else MessageLine.Content = "Error at " + completedCount + ": " + MessageLine.Content;
                         DrawPath();
                     }
+
+
                 });
             }
         }        
@@ -1268,7 +1284,7 @@ namespace OneWayLabyrinth
                         }
 						else
 						{
-							L("The number of steps were only " + taken.path.Count + ".");
+							failureReason = "The number of steps were only " + taken.path.Count + ".";
 						}
 
 						if (!isTaskRunning) DrawPath();
@@ -2904,7 +2920,7 @@ namespace OneWayLabyrinth
                 }
                 else
                 {
-                    L("No option to move.");
+                    failureReason = "No option to move.";
                 }
             }
 
@@ -2943,6 +2959,7 @@ namespace OneWayLabyrinth
 			if (stepBack) //actual step back
 			{
 				errorInWalkthrough = false;
+                completedCount = 0;
 				lineFinished = false;
 				taken.x = taken.path[count - 2][0];
 				taken.y = taken.path[count - 2][1];

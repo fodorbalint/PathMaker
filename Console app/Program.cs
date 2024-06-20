@@ -505,8 +505,12 @@ void NextStepPossibilities2()
                 CheckCShapeNext();
                 // L("CheckStraight");
                 CheckStraight();
+                // L("CheckStraightNext " + ShowForbidden());
+                CheckStraightNext();
                 // L("CheckLeftRightAreaUp");
                 CheckLeftRightAreaUp();
+                // L("CheckLeftRightAreaUpExtended");
+                CheckLeftRightAreaUpExtended();
                 // L("CheckLeftRightAreaUpBig");
                 CheckLeftRightAreaUpBig();
                 // L("CheckLeftRightCorner");
@@ -1218,6 +1222,106 @@ void CheckStraight()
     ly = thisLy;
 }
 
+// 0618, 0619: When we enter the area, we need to step up. There is a close obstacle the other way inside the area.
+void CheckStraightNext()
+{
+    for (int i = 0; i < 2; i++)
+    {
+        bool circleDirectionLeft = (i == 0) ? true : false;
+
+        for (int j = 0; j < 3; j++) // small area, big area, behind right
+        {
+            bool circleValid = false;
+            int dist = 1;
+            List<int[]> borderFields = new();
+
+            while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
+            {
+                dist++;
+            }
+
+            int ex = dist - 1;
+
+            if (ex >= 3 && ex % 2 == 1)
+            {
+                if (InBorderRel(1, dist))
+                {
+                    int i1 = InBorderIndexRel(1, dist);
+                    int i2 = InBorderIndexRel(2, dist);
+
+                    if (i1 > i2)
+                    {
+                        circleValid = true;
+                    }
+                }
+                else
+                {
+                    int i1 = InTakenIndexRel(1, dist);
+                    int i2 = InTakenIndexRel(2, dist);
+
+                    if (i2 > i1)
+                    {
+                        circleValid = true;
+                    }
+                }
+            }
+
+            if (circleValid)
+            {
+                for (int k = ex - 1; k >= 2; k--)
+                {
+                    borderFields.Add(new int[] { 1, k });
+                }
+
+                if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                {
+                    int black = (int)info[1];
+                    int white = (int)info[2];
+
+                    int whiteDiff = white - black;
+
+                    switch (ex % 4)
+                    {
+                        case 1:
+                            if (whiteDiff == (ex - 1) / 4 && CheckNearFieldSmallRel(1, 2, true))
+                            {
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                if (j != 2) // the right field relative to the area (left of the main line) is now inside the area.
+                                {
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                }
+                            }
+                            break;
+                        case 3:
+                            if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(1, 0, true))
+                            {
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                            }
+                            break;
+                    }
+                }
+
+            }
+
+            // rotate CW
+            int s0 = sx;
+            int s1 = sy;
+            sx = -lx;
+            sy = -ly;
+            lx = s0;
+            ly = s1;
+        }
+        sx = thisSx;
+        sy = thisSy;
+        lx = -thisLx;
+        ly = -thisLy;
+    }
+    sx = thisSx;
+    sy = thisSy;
+    lx = thisLx;
+    ly = thisLy;
+}
+
 void CheckLeftRightAreaUp()
 {
     for (int i = 0; i < 2; i++)
@@ -1302,13 +1406,6 @@ void CheckLeftRightAreaUp()
                                     nowBCount = (ex - 1) / 4;
                                     laterWCount = (ex - 1) / 4;
                                     laterBCount = (ex - 1) / 4;
-
-                                    // 2024_0618
-                                    if (whiteDiff == laterWCount && InTakenRel(3, 0))
-                                    {
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        forbidden.Add(new int[] { x - lx, y - ly });
-                                    }
                                     break;
                                 case 2:
                                     nowWCount = (ex + 2) / 4;
@@ -2899,21 +2996,41 @@ void CheckCShapeNext() // 0611_5, 0611_6
 // obstacle right side of the field in question, area up
 // mid across and across fields
 // used for LeftRightAreaUp and LeftRightCorner
-bool CheckNearFieldSmallRel(int x, int y)
+bool CheckNearFieldSmallRel(int x, int y, bool mirrored = false)
 {
-    if (InTakenRel(x - 2, y + 1) && !InTakenRel(x - 1, y + 1) && !InTakenRel(x - 2, y))
+    if (!mirrored)
     {
-        int i1 = InTakenIndexRel(x - 2, y + 1);
-        int i2 = InTakenIndexRel(x - 2, y + 2);
+        if (InTakenRel(x - 2, y + 1) && !InTakenRel(x - 1, y + 1) && !InTakenRel(x - 2, y))
+        {
+            int i1 = InTakenIndexRel(x - 2, y + 1);
+            int i2 = InTakenIndexRel(x - 2, y + 2);
 
-        if (i2 > i1) return true;
+            if (i2 > i1) return true;
+        }
+        if (InTakenRel(x - 2, y + 2) && !InTakenRel(x - 1, y + 2) && !InTakenRel(x - 2, y + 1))
+        {
+            int i1 = InTakenIndexRel(x - 2, y + 2);
+            int i2 = InTakenIndexRel(x - 2, y + 3);
+
+            if (i2 > i1) return true;
+        }
     }
-    if (InTakenRel(x - 2, y + 2) && !InTakenRel(x - 1, y + 2) && !InTakenRel(x - 2, y + 1))
+    else
     {
-        int i1 = InTakenIndexRel(x - 2, y + 2);
-        int i2 = InTakenIndexRel(x - 2, y + 3);
+        if (InTakenRel(x + 2, y - 1) && !InTakenRel(x + 1, y - 1) && !InTakenRel(x + 2, y))
+        {
+            int i1 = InTakenIndexRel(x + 2, y - 1);
+            int i2 = InTakenIndexRel(x + 2, y - 2);
 
-        if (i2 > i1) return true;
+            if (i2 > i1) return true;
+        }
+        if (InTakenRel(x + 2, y - 2) && !InTakenRel(x + 1, y - 2) && !InTakenRel(x + 2, y - 1))
+        {
+            int i1 = InTakenIndexRel(x + 2, y - 2);
+            int i2 = InTakenIndexRel(x + 2, y - 3);
+
+            if (i2 > i1) return true;
+        }
     }
     return false;
 }
