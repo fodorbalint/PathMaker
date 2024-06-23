@@ -125,7 +125,11 @@ namespace OneWayLabyrinth
 		public bool keepLeftCheck;
         public long completedCount, fileCompletedCount;
 		bool completedWalkthrough = false;
+
         public bool errorInWalkthrough = false;
+        public string errorString;
+        public bool criticalError = false;
+
 		bool toReload = false;
 		bool toSave = false;
         CancellationTokenSource source;
@@ -135,7 +139,7 @@ namespace OneWayLabyrinth
         bool displayArea = true;
 		public bool makeStats;
         int statsRuns = 100;
-        string failureReason;
+        
         bool activeRules = false;
         bool displayExits = true;
 		bool settingsOpen = false;
@@ -268,7 +272,6 @@ namespace OneWayLabyrinth
                 return;
 			}
             DrawPath(true);
-			CL();
         }
 
         private void SetActiveRules()
@@ -356,7 +359,7 @@ namespace OneWayLabyrinth
                                 {
                                     if (!InTaken(field[0], field[1]))
                                     {
-                                        arr.Add(completedCount + ": " + rule);
+                                        arr.Add((numberOfCompleted + completedCount) + ": " + rule);
                                         // if two different positions of the same path number are saved, there will be appended _1, _2 etc.
                                         SavePath(false);
                                         break;
@@ -395,7 +398,7 @@ namespace OneWayLabyrinth
                             {
                                 if (!InTaken(field[0], field[1]))
                                 {
-                                    arr.Add(completedCount + ": " + rule);
+                                    arr.Add((numberOfCompleted + completedCount) + ": " + rule);
                                     SavePath(false);
                                     break;
                                 }
@@ -450,7 +453,7 @@ namespace OneWayLabyrinth
             foreach (string file in files)
             {
                 string fileName = System.IO.Path.GetFileName(file);
-                if (fileName != "settings.txt" && fileName != "log.txt" && fileName != "log_rules.txt" && fileName != "log_performance.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
+                if (fileName != "settings.txt" && fileName != "log_stats.txt" && fileName != "log_rules.txt" && fileName != "log_performance.txt" && fileName != "completedPaths.txt" && fileName.IndexOf("_temp") == -1 && fileName.IndexOf("_error") == -1)
                 {
                     loadFile = fileName;
                     return;
@@ -729,6 +732,7 @@ namespace OneWayLabyrinth
             HideMessage();
             messageCode = -1;
             errorInWalkthrough = false;
+            criticalError = false;
 
             //exits = new List<int[]>();
             //exitIndex = new List<int>();
@@ -877,57 +881,55 @@ namespace OneWayLabyrinth
             }
             else
             {
-                if (makeStats && !keepLeftCheck)
-                {
-                    CL();
-                    numberOfRuns = 0;
-                    numberOfCompleted = 0;
-                }
                 completedWalkthrough = false;
                 errorInWalkthrough = false;
                 MessageLine.Visibility = Visibility.Visible;
-                if (saveConcise) File.WriteAllText(baseDir + "completedPaths.txt", "");
-                if (fileCompletedCount == 0 || !File.Exists(baseDir + "log_performance.txt"))
-                {
-                    File.WriteAllText(baseDir + "log_performance.txt", "");
-                    File.WriteAllText(baseDir + "log_rules.txt", "");
-                    startTimerValue = 0;
-                }
-                else // continue where we left off
-                {
-                    List<string> arr = File.ReadAllLines(baseDir + "log_performance.txt").ToList();
-                    List<string> newArr = new();
-
-                    foreach (string line in arr)
-                    {
-                        string[] parts = line.Split(" ");
-                        if (long.Parse(parts[0]) <= fileCompletedCount)
-                        {
-                            newArr.Add(line);
-                            startTimerValue = (long)(float.Parse(parts[1]));
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    if (newArr.Count > 0)
-                    {
-                        File.WriteAllLines(baseDir + "log_performance.txt", newArr);
-                    }
-                }
 
                 if (makeStats && !keepLeftCheck)
                 {
+                    numberOfRuns = 0;
+                    numberOfCompleted = 0;
                     completedCount = 0;
+                    File.WriteAllText(baseDir + "log_stats.txt", "");
+                    File.WriteAllText(baseDir + "log_rules.txt", "");
                 }
                 else
                 {
+                    if (saveConcise) File.WriteAllText(baseDir + "completedPaths.txt", "");
+
+                    if (fileCompletedCount == 0 || !File.Exists(baseDir + "log_performance.txt"))
+                    {
+                        File.WriteAllText(baseDir + "log_performance.txt", "");
+                        File.WriteAllText(baseDir + "log_rules.txt", "");
+                        startTimerValue = 0;
+                    }
+                    else // continue where we left off
+                    {
+                        List<string> arr = File.ReadAllLines(baseDir + "log_performance.txt").ToList();
+                        List<string> newArr = new();
+
+                        foreach (string line in arr)
+                        {
+                            string[] parts = line.Split(" ");
+                            if (long.Parse(parts[0]) <= fileCompletedCount)
+                            {
+                                newArr.Add(line);
+                                startTimerValue = (long)(float.Parse(parts[1]));
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        if (newArr.Count > 0)
+                        {
+                            File.WriteAllLines(baseDir + "log_performance.txt", newArr);
+                        }
+                    }
                     completedCount = fileCompletedCount;
+                    lastTimerValue = startTimerValue;
                 }
-                
-                lastTimerValue = startTimerValue;
 
                 source = new CancellationTokenSource();
                 CancellationToken token = source.Token;
@@ -945,27 +947,25 @@ namespace OneWayLabyrinth
             do
             {
                 Timer_Tick(null, null);
-                if (source.IsCancellationRequested) break;
             }
-            while (!completedWalkthrough && !errorInWalkthrough);
+            while (!source.IsCancellationRequested && !completedWalkthrough && !errorInWalkthrough);
 
-            if (!source.IsCancellationRequested && makeStats && !keepLeftCheck)
+            if (!criticalError && makeStats && !keepLeftCheck)
             {
-                if (numberOfRuns < statsRuns - 1)
-                {
-                    numberOfRuns++;
-                    numberOfCompleted += completedCount;
-                    errorInWalkthrough = false;
-                    messageCode = -1;
-                    Dispatcher.Invoke(() =>
-                    {                        
-                        InitializeList();
+                numberOfRuns++;
+                numberOfCompleted += completedCount;
+                errorInWalkthrough = false;
+                messageCode = -1;
 
-                        T("New list initialized " + taken.path.Count);
+                if (numberOfRuns < statsRuns)
+                {
+                    Dispatcher.Invoke(() =>
+                    {  
                         MessageLine.Visibility = Visibility.Visible;
                         MessageLine.Content = "In " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.";
-                        L("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + failureReason);
+                        L("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + errorString);
 
+                        InitializeList();
                         completedCount = 0;
                         source = new CancellationTokenSource();
                         CancellationToken token = source.Token;
@@ -974,33 +974,26 @@ namespace OneWayLabyrinth
                     });
                 }
                 else
-                {
-                    numberOfRuns++;
-                    numberOfCompleted += completedCount;
-                    errorInWalkthrough = false;
-                    messageCode = -1;
+                {                    
                     isTaskRunning = false;
 
                     Dispatcher.Invoke(() =>
                     {
                         StopTimer();
                         MessageLine.Content = "In " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.";
-                        L("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + failureReason);
+                        L("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + errorString);
                         DrawPath();
                     });
                 }
             }
-            else if (makeStats && !keepLeftCheck) // stopped by button / critical error: start and end fields in countarea unequal
+            else if (source.IsCancellationRequested && makeStats && !keepLeftCheck) // stopped by button
             {
                 isTaskRunning = false;
 
                 Dispatcher.Invoke(() =>
                 {
                     StopTimer();
-                    if (MessageLine.Content.ToString().IndexOf("inequal") == -1 && MessageLine.Content.ToString().IndexOf("arealine") == -1)
-                    {
-                        MessageLine.Content = "In " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.";
-                    }
+                    MessageLine.Content = "In " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / (numberOfRuns > 0 ? numberOfRuns : 1), 1) + " per run.";
                     DrawPath();
                 });
             }
@@ -1025,7 +1018,7 @@ namespace OneWayLabyrinth
                     {
                         if (completedWalkthrough) M("The number of walkthroughs are " + completedCount + ".", 0);
                         else if (!errorInWalkthrough) M(completedCount + " walkthroughs are completed.", 0);
-                        else MessageLine.Content = "Error at " + completedCount + ": " + MessageLine.Content;
+                        else MessageLine.Content = "Error at " + completedCount + ": " + errorString;
                         DrawPath();
                     }
 
@@ -1046,19 +1039,6 @@ namespace OneWayLabyrinth
             StartStopButton.Content = "Start";
             StartStopButton.Style = Resources["GreenButton"] as Style;
             if (!isTaskRunning) timer.Stop(); else watch.Stop();
-        }
-
-        public void StopAll(string error) // used when count area is inequal in Path.cs or there is no possibility to move
-        {
-            if (isTaskRunning)
-            {
-                source.Cancel();
-            }
-            else if (timer.IsEnabled)
-            {
-                StopTimer();
-            }
-            M(error, 0);
         }
 
         private void SaveSettings(object sender, RoutedEventArgs e)
@@ -1276,16 +1256,10 @@ namespace OneWayLabyrinth
                     if (taken.path.Count != size * size)
                     {
                         possibleDirections.Add(new int[] { });
-                        errorInWalkthrough = true;
 
-                        if (!(isTaskRunning && makeStats && !keepLeftCheck))
-                        {
-                            StopAll("The number of steps were only " + taken.path.Count + ".");
-                        }
-						else
-						{
-							failureReason = "The number of steps were only " + taken.path.Count + ".";
-						}
+                        errorInWalkthrough = true;
+                        errorString = "The number of steps were only " + taken.path.Count + ".";
+                        criticalError = true;
 
 						if (!isTaskRunning) DrawPath();
                     }
@@ -1296,31 +1270,45 @@ namespace OneWayLabyrinth
                         if (isTaskRunning)
                         {
                             completedCount++;
-                            string pathStr = "";
-                            foreach (int[] field in taken.path)
+                            
+                            if (saveConcise)
                             {
-                                pathStr += field[0] + ","+ field[1] + ";";
-                            }
-                            pathStr = pathStr.Substring(0, pathStr.Length - 1);
-                            if (saveConcise) File.AppendAllText(baseDir + "completedPaths.txt", pathStr + "\n");
-                            Dispatcher.Invoke(() =>
-                            {
-                                if (!(makeStats && !keepLeftCheck))
+                                string pathStr = "";
+                                foreach (int[] field in taken.path)
                                 {
-                                    MessageLine.Content = completedCount + " walkthroughs are completed.";
+                                    pathStr += field[0] + "," + field[1] + ";";
                                 }
-                            });
-
-                            if (saveCheck && completedCount % saveFrequency == 0)
-							{
-                                SavePath();
-                                long elapsed = watch.ElapsedMilliseconds + startTimerValue;
-                                long periodValue = elapsed - lastTimerValue;
-                                File.AppendAllText(baseDir + "log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + " " + (periodValue - periodValue % 1000) / 1000 + "." + periodValue % 1000 + "\n" );
-
-                                lastTimerValue = elapsed;
+                                pathStr = pathStr.Substring(0, pathStr.Length - 1);
+                                File.AppendAllText(baseDir + "completedPaths.txt", pathStr + "\n");
                             }
-							
+
+                            if (makeStats && !keepLeftCheck)
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    MessageLine.Content = "In " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / (numberOfRuns > 0 ? numberOfRuns : 1), 1) + " per run. Current run: " + completedCount;
+                                });
+                            }
+                            else
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+
+                                    MessageLine.Content = completedCount + " walkthroughs are completed.";
+
+                                });
+
+                                if (saveCheck && completedCount % saveFrequency == 0)
+                                {
+                                    SavePath();
+                                    long elapsed = watch.ElapsedMilliseconds + startTimerValue;
+                                    long periodValue = elapsed - lastTimerValue;
+                                    File.AppendAllText(baseDir + "log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + " " + (periodValue - periodValue % 1000) / 1000 + "." + periodValue % 1000 + "\n");
+
+                                    lastTimerValue = elapsed;
+                                }
+                            }
+                            
                             //Dispatcher.Invoke(() => { DrawPath(); }); //frequent error in SKCanvas: Attempt to read or write protected memory
                         }
                         else DrawPath();
@@ -2814,16 +2802,13 @@ namespace OneWayLabyrinth
 
             if (errorInWalkthrough) // countarea errors
             {
-                T("isTaskRunning " + isTaskRunning + " makeStats " + makeStats + " keepLeftCheck " + keepLeftCheck);
-                if (!(isTaskRunning && makeStats && !keepLeftCheck))
+                taken.possible = newPossible;
+                possibleDirections.Add(possibleFields.ToArray());
+
+                if (!isTaskRunning)
                 {
-                    taken.possible = newPossible;
-                    possibleDirections.Add(possibleFields.ToArray());
-                    Dispatcher.Invoke(() =>
-                    {
-                        T("Nextstepposs stopping timer");
-                        StopAll((string)MessageLine.Content);
-                    });
+                    StopTimer();
+                    M(errorString, 0);
                 }
                 return;
             }
@@ -2913,15 +2898,7 @@ namespace OneWayLabyrinth
             if (taken.possible.Count == 0)
             {
                 errorInWalkthrough = true;
-
-                if (!(isTaskRunning && makeStats && !keepLeftCheck))
-                {
-                    StopAll("No option to move.");
-                }
-                else
-                {
-                    failureReason = "No option to move.";
-                }
+                errorString = "No option to move.";
             }
 
             //Stop at pattern here
@@ -2959,7 +2936,6 @@ namespace OneWayLabyrinth
 			if (stepBack) //actual step back
 			{
 				errorInWalkthrough = false;
-                completedCount = 0;
 				lineFinished = false;
 				taken.x = taken.path[count - 2][0];
 				taken.y = taken.path[count - 2][1];
@@ -4795,15 +4771,9 @@ namespace OneWayLabyrinth
 
         // ----- Logging -----
 
-
-        public void CL()
-        {
-            File.Delete(baseDir + "log.txt");
-        }
-
         public void L(string s)
 		{
-			File.AppendAllText(baseDir + "log.txt", s + "\n");
+			File.AppendAllText(baseDir + "log_stats.txt", s + "\n");
 		}
 
         public void M(object o, int code)

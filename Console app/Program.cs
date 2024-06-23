@@ -13,10 +13,16 @@ int lastDirection = -1;
 long completedCount = 0;
 long fileCompletedCount;
 bool lineFinished = false;
-long startTimerValue = 0, lastTimerValue;
+long startTimerValue = 0;
+long lastTimerValue = 0;
 string errorString = "";
 string savePath = "";
 int saveFrequency;
+bool makeStats;
+Random rand = new Random();
+int numberOfRuns = 0;
+long numberOfCompleted = 0;
+int statsRuns = 100;
 int count = 0;
 int sx = 0; //straight, left and right coordinates
 int sy = 0;
@@ -60,20 +66,23 @@ if (File.Exists(baseDir + "settings.txt"))
     size = int.Parse(arr[1]);
     arr = lines[1].Split(": ");
     saveFrequency = int.Parse(arr[1]);
+    arr = lines[2].Split(": ");
+    makeStats = bool.Parse(arr[1]);
 }
 else
 {
     size = 9;
     saveFrequency = 1000000;
-    string[] lines = new string[] { "size: " + size, "saveFrequency: " + saveFrequency };
+    makeStats = false;
+    string[] lines = new string[] { "size: " + size, "saveFrequency: " + saveFrequency, "makeStats: " + makeStats };
     File.WriteAllLines(baseDir + "settings.txt", lines);
 }
 
-T("Size setting: " + size, "save frequency: " + saveFrequency);
+T("Size setting: " + size, "save frequency: " + saveFrequency, "make stats: " + makeStats);
 
 ReadDir();
 
-if (loadFile != "")
+if (loadFile != "" && !makeStats)
 {
     LoadFromFile();
 }
@@ -84,15 +93,17 @@ else
 count = taken.Count;
 
 bool errorInWalkthrough = false;
+bool criticalError = false;
 
 if (taken != null && possibleDirections.Count == count) //null checking is only needed for removing warning
 {
     if (!lineFinished)
     {
         NextStepPossibilities();
-        if (possible.Count == 0)
+
+        if (errorInWalkthrough)
         {
-            T("No option to move.");
+            Console.Write("Error: " + errorString);
             Console.Read();
             return;
         }
@@ -112,39 +123,50 @@ else if (taken != null && possibleDirections.Count != count + 1)
 bool completedWalkthrough = false;
 bool halfwayWalkthrough = false;
 
-if (fileCompletedCount == 0 || !File.Exists(baseDir + "log_performance.txt"))
+if (makeStats)
 {
-    File.WriteAllText(baseDir + "log_performance.txt", "");
-    File.WriteAllText(baseDir + "log_rules.txt", "");
-    startTimerValue = 0;
+    numberOfRuns = 0;
+    numberOfCompleted = 0;
+    completedCount = 0;
+    File.WriteAllText(baseDir + "log_stats.txt", "");
+    File.WriteAllText(baseDir + "log_rules.txt", "");    
 }
-else // continue where we left off
+else
 {
-    List<string> arr = File.ReadAllLines(baseDir + "log_performance.txt").ToList();
-    List<string> newArr = new();
-
-    foreach (string line in arr)
+    if (fileCompletedCount == 0 || !File.Exists(baseDir + "log_performance.txt"))
     {
-        string[] parts = line.Split(" ");
-        if (long.Parse(parts[0]) <= fileCompletedCount)
+        File.WriteAllText(baseDir + "log_performance.txt", "");
+        File.WriteAllText(baseDir + "log_rules.txt", "");
+        startTimerValue = 0;
+    }
+    else // continue where we left off
+    {
+        List<string> arr = File.ReadAllLines(baseDir + "log_performance.txt").ToList();
+        List<string> newArr = new();
+
+        foreach (string line in arr)
         {
-            newArr.Add(line);
-            startTimerValue = (long)(float.Parse(parts[1]));
+            string[] parts = line.Split(" ");
+            if (long.Parse(parts[0]) <= fileCompletedCount)
+            {
+                newArr.Add(line);
+                startTimerValue = (long)(float.Parse(parts[1]));
+            }
+            else
+            {
+                break;
+            }
         }
-        else
+
+        if (newArr.Count > 0)
         {
-            break;
+            File.WriteAllLines(baseDir + "log_performance.txt", newArr);
         }
     }
-
-    if (newArr.Count > 0)
-    {
-        File.WriteAllLines(baseDir + "log_performance.txt", newArr);
-    }
+    completedCount = fileCompletedCount;
+    lastTimerValue = startTimerValue;
 }
 
-completedCount = fileCompletedCount;
-lastTimerValue = startTimerValue;
 Stopwatch watch = Stopwatch.StartNew();
 
 DoThread();
@@ -170,9 +192,27 @@ void DoThread()
     }
     else
     {
-        Console.Write("\rError at " + completedCount + ": " + errorString);
-        SavePath(false, true);
-        Console.Read();
+        if (makeStats && !criticalError)
+        {
+            numberOfRuns++;
+            numberOfCompleted += completedCount;
+            errorInWalkthrough = false;
+            Console.Write("\rIn " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.");
+            Log("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + errorString);
+
+            if (numberOfRuns < statsRuns)
+            {
+                InitializeList();
+                completedCount = 0;
+                DoThread();
+            }  
+        }
+        else
+        {
+            Console.Write("\rError at " + completedCount + ": " + errorString);
+            SavePath(false, true);
+            Console.Read();
+        }
     }
 }
 
@@ -180,84 +220,91 @@ void NextClick()
 {
     if (x == size && y == size)
     {
-        // step back until there is an option to move right of the step that had been taken.
-
-        bool rightFound = false;
-        nextDirection = -1;
-        bool oppositeFound;
-        bool leftFound;
-
-        do
+        if (makeStats)
         {
-            PreviousStep();
-
-            int[] prevField;
-            if (count > 2)
-            {
-                prevField = taken[count - 3];
-            }
-            else
-            {
-                prevField = new int[] { 0, 1 }; 
-            }
-            
-            int[] startField = taken[count - 2];
-            int[] newField = taken[count - 1];
-            int prevX = prevField[0];
-            int prevY = prevField[1];
-            int startX = startField[0];
-            int startY = startField[1];
-            int newX = newField[0];
-            int newY = newField[1];
-
-            int firstDir = FindDirection(startX - prevX, startY - prevY);
-            int secondDir = FindDirection(newX - startX, newY - startY);
-
-            oppositeFound = false;
-
-            foreach (int direction in possibleDirections[count - 1]) // last but one element of possible directions
-            {
-                if (direction != secondDir && direction % 2 == secondDir % 2) // two difference
-                {
-                    // opposite is found, but we don't know yet if it is on the left or right side. First example 19802714.
-
-                    if (secondDir == firstDir + 1 || firstDir == 3 && secondDir == 0)
-                    { // line turned to left. The opposite direction is on the right side
-                        oppositeFound = true;
-                    }
-                    // else line turned to right.
-                }
-                if (direction == secondDir - 1 || secondDir == 0 && direction == 3)
-                {
-                    rightFound = true;
-                    break;
-                }
-            }
-
-            if (rightFound) // right and maybe opposite directions exist
-            {
-                nextDirection = secondDir == 0 ? 3 : secondDir - 1;
-                PreviousStep();
-            }
-            else if (oppositeFound) // only opposite direction
-            {
-                nextDirection = secondDir < 2 ? secondDir + 2 : secondDir - 2;
-                rightFound = true;
-                PreviousStep();
-            }
-
-        } while (!rightFound && count > 2);
-
-        if (!rightFound)
-        {
-            PreviousStep(); // c = 2. We reached the end, step back to the start position
-                                // Reset nextDirection, so that we can start again
-            completedWalkthrough = true;
-            nextDirection = -1;
+            InitializeList();
         }
-        else if (count == 1)
+        else
         {
-            halfwayWalkthrough = true;
+            // step back until there is an option to move right of the step that had been taken.
+
+            bool rightFound = false;
+            nextDirection = -1;
+            bool oppositeFound;
+            bool leftFound;
+
+            do
+            {
+                PreviousStep();
+
+                int[] prevField;
+                if (count > 2)
+                {
+                    prevField = taken[count - 3];
+                }
+                else
+                {
+                    prevField = new int[] { 0, 1 };
+                }
+
+                int[] startField = taken[count - 2];
+                int[] newField = taken[count - 1];
+                int prevX = prevField[0];
+                int prevY = prevField[1];
+                int startX = startField[0];
+                int startY = startField[1];
+                int newX = newField[0];
+                int newY = newField[1];
+
+                int firstDir = FindDirection(startX - prevX, startY - prevY);
+                int secondDir = FindDirection(newX - startX, newY - startY);
+
+                oppositeFound = false;
+
+                foreach (int direction in possibleDirections[count - 1]) // last but one element of possible directions
+                {
+                    if (direction != secondDir && direction % 2 == secondDir % 2) // two difference
+                    {
+                        // opposite is found, but we don't know yet if it is on the left or right side. First example 19802714.
+
+                        if (secondDir == firstDir + 1 || firstDir == 3 && secondDir == 0)
+                        { // line turned to left. The opposite direction is on the right side
+                            oppositeFound = true;
+                        }
+                        // else line turned to right.
+                    }
+                    if (direction == secondDir - 1 || secondDir == 0 && direction == 3)
+                    {
+                        rightFound = true;
+                        break;
+                    }
+                }
+
+                if (rightFound) // right and maybe opposite directions exist
+                {
+                    nextDirection = secondDir == 0 ? 3 : secondDir - 1;
+                    PreviousStep();
+                }
+                else if (oppositeFound) // only opposite direction
+                {
+                    nextDirection = secondDir < 2 ? secondDir + 2 : secondDir - 2;
+                    rightFound = true;
+                    PreviousStep();
+                }
+
+            } while (!rightFound && count > 2);
+
+            if (!rightFound)
+            {
+                PreviousStep(); // c = 2. We reached the end, step back to the start position
+                                // Reset nextDirection, so that we can start again
+                completedWalkthrough = true;
+                nextDirection = -1;
+            }
+            else if (count == 1)
+            {
+                halfwayWalkthrough = true;
+            }
         }
 
         return;
@@ -270,26 +317,39 @@ void NextClick()
             if (count != size * size)
             {
                 possibleDirections.Add(new int[] { });
+
                 errorInWalkthrough = true;
                 errorString = "The number of steps were only " + count + ".";
+                criticalError = true;
+                
             }
             else
             {
                 possibleDirections.Add(new int[] { });
                 lineFinished = true;
                 completedCount++;
-                if (completedCount % 1000 == 0)
+
+                if (makeStats)
+                {
+                    Console.Write("\rIn " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / (numberOfRuns > 0 ? numberOfRuns : 1), 1) + " per run. Current run: " + completedCount + "      ");
+
+                    if (completedCount == 1000 || completedCount == 1001) SavePath();
+                }
+                else
+                {
+                    if(completedCount % 1000 == 0)
                 Console.Write("\r{0} completed.", completedCount);
 
-                if (completedCount % saveFrequency == 0)
-                {
-                    SavePath();
+                    if (completedCount % saveFrequency == 0)
+                    {
+                        SavePath();
 
-                    long elapsed = watch.ElapsedMilliseconds + startTimerValue;
-                    long periodValue = elapsed - lastTimerValue;
-                    File.AppendAllText(baseDir + "log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + " " + (periodValue - periodValue % 1000) / 1000 + "." + periodValue % 1000 + "\n");
+                        long elapsed = watch.ElapsedMilliseconds + startTimerValue;
+                        long periodValue = elapsed - lastTimerValue;
+                        File.AppendAllText(baseDir + "log_performance.txt", completedCount + " " + (elapsed - elapsed % 1000) / 1000 + "." + elapsed % 1000 + " " + (periodValue - periodValue % 1000) / 1000 + "." + periodValue % 1000 + "\n");
 
-                    lastTimerValue = elapsed;
+                        lastTimerValue = elapsed;
+                    }
                 }
             }
 
@@ -302,7 +362,7 @@ void NextClick()
 
 bool NextStep()
 {
-    //L("NextStep", x, y);
+    // L("NextStep", x, y);
     if (possible.Count == 0)
     {
         errorInWalkthrough = true;
@@ -317,45 +377,52 @@ bool NextStep()
         lastDirection = nextDirection;
         nextDirection = -1;
     }
-    else // Find the most left field. It is possible to have the left and right field but not straight.
+    else
     {
-        int[] newDirections = possibleDirections[possibleDirections.Count - 1];
+        if (makeStats)
+        {
+            newField = possible[rand.Next(0, possible.Count)];
+        }
+        else // Find the most left field. It is possible to have the left and right field but not straight.
+        {
+            int[] newDirections = possibleDirections[possibleDirections.Count - 1];
 
-        bool foundLeft = false;
-        bool foundStraight = false;
-        int i = 0;
-        for (i = 0; i < newDirections.Length; i++)
-        {
-            int leftDirection = lastDirection == 3 ? 0 : lastDirection + 1;
-            if (newDirections[i] == leftDirection)
+            bool foundLeft = false;
+            bool foundStraight = false;
+            int i = 0;
+            for (i = 0; i < newDirections.Length; i++)
             {
-                foundLeft = true;
-                break;
+                int leftDirection = lastDirection == 3 ? 0 : lastDirection + 1;
+                if (newDirections[i] == leftDirection)
+                {
+                    foundLeft = true;
+                    break;
+                }
+                else if (newDirections[i] == lastDirection)
+                {
+                    foundStraight = true;
+                    //no break, left may be found later
+                }
             }
-            else if (newDirections[i] == lastDirection)
-            {
-                foundStraight = true;
-                //no break, left may be found later
-            }
-        }
 
-        int newDirectionTemp = -1;
-        if (foundLeft)
-        {
-            newDirectionTemp = newDirections[i];
-            newField = new int[] { x + directions[newDirectionTemp][0], y + directions[newDirectionTemp][1] };
+            int newDirectionTemp = -1;
+            if (foundLeft)
+            {
+                newDirectionTemp = newDirections[i];
+                newField = new int[] { x + directions[newDirectionTemp][0], y + directions[newDirectionTemp][1] };
+            }
+            else if (foundStraight)
+            {
+                newDirectionTemp = lastDirection;
+                newField = new int[] { x + directions[newDirectionTemp][0], y + directions[newDirectionTemp][1] };
+            }
+            else //only right is possible
+            {
+                newDirectionTemp = newDirections[0];
+                newField = new int[] { x + directions[newDirectionTemp][0], y + directions[newDirectionTemp][1] };
+            }
+            lastDirection = newDirectionTemp;
         }
-        else if (foundStraight)
-        {
-            newDirectionTemp = lastDirection;
-            newField = new int[] { x + directions[newDirectionTemp][0], y + directions[newDirectionTemp][1] };
-        }
-        else //only right is possible
-        {
-            newDirectionTemp = newDirections[0];
-            newField = new int[] { x + directions[newDirectionTemp][0], y + directions[newDirectionTemp][1] };
-        }
-        lastDirection = newDirectionTemp;
     }
 
     x = newField[0];
@@ -374,7 +441,10 @@ void NextStepPossibilities()
     List<int[]> newPossible = new List<int[]>();
 
     if (errorInWalkthrough) // countarea errors
-    {       
+    {
+        possible = newPossible;
+        possibleDirections.Add(possibleFields.ToArray());
+
         return;
     }
 
@@ -501,19 +571,21 @@ void NextStepPossibilities2()
                 nextStepEnterRight = -1;
 
                 // needs to be checked before AreaUp, it can overwrite it as in 802973
-                // L("CheckCShapeNext");
+                // L("CheckCShapeNext " + x + " " + y);
                 CheckCShapeNext();
-                // L("CheckStraight");
-                CheckStraight();
+                // L("CheckStraight " + ShowForbidden());
+                CheckStraight();                
+                // L("CheckStraightSmall " + ShowForbidden());
+                //CheckStraightSmall();
                 // L("CheckStraightNext " + ShowForbidden());
                 CheckStraightNext();
-                // L("CheckLeftRightAreaUp");
+                // L("CheckLeftRightAreaUp " + ShowForbidden());
                 CheckLeftRightAreaUp();
-                // L("CheckLeftRightAreaUpExtended");
+                // L("CheckLeftRightAreaUpExtended " + ShowForbidden());
                 CheckLeftRightAreaUpExtended();
-                // L("CheckLeftRightAreaUpBig");
+                // L("CheckLeftRightAreaUpBig " + ShowForbidden());
                 CheckLeftRightAreaUpBig();
-                // L("CheckLeftRightCorner");
+                // L("CheckLeftRightCorner " + ShowForbidden());
                 CheckLeftRightCorner();
 
                 // L("NextStepEnter " + nextStepEnterLeft + " " + nextStepEnterRight);
@@ -543,12 +615,12 @@ void NextStepPossibilities2()
                 List<int[]> startForbiddenFields = Copy(forbidden);
 
                 // If distance is over 3, single area rules seem to disable the needed directions. For 3 distance, we use Sequence first case.
-                
-                //T("CheckSequence");
+
+                // L("CheckSequence " + ShowForbidden());
                 CheckSequence();
-                //T("CheckDownStair");
+                // L("CheckDownStair " + ShowForbidden());
                 CheckDownStair();
-                //T("Check3DistNextStep");
+                // L("Check3DistNextStep " + ShowForbidden());
                 Check3DistNextStep();
 
                 ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
@@ -831,6 +903,7 @@ void InitializeList()
     lastDirection = 0;
     fileCompletedCount = 0;
 
+    possible = new();
     foreach (int direction in possibleDirections[possibleDirections.Count - 1])
     {
         possible.Add(new int[] { x + directions[direction][0], y + directions[direction][1] });
@@ -897,7 +970,13 @@ void L(params object[] o)
     {
         result += ", " + o[i];
     }
-    Debug.WriteLine(result);
+    Console.WriteLine(result);
+    //Debug.WriteLine(result);
+}
+
+void Log(string line)
+{
+    File.AppendAllText(baseDir + "log_stats.txt", line + "\n");
 }
 
 
@@ -961,7 +1040,7 @@ void ShowActiveRules(List<string> rules, List<List<int[]>> forbiddenFields, List
                     {
                         if (!InTaken(field[0], field[1]))
                         {
-                            arr.Add(completedCount + ": " + rule);
+                            arr.Add((numberOfCompleted + completedCount) + ": " + rule);
                             // if two different positions of the same path number are saved, there will be appended _1, _2 etc.
                             SavePath(false);
                             break;
@@ -1000,7 +1079,7 @@ void ShowActiveRules(List<string> rules, List<List<int[]>> forbiddenFields, List
                 {
                     if (!InTaken(field[0], field[1]))
                     {
-                        arr.Add(completedCount + ": " + rule);
+                        arr.Add((numberOfCompleted + completedCount) + ": " + rule);
                         SavePath(false);
                         break;
                     }
@@ -1222,6 +1301,80 @@ void CheckStraight()
     ly = thisLy;
 }
 
+// 0619_1
+// Two columns are checked for being empty, but at the end the straight field must be taken, and the left field must be empty.
+void CheckStraightSmall()
+{
+    for (int i = 0; i < 2; i++)
+    {
+        bool circleDirectionLeft = (i == 0) ? true : false;
+
+        for (int j = 0; j < 2; j++) // j = 1: small area, j = 2: big area
+        {
+            bool circleValid = false;
+            int dist = 1;
+            List<int[]> borderFields = new();
+
+            while (!InTakenRel(0, dist) && !InBorderRel(0, dist) && !InTakenRel(1, dist) && !InBorderRel(1, dist))
+            {
+                dist++;
+            }
+
+            int ex = dist - 1;
+
+            if (ex == 4 && InTakenRel(0, dist) && !InTakenRel(1, dist))
+            {
+                int i1 = InTakenIndexRel(0, dist);
+                int i2 = InTakenIndexRel(-1, dist);
+
+                if (i1 > i2)
+                {
+                    circleValid = true;
+                }
+            }
+
+            if (circleValid)
+            {
+                for (int k = ex - 1; k >= 2; k--)
+                {
+                    borderFields.Add(new int[] { 1, k });
+                }
+
+                if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                {
+                    int black = (int)info[1];
+                    int white = (int)info[2];
+
+                    if (white == black + 1)
+                    {
+                        if (CheckNearFieldSmallRel(1, 2, 0, 1, false) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
+                        {
+                            forbidden.Add(new int[] { x + sx, y + sy });
+                            forbidden.Add(new int[] { x - lx, y - ly });
+                        }
+                    }
+                }
+            }
+
+            // rotate CW
+            int s0 = sx;
+            int s1 = sy;
+            sx = -lx;
+            sy = -ly;
+            lx = s0;
+            ly = s1;
+        }
+        sx = thisSx;
+        sy = thisSy;
+        lx = -thisLx;
+        ly = -thisLy;
+    }
+    sx = thisSx;
+    sy = thisSy;
+    lx = thisLx;
+    ly = thisLy;
+}
+
 // 0618, 0619: When we enter the area, we need to step up. There is a close obstacle the other way inside the area.
 void CheckStraightNext()
 {
@@ -1283,7 +1436,7 @@ void CheckStraightNext()
                     switch (ex % 4)
                     {
                         case 1:
-                            if (whiteDiff == (ex - 1) / 4 && CheckNearFieldSmallRel(1, 2, true))
+                            if (whiteDiff == (ex - 1) / 4 && CheckNearFieldSmallRel(1, 2, 0, 1, false))
                             {
                                 forbidden.Add(new int[] { x + sx, y + sy });
                                 if (j != 2) // the right field relative to the area (left of the main line) is now inside the area.
@@ -1293,7 +1446,7 @@ void CheckStraightNext()
                             }
                             break;
                         case 3:
-                            if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(1, 0, true))
+                            if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(1, 0, 0, 1, false))
                             {
                                 forbidden.Add(new int[] { x + lx, y + ly });
                             }
@@ -1556,12 +1709,12 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
                         {
                             case 0:
                                 // 0610_4, 0610_5, 121670752
-                                if (-whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex - 1))
+                                if (-whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                 }
                                 // 0618_2
-                                else if (whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex))
+                                else if (whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex, 0, 2, true))
                                 {
                                     forbidden.Add(new int[] { x - lx, y - ly });
                                 }
@@ -1570,20 +1723,18 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
                                 break;
                             case 2:
                                 // We cannot get to the 2- or 6-distance case if the other rules are applied. 0611_1
-                                /*if (!found && whiteDiff == (ex + 2) / 4 && CheckNearFieldSmallRel(0, ex))
+                                /*if (!found && whiteDiff == (ex + 2) / 4 && CheckNearFieldSmallRel(0, ex, 0, 2, true))
                                 {
-                                    ruleTrue = true;
-                                    T("LeftRightAreaUp closed corner 2: Cannot step left");
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }*/
                                 break;
                             case 3:
-                                if (whiteDiff == (ex + 1) / 4 + 1 && CheckNearFieldSmallRel(0, ex - 1))
+                                if (whiteDiff == (ex + 1) / 4 + 1 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
                                 {
                                     forbidden.Add(new int[] { x + lx, y + ly });
                                 }
                                 // 0611
-                                if (-whiteDiff == (ex + 1) / 4 - 1 && CheckNearFieldSmallRel(0, ex))
+                                if (-whiteDiff == (ex + 1) / 4 - 1 && CheckNearFieldSmallRel(0, ex, 0, 2, true))
                                 {
                                     forbidden.Add(new int[] { x + sx, y + sy });
                                 }
@@ -1788,7 +1939,6 @@ void CheckLeftRightCorner() // rotations:
                 int xDiff = x - taken[taken.Count - 2][0];
                 int yDiff = y - taken[taken.Count - 2][1];
 
-
                 // relative directions and coordinates. Since the relative x and y is expanding towards the upper left corner, the current direction is what we use for downwards motion in the absolute coordinate system.
                 int currentDirection = 0;
 
@@ -1796,8 +1946,20 @@ void CheckLeftRightCorner() // rotations:
                 int nextY = 1;
 
                 // We will not turn left when we reach a 0 horizontal distance position. Instead, AreaUp will be activated.
-                while (nextX > 0)
+                // When CheckStraight is turned off, we can be at 5,1, going from down, and then nextX will never be 0. In this case, the second condition is needed.
+
+                int counter = 0;
+                while (nextX > 0 && !(counter > 0 && nextX == horiStart - 1 && nextY == 1))
                 {
+                    counter++;
+                    if (counter == size * size)
+                    {
+                        errorInWalkthrough = true;
+                        errorString = "Corner discovery error.";
+                        criticalError = true;                        
+                        return;
+                    }
+
                     // left direction
                     currentDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
                     int l = currentDirection;
@@ -1813,7 +1975,8 @@ void CheckLeftRightCorner() // rotations:
                     }
 
                     // if we have turned left from a right direction (to upwards), a corner is found
-                    if (currentDirection == 0 && l == 0)
+                    // It has to be left and up. In 0619_2 the walking edge goes below the current position.
+                    if (currentDirection == 0 && l == 0 && nextY >= 1)
                     {
                         int hori = nextX + 1;
                         int vert = nextY + 1;
@@ -2075,7 +2238,7 @@ void CheckLeftRightCorner() // rotations:
                                         {
                                             if (vert % 4 == 3) //0610, 0610_1
                                             {
-                                                if (-whiteDiff == (vert - 3) / 4 && CheckNearFieldSmallRel(1, 2))
+                                                if (-whiteDiff == (vert - 3) / 4 && CheckNearFieldSmallRel(1, 2, 0, 2, true))
                                                 {
 
                                                     if (j != 3) // no small small area, left field is taken
@@ -2090,7 +2253,7 @@ void CheckLeftRightCorner() // rotations:
                                             }
                                             if (vert % 4 == 0)  //0610_2, 0610_3
                                             {
-                                                if (-whiteDiff == vert / 4 && CheckNearFieldSmallRel(1, 2))
+                                                if (-whiteDiff == vert / 4 && CheckNearFieldSmallRel(1, 2, 0, 2, true))
                                                 {
                                                     if (j != 3) // no small small area, left field is taken
                                                     {
@@ -2996,41 +3159,77 @@ void CheckCShapeNext() // 0611_5, 0611_6
 // obstacle right side of the field in question, area up
 // mid across and across fields
 // used for LeftRightAreaUp and LeftRightCorner
-bool CheckNearFieldSmallRel(int x, int y, bool mirrored = false)
+bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSmall)
 {
-    if (!mirrored)
+    int lx = 1;
+    int ly = 0;
+    int sx = 0;
+    int sy = 1;
+
+    // Mid across obstacle:
+    // left side:
+    // 1, 2
+    // 2, -1
+    // -2, 1
+
+    // right side:
+    // -1, 2
+    // -2, -1
+    // 2, 1
+
+    // direction checkng is not necessary when the close obstacle is inside the area, but it is when the obstacle is at the exit point of the area. 1023055626
+
+    for (int i = 0; i < 2; i++)
     {
-        if (InTakenRel(x - 2, y + 1) && !InTakenRel(x - 1, y + 1) && !InTakenRel(x - 2, y))
+        for (int j = 0; j < 3; j++) // j = 0: middle, j = 1: small area, j = 2: big area
         {
-            int i1 = InTakenIndexRel(x - 2, y + 1);
-            int i2 = InTakenIndexRel(x - 2, y + 2);
+            if (i == side && j == rotation)
+            {
+                if (InTakenRel(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenRel(x + 2 * sx, y + 2 * sy) && !InTakenRel(x + lx + sx, y + ly + sy))
+                {
+                    if (strictSmall)
+                    {
+                        int i1 = InTakenIndexRel(x + 1 * lx + 2 * sx, y + 1 * ly + 2 * sy);
+                        int i2 = InTakenIndexRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy);
 
-            if (i2 > i1) return true;
-        }
-        if (InTakenRel(x - 2, y + 2) && !InTakenRel(x - 1, y + 2) && !InTakenRel(x - 2, y + 1))
-        {
-            int i1 = InTakenIndexRel(x - 2, y + 2);
-            int i2 = InTakenIndexRel(x - 2, y + 3);
+                        if (i2 > i1) return true;
+                    }
+                    else return true;
+                }
+                if (InTakenRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy) && !InTakenRel(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenRel(x + 2 * lx + sx, y + 2 * ly + sy))
+                {
+                    if (strictSmall)
+                    {
+                        int i1 = InTakenIndexRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy);
+                        int i2 = InTakenIndexRel(x + 3 * lx + 2 * sx, y + 3 * ly + 2 * sy);
 
-            if (i2 > i1) return true;
-        }
-    }
-    else
-    {
-        if (InTakenRel(x + 2, y - 1) && !InTakenRel(x + 1, y - 1) && !InTakenRel(x + 2, y))
-        {
-            int i1 = InTakenIndexRel(x + 2, y - 1);
-            int i2 = InTakenIndexRel(x + 2, y - 2);
+                        if (i2 > i1) return true;
+                    }
+                    else return true;
+                }
+            }
 
-            if (i2 > i1) return true;
+            if (j == 0) // rotate down (CCW): small area
+            {
+                int l0 = lx;
+                int l1 = ly;
+                lx = -sx;
+                ly = -sy;
+                sx = l0;
+                sy = l1;
+            }
+            else if (j == 1) // rotate up (CW): big area
+            {
+                lx = -lx;
+                ly = -ly;
+                sx = -sx;
+                sy = -sy;
+            }
         }
-        if (InTakenRel(x + 2, y - 2) && !InTakenRel(x + 1, y - 2) && !InTakenRel(x + 2, y - 1))
-        {
-            int i1 = InTakenIndexRel(x + 2, y - 2);
-            int i2 = InTakenIndexRel(x + 2, y - 3);
-
-            if (i2 > i1) return true;
-        }
+        lx = -1;
+        ly = 0;
+        sx = 0;
+        sy = 1;
     }
     return false;
 }
@@ -3085,7 +3284,7 @@ bool CountAreaRel(int left1, int straight1, int left2, int straight2, List<int[]
 }
 
 bool CountArea(int startX, int startY, int endX, int endY, List<int[]>? borderFields, bool circleDirectionLeft, int circleType, bool getInfo = false)
-// compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more than the other color.
+// compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more tchan the other color.
 {
     bool debug = false;
     bool debug2 = false;
@@ -3228,11 +3427,21 @@ bool CountArea(int startX, int startY, int endX, int endY, List<int[]>? borderFi
         if (nextX == size && nextY == size)
         {
             errorInWalkthrough = true;
-            errorString = "Corner is reached.";
+            errorString = "Corner is reached."; 
+            criticalError = true;            
             return false;
         }
 
         areaLine.Add(new int[] { nextX, nextY });
+
+        if (areaLine.Count == size * size)
+        {
+            errorInWalkthrough = true;
+            errorString = "Area walkthrough error.";
+            criticalError = true;            
+            return false;
+        }
+
         if (debug) L("Adding " + nextX + " " + nextY + " count " + areaLine.Count);
 
         if (nextY < minY)
@@ -3646,7 +3855,9 @@ bool CountArea(int startX, int startY, int endX, int endY, List<int[]>? borderFi
             }
 
             errorInWalkthrough = true;
-            errorString = "Count of start and end squares are inequal: " + startSquares.Count + " " + count;
+            errorString = "Count of start and end squares are inequal: " + startSquares.Count + " " + eCount;
+            criticalError = true;
+            
             return false;
         }
 
@@ -3897,4 +4108,21 @@ bool InForbidden(int[] value)
         }
     }
     return found;
+}
+
+string ShowForbidden()
+{
+    string s = "";
+    foreach (int[] field in forbidden)
+    {
+        s += field[0] + "," + field[1] + "; ";
+    }
+    if (s.Length > 2)
+    {
+        return s.Substring(0, s.Length - 2);
+    }
+    else
+    {
+        return "";
+    }
 }

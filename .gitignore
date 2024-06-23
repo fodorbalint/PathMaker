@@ -6,7 +6,7 @@
 obj/
 
 /bin/Debug/net6.0-windows/completedPaths.txt
-/bin/Debug/net6.0-windows/log.txt
+/bin/Debug/net6.0-windows/log_stats.txt
 /bin/Debug/net6.0-windows/log_rules.txt
 /bin/Debug/net6.0-windows/log_performance.txt
 /bin/Debug/net6.0-windows/newRule.svg

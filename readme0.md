@@ -2099,9 +2099,18 @@ By developing the algorithm further, we have solved 99 % of the cases we could n
 
 We continue with random examples.
 
-<img align="top" src="References/2024_0619_1.svg" width="11" />
+<img align="top" src="References/2024_0619_1.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small area movement 0.svg" width="4" />
+
+If we fill all three areas, a field in the middle will be missed. Let's examine this area:
+
+<img align="top" src="References/straight small area movement.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small area movement 1.svg" width="4" />
+
+The area is 1W. We have to enter at the first white field and exit at the second. The second black field needs to be filled, so it gives us two possible enter / exit movements. In either scenario, a mid across obstacle is encountered inside the area.
+
 
 <!--
+
+If not reloading from a file, the svg still gets its name.
 
 Review CountArea old and new algorithms
 <img align="top" src="References/2024_0611_3.svg" width="9" />
