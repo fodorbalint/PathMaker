@@ -2107,6 +2107,12 @@ If we fill all three areas, a field in the middle will be missed. Let's examine 
 
 The area is 1W. We have to enter at the first white field and exit at the second. The second black field needs to be filled, so it gives us two possible enter / exit movements. In either scenario, a mid across obstacle is encountered inside the area.
 
+<!---->
+
+<img align="top" src="References/2024_0624.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up big extended.svg" width="4" />
+
+The area is the extended version of the y vertical distance, 0 horizontal distance rule. (The first area we examined in this book.) It is not necessary to decide whether we can enter now or later, it is already taken care of by the other single area groups. But there is a close obstacle at the entry point outside the area. If, at 4 distance, the area is 1W, we enter at the first white field, from which we step down and left.
+Therefore, we cannot enter later.
 
 <!--
 

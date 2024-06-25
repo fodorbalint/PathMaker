@@ -1,7 +1,7 @@
 ﻿OneWayLabyrinth
 1.0.0.0
 
-exe
+winexe
 C#
 .cs
 C:\Users\fodor\OneWayLabyrinth\obj\Debug\net6.0-windows\
@@ -16,5 +16,5 @@ C:\Users\fodor\OneWayLabyrinth\App.xaml
 216-1130659762
 MainWindow.xaml;Rules.xaml;
 
-True
+False
 

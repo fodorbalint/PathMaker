@@ -957,7 +957,7 @@ namespace OneWayLabyrinth
                 errorInWalkthrough = false;
                 messageCode = -1;
 
-                if (numberOfRuns < statsRuns)
+                if (numberOfRuns < statsRuns && !source.IsCancellationRequested)
                 {
                     Dispatcher.Invoke(() =>
                     {  

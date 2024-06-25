@@ -22,7 +22,7 @@ bool makeStats;
 Random rand = new Random();
 int numberOfRuns = 0;
 long numberOfCompleted = 0;
-int statsRuns = 100;
+int statsRuns = 0;
 int count = 0;
 int sx = 0; //straight, left and right coordinates
 int sy = 0;
@@ -68,13 +68,16 @@ if (File.Exists(baseDir + "settings.txt"))
     saveFrequency = int.Parse(arr[1]);
     arr = lines[2].Split(": ");
     makeStats = bool.Parse(arr[1]);
+    arr = lines[3].Split(": ");
+    statsRuns = int.Parse(arr[1]);
 }
 else
 {
     size = 9;
     saveFrequency = 1000000;
     makeStats = false;
-    string[] lines = new string[] { "size: " + size, "saveFrequency: " + saveFrequency, "makeStats: " + makeStats };
+    statsRuns = 100;
+    string[] lines = new string[] { "size: " + size, "saveFrequency: " + saveFrequency, "makeStats: " + makeStats, "statsRuns: " + statsRuns };
     File.WriteAllLines(baseDir + "settings.txt", lines);
 }
 
@@ -197,7 +200,7 @@ void DoThread()
             numberOfRuns++;
             numberOfCompleted += completedCount;
             errorInWalkthrough = false;
-            Console.Write("\rIn " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.");
+            Console.Write("\rIn " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.                  ");
             Log("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + errorString);
 
             if (numberOfRuns < statsRuns)
@@ -205,11 +208,17 @@ void DoThread()
                 InitializeList();
                 completedCount = 0;
                 DoThread();
-            }  
+            } 
+            else
+            {
+                // Save last error for further study
+                SavePath();
+                Console.Read();
+            }
         }
         else
         {
-            Console.Write("\rError at " + completedCount + ": " + errorString);
+            Console.Write("\r\nError at " + completedCount + ": " + errorString);
             SavePath(false, true);
             Console.Read();
         }
@@ -332,8 +341,6 @@ void NextClick()
                 if (makeStats)
                 {
                     Console.Write("\rIn " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / (numberOfRuns > 0 ? numberOfRuns : 1), 1) + " per run. Current run: " + completedCount + "      ");
-
-                    if (completedCount == 1000 || completedCount == 1001) SavePath();
                 }
                 else
                 {
@@ -435,210 +442,231 @@ bool NextStep()
 
 void NextStepPossibilities()
 {
-    NextStepPossibilities2();
-
-    List<int> possibleFields = new List<int>();
-    List<int[]> newPossible = new List<int[]>();
-
-    if (errorInWalkthrough) // countarea errors
+    try
     {
-        possible = newPossible;
-        possibleDirections.Add(possibleFields.ToArray());
+        NextStepPossibilities2();
 
-        return;
-    }
+        List<int> possibleFields = new List<int>();
+        List<int[]> newPossible = new List<int[]>();
 
-    foreach (int[] field in possible)
-    {
-        int fx = field[0];
-        int fy = field[1];
-
-        newPossible.Add(field);
-
-        for (int i = 0; i < 4; i++)
+        if (errorInWalkthrough) // countarea errors
         {
-            //last movement: down, right, up, left
-            int dx = directions[i][0];
-            int dy = directions[i][1];
+            possible = newPossible;
+            possibleDirections.Add(possibleFields.ToArray());
 
-            if (fx - x == dx && fy - y == dy)
+            return;
+        }
+
+        foreach (int[] field in possible)
+        {
+            int fx = field[0];
+            int fy = field[1];
+
+            newPossible.Add(field);
+
+            for (int i = 0; i < 4; i++)
             {
-                possibleFields.Add(i);
+                //last movement: down, right, up, left
+                int dx = directions[i][0];
+                int dy = directions[i][1];
+
+                if (fx - x == dx && fy - y == dy)
+                {
+                    possibleFields.Add(i);
+                }
             }
         }
+
+        possible = newPossible;
+        possibleDirections.Add(possibleFields.ToArray()); //array containing possible fields for all steps
+
+        if (possible.Count == 0)
+        {
+            errorInWalkthrough = true;
+            errorString = "No option to move.";
+        }
+
+        //Stop at pattern here
+
+        /*if (!taken.countAreaImpair && taken.FutureL)
+        {
+            M("Future L: " + completedCount + " walkthroughs are completed.", 3);
+            if (isTaskRunning)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    DrawPath();
+                });
+            }
+        }*/
     }
-
-    possible = newPossible;
-    possibleDirections.Add(possibleFields.ToArray()); //array containing possible fields for all steps
-
-    if (possible.Count == 0)
+    catch (Exception ex)
     {
         errorInWalkthrough = true;
-        errorString = "No option to move.";
+        errorString = ex.Message + " " + ex.StackTrace;
+        criticalError = true;
     }
-
-    //Stop at pattern here
-
-    /*if (!taken.countAreaImpair && taken.FutureL)
-    {
-        M("Future L: " + completedCount + " walkthroughs are completed.", 3);
-        if (isTaskRunning)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                DrawPath();
-            });
-        }
-    }*/
 }
 
 void NextStepPossibilities2()
 {
-    //L("NextStepPossibilities2", x, y);
-    possible = new List<int[]>();
-    forbidden = new List<int[]>();
-    List<int[]> newPossible;
-
-    if (count < 2)
+    try
     {
-        possible.Add(new int[] { 2, 1 });
-        possible.Add(new int[] { 1, 2 });
-    }
-    else
-    {
-        int x0 = taken[count - 2][0];
-        int y0 = taken[count - 2][1];
+        //L("NextStepPossibilities2", x, y);
+        possible = new List<int[]>();
+        forbidden = new List<int[]>();
+        List<int[]> newPossible;
 
-        int i;
-        for (i = 0; i < 4; i++)
+        if (count < 2)
         {
-            //last movement: down, right, up, left
-            thisSx = sx = directions[i][0];
-            thisSy = sy = directions[i][1];
+            possible.Add(new int[] { 2, 1 });
+            possible.Add(new int[] { 1, 2 });
+        }
+        else
+        {
+            int x0 = taken[count - 2][0];
+            int y0 = taken[count - 2][1];
 
-            if (x - x0 == sx && y - y0 == sy)
+            int i;
+            for (i = 0; i < 4; i++)
             {
-                if (i == 0)
+                //last movement: down, right, up, left
+                thisSx = sx = directions[i][0];
+                thisSy = sy = directions[i][1];
+
+                if (x - x0 == sx && y - y0 == sy)
                 {
-                    thisLx = lx = directions[1][0];
-                    thisLy = ly = directions[1][1];
-                    rx = directions[3][0];
-                    ry = directions[3][1];
-                }
-                else if (i == 3)
-                {
-                    thisLx = lx = directions[0][0];
-                    thisLy = ly = directions[0][1];
-                    rx = directions[2][0];
-                    ry = directions[2][1];
-                }
-                else
-                {
-                    thisLx = lx = directions[i + 1][0];
-                    thisLy = ly = directions[i + 1][1];
-                    rx = directions[i - 1][0];
-                    ry = directions[i - 1][1];
-                }
-
-                straightField = new int[] { x + sx, y + sy };
-                leftField = new int[] { x + lx, y + ly };
-                rightField = new int[] { x + rx, y + ry };
-
-                if (!InTakenAbs(straightField) && !InBorderAbs(straightField))
-                {
-                    possible.Add(straightField);
-                }
-                if (!InTakenAbs(rightField) && !InBorderAbs(rightField))
-                {
-                    possible.Add(rightField);
-                }
-                if (!InTakenAbs(leftField) && !InBorderAbs(leftField))
-                {
-                    possible.Add(leftField);
-                }
-
-                if (possible.Count == 1) break;
-
-                activeRules = new();
-                activeRulesForbiddenFields = new();
-                activeRuleSizes = new();
-
-                Straight3I = -1;
-                Straight3J = -1;
-                DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
-                DoubleAreaFirstCaseRotatedNext = DownStairNext = false;
-                nextStepEnterLeft = -1;
-                nextStepEnterRight = -1;
-
-                // needs to be checked before AreaUp, it can overwrite it as in 802973
-                // L("CheckCShapeNext " + x + " " + y);
-                CheckCShapeNext();
-                // L("CheckStraight " + ShowForbidden());
-                CheckStraight();                
-                // L("CheckStraightSmall " + ShowForbidden());
-                //CheckStraightSmall();
-                // L("CheckStraightNext " + ShowForbidden());
-                CheckStraightNext();
-                // L("CheckLeftRightAreaUp " + ShowForbidden());
-                CheckLeftRightAreaUp();
-                // L("CheckLeftRightAreaUpExtended " + ShowForbidden());
-                CheckLeftRightAreaUpExtended();
-                // L("CheckLeftRightAreaUpBig " + ShowForbidden());
-                CheckLeftRightAreaUpBig();
-                // L("CheckLeftRightCorner " + ShowForbidden());
-                CheckLeftRightCorner();
-
-                // L("NextStepEnter " + nextStepEnterLeft + " " + nextStepEnterRight);
-
-                // 0611_4, 0611_5, 0611_6, 234212, 522267
-                // 0 and 0 or 1 and 3. Beware of 1 and -1.
-                // Overwrite order: 3, 0, 1 (See 802973 and 2020799)
-                if (nextStepEnterLeft == 0 && nextStepEnterRight == 0 || nextStepEnterLeft + nextStepEnterRight == 4 && Math.Abs(nextStepEnterLeft - nextStepEnterRight) == 2)
-                {
-                    switch (nextStepEnterLeft)
+                    if (i == 0)
                     {
-                        case 0:
-                            // L("Next step double area, cannot step straight");
-                            forbidden.Add(new int[] { x + sx, y + sy });
-                            break;
-                        case 1:
-                            // L("Next step double area, cannot step right");
-                            forbidden.Add(new int[] { x - lx, y - ly });
-                            break;
-                        case 3:
-                            // L("Next step double area, cannot step left");
-                            forbidden.Add(new int[] { x + lx, y + ly });
-                            break;
+                        thisLx = lx = directions[1][0];
+                        thisLy = ly = directions[1][1];
+                        rx = directions[3][0];
+                        ry = directions[3][1];
                     }
+                    else if (i == 3)
+                    {
+                        thisLx = lx = directions[0][0];
+                        thisLy = ly = directions[0][1];
+                        rx = directions[2][0];
+                        ry = directions[2][1];
+                    }
+                    else
+                    {
+                        thisLx = lx = directions[i + 1][0];
+                        thisLy = ly = directions[i + 1][1];
+                        rx = directions[i - 1][0];
+                        ry = directions[i - 1][1];
+                    }
+
+                    straightField = new int[] { x + sx, y + sy };
+                    leftField = new int[] { x + lx, y + ly };
+                    rightField = new int[] { x + rx, y + ry };
+
+                    if (!InTakenAbs(straightField) && !InBorderAbs(straightField))
+                    {
+                        possible.Add(straightField);
+                    }
+                    if (!InTakenAbs(rightField) && !InBorderAbs(rightField))
+                    {
+                        possible.Add(rightField);
+                    }
+                    if (!InTakenAbs(leftField) && !InBorderAbs(leftField))
+                    {
+                        possible.Add(leftField);
+                    }
+
+                    if (possible.Count == 1) break;
+
+                    activeRules = new();
+                    activeRulesForbiddenFields = new();
+                    activeRuleSizes = new();
+
+                    Straight3I = -1;
+                    Straight3J = -1;
+                    DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
+                    DoubleAreaFirstCaseRotatedNext = DownStairNext = false;
+                    nextStepEnterLeft = -1;
+                    nextStepEnterRight = -1;
+
+                    // needs to be checked before AreaUp, it can overwrite it as in 802973
+                    // L("CheckCShapeNext " + x + " " + y);
+                    CheckCShapeNext();
+                    // L("CheckStraight " + ShowForbidden());
+                    CheckStraight();
+                    // L("CheckLeftRightAreaUp " + ShowForbidden());
+                    CheckLeftRightAreaUp();
+                    // L("CheckLeftRightAreaUpBig " + ShowForbidden());
+                    CheckLeftRightAreaUpBig();
+                    // L("CheckLeftRightCorner " + ShowForbidden());
+                    CheckLeftRightCorner();
+
+                    // L("NextStepEnter " + nextStepEnterLeft + " " + nextStepEnterRight);
+
+                    // 0611_4, 0611_5, 0611_6, 234212, 522267
+                    // 0 and 0 or 1 and 3. Beware of 1 and -1.
+                    // Overwrite order: 3, 0, 1 (See 802973 and 2020799)
+                    if (nextStepEnterLeft == 0 && nextStepEnterRight == 0 || nextStepEnterLeft + nextStepEnterRight == 4 && Math.Abs(nextStepEnterLeft - nextStepEnterRight) == 2)
+                    {
+                        switch (nextStepEnterLeft)
+                        {
+                            case 0:
+                                // L("Next step double area, cannot step straight");
+                                forbidden.Add(new int[] { x + sx, y + sy });
+                                break;
+                            case 1:
+                                // L("Next step double area, cannot step right");
+                                forbidden.Add(new int[] { x - lx, y - ly });
+                                break;
+                            case 3:
+                                // L("Next step double area, cannot step left");
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                                break;
+                        }
+                    }
+
+                    // L("CheckLeftRightAreaUpExtended " + ShowForbidden());
+                    CheckLeftRightAreaUpExtended(); // #1 close obstacle is at the end of the area, outside.
+                    // L("CheckStraightNext " + ShowForbidden());
+                    CheckStraightNext(); // #2 close obstacle is at the start of the area, inside.
+                    // L("CheckStraightSmall " + ShowForbidden());
+                    CheckStraightSmall(); // #3 close obstacle is at the start and end of the area, inside. 4 distance only.
+                    // L("CheckLeftRightAreaUpBigExtended " + ShowForbidden());
+                    CheckLeftRightAreaUpBigExtended(); // #4 when entering at the first white field, we have to step down to the first black and then left to enter as in 0624
+
+                    List<int[]> startForbiddenFields = Copy(forbidden);
+
+                    // If distance is over 3, single area rules seem to disable the needed directions. For 3 distance, we use Sequence first case.
+
+                    // L("CheckSequence " + ShowForbidden());
+                    CheckSequence();
+                    // L("CheckDownStair " + ShowForbidden());
+                    CheckDownStair();
+                    // L("Check3DistNextStep " + ShowForbidden());
+                    Check3DistNextStep();
+
+                    ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
+
+                    break;
                 }
-
-                List<int[]> startForbiddenFields = Copy(forbidden);
-
-                // If distance is over 3, single area rules seem to disable the needed directions. For 3 distance, we use Sequence first case.
-
-                // L("CheckSequence " + ShowForbidden());
-                CheckSequence();
-                // L("CheckDownStair " + ShowForbidden());
-                CheckDownStair();
-                // L("Check3DistNextStep " + ShowForbidden());
-                Check3DistNextStep();
-
-                ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
-
-                break;
             }
-        }
 
-        newPossible = new();
+            newPossible = new();
 
-        foreach (int[] field in possible)
-        {
-            if (!InForbidden(field))
+            foreach (int[] field in possible)
             {
-                newPossible.Add(field);
+                if (!InForbidden(field))
+                {
+                    newPossible.Add(field);
+                }
             }
+            possible = newPossible;
         }
-        possible = newPossible;
+    }
+    catch (Exception ex)
+    {
+        errorInWalkthrough = true;
+        errorString = ex.Message + " " + ex.StackTrace;
+        criticalError = true;
     }
 }
 
@@ -1518,12 +1546,12 @@ void CheckLeftRightAreaUp()
                             forbidden.Add(new int[] { x - lx, y - ly });
                         }
 
-                        // only one option remains
-                        sx = thisSx;
+                        // only one option remains, but we do not return in case of 0623 where the area would close, and at the end, the number of steps are less than size * size.
+                        /*sx = thisSx;
                         sy = thisSy;
                         lx = thisLx;
                         ly = thisLy;
-                        return;
+                        return;*/
                     }
                     else
                     {
@@ -1656,7 +1684,7 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
             {
                 bool circleValid = false;
 
-                int dist = 2;
+                int dist = 1;
                 List<int[]> borderFields = new();
 
                 while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
@@ -1677,7 +1705,7 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
                 }
 
                 // no close mid across checking here, distance needs to be at least 2
-                if (ex != 1 && !found && !InTakenRel(0, dist))
+                if (ex > 1 && !found && !InTakenRel(0, dist))
                 {
                     int i1 = InTakenIndexRel(1, dist);
                     int i2 = InTakenIndexRel(2, dist);
@@ -1881,6 +1909,146 @@ void CheckLeftRightAreaUpBig()
                         {
                             forbidden.Add(new int[] { x + lx, y + ly });
                         }
+                    }
+                }
+            }
+
+            if (j == 0) // rotate down (CCW): behind obstacle
+            {
+                int l0 = lx;
+                int l1 = ly;
+                lx = -sx;
+                ly = -sy;
+                sx = l0;
+                sy = l1;
+            }
+            else if (j == 1) // rotate up (CW): small area
+            {
+                lx = -lx;
+                ly = -ly;
+                sx = -sx;
+                sy = -sy;
+            }
+        }
+        sx = thisSx;
+        sy = thisSy;
+        lx = -thisLx;
+        ly = -thisLy;
+    }
+    sx = thisSx;
+    sy = thisSy;
+    lx = thisLx;
+    ly = thisLy;
+}
+
+// Area as in the first area case of documentation. That area is taken care of in UpBig and Striaght. This is about a border movement close obstacle: 0624
+void CheckLeftRightAreaUpBigExtended()
+{
+    for (int i = 0; i < 2; i++)
+    {
+        bool circleDirectionLeft = (i == 0) ? false : true;
+
+        for (int j = 0; j < 3; j++) // j = 1: small area, j = 2: big area
+        {
+            bool circleValid = false;
+            int dist = 1;
+            List<int[]> borderFields = new();
+
+            while (!InTakenRel(1, dist) && !InBorderRel(1, dist) && !InTakenRel(0, dist))
+            {
+                dist++;
+            }
+
+            int ex = dist - 1;
+
+            if (ex > 1 && InTakenRel(1, dist))
+            {
+                int i1 = InTakenIndexRel(1, dist);
+
+                if (InTakenRel(2, dist))
+                {
+                    int i2 = InTakenIndexRel(2, dist);
+                    if (i1 > i2)
+                    {
+                        circleValid = true;
+                    }
+                }
+                else
+                {
+                    int i2 = InTakenIndexRel(0, dist);
+                    if (i2 > i1)
+                    {
+                        circleValid = true;
+                    }
+                }
+            }
+
+            if (circleValid)
+            {
+                if (ex > 2)
+                {
+                    for (int k = ex - 1; k >= 2; k--)
+                    {
+                        borderFields.Add(new int[] { 1, k });
+                    }
+                }
+
+                if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                {
+                    int black = (int)info[1];
+                    int white = (int)info[2];
+
+                    int whiteDiff = white - black;
+                    int nowWCount = 0;
+                    int nowWCountRight = 0;
+                    int nowBCount = 0;
+                    int laterWCount = 0;
+                    int laterBCount = 0;
+
+                    switch (ex % 4)
+                    {
+                        case 0:
+                            nowWCountRight = nowWCount = ex / 4;
+                            nowBCount = ex / 4 - 1;
+                            laterWCount = ex / 4;
+                            laterBCount = ex / 4;
+
+                            if (whiteDiff == laterWCount && CheckNearFieldSmallRel(1, 1, 0, 1, false)) // when entering at the first white field, we have to step down to the first black and then left to enter as in 0624
+                            {
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                                if (j == 2)
+                                {
+                                    forbidden.Add(new int[] { x - sx, y - sy });
+                                }
+                            }
+
+                            break;
+                        case 1:
+                            nowWCountRight = nowWCount = (ex - 1) / 4;
+                            nowBCount = (ex - 1) / 4;
+                            laterWCount = (ex - 1) / 4;
+                            laterBCount = (ex + 3) / 4;
+                            break;
+                        case 2:
+                            if (ex == 2)
+                            {
+                                nowWCountRight = 1;
+                                nowWCount = 0;
+                            }
+                            else
+                            {
+                                nowWCountRight = nowWCount = (ex + 2) / 4;
+                                nowBCount = (ex - 2) / 4;
+                                laterWCount = (ex - 2) / 4;
+                                laterBCount = (ex + 2) / 4;
+                            }
+                            break;
+                        case 3:
+                            nowWCountRight = nowWCount = (ex - 3) / 4;
+                            nowBCount = (ex + 1) / 4;
+                            laterWCount = (ex - 3) / 4;
+                            laterBCount = (ex + 1) / 4;
+                            break;
                     }
                 }
             }

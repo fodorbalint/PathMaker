@@ -121,389 +121,400 @@ namespace OneWayLabyrinth
 
         public void NextStepPossibilities(bool isNearEnd, int index, int nearSection, int farSection, bool isNextStep = false)
         {
-            possible = new List<int[]>();
-            forbidden = new List<int[]>();
-            List<int[]> newPossible;
+            try
+            {
+                possible = new List<int[]>();
+                forbidden = new List<int[]>();
+                List<int[]> newPossible;
 
-            count = path.Count;
-            if (count < 2)
-            {
-                possible.Add(new int[] { 2, 1 });
-                possible.Add(new int[] { 1, 2 });
-            }
-            else
-            {
-                int x0, y0;
-                this.isNearEnd = isNearEnd;
-                if (index != -1) //for checking future lines
+                count = path.Count;
+                if (count < 2)
                 {
-                    if (!isNearEnd)
-                    {
-                        //extend far end
-                        x = path[index][0];
-                        y = path[index][1];
-                        x0 = path[index + 1][0];
-                        y0 = path[index + 1][1];
-                    }
-                    else
-                    {
-                        //extend near end
-                        x = path[index][0];
-                        y = path[index][1];
-                        x0 = path[index - 1][0];
-                        y0 = path[index - 1][1];
-                    }
-                    T("NextSteppossibilities future, x " + x + " y " + y + " isNearEnd " + isNearEnd + " index " + index + " length " + path.Count);
+                    possible.Add(new int[] { 2, 1 });
+                    possible.Add(new int[] { 1, 2 });
                 }
                 else
                 {
-                    x0 = path[count - 2][0];
-                    y0 = path[count - 2][1];
-                }
-
-                int i;
-                for (i = 0; i < 4; i++)
-                {
-                    //last movement: down, right, up, left
-                    thisSx = sx = directions[i][0];
-                    thisSy = sy = directions[i][1];
-
-                    if (x - x0 == sx && y - y0 == sy)
+                    int x0, y0;
+                    this.isNearEnd = isNearEnd;
+                    if (index != -1) //for checking future lines
                     {
-                        if (i == 0)
+                        if (!isNearEnd)
                         {
-                            thisLx = lx = directions[1][0];
-                            thisLy = ly = directions[1][1];
-                            rx = directions[3][0];
-                            ry = directions[3][1];
-                        }
-                        else if (i == 3)
-                        {
-                            thisLx = lx = directions[0][0];
-                            thisLy = ly = directions[0][1];
-                            rx = directions[2][0];
-                            ry = directions[2][1];
+                            //extend far end
+                            x = path[index][0];
+                            y = path[index][1];
+                            x0 = path[index + 1][0];
+                            y0 = path[index + 1][1];
                         }
                         else
                         {
-                            thisLx = lx = directions[i + 1][0];
-                            thisLy = ly = directions[i + 1][1];
-                            rx = directions[i - 1][0];
-                            ry = directions[i - 1][1];
+                            //extend near end
+                            x = path[index][0];
+                            y = path[index][1];
+                            x0 = path[index - 1][0];
+                            y0 = path[index - 1][1];
                         }
+                        T("NextSteppossibilities future, x " + x + " y " + y + " isNearEnd " + isNearEnd + " index " + index + " length " + path.Count);
+                    }
+                    else
+                    {
+                        x0 = path[count - 2][0];
+                        y0 = path[count - 2][1];
+                    }
 
-                        straightField = new int[] { x + sx, y + sy };
-                        leftField = new int[] { x + lx, y + ly };
-                        rightField = new int[] { x + rx, y + ry };
+                    int i;
+                    for (i = 0; i < 4; i++)
+                    {
+                        //last movement: down, right, up, left
+                        thisSx = sx = directions[i][0];
+                        thisSy = sy = directions[i][1];
 
-                        if (!window.calculateFuture)
+                        if (x - x0 == sx && y - y0 == sy)
                         {
-                            if (!InTakenAbs(straightField) && !InBorderAbs(straightField))
+                            if (i == 0)
                             {
-                                possible.Add(straightField);
+                                thisLx = lx = directions[1][0];
+                                thisLy = ly = directions[1][1];
+                                rx = directions[3][0];
+                                ry = directions[3][1];
                             }
-                            if (!InTakenAbs(rightField) && !InBorderAbs(rightField))
+                            else if (i == 3)
                             {
-                                possible.Add(rightField);
+                                thisLx = lx = directions[0][0];
+                                thisLy = ly = directions[0][1];
+                                rx = directions[2][0];
+                                ry = directions[2][1];
                             }
-                            if (!InTakenAbs(leftField) && !InBorderAbs(leftField))
+                            else
                             {
-                                possible.Add(leftField);
-                            }
-                        }
-                        else
-                        {
-                            if (!InTakenAbs(straightField) && !InBorderAbs(straightField) && !InFutureAbs(straightField))
-                            {
-                                possible.Add(straightField);
-                            }
-                            if (!InTakenAbs(rightField) && !InBorderAbs(rightField) && !InFutureAbs(rightField))
-                            {
-                                possible.Add(rightField);
-                            }
-                            if (!InTakenAbs(leftField) && !InBorderAbs(leftField) && !InFutureAbs(leftField))
-                            {
-                                possible.Add(leftField);
-                            }
-                        }
-
-
-                        // A future line may connect to another section as in 0714_2 when we step up, and a 2x2 line is created on the left
-                        // For connecting to an older line, see 0730
-                        // It cannot connect to the end of the same section
-                        if (!isMain) {
-
-                            if (isNearEnd && !window.inFuture) // main line can be connected to if it is not already connected to another future line
-                            {
-                                int c2 = path2.Count;
-                                if (path2[c2 - 1][0] == straightField[0] && path2[c2 - 1][1] == straightField[1]) possible.Add(straightField);
-                                if (path2[c2 - 1][0] == rightField[0] && path2[c2 - 1][1] == rightField[1]) possible.Add(rightField);
-                                if (path2[c2 - 1][0] == leftField[0] && path2[c2 - 1][1] == leftField[1]) possible.Add(leftField);
+                                thisLx = lx = directions[i + 1][0];
+                                thisLy = ly = directions[i + 1][1];
+                                rx = directions[i - 1][0];
+                                ry = directions[i - 1][1];
                             }
 
-                            if (!isNearEnd && InFutureStartAbs(straightField, nearSection) || isNearEnd && InFutureEndAbs(straightField, farSection))
+                            straightField = new int[] { x + sx, y + sy };
+                            leftField = new int[] { x + lx, y + ly };
+                            rightField = new int[] { x + rx, y + ry };
+
+                            if (!window.calculateFuture)
                             {
-                                T("possible future connection straight");
-                                possible.Add(straightField);
-                            }
-                            // See 0803
-                            if (!isNearEnd && InFutureStartAbs(rightField, nearSection) || isNearEnd && InFutureEndAbs(rightField, farSection))
-                            {
-                                T("possible future connection right");
-                                possible.Add(rightField);
-                            }
-                            if (!isNearEnd && InFutureStartAbs(leftField, nearSection) || isNearEnd && InFutureEndAbs(leftField, farSection))
-                            {
-                                T("possible future connection left");
-                                possible.Add(leftField);
-                            }
-                        }
-                        else if (window.calculateFuture)
-                        {
-                            if (InFutureStartAbs(straightField))
-                            {
-                                T("possible future start straight");
-                                possible.Add(straightField);
-                            }
-                            if (InFutureStartAbs(rightField))
-                            {
-                                T("possible future start right");
-                                possible.Add(rightField);
-                            }
-                            if (InFutureStartAbs(leftField))
-                            {
-                                T("possible future start left");
-                                possible.Add(leftField);
-                            }
-                        }
-
-                        /*if the only possible field is a future field, we don't need to check more. This will prevent unnecessary exits, as in 0804.
-
-						if (isMain && possible.Count == 1 && InFutureStartAbs(possible[0])) break;*/
-
-                        if (isMain && possible.Count == 1) break;
-
-                        //CShape = false;
-
-                        if (!isMain)
-                        {
-                            CheckFutureCShape();
-
-                            if (!isNearEnd) // when the far end of the future line extends, it should be checked for border as in 0714. Find out the minimum size for when it is needed.
-                            {
-                            }
-                        }
-                        else
-                        {
-                            // this.isNextStep = isNextStep;
-
-                            // To speed up execution, we check for a C-Shape and close obstacle first. If only one possible field remains, we don't check more. If it is an error, we will see it later.
-
-                            activeRules = new();
-                            activeRulesForbiddenFields = new();
-                            activeRuleSizes = new();
-
-                            /* ---- uncomment to enable basic rule checking first ---- */
-
-                            /*CShape = false;
-                             
-                            CheckCShape();
-
-                            if (CShape) break;
-
-                            closeStraightSmall = false;
-                            closeMidAcrossSmall = false;
-                            closeAcrossSmall = false;
-                            closeStraightLarge = false;
-                            closeMidAcrossLarge = false;
-
-                            // needed for far left and right case 234320
-                            //CheckNearField();
-
-                            if (closeStraightSmall || closeMidAcrossSmall || closeAcrossSmall || closeStraightLarge || closeMidAcrossLarge) break;
-
-                            CheckNearBorder();
-                            CheckAreaNearBorder();
-
-                            newPossible = new();
-                            foreach (int[] field in possible)
-                            {
-                                if (!InForbidden(field))
+                                if (!InTakenAbs(straightField) && !InBorderAbs(straightField))
                                 {
-                                    newPossible.Add(field);
+                                    possible.Add(straightField);
+                                }
+                                if (!InTakenAbs(rightField) && !InBorderAbs(rightField))
+                                {
+                                    possible.Add(rightField);
+                                }
+                                if (!InTakenAbs(leftField) && !InBorderAbs(leftField))
+                                {
+                                    possible.Add(leftField);
                                 }
                             }
-                            possible = newPossible;
-
-                            if (possible.Count == 1) break;*/
-
-                            /* ---- uncomment to disable advanced rules ---- */
-                            // break;
-
-                            Straight3I = -1;
-                            Straight3J = -1;
-                            DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
-                            DoubleAreaFirstCaseRotatedNext = DownStairNext = false;
-                            nextStepEnterLeft = -1;
-                            nextStepEnterRight = -1;
-
-                            T("CheckCShapeNext");
-                            CheckCShapeNext();
-                            T("CheckStraight " + ShowForbidden());
-                            CheckStraight();
-                            T("CheckStraightSmall " + ShowForbidden());
-                            //CheckStraightSmall();
-                            T("CheckStraightNext " + ShowForbidden());
-                            CheckStraightNext();
-                            T("CheckLeftRightAreaUp " + ShowForbidden());
-                            CheckLeftRightAreaUp();
-                            T("CheckLeftRightAreaUpExtended " + ShowForbidden());
-                            CheckLeftRightAreaUpExtended();
-                            T("CheckLeftRightAreaUpBig " + ShowForbidden());
-                            CheckLeftRightAreaUpBig();
-                            T("CheckLeftRightCorner " + ShowForbidden());
-                            CheckLeftRightCorner();
-                            T("Forbidden: " + ShowForbidden());
-
-                            T("NextStepEnter " + nextStepEnterLeft + " " + nextStepEnterRight);
-
-                            // 0611_4, 0611_5, 0611_6, 234212, 522267
-                            // 0 and 0 or 1 and 3. Beware of 1 and -1.
-                            // Overwrite order: 3, 0, 1 (See 802973 and 2020799)
-                            // 0618: AreaUp 3 dist, we can only enter now. Can an area be added to the left side? C-Shape is blocked.
-                            if (nextStepEnterLeft == 0 && nextStepEnterRight == 0 || nextStepEnterLeft + nextStepEnterRight == 4 && Math.Abs(nextStepEnterLeft - nextStepEnterRight) == 2)
+                            else
                             {
-                                switch (nextStepEnterLeft)
+                                if (!InTakenAbs(straightField) && !InBorderAbs(straightField) && !InFutureAbs(straightField))
                                 {
-                                    case 0:
-                                        T("Next step double area, cannot step straight");
-                                        forbidden.Add(new int[] { x + sx, y + sy });
-                                        break;
-                                    case 1:
-                                        T("Next step double area, cannot step right");
-                                        forbidden.Add(new int[] { x - lx, y - ly });
-                                        break;
-                                    case 3:
-                                        T("Next step double area, cannot step left");
-                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                        break;
+                                    possible.Add(straightField);
+                                }
+                                if (!InTakenAbs(rightField) && !InBorderAbs(rightField) && !InFutureAbs(rightField))
+                                {
+                                    possible.Add(rightField);
+                                }
+                                if (!InTakenAbs(leftField) && !InBorderAbs(leftField) && !InFutureAbs(leftField))
+                                {
+                                    possible.Add(leftField);
                                 }
                             }
 
-                            List<int[]> startForbiddenFields = Copy(forbidden);
 
-                            /* If distance is over 3, single area rules seem to disable the needed directions. For 3 distance, we use Sequence first case.
-                            
-                            //T("CheckDirectionalArea");
-                            CheckDirectionalArea(); */
-                            /*T("Check3DoubleArea");
-                            Check3DoubleArea();*/
-                            T("CheckSequence " + ShowForbidden());
-                            CheckSequence();
-                            T("CheckDownStair " + ShowForbidden());
-                            CheckDownStair();
-                            T("Check3DistNextStep " + ShowForbidden());
-                            Check3DistNextStep();
-                            T("Forbidden: " + ShowForbidden());
+                            // A future line may connect to another section as in 0714_2 when we step up, and a 2x2 line is created on the left
+                            // For connecting to an older line, see 0730
+                            // It cannot connect to the end of the same section
+                            if (!isMain)
+                            {
 
-                            T("DirectionalArea: " + DirectionalArea + "\n" + "DoubleArea1: " + DoubleArea1 + "\n" + "DoubleArea2: " + DoubleArea2 + "\n" + "DoubleArea3: " + DoubleArea3 + "\n" + "DoubleArea4: " + DoubleArea4 + "\n" + "DoubleArea1Rotated: " + DoubleArea1Rotated + "\n" + "Sequence1: " + Sequence1 + "\n" + "Sequence2: " + Sequence2 + "\n" + "Sequence3: " + Sequence3 + "\n" + "DownStairClose: " + DownStairClose + "\n" + "DownStair: " + DownStair + "\n" + "DoubleAreaFirstCaseRotatedNext: " + DoubleAreaFirstCaseRotatedNext + "\n" + "DownStairNext: " + DownStairNext);
+                                if (isNearEnd && !window.inFuture) // main line can be connected to if it is not already connected to another future line
+                                {
+                                    int c2 = path2.Count;
+                                    if (path2[c2 - 1][0] == straightField[0] && path2[c2 - 1][1] == straightField[1]) possible.Add(straightField);
+                                    if (path2[c2 - 1][0] == rightField[0] && path2[c2 - 1][1] == rightField[1]) possible.Add(rightField);
+                                    if (path2[c2 - 1][0] == leftField[0] && path2[c2 - 1][1] == leftField[1]) possible.Add(leftField);
+                                }
 
-                            window.ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
+                                if (!isNearEnd && InFutureStartAbs(straightField, nearSection) || isNearEnd && InFutureEndAbs(straightField, farSection))
+                                {
+                                    T("possible future connection straight");
+                                    possible.Add(straightField);
+                                }
+                                // See 0803
+                                if (!isNearEnd && InFutureStartAbs(rightField, nearSection) || isNearEnd && InFutureEndAbs(rightField, farSection))
+                                {
+                                    T("possible future connection right");
+                                    possible.Add(rightField);
+                                }
+                                if (!isNearEnd && InFutureStartAbs(leftField, nearSection) || isNearEnd && InFutureEndAbs(leftField, farSection))
+                                {
+                                    T("possible future connection left");
+                                    possible.Add(leftField);
+                                }
+                            }
+                            else if (window.calculateFuture)
+                            {
+                                if (InFutureStartAbs(straightField))
+                                {
+                                    T("possible future start straight");
+                                    possible.Add(straightField);
+                                }
+                                if (InFutureStartAbs(rightField))
+                                {
+                                    T("possible future start right");
+                                    possible.Add(rightField);
+                                }
+                                if (InFutureStartAbs(leftField))
+                                {
+                                    T("possible future start left");
+                                    possible.Add(leftField);
+                                }
+                            }
 
-                            // RunRules();
+                            /*if the only possible field is a future field, we don't need to check more. This will prevent unnecessary exits, as in 0804.
 
-                            /* 5 x 5: CheckNearCorner: 0811_2
+                            if (isMain && possible.Count == 1 && InFutureStartAbs(possible[0])) break;*/
 
-                            Used rules for 7 x 7:
-                             * Side back
-                             * Side front
-                             * Side front L
-                             * Future L
-                                821, 0827
-                                the start and end fields have to be in the same section, otherwise they can connect, like in 0913
-                                conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
+                            if (isMain && possible.Count == 1) break;
 
-                            * Future 2 x 2 Start End
-                            * 0909_1, 0909_1_2
-                            * On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
-                            
-                            * Future 2 x 3 Start End
-                                0915
-                                Is there a situation where the start and end fields are not part of one future line?
-                                On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
+                            //CShape = false;
 
-                            * Future 3 x 3 Start End
-                               0916
+                            if (!isMain)
+                            {
+                                CheckFutureCShape();
 
-                            * Notes for 9 x 9:
-                            
-                            * if there is a close across large obstacle leading to a large area, there can be valid rules on the other side, see 2707632
-                            * CheckAreaNearBorder() uses countarea, see 0909. A 2x2 area would be created with one way to go in and out
-                            * With the exception of closeAcross large area, all near field rules disable two fields, leaving only one option. Running further rules are not necessary. 
-                            * Example of interference: 1031_1
-                            * CountArea3x3 2,2: 1021_1
-                            
-                             Check1x3: 0430_2 */
+                                if (!isNearEnd) // when the far end of the future line extends, it should be checked for border as in 0714. Find out the minimum size for when it is needed.
+                                {
+                                }
+                            }
+                            else
+                            {
+                                // this.isNextStep = isNextStep;
+
+                                // To speed up execution, we check for a C-Shape and close obstacle first. If only one possible field remains, we don't check more. If it is an error, we will see it later.
+
+                                activeRules = new();
+                                activeRulesForbiddenFields = new();
+                                activeRuleSizes = new();
+
+                                /* ---- uncomment to enable basic rule checking first ---- */
+
+                                /*CShape = false;
+
+                                CheckCShape();
+
+                                if (CShape) break;
+
+                                closeStraightSmall = false;
+                                closeMidAcrossSmall = false;
+                                closeAcrossSmall = false;
+                                closeStraightLarge = false;
+                                closeMidAcrossLarge = false;
+
+                                // needed for far left and right case 234320
+                                //CheckNearField();
+
+                                if (closeStraightSmall || closeMidAcrossSmall || closeAcrossSmall || closeStraightLarge || closeMidAcrossLarge) break;
+
+                                CheckNearBorder();
+                                CheckAreaNearBorder();
+
+                                newPossible = new();
+                                foreach (int[] field in possible)
+                                {
+                                    if (!InForbidden(field))
+                                    {
+                                        newPossible.Add(field);
+                                    }
+                                }
+                                possible = newPossible;
+
+                                if (possible.Count == 1) break;*/
+
+                                /* ---- uncomment to disable advanced rules ---- */
+                                // break;
+
+                                Straight3I = -1;
+                                Straight3J = -1;
+                                DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
+                                DoubleAreaFirstCaseRotatedNext = DownStairNext = false;
+                                nextStepEnterLeft = -1;
+                                nextStepEnterRight = -1;
+
+                                T("CheckCShapeNext");
+                                CheckCShapeNext();
+                                T("CheckStraight " + ShowForbidden());
+                                CheckStraight();
+                                T("CheckLeftRightAreaUp " + ShowForbidden());
+                                CheckLeftRightAreaUp();
+                                T("CheckLeftRightAreaUpBig " + ShowForbidden());
+                                CheckLeftRightAreaUpBig();  
+                                T("CheckLeftRightCorner " + ShowForbidden());
+                                CheckLeftRightCorner();
+                                T("Forbidden: " + ShowForbidden());
+
+                                T("NextStepEnter " + nextStepEnterLeft + " " + nextStepEnterRight);
+
+                                // 0611_4, 0611_5, 0611_6, 234212, 522267
+                                // 0 and 0 or 1 and 3. Beware of 1 and -1.
+                                // Overwrite order: 3, 0, 1 (See 802973 and 2020799)
+                                // 0618: AreaUp 3 dist, we can only enter now. Can an area be added to the left side? C-Shape is blocked.
+                                if (nextStepEnterLeft == 0 && nextStepEnterRight == 0 || nextStepEnterLeft + nextStepEnterRight == 4 && Math.Abs(nextStepEnterLeft - nextStepEnterRight) == 2)
+                                {
+                                    switch (nextStepEnterLeft)
+                                    {
+                                        case 0:
+                                            T("Next step double area, cannot step straight");
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                            break;
+                                        case 1:
+                                            T("Next step double area, cannot step right");
+                                            forbidden.Add(new int[] { x - lx, y - ly });
+                                            break;
+                                        case 3:
+                                            T("Next step double area, cannot step left");
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                            break;
+                                    }
+                                }
+
+                                T("CheckLeftRightAreaUpExtended " + ShowForbidden());
+                                CheckLeftRightAreaUpExtended(); // #1 close obstacle is at the end of the area, outside.
+                                T("CheckStraightNext " + ShowForbidden());
+                                CheckStraightNext(); // #2 close obstacle is at the start of the area, inside.
+                                T("CheckStraightSmall " + ShowForbidden());
+                                CheckStraightSmall(); // #3 close obstacle is at the start and end of the area, inside. 4 distance only.
+                                T("CheckLeftRightAreaUpBigExtended " + ShowForbidden());
+                                CheckLeftRightAreaUpBigExtended(); // #4 when entering at the first white field, we have to step down to the first black and then left to enter as in 0624
+
+                                List<int[]> startForbiddenFields = Copy(forbidden);
+                                /* If distance is over 3, single area rules seem to disable the needed directions. For 3 distance, we use Sequence first case.
+
+                                //T("CheckDirectionalArea");
+                                CheckDirectionalArea(); */
+                                /*T("Check3DoubleArea");
+                                Check3DoubleArea();*/
+                                T("CheckSequence " + ShowForbidden());
+                                CheckSequence();
+                                T("CheckDownStair " + ShowForbidden());
+                                CheckDownStair();
+                                T("Check3DistNextStep " + ShowForbidden());
+                                Check3DistNextStep();
+                                T("Forbidden: " + ShowForbidden());
+
+                                T("DirectionalArea: " + DirectionalArea + "\n" + "DoubleArea1: " + DoubleArea1 + "\n" + "DoubleArea2: " + DoubleArea2 + "\n" + "DoubleArea3: " + DoubleArea3 + "\n" + "DoubleArea4: " + DoubleArea4 + "\n" + "DoubleArea1Rotated: " + DoubleArea1Rotated + "\n" + "Sequence1: " + Sequence1 + "\n" + "Sequence2: " + Sequence2 + "\n" + "Sequence3: " + Sequence3 + "\n" + "DownStairClose: " + DownStairClose + "\n" + "DownStair: " + DownStair + "\n" + "DoubleAreaFirstCaseRotatedNext: " + DoubleAreaFirstCaseRotatedNext + "\n" + "DownStairNext: " + DownStairNext);
+
+                                window.ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
+
+                                // RunRules();
+
+                                /* 5 x 5: CheckNearCorner: 0811_2
+
+                                Used rules for 7 x 7:
+                                 * Side back
+                                 * Side front
+                                 * Side front L
+                                 * Future L
+                                    821, 0827
+                                    the start and end fields have to be in the same section, otherwise they can connect, like in 0913
+                                    conditions are true already on 5x5 at 0831_2, but it is handled in CheckNearCorner
+
+                                * Future 2 x 2 Start End
+                                * 0909_1, 0909_1_2
+                                * On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
+
+                                * Future 2 x 3 Start End
+                                    0915
+                                    Is there a situation where the start and end fields are not part of one future line?
+                                    On boards larger than 7 x 7, is it possible to apply the rule in straight left/right directions? It means that in the original example, the line is coming downwards instead of heading right.
+
+                                * Future 3 x 3 Start End
+                                   0916
+
+                                * Notes for 9 x 9:
+
+                                * if there is a close across large obstacle leading to a large area, there can be valid rules on the other side, see 2707632
+                                * CheckAreaNearBorder() uses countarea, see 0909. A 2x2 area would be created with one way to go in and out
+                                * With the exception of closeAcross large area, all near field rules disable two fields, leaving only one option. Running further rules are not necessary. 
+                                * Example of interference: 1031_1
+                                * CountArea3x3 2,2: 1021_1
+
+                                 Check1x3: 0430_2 */
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
-            }
 
-            newPossible = new();
+                newPossible = new();
 
-            foreach (int[] field in possible)
-            {
-                if (!InForbidden(field))
+                foreach (int[] field in possible)
                 {
-                    newPossible.Add(field);
+                    if (!InForbidden(field))
+                    {
+                        newPossible.Add(field);
+                    }
                 }
-            }
-            possible = newPossible;
+                possible = newPossible;
 
-            // for debugging
-            return;
+                // for debugging
+                return;
 
-            if (isNextStep) return;
+                if (isNextStep) return;
 
-            // check each possible field if they would result in an impossible situation
+                // check each possible field if they would result in an impossible situation
 
-            List<int[]> savedPath = Copy(path);
-            List<int[]> savedPossible = Copy(possible);
+                List<int[]> savedPath = Copy(path);
+                List<int[]> savedPossible = Copy(possible);
 
-            forbidden = new List<int[]>();
+                forbidden = new List<int[]>();
 
-            foreach (int[] field in savedPossible)
-            {
-                if (field[0] == size && field[1] == size) return;
+                foreach (int[] field in savedPossible)
+                {
+                    if (field[0] == size && field[1] == size) return;
 
-                T("--- check possibility " + field[0] + " " + field[1]);
+                    T("--- check possibility " + field[0] + " " + field[1]);
+                    path = Copy(savedPath);
+                    path.Add(field);
+                    x = field[0];
+                    y = field[1];
+                    NextStepPossibilities(true, -1, -1, -1, true);
+
+                    if (possible.Count == 0)
+                    {
+                        forbidden.Add(new int[] { field[0], field[1] });
+                    }
+                }
+
+                newPossible = new List<int[]>();
+
+                foreach (int[] field in savedPossible)
+                {
+                    if (!InForbidden(field))
+                    {
+                        newPossible.Add(field);
+                    }
+                }
+
+                possible = newPossible;
                 path = Copy(savedPath);
-                path.Add(field);
-                x = field[0];
-                y = field[1];
-                NextStepPossibilities(true, -1, -1, -1, true);
-
-                if (possible.Count == 0)
-                {
-                    forbidden.Add(new int[] { field[0], field[1] });
-                }
+                x = path[path.Count - 1][0];
+                y = path[path.Count - 1][1];
             }
-
-            newPossible = new List<int[]>();
-
-            foreach (int[] field in savedPossible)
+            catch (Exception ex)
             {
-                if (!InForbidden(field))
-                {
-                    newPossible.Add(field);
-                }
+                T(ex.Message);
+                T(ex.StackTrace);
             }
-
-            possible = newPossible;
-            path = Copy(savedPath);
-            x = path[path.Count - 1][0];
-            y = path[path.Count - 1][1];
         }
 
         public void ResetExamAreas()
@@ -1700,12 +1711,12 @@ namespace OneWayLabyrinth
                                     forbidden.Add(new int[] { x - lx, y - ly });
                                 }
 
-                                // only one option remains
-                                sx = thisSx;
+                                // only one option remains, but we do not return in case of 0623 where the area would close, and at the end, the number of steps are less than size * size.
+                                /*sx = thisSx;
                                 sy = thisSy;
                                 lx = thisLx;
                                 ly = thisLy;
-                                return;
+                                return;*/
                             }
                             else
                             {
@@ -1852,7 +1863,7 @@ namespace OneWayLabyrinth
                     {
                         bool circleValid = false;
 
-                        int dist = 2;
+                        int dist = 1;
                         List<int[]> borderFields = new();
 
                         while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
@@ -1873,7 +1884,7 @@ namespace OneWayLabyrinth
                         }
 
                         // no close mid across checking here, distance needs to be at least 2
-                        if (ex != 1 && !found && !InTakenRel(0, dist))
+                        if (ex > 1 && !found && !InTakenRel(0, dist))
                         {
                             int i1 = InTakenIndexRel(1, dist);
                             int i2 = InTakenIndexRel(2, dist);
@@ -1895,7 +1906,7 @@ namespace OneWayLabyrinth
                             }
 
                             ResetExamAreas();
-
+                            
                             if (CountAreaRel(0, 1, 0, ex, borderFields, circleDirectionLeft, 3, true))
                             {
                                 int black = (int)info[1];
@@ -2114,6 +2125,157 @@ namespace OneWayLabyrinth
                                 {
                                     AddExamAreas();
                                 }
+                            }
+                        }
+                    }
+
+                    if (j == 0) // rotate down (CCW): behind obstacle
+                    {
+                        int l0 = lx;
+                        int l1 = ly;
+                        lx = -sx;
+                        ly = -sy;
+                        sx = l0;
+                        sy = l1;
+                    }
+                    else if (j == 1) // rotate up (CW): small area
+                    {
+                        lx = -lx;
+                        ly = -ly;
+                        sx = -sx;
+                        sy = -sy;
+                    }
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        // Area as in the first area case of documentation. That area is taken care of in UpBig and Striaght. This is about a border movement close obstacle: 0624
+        void CheckLeftRightAreaUpBigExtended()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? false : true;
+
+                for (int j = 0; j < 3; j++) // j = 1: small area, j = 2: big area
+                {
+                    bool circleValid = false;
+                    int dist = 1;
+                    List<int[]> borderFields = new();
+
+                    while (!InTakenRel(1, dist) && !InBorderRel(1, dist) && !InTakenRel(0, dist))
+                    {
+                        dist++;
+                    }
+
+                    int ex = dist - 1;
+
+                    if (ex > 1 && InTakenRel(1, dist))
+                    {
+                        int i1 = InTakenIndexRel(1, dist);
+
+                        if (InTakenRel(2, dist))
+                        {
+                            int i2 = InTakenIndexRel(2, dist);
+                            if (i1 > i2)
+                            {
+                                circleValid = true;
+                            }
+                        }
+                        else
+                        {
+                            int i2 = InTakenIndexRel(0, dist);
+                            if (i2 > i1)
+                            {
+                                circleValid = true;
+                            }
+                        }
+                    }
+
+                    if (circleValid)
+                    {
+                        if (ex > 2)
+                        {
+                            for (int k = ex - 1; k >= 2; k--)
+                            {
+                                borderFields.Add(new int[] { 1, k });
+                            }
+                        }
+
+                        ResetExamAreas();
+
+                        if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                        {
+                            int black = (int)info[1];
+                            int white = (int)info[2];
+
+                            int whiteDiff = white - black;
+                            int nowWCount = 0;
+                            int nowWCountRight = 0;
+                            int nowBCount = 0;
+                            int laterWCount = 0;
+                            int laterBCount = 0;
+
+                            bool ruleTrue = false;
+
+                            switch (ex % 4)
+                            {
+                                case 0:
+                                    nowWCountRight = nowWCount = ex / 4;
+                                    nowBCount = ex / 4 - 1;
+                                    laterWCount = ex / 4;
+                                    laterBCount = ex / 4;
+
+                                    if (whiteDiff == laterWCount && CheckNearFieldSmallRel(1, 1, 0, 1, false)) // when entering at the first white field, we have to step down to the first black and then left to enter as in 0624
+                                    {
+                                        ruleTrue = true;
+                                        T("CheckLeftRightAreaUpBigExtended enter obstacle: Cannot step left");
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                        if (j == 2)
+                                        {
+                                            forbidden.Add(new int[] { x - sx, y - sy });
+                                        }
+                                    }
+
+                                    break;
+                                case 1:
+                                    nowWCountRight = nowWCount = (ex - 1) / 4;
+                                    nowBCount = (ex - 1) / 4;
+                                    laterWCount = (ex - 1) / 4;
+                                    laterBCount = (ex + 3) / 4;
+                                    break;
+                                case 2:
+                                    if (ex == 2)
+                                    {
+                                        nowWCountRight = 1;
+                                        nowWCount = 0;
+                                    }
+                                    else
+                                    {
+                                        nowWCountRight = nowWCount = (ex + 2) / 4;
+                                        nowBCount = (ex - 2) / 4;
+                                        laterWCount = (ex - 2) / 4;
+                                        laterBCount = (ex + 2) / 4;
+                                    }
+                                    break;
+                                case 3:
+                                    nowWCountRight = nowWCount = (ex - 3) / 4;
+                                    nowBCount = (ex + 1) / 4;
+                                    laterWCount = (ex - 3) / 4;
+                                    laterBCount = (ex + 1) / 4;
+                                    break;
+                            }
+
+                            if (ruleTrue)
+                            {
+                                AddExamAreas();
                             }
                         }
                     }
@@ -3746,7 +3908,7 @@ namespace OneWayLabyrinth
         // compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more than the other color.
         {
             bool debug = false;
-            bool debug2 = true;
+            bool debug2 = false;
 
             // find coordinates of the top left (circleDirection = right) or top right corner (circleDirection = left)
             int minY = startY;
