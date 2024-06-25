@@ -15,27 +15,36 @@
 <style type="text/css" media="print">
 @page {
     size: auto;   /* auto is the initial value */
-    margin: 30px;  /* this affects the margin in the printer settings */
+    margin-left: 22.5px;  /* this affects the margin in the printer settings. For paper size A4, but the book format is 135 x 200 mm. */
+    margin-right: 22.5px;  
+    margin-top: 0px;
+    margin-bottom: 0px;
+    orientation: landscape;
 }
 </style>
 <style>
     :root {
-        --text: #000;
-        --bg: #fff;
+        --text: #black;
+        --bg: #white;
+        --border: white;
     }
     .a5 td { /* print */
         border: 0px solid #808080;  
-        width: 525px;    
-        height: 725px;  
+        width: 470px;    
+        height: 800px;  
         vertical-align: top;
         position: relative;
+        padding-top: 30px;
+        padding-bottom: 60px;
     }
     .a5_1 td { /* screen */
         border: 0px solid #808080;  
-        width: 525px;    
-        height: 725px;  
+        width: 470px;    
+        height: 800px;  
         vertical-align: top;
         position: relative;
+        padding-top: 30px;
+        padding-bottom: 60px;
     }
     .a5, .a5_1 {
         border-spacing: 0px;  
@@ -45,27 +54,31 @@
         :root {
             --text: #fff;
             --bg: #000;
-        }
-        .a5 td, .a5_1 td {
-            border: 1px solid #808080;  
+            --border: gray;
         }
     }
     body {
         background-color: var(--bg);
     }    
     .left {
-        padding-left: 0px;
-        padding-right: 42px;
+        padding-left: 30px;
+        padding-right: 40px;        
     }
     .right {
-        padding-left: 42px;
-        padding-right: 2px;
+        padding-left: 40px;
+        padding-right: 30px;
     }
-    div {
+    .left div {
         width: 100%;
-        height: 720px;
-        overflow: hidden;
-        box-shadow: inset 0 0 0 1000px var(--bg);
+        height: 710px;
+        overflow-y: hidden;
+        color: var(--text);
+    }
+
+    .right div {
+        width: 100%;
+        height: 710px;
+        overflow-y: hidden;
         color: var(--text);
     }
 
@@ -120,22 +133,30 @@
 
     div.leftNum {
         position: absolute;
-        right: 0px;
-        bottom: 0px;
-        width: 27px;
+        text-align: center;
+        left: 0px;
+        bottom: 16px;
+        width: 100%;
         height: 16px;
     }
     div.rightNum {
         position: absolute;
         left: 0px;
-        bottom: 0px;
-        width: 27px;
+        bottom: 16px;
+        width: 100%;
         height: 16px;
-        text-align: right;
-        box-shadow: inset 0 0 0 30px transparent;
+        text-align: center;
+    }
+    div.border {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        box-shadow: inset 0 0 0 1px var(--border);
     }
 </style>
-<table class="<?php $normalOrder == true ? print "a5_1" : print "a5" ?>" width="1050" align="center" style="font-family: Segoe UI; font-size: 14px;">
+<table class="<?php $normalOrder == true ? print "a5_1" : print "a5" ?>" width="1080" align="center" style="font-family: Segoe UI; font-size: 14px;">
 <?php
     $content = str_replace("\r", "", str_replace("<br />", "", file_get_contents("readme0.md")));
     
@@ -162,14 +183,14 @@
     if ($normalOrder) { // 1 2 3 4, for reading in browser
         for($i = 0; $i < count($pageTexts); $i++) {
             if ($i % 2 == 0) {                
-                $output.= "<tr><td class=\"left\"><div>".$pageTexts[$i]."</div><div class=\"leftNum\">".($i+1)."</div></td>\n";
+                $output.= "<tr><td class=\"left\"><div class=\"border\"></div><div>".$pageTexts[$i]."</div><div class=\"leftNum\">".($i+1)."</div></td>\n";
             }            
             else {
-                $output.= "<td class=\"right\"><div>".$pageTexts[$i]."</div><div class=\"rightNum\">".($i+1)."</div></td></tr>\n";
+                $output.= "<td class=\"right\"><div class=\"border\"></div><div>".$pageTexts[$i]."</div><div class=\"rightNum\">".($i+1)."</div></td></tr>\n";
             }
         }
         if ($i % 2 == 1) {
-            $output.= "<td class=\"right\"></td></tr>\n";
+            $output.= "<td class=\"right\"><div class=\"border\"></div></td></tr>\n";
         }
     }
     else { // 4 1 2 3, for printing on A4 paper on both sides
@@ -178,27 +199,27 @@
         for($i = 0; $i < count($pageTexts); $i++) {
             if ($i % 2 == 1) {
                 if ($i % 4 == 1) {
-                    $pages[] = "<tr><td class=\"left\"><div>".$pageTexts[$i]."</div><div class=\"leftNum\">".($i+1)."</div><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
+                    $pages[] = "<tr><td class=\"left\"><div class=\"border\"></div><div>".$pageTexts[$i]."</div><div class=\"leftNum\">".($i+1)."</div><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
                 }
                 else {
-                    $pages[] = "<tr><td class=\"left\"><div>".$pageTexts[$i]."</div><div class=\"leftNum\">".($i+1)."</div></td>\n";
+                    $pages[] = "<tr><td class=\"left\"><div class=\"border\"></div><div>".$pageTexts[$i]."</div><div class=\"leftNum\">".($i+1)."</div></td>\n";
                 }
             }
             else {
-                $pages[] = "<td class=\"right\"><div>".$pageTexts[$i]."</div><div class=\"rightNum\">".($i+1)."</div></td></tr>";
+                $pages[] = "<td class=\"right\"><div class=\"border\"></div><div>".$pageTexts[$i]."</div><div class=\"rightNum\">".($i+1)."</div></td></tr>";
             }
         }
         if ($i % 4 == 1) {
-            $pages[] = "<tr><td class=\"left\"><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
-            $pages[] = "<td class=\"right\"></td></tr>\n";
-            $pages[] = "<tr><td class=\"left\"></td>\n";
+            $pages[] = "<tr><td class=\"left\"><div class=\"border\"></div><div class=\"marking1\"></div><div class=\"marking2\"></div><div class=\"marking3\"></div><div class=\"marking4\"></div><div class=\"marking5\"></div><div class=\"marking6\"></div></td>\n";
+            $pages[] = "<td class=\"right\"><div class=\"border\"></div></td></tr>\n";
+            $pages[] = "<tr><td class=\"left\"><div class=\"border\"></div></td>\n";
         }
         else if ($i % 4 == 2) {
-            $pages[] = "<td class=\"right\"></td></tr>\n";
-            $pages[] = "<tr><td class=\"left\"></td>\n";
+            $pages[] = "<td class=\"right\"><div class=\"border\"></div></td></tr>\n";
+            $pages[] = "<tr><td class=\"left\"><div class=\"border\"></div></td>\n";
         }
         else if ($i % 4 == 3) {
-            $pages[] = "<tr><td class=\"left\"></td>\n";
+            $pages[] = "<tr><td class=\"left\"><div class=\"border\"></div></td>\n";
         }
 
         $pageNum = count($pages) / 4;

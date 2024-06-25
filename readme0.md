@@ -2114,10 +2114,25 @@ The area is 1W. We have to enter at the first white field and exit at the second
 The area is the extended version of the y vertical distance, 0 horizontal distance rule. (The first area we examined in this book.) It is not necessary to decide whether we can enter now or later, it is already taken care of by the other single area groups. But there is a close obstacle at the entry point outside the area. If, at 4 distance, the area is 1W, we enter at the first white field, from which we step down and left.
 Therefore, we cannot enter later.
 
+<!---->
+
+<img align="top" src="References/2024_0625.svg" width="11"/>
+
+The A and B field cannot be filled simultaneously. In the following representation, the area is 1B, and if we step left, the border movement can only be:
+
+<img align="top" src="References/1-3 corner inside close.svg" width="5" />
+
+This conflicts with the obstacle in the upper left corner.
+
+<!---->
+
+The next case is simalar, only we have to apply the smaller area, because the normal area borderline is taken.
+
+<img align="top" src="References/2024_0625_1.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/1-4 corner small inside close.svg" width="5" />
+
+The area is W = B, so we cannot step left.
+
 <!--
-
-If not reloading from a file, the svg still gets its name.
-
 Review CountArea old and new algorithms
 <img align="top" src="References/2024_0611_3.svg" width="9" />
 

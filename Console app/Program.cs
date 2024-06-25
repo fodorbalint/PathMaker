@@ -212,7 +212,7 @@ void DoThread()
             else
             {
                 // Save last error for further study
-                SavePath();
+                SavePath(false, true);
                 Console.Read();
             }
         }
@@ -2104,9 +2104,6 @@ void CheckLeftRightCorner() // rotations:
                     horiStart++;
                 }
 
-                int xDiff = x - taken[taken.Count - 2][0];
-                int yDiff = y - taken[taken.Count - 2][1];
-
                 // relative directions and coordinates. Since the relative x and y is expanding towards the upper left corner, the current direction is what we use for downwards motion in the absolute coordinate system.
                 int currentDirection = 0;
 
@@ -2124,7 +2121,7 @@ void CheckLeftRightCorner() // rotations:
                     {
                         errorInWalkthrough = true;
                         errorString = "Corner discovery error.";
-                        criticalError = true;                        
+                        criticalError = true;
                         return;
                     }
 
@@ -2498,7 +2495,146 @@ void CheckLeftRightCorner() // rotations:
                                                     }
                                                 }
                                             }
+
+                                            // #5: 0625
+                                            if (hori == 4 && vert == 2 && -whiteDiff == 1 && (j == 1 || j == 2) && CheckNearFieldSmallRel(2, 0, 0, 1, true))
+                                            {
+                                                forbidden.Add(new int[] { x - sx, y - sy });
+                                            }
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    currentDirection = l;
+
+                    nextX = possibleNextX;
+                    nextY = possibleNextY;
+                }
+            }
+
+            // #6: 0625_1
+            else if ((j == 1 || j == 2) &&!InTakenRel(1, 0) && !InBorderRel(1, 0))
+            {
+                int horiStart = 2;
+                while (!InTakenRel(horiStart, 0) && !InBorderRel(horiStart, 0))
+                {
+                    horiStart++;
+                }
+
+                int currentDirection = 0;
+
+                int nextX = horiStart - 1;
+                int nextY = 0;
+
+                int counter = 0;
+                while (nextX > 0 && !(counter > 0 && nextX == horiStart - 1 && nextY == 0))
+                {
+                    counter++;
+                    if (counter == size * size)
+                    {
+                        errorInWalkthrough = true;
+                        errorString = "Corner discovery error.";
+                        criticalError = true;
+                        return;
+                    }
+
+                    // left direction
+                    currentDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
+                    int l = currentDirection;
+                    int possibleNextX = nextX + directions[currentDirection][0];
+                    int possibleNextY = nextY + directions[currentDirection][1];
+
+                    // turn right until a field is empty 
+                    while (InBorderRel(possibleNextX, possibleNextY) || InTakenRel(possibleNextX, possibleNextY))
+                    {
+                        l = (l == 0) ? 3 : l - 1;
+                        possibleNextX = nextX + directions[l][0];
+                        possibleNextY = nextY + directions[l][1];
+                    }
+
+                    if (currentDirection == 0 && l == 0 && nextX == 4 && nextY == 1)
+                    {
+                        int hori = nextX + 1;
+                        int vert = nextY + 1;
+
+                        bool circleValid = false;
+
+                        int i1 = InTakenIndexRel(hori, vert);
+                        int i2 = InTakenIndexRel(hori + 1, vert);
+
+                        if (i2 > i1)
+                        {
+                            circleValid = true;
+                        }
+
+                        if (circleValid)
+                        {
+                            bool takenFound = false;
+                            int left1 = 1;
+                            int straight1 = 0;
+                            int left2 = hori - 1;
+                            int straight2 = vert - 1;
+                            List<int[]> borderFields = new();
+
+                            for (int k = 1; k <= hori - vert - 1; k++)
+                            {
+                                if (InTakenRel(k, 0))
+                                {
+                                    takenFound = true;
+                                    break;
+                                }
+
+                                if (k > 1)
+                                {
+                                    borderFields.Add(new int[] { k, 0 });
+                                }
+                            }
+
+                            for (int k = 1; k <= vert; k++)
+                            {
+                                if (k <= vert - 1)
+                                {
+                                    if (InTakenRel(hori - vert - 1 + k, k - 1) || InTakenRel(hori - vert + k, k - 1))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (InTakenRel(hori - vert - 1 + k, k - 1))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
+                                }
+
+                                if (k < vert)
+                                {
+                                    borderFields.Add(new int[] { hori - vert - 1 + k, k - 1 });
+                                    borderFields.Add(new int[] { hori - vert + k, k - 1 });
+                                }
+                            }
+
+                            if (!takenFound)
+                            {
+                                List<int[]> newBorderFields = new();
+                                for (int k = borderFields.Count - 1; k >= 0; k--)
+                                {
+                                    newBorderFields.Add(borderFields[k]);
+                                }
+
+                                if (CountAreaRel(left1, straight1, left2, straight2, newBorderFields, circleDirectionLeft, 3, true))
+                                {
+                                    int black = (int)info[1];
+                                    int white = (int)info[2];
+
+                                    if (white == black && CheckNearFieldSmallRel(2, 0, 1, 3, false))
+                                    {
+                                        forbidden.Add(new int[] { x - sx, y - sy });
                                     }
                                 }
                             }
@@ -3349,7 +3485,7 @@ bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSma
 
     for (int i = 0; i < 2; i++)
     {
-        for (int j = 0; j < 3; j++) // j = 0: middle, j = 1: small area, j = 2: big area
+        for (int j = 0; j < 4; j++) // j = 0: middle, j = 1: small area, j = 2: big area
         {
             if (i == side && j == rotation)
             {
@@ -3392,6 +3528,15 @@ bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSma
                 ly = -ly;
                 sx = -sx;
                 sy = -sy;
+            }
+            else // rotate CW again
+            {
+                int s0 = sx;
+                int s1 = sy;
+                sx = -lx;
+                sy = -ly;
+                lx = s0;
+                ly = s1;
             }
         }
         lx = -1;

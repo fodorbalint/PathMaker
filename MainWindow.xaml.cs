@@ -1002,7 +1002,7 @@ namespace OneWayLabyrinth
                 Dispatcher.Invoke(() =>
                 {
                     isTaskRunning = false;
-                    StopTimer(); //in case of countarea inequal error, it is already called.                    
+                    StopTimer();                   
                     if (toReload)
                     {
                         toReload = false;
@@ -1018,7 +1018,7 @@ namespace OneWayLabyrinth
                     {
                         if (completedWalkthrough) M("The number of walkthroughs are " + completedCount + ".", 0);
                         else if (!errorInWalkthrough) M(completedCount + " walkthroughs are completed.", 0);
-                        else MessageLine.Content = "Error at " + completedCount + ": " + errorString;
+                        else M("Error at " + completedCount + ": " + errorString, 0);
                         DrawPath();
                     }
 
@@ -4259,7 +4259,7 @@ namespace OneWayLabyrinth
             ReadDir();
 
             string tag;
-            if (saveLoadFile && loadFile != "")
+            if (loadCheck && loadFile != "" && saveLoadFile)
             {
                 tag = loadFile.Replace(".txt", "");
             }
@@ -4781,17 +4781,10 @@ namespace OneWayLabyrinth
 			Dispatcher.Invoke(() =>
 			{
                 messageCode = code;
-                if (!(isTaskRunning && makeStats && !keepLeftCheck && !source.IsCancellationRequested))
-				{
-                    MessageLine.Content = o.ToString();
-                    MessageLine.Visibility = Visibility.Visible;
-                    OKButton.Visibility = Visibility.Visible;
-                    if (code != 3) StopTimer();
-                }    
-				else
-				{
-                    L(o.ToString());
-                }
+                MessageLine.Content = o.ToString();
+                MessageLine.Visibility = Visibility.Visible;
+                OKButton.Visibility = Visibility.Visible;
+                if (code != 3) StopTimer();
             });
         }
 
