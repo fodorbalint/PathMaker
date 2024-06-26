@@ -1957,11 +1957,16 @@ If we step straight, 1B is possible.
 
 5 and 6 distance:
 
-<img align="top" src="References/areaup corner 5.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 6.svg" width="4" />
+<img align="top" src="References/areaup corner 5 now.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 6.svg" width="4" />
 
-No condition. 2W and 1B can be completed without relying on the corner field.
+For entering now 2W and 1B can be completed without relying on the corner field.
+However, if we enter later, a 2W area for 5 distance will require a corner fill:
+
+<img align="top" src="References/areaup corner 5 later.svg" width="4" />
 
 Where the issue is present, the numbers of possible white or black lines will increase by one for every 4 distance added.
+
+<!---->
 
 The area to be checked is not exactly the same as in the single area rule with the same obstacle placement. Compare:
 
@@ -1971,6 +1976,7 @@ That means, we have to check the new border fields for being empty, and the numb
 
 For 3 distance: 1W
 For 4 distance: 1B
+For 5 distance: 1W
 
 <!---->
 
@@ -2126,11 +2132,17 @@ This conflicts with the obstacle in the upper left corner.
 
 <!---->
 
-The next case is simalar, only we have to apply the smaller area, because the normal area borderline is taken.
+The next case is similar, only we have to apply the smaller area, because the normal area borderline is taken.
 
 <img align="top" src="References/2024_0625_1.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/1-4 corner small inside close.svg" width="5" />
 
 The area is W = B, so we cannot step left.
+
+It is easy to see that the rule can be made universal by extending both the horizontal and vertical distance:
+
+<img align="top" src="References/1-4 corner small inside close 2.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/1-4 corner small inside close 3.svg" width="7" />
+
+But can we find examples of them?
 
 <!--
 Review CountArea old and new algorithms

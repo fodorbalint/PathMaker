@@ -1851,19 +1851,19 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,1 can be taken.
+        void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,1 can be taken, but we need to check if 0, 1 is free. There can be a previous section of the line going horixontally in front.
         {
             for (int i = 0; i < 2; i++)
             {
                 bool circleDirectionLeft = (i == 0) ? true : false;
 
-                for (int j = 0; j < 4; j++) // j = 1: small area, j = 2: big area
+                for (int j = 0; j < 4; j++) // rotate CW, j = 1: big area, j = 3: small area
                 {
-                    if (j != 2)
+                    if (j != 2 && !InTakenRel(0, 1))
                     {
                         bool circleValid = false;
 
-                        int dist = 1;
+                        int dist = 2;
                         List<int[]> borderFields = new();
 
                         while (!InTakenRel(1, dist) && !InBorderRel(1, dist))
@@ -1930,11 +1930,18 @@ namespace OneWayLabyrinth
                                         else if (whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex, 0, 2, true))
                                         {
                                             ruleTrue = true;
-                                            T("LeftRightAreaUp open corner 4: Cannot step right");
+                                            T("LeftRightAreaUp closed corner 4: Cannot step right");
                                             forbidden.Add(new int[] { x - lx, y - ly });
                                         }
                                         break;
                                     case 1:
+                                        // 0626
+                                        if (whiteDiff == (ex + 3) / 4 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp open corner 5: Cannot step right");
+                                            forbidden.Add(new int[] { x - lx, y - ly });
+                                        }
                                         break;
                                     case 2:
                                         // We cannot get to the 2- or 6-distance case if the other rules are applied. 0611_1
@@ -2665,9 +2672,9 @@ namespace OneWayLabyrinth
                                                                 ruleTrue = true;
                                                                 T("LeftRightCorner open corner 2, 4: Cannot  step left");
                                                                 forbidden.Add(new int[] { x + lx, y + ly });
-                                                                if (j == 0)
+                                                                if (j == 1)
                                                                 {
-                                                                    T("LeftRightCorner closed corner 2, 4: Cannot step down");
+                                                                    T("LeftRightCorner open corner 2, 4: Cannot step down");
                                                                     forbidden.Add(new int[] { x - sx, y - sy });
                                                                 }
                                                             }
@@ -2704,50 +2711,52 @@ namespace OneWayLabyrinth
                                                         forbidden.Add(new int[] { x - lx, y - ly });
                                                     }
                                                 }
-                                                else if (j != 2) // We can enter later, but if we step straight, we have to enter afterwards. Check for pattern on the opposite side (if the obstacle is up on the left, we check the straight field for next step C, not the right field.) 
-                                                                 // When j = 2, the enter later field is the field behind.
+                                                else {
+                                                    if (j != 2) // We can enter later, but if we step straight, we have to enter afterwards. Check for pattern on the opposite side (if the obstacle is up on the left, we check the straight field for next step C, not the right field.) 
+                                                                // When j = 2, the enter later field is the field behind.
 
-                                                {
-                                                    // 0611_6
-                                                    // If we can enter later at the hori 2, vert 3 case, the area must be W = B
-                                                    if ((hori == 2 && vert == 3) ||
-                                                        (hori == 2 && vert == 4 && -whiteDiff == 1))
                                                     {
-                                                        ruleTrue = true;
-                                                        if (i == 0)
+                                                        // 0611_6
+                                                        // If we can enter later at the hori 2, vert 3 case, the area must be W = B
+                                                        if ((hori == 2 && vert == 3) ||
+                                                            (hori == 2 && vert == 4 && -whiteDiff == 1))
                                                         {
-                                                            if (nextStepEnterLeft == -1)
+                                                            ruleTrue = true;
+                                                            if (i == 0)
                                                             {
-                                                                nextStepEnterLeft = j;
+                                                                if (nextStepEnterLeft == -1)
+                                                                {
+                                                                    nextStepEnterLeft = j;
+                                                                }
+                                                                else if (nextStepEnterLeft == 3 && (j == 0 || j == 1))
+                                                                {
+                                                                    nextStepEnterLeft = j;
+                                                                }
+                                                                else if (nextStepEnterLeft == 0 && j == 1)
+                                                                {
+                                                                    nextStepEnterLeft = j;
+                                                                }
                                                             }
-                                                            else if (nextStepEnterLeft == 3 && (j == 0 || j == 1))
+                                                            else
                                                             {
-                                                                nextStepEnterLeft = j;
-                                                            }
-                                                            else if (nextStepEnterLeft == 0 && j == 1)
-                                                            {
-                                                                nextStepEnterLeft = j;
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            if (nextStepEnterRight == -1)
-                                                            {
-                                                                nextStepEnterRight = j;
-                                                            }
-                                                            else if (nextStepEnterRight == 3 && (j == 0 || j == 1))
-                                                            {
-                                                                nextStepEnterRight = j;
-                                                            }
-                                                            else if (nextStepEnterRight == 0 && j == 1)
-                                                            {
-                                                                nextStepEnterRight = j;
+                                                                if (nextStepEnterRight == -1)
+                                                                {
+                                                                    nextStepEnterRight = j;
+                                                                }
+                                                                else if (nextStepEnterRight == 3 && (j == 0 || j == 1))
+                                                                {
+                                                                    nextStepEnterRight = j;
+                                                                }
+                                                                else if (nextStepEnterRight == 0 && j == 1)
+                                                                {
+                                                                    nextStepEnterRight = j;
+                                                                }
                                                             }
                                                         }
                                                     }
 
-                                                    // #5: 0625
-                                                    if (hori == 4 && vert == 2 && -whiteDiff == 1 && (j == 1 || j == 2) && CheckNearFieldSmallRel(2, 0, 0, 1, true))
+                                                    // #5: 0625, 0626_1, 1-3 corner inside close, 1-3 corner small inside close
+                                                    if (hori == 4 && vert == 2 && -whiteDiff == 1 && (j == 1 || j == 2) && CheckNearFieldSmallRel(2, 0, 1, 2, false))
                                                     {
                                                         T("LeftRightCorner " + i + " " + j + ": 1-3 corner inside close, cannot step down");
                                                         ruleTrue = true;

@@ -2937,6 +2937,7 @@ namespace OneWayLabyrinth
 			{
 				errorInWalkthrough = false;
 				lineFinished = false;
+                completedCount = 0; // to prevent saving the same number as the filename
 				taken.x = taken.path[count - 2][0];
 				taken.y = taken.path[count - 2][1];
 				int lastExit = exitIndex.Count - 1;
