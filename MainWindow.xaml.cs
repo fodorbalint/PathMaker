@@ -1713,10 +1713,10 @@ namespace OneWayLabyrinth
 
                 x = taken.path[count - 2][0];
                 y = taken.path[count - 2][1];
-                taken.x2 = x;
-                taken.y2 = y;
-                taken.sx = taken.x2 - taken.path[count - 3][0];
-                taken.sy = taken.y2 - taken.path[count - 3][1];
+                taken.x3 = x;
+                taken.y3 = y;
+                taken.sx = taken.x3 - taken.path[count - 3][0];
+                taken.sy = taken.y3 - taken.path[count - 3][1];
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -1978,10 +1978,10 @@ namespace OneWayLabyrinth
                 taken.ly = -taken.thisLy;
             }
 
-            taken.x2 = x;
-            taken.y2 = y;
-            taken.sx = taken.x2 - taken.path[count - 3][0];
-            taken.sy = taken.y2 - taken.path[count - 3][1];
+            taken.x3 = x;
+            taken.y3 = y;
+            taken.sx = taken.x3 - taken.path[count - 3][0];
+            taken.sy = taken.y3 - taken.path[count - 3][1];
 
             for (int i = 0; i < 4; i++)
             {
@@ -3209,8 +3209,8 @@ namespace OneWayLabyrinth
 
         public bool InBorderRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.lx + straight * taken.sx;
-            int y = taken.y2 + left * taken.ly + straight * taken.sy;
+            int x = taken.x3 + left * taken.lx + straight * taken.sx;
+            int y = taken.y3 + left * taken.ly + straight * taken.sy;
             return InBorder(x, y);
         }
 
@@ -3229,8 +3229,8 @@ namespace OneWayLabyrinth
 
         private bool InTakenRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.lx + straight * taken.sx;
-            int y = taken.y2 + left * taken.ly + straight * taken.sy;
+            int x = taken.x3 + left * taken.lx + straight * taken.sx;
+            int y = taken.y3 + left * taken.ly + straight * taken.sy;
             return InTaken(x, y);
         }
 
@@ -3259,8 +3259,8 @@ namespace OneWayLabyrinth
 
         public bool InCornerRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.lx + straight * taken.sx;
-            int y = taken.y2 + left * taken.ly + straight * taken.sy;
+            int x = taken.x3 + left * taken.lx + straight * taken.sx;
+            int y = taken.y3 + left * taken.ly + straight * taken.sy;
             if (x == size && y == size) return true;
             return false;
         }
@@ -3278,8 +3278,8 @@ namespace OneWayLabyrinth
 		
 		public bool InFutureRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.lx + straight * taken.sx;
-            int y = taken.y2 + left * taken.ly + straight * taken.sy;
+            int x = taken.x3 + left * taken.lx + straight * taken.sx;
+            int y = taken.y3 + left * taken.ly + straight * taken.sy;
 
             return InFuture(x, y);
         }
@@ -3311,8 +3311,8 @@ namespace OneWayLabyrinth
 
         public bool InFutureStartRel2(int left, int straight)
 		{
-			int x = taken.x2 + left * taken.lx + straight * taken.sx;
-			int y = taken.y2 + left * taken.ly + straight * taken.sy;
+			int x = taken.x3 + left * taken.lx + straight * taken.sx;
+			int y = taken.y3 + left * taken.ly + straight * taken.sy;
 
 			return InFutureStart(x, y);
 		}
@@ -3404,8 +3404,8 @@ namespace OneWayLabyrinth
 
         public bool InFutureEndRel2(int left, int straight)
         {
-            int x = taken.x2 + left * taken.lx + straight * taken.sx;
-            int y = taken.y2 + left * taken.ly + straight * taken.sy;
+            int x = taken.x3 + left * taken.lx + straight * taken.sx;
+            int y = taken.y3 + left * taken.ly + straight * taken.sy;
 
             return InFutureEnd(x, y);
         }

@@ -2207,7 +2207,7 @@ It is easy to see that the rule can be made universal by extending both the hori
 
 <!---->
 
-<img align="top" src="References/2024_0626_2.svg" width="11" /><img src="References/spacer.svg" width="1" />
+<img align="top" src="References/2024_0626_2.svg" width="11" />
 
 It is a straight obstacle case with extended area where two close obstacles are present outside. The area is 1W according to following illustrations:
 
@@ -2215,6 +2215,18 @@ It is a straight obstacle case with extended area where two close obstacles are 
 
 If we enter later at the first black field, the corner white will have to be filled.
 If we enter at the first white field, we collide with the closest close obstacle.
+
+<!---->
+
+The two following cases I will handle as one.
+
+<img align="top" src="References/2024_0627.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/up 4 double area.svg" width="5" />
+
+<img align="top" src="References/2024_0627_1.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/h1 v2 double area.svg" width="5" />
+
+In both cases, if we enter now, we have to exit at the first black from the white above. The second obstacle is now not 1 but 2 distance away, and we must enter now there.
+It can be made universal to include any distance where this happens. The corner discovery process for the second obstacle is the same as for the first.
+
 
 <!--
 change yellow background for second directional obstacles 

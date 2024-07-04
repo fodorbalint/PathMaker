@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/j/m0Cc7xaUq3voD/dqVu3N7YyegS3uWychK/kbZqJWVExFUcOi85C5PQNdtEAvCYyj7m6ot/khqzIrUIerckA==",
+  "dgSpecHash": "x0ETBefIBf8Z4gIGvNbZkwK5Ae3LCUaGjWmVhES6dgRguDww8+EX1cAsAP/3C5YDQzkK4ebI4kJCkJF7Y0csQg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\fodor\\OneWayLabyrinth\\OneWayLabyrinth.csproj",
+  "projectFilePath": "c:\\Users\\fodor\\OneWayLabyrinth\\OneWayLabyrinth.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\fodor\\.nuget\\packages\\microsoft.extensions.configuration\\8.0.0\\microsoft.extensions.configuration.8.0.0.nupkg.sha512",
     "C:\\Users\\fodor\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
