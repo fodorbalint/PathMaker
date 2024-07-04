@@ -1417,7 +1417,6 @@ namespace OneWayLabyrinth
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
             taken.areaPairFields = new();
-            taken.areaImpairFields = new();
 
             if (!isTaskRunning) ClearActiveRules();
 
@@ -2926,7 +2925,6 @@ namespace OneWayLabyrinth
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
             taken.areaPairFields = new();
-            taken.areaImpairFields = new();
 
             if (!isTaskRunning) ClearActiveRules();
 

@@ -2227,12 +2227,15 @@ The two following cases I will handle as one.
 In both cases, if we enter now, we have to exit at the first black from the white above. The second obstacle is now not 1 but 2 distance away, and we must enter now there.
 It can be made universal to include any distance where this happens. The corner discovery process for the second obstacle is the same as for the first.
 
+<!---->
+
+<img align="top" src="References/2024_0630.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/spacer.svg" width="5" />
 
 <!--
+other cases where entering now / later is not relevant in certain rotations?
+next step left/right areas should be shown. Find out how to make it in the simplest way.
 change yellow background for second directional obstacles 
-
 &nbsp; in math expressions
-
 arrow symbol in text
 
 merge two cases with one that draws a future line with a blue background. 

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
-        mc:Ignorable="d" Title="One-way labyrinth" x:Name="ContainerWindow" Height="851" Width="688" Left="535" Top="0" Focusable="True" PreviewKeyDown="MWindow_PreviewKeyDown" PreviewMouseDown="Window_PreviewMouseDown">
+        mc:Ignorable="d" Title="One-way labyrinth" x:Name="ContainerWindow" Height="851" Width="688" Left="850" Top="0" Focusable="True" PreviewKeyDown="MWindow_PreviewKeyDown" PreviewMouseDown="Window_PreviewMouseDown">
     <Window.Resources>
         <Style x:Key="GreenButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="LightGreen" />

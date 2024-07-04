@@ -1687,7 +1687,10 @@ void CheckLeftRightAreaUp()
 
                             if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
                             {
-                                forbidden.Add(new int[] { x + lx, y + ly });
+                                if (j != 3) // no small small area
+                                {
+                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                }
                             }
                             if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                             {
@@ -2385,7 +2388,7 @@ void CheckLeftRightCorner() // rotations:
                                     for (int k = 1; k < vert; k++)
                                     {
                                         if (k < vert - 1)
-                                        {
+                                     {
                                             if (InTakenRel(hori - vert + k, k) || InTakenRel(hori - vert + k + 1, k))
                                             {
                                                 takenFound = true;
@@ -3667,7 +3670,7 @@ bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSma
     return false;
 }
 
-bool CheckCorner2(int side, bool strictSmall)
+bool CheckCorner2(int side, bool strictSmall) // #8
 {
     bool circleDirectionLeft = (side == 0) ? true : false;
 

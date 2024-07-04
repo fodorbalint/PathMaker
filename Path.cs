@@ -76,12 +76,12 @@ namespace OneWayLabyrinth
         public List<List<int[]>> examAreaLines = new();
         public List<int> examAreaLineTypes = new();
         public List<bool> examAreaLineDirections = new();
+        public List<List<int[]>> examAreaPairFields = new();
         //used only for displaying area
         public List<List<int[]>> areaLines = new();
         public List<int> areaLineTypes = new();
         public List<bool> areaLineDirections = new();
         public List<List<int[]>> areaPairFields = new();
-        public List<List<int[]>> areaImpairFields = new();
 
         List<object> info;
 
@@ -533,6 +533,7 @@ namespace OneWayLabyrinth
             examAreaLines = new();
             examAreaLineTypes = new();
             examAreaLineDirections = new();
+            examAreaPairFields = new();
         }
 
         public void AddExamAreas() // if a rule is true, we display all examined circles, but only add the checkerboard from the last one.
@@ -544,8 +545,8 @@ namespace OneWayLabyrinth
                 areaLines.Add(examAreaLines[i]);
                 areaLineTypes.Add(examAreaLineTypes[i]);
                 areaLineDirections.Add(examAreaLineDirections[i]);
+                areaPairFields.Add(examAreaPairFields[i]);
             }
-            areaPairFields.Add((List<int[]>)info[3]);
             //}
         }
 
@@ -1862,9 +1863,12 @@ namespace OneWayLabyrinth
 
                                     if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
                                     {
-                                        ruleTrue = true;
-                                        T("LeftRightAreaUp: Cannot enter now");
-                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                        if (j != 3) // no small small area
+                                        {
+                                            ruleTrue = true;
+                                            T("LeftRightAreaUp: Cannot enter now");
+                                            forbidden.Add(new int[] { x + lx, y + ly });
+                                        }
                                     }
                                     if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                                     {
@@ -1878,7 +1882,6 @@ namespace OneWayLabyrinth
                                     {
                                         if (ex == 2)
                                         {
-                                            ruleTrue = true;
                                             if (i == 0)
                                             {
                                                 if (nextStepEnterLeft == -1)
@@ -2862,7 +2865,6 @@ namespace OneWayLabyrinth
                                                         if ((hori == 2 && vert == 3) ||
                                                             (hori == 2 && vert == 4 && -whiteDiff == 1))
                                                         {
-                                                            ruleTrue = true;
                                                             if (i == 0)
                                                             {
                                                                 if (nextStepEnterLeft == -1)
@@ -4016,8 +4018,6 @@ namespace OneWayLabyrinth
         {
             for (int i = 0; i < 2; i++)
             {
-                bool circleDirectionLeft = (i == 0) ? false : true;
-
                 for (int j = 0; j < 4; j++)
                 {
                     if (j != 2 && !InTakenRel(1, 1) && (InTakenRel(2, 1) || InBorderRel(2, 1)) && InTakenRel(1, 0))
@@ -4161,7 +4161,7 @@ namespace OneWayLabyrinth
         }
 
         // For double area, check if we can only step left
-        bool CheckCorner2(int side, bool strictSmall)
+        bool CheckCorner2(int side, bool strictSmall) // #8
         {
             bool circleDirectionLeft = (side == 0) ? true : false;
 
@@ -4527,8 +4527,6 @@ namespace OneWayLabyrinth
                                     newBorderFields.Add(borderFields[k]);
                                 }
 
-                                ResetExamAreas();
-
                                 if (CountAreaRel2(left1, straight1, left2, straight2, newBorderFields, circleDirectionLeft, 2, true))
                                 {
                                     int black = (int)info[1];
@@ -4538,7 +4536,6 @@ namespace OneWayLabyrinth
 
                                     if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                                     {
-                                        AddExamAreas();
                                         T("LeftRightCorner2: Cannot enter later");
                                         return true;
                                     }
@@ -5387,22 +5384,26 @@ namespace OneWayLabyrinth
                             {
                                 if ((startX + startY) % 2 == 0)
                                 {
-                                    info = new List<object> { area % 2, pairCount, impairCount, pairFields };
+                                    info = new List<object> { area % 2, pairCount, impairCount };
+                                    examAreaPairFields.Add(pairFields);
                                 }
                                 else
                                 {
-                                    info = new List<object> { area % 2, impairCount, pairCount, impairFields };
+                                    info = new List<object> { area % 2, impairCount, pairCount };
+                                    examAreaPairFields.Add(impairFields);
                                 }
                             }
                             else
                             {
                                 if ((startX + startY) % 2 == 1)
                                 {
-                                    info = new List<object> { area % 2, pairCount, impairCount, pairFields };
+                                    info = new List<object> { area % 2, pairCount, impairCount };
+                                    examAreaPairFields.Add(pairFields);
                                 }
                                 else
                                 {
-                                    info = new List<object> { area % 2, impairCount, pairCount, impairFields };
+                                    info = new List<object> { area % 2, impairCount, pairCount };
+                                    examAreaPairFields.Add(impairFields);
                                 }
                             }
 
