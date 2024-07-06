@@ -30,6 +30,7 @@ using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.RegularExpressions;
 
 /*
 
@@ -84,6 +85,8 @@ namespace OneWayLabyrinth
 	/// </summaly>
 	public partial class MainWindow : Window
 	{
+        int copyToConsole = 0;
+
 		string grid = "";
 		Random rand = new Random();
 		public Path taken;
@@ -164,10 +167,54 @@ namespace OneWayLabyrinth
 
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
+            if (copyToConsole == 1)
+            {
+                string file1 = File.ReadAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Path.cs");
+                string file2 = File.ReadAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Console app\\Program.cs");
+
+                int pos1 = 0;
+                int pos2 = 0;
+                int pos3 = 0;
+                int pos4 = 0;
+
+                List<int> sectionTabs = new() { 3, 2 };
+                int counter = 0;
+                while(pos1 != -1)
+                {
+                    pos1 = file1.IndexOf("// ----- copy start -----", pos2);
+
+                    if (pos1 != -1)
+                    {
+                        pos2 = file1.IndexOf("// ----- copy end -----", pos1);
+
+                        pos3 = file2.IndexOf("// ----- copy start -----", pos4);
+                        pos4 = file2.IndexOf("// ----- copy end -----", pos3);
+
+                        string spaces = "";
+                        for(int i = 0; i < sectionTabs[counter]; i++)
+                        {
+                            spaces += "    ";
+                        }
+                        string section = file1.Substring(pos1, pos2 - pos1).Replace("\n" + spaces, "\n");
+                        file2 = file2.Substring(0, pos3) + section + file2.Substring(pos4);
+                    }
+                    counter++;
+                }
+
+                file2 = file2.Replace("    T(\"", "    // T(\"");
+                file2 = file2.Replace("window.", "");
+                //file2 = Regex.Replace(file2, @"/\*.*?\*/", "");
+
+                File.WriteAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Console app\\Program.cs", file2);
+
+                T("File copied.");
+
+                return;
+            }
+
 			timer = new DispatcherTimer();
 			timer.Tick += Timer_Tick;
 
-            T(baseDir);
 			if (File.Exists(baseDir + "settings.txt"))
 			{
 				string[] lines = File.ReadAllLines(baseDir + "settings.txt");
@@ -571,14 +618,15 @@ namespace OneWayLabyrinth
             }
             else lastDirection = 0;
 
+            fileCompletedCount = 0;
             if (loadFile.IndexOf("_") > 0)
             {
                 string[] arr = loadFile.Split("_");
-                fileCompletedCount = long.Parse(arr[0]);
-            }
-            else
-            {
-                fileCompletedCount = 0;
+                arr[1] = arr[1].Replace(".txt", "");
+                if (!int.TryParse(arr[1], out int result))
+                {
+                    fileCompletedCount = long.Parse(arr[0]);
+                }
             }
 
             CurrentCoords.Content = taken.x + " " + taken.y;
@@ -4270,7 +4318,6 @@ namespace OneWayLabyrinth
             Canvas.Tag = tag;
             svgName =  tag + ".svg";
 
-            T(baseDir);
 			File.WriteAllText(baseDir + svgName, content);
             
             if (completedPathCode != "")

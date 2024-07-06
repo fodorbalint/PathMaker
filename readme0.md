@@ -2229,7 +2229,9 @@ It can be made universal to include any distance where this happens. The corner 
 
 <!---->
 
-<img align="top" src="References/2024_0630.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/spacer.svg" width="5" />
+<img align="top" src="References/2024_0630.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/stair area.svg" width="5" />
+
+Here we have a stair shape on the left, and an area is created with one of the steps that should be entered now. We can make an algorithm for a stair of any length.
 
 <!--
 other cases where entering now / later is not relevant in certain rotations?
