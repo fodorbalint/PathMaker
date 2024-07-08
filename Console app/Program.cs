@@ -41,9 +41,6 @@ bool CShape = false;
 bool closeStraightSmall, closeMidAcrossSmall, closeAcrossSmall, closeStraightLarge, closeMidAcrossLarge, closeAcrossLarge = false;
 List<object> info = new();
 
-int Straight3I = -1; // used for checking Down Stair and Double Area first case rotated at the next step.
-int Straight3J = -1;
-
 bool DirectionalArea, DoubleArea1, DoubleArea2, DoubleArea3, DoubleArea4, DoubleArea1Rotated, Sequence1, Sequence2, Sequence3, DownStairClose, DownStair = false;
 bool DoubleAreaFirstCaseRotatedNext, DownStairNext = false;
 
@@ -590,8 +587,6 @@ void NextStepPossibilities2()
                     activeRuleSizes = new();
 
                     // ----- copy start -----
-                    Straight3I = -1;
-                    Straight3J = -1;
                     DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
                     DoubleAreaFirstCaseRotatedNext = DownStairNext = false;
                     nextStepEnterLeft = -1;
@@ -659,10 +654,6 @@ void NextStepPossibilities2()
 
                     // T("CheckSequence " + ShowForbidden());
                     CheckSequence();
-                    // T("CheckDownStair " + ShowForbidden());
-                    CheckDownStair();
-                    // T("Check3DistNextStep " + ShowForbidden());
-                    Check3DistNextStep();
                     // T("Forbidden: " + ShowForbidden());
                     // ----- copy end -----
 
@@ -1300,18 +1291,6 @@ void CheckStraight()
                                 borderFields.Add(new int[] { 0, k });
                             }
                         }
-                        else
-                        {
-                            Straight3I = i;
-                            if (j == 0)
-                            {
-                                Straight3J = 0;
-                            }
-                            else if (j == 2)
-                            {
-                                Straight3J = 1;
-                            }
-                        }
 
                         ResetExamAreas();
 
@@ -1368,14 +1347,11 @@ void CheckStraight()
                                 // T("Straight " + i + " " + j + ": Cannot enter now up");
                                 forbidden.Add(new int[] { x + sx, y + sy });
                             }
-                            if (!(whiteDiff <= nowWCountLeft && whiteDiff >= -nowBCountLeft))
+                            if (!(whiteDiff <= nowWCountLeft && whiteDiff >= -nowBCountLeft) && j != 1)  // for left rotation, lx, ly is the down field
                             {
                                 ruleTrue = true;
                                 // T("Straight " + i + " " + j + ": Cannot enter now left");
-                                if (j != 1) // for left rotation, lx, ly is the down field
-                                {
-                                    forbidden.Add(new int[] { x + lx, y + ly });
-                                }
+                                forbidden.Add(new int[] { x + lx, y + ly });
                                 if (j == 2)
                                 {
                                     forbidden.Add(new int[] { x - sx, y - sy });
@@ -1815,11 +1791,13 @@ void CheckLeftRightCorner() // rotations:
                 // When CheckStraight is turned off, we can be at 5,1, going from down, and then nextX will never be 0. In this case, the second condition is needed.
 
                 int counter = 0;
-                while (nextX > 0 && !(counter > 0 && nextX == horiStart - 1 && nextY == 1))
+                while (nextX > 0 && !InCornerRel(nextX, nextY))
                 {
                     counter++;
                     if (counter == size * size)
                     {
+                        // T("Corner discovery error.");
+
                         errorInWalkthrough = true;
                         errorString = "Corner discovery error.";
                         criticalError = true;
@@ -2113,7 +2091,7 @@ void CheckLeftRightCorner() // rotations:
                                         // need to be generalized for larger than 1 vertical distance
                                         if (hori == 2)
                                         {
-                                            if (vert % 4 == 3 && j < 2) //0627_1, 0610, 0610_1
+                                            if (vert % 4 == 3 && j < 2) //  0610, 0610_1, #6 0625_1
                                             {
                                                 if (-whiteDiff == (vert - 3) / 4)
                                                 {
@@ -2141,30 +2119,28 @@ void CheckLeftRightCorner() // rotations:
                                                     }
                                                     path.RemoveAt(path.Count - 1);
                                                 }
-                                                /*if (-whiteDiff == (vert - 3) / 4 && CheckNearFieldSmallRel(1, 2, 0, 2, true))
-                                                {
-
-                                                    if (j != 3) // no small small area, left field is taken
-                                                    {
-                                                        ruleTrue = true;
-                                                        // T("LeftRightCorner closed corner 2, 3: Cannot step left");
-                                                        forbidden.Add(new int[] { x + lx, y + ly });
-                                                        if (j == 1) // big area
-                                                        {
-                                                            // T("LeftRightCorner closed corner 2, 3: Cannot step down");
-                                                            forbidden.Add(new int[] { x - sx, y - sy });
-                                                        }
-                                                    }
-                                                }*/
                                             }
-                                            else if (vert % 4 == 0)  //0610_2, 0610_3
+                                            else if (vert % 4 == 0 && j < 2)  // 0610_2, 0610_3, #5 0625
                                             {
-                                                if (-whiteDiff == vert / 4 && CheckNearFieldSmallRel(1, 2, 0, 2, true))
+                                                if (-whiteDiff == vert / 4)
                                                 {
-                                                    if (j != 3) // no small small area, left field is taken
+                                                    // Add field so that a second circle can be drawn
+                                                    path.Add(new int[] { x + 2 * lx + (vert - 1) * sx, y + 2 * ly + (vert - 1) * sy });
+                                                    path.Add(new int[] { x + lx + (vert - 2) * sx, y + ly + (vert - 2) * sy });
+                                                    x2 = x + lx + (vert - 2) * sx;
+                                                    y2 = y + ly + (vert - 2) * sy;
+
+                                                    int[] rotatedDir = RotateDir(lx, ly, i);
+                                                    lx2 = rotatedDir[0];
+                                                    ly2 = rotatedDir[1];
+                                                    rotatedDir = RotateDir(sx, sy, i);
+                                                    sx2 = rotatedDir[0];
+                                                    sy2 = rotatedDir[1];
+
+                                                    if (CheckCorner2(i, true))
                                                     {
                                                         ruleTrue = true;
-                                                        // T("LeftRightCorner open corner 2, 4: Cannot  step left");
+                                                        // T("LeftRightCorner open corner 2, 4: Cannot step left");
                                                         forbidden.Add(new int[] { x + lx, y + ly });
                                                         if (j == 1)
                                                         {
@@ -2172,27 +2148,23 @@ void CheckLeftRightCorner() // rotations:
                                                             forbidden.Add(new int[] { x - sx, y - sy });
                                                         }
                                                     }
+                                                    path.RemoveAt(path.Count - 1);
+                                                    path.RemoveAt(path.Count - 1);
                                                 }
                                             }
                                         }
 
-                                        if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount)) // not in range
+                                        if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount) && j != 3) // for left rotation, lx, ly is the down field
                                         {
-                                            if (j != 3)
-                                            {
-                                                ruleTrue = true;
-                                                // T("LeftRightCorner " + i + " " + j + ": Cannot enter now left");
-                                                forbidden.Add(new int[] { x + lx, y + ly });
-                                            }
+                                            ruleTrue = true;
+                                            // T("LeftRightCorner " + i + " " + j + ": Cannot enter now left");
+                                            forbidden.Add(new int[] { x + lx, y + ly });
                                         }
-                                        if (!(whiteDiff <= nowWCountDown && whiteDiff >= -nowBCount)) // not in range
+                                        if (!(whiteDiff <= nowWCountDown && whiteDiff >= -nowBCount) && j != 3)
                                         {
-                                            if (j != 3)
-                                            {
-                                                ruleTrue = true;
-                                                // T("LeftRightCorner " + i + " " + j + ": Cannot enter now down");
-                                                forbidden.Add(new int[] { x - sx, y - sy });
-                                            }
+                                            ruleTrue = true;
+                                            // T("LeftRightCorner " + i + " " + j + ": Cannot enter now down");
+                                            forbidden.Add(new int[] { x - sx, y - sy });
                                         }
                                         if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                                         {
@@ -2248,164 +2220,12 @@ void CheckLeftRightCorner() // rotations:
                                                     }
                                                 }
                                             }
-
-                                            // #5: 0625, 0626_1, 1-3 corner inside close, 1-3 corner small inside close
-                                            if (hori == 4 && vert == 2 && -whiteDiff == 1 && (j == 1 || j == 2) && CheckNearFieldSmallRel(2, 0, 1, 2, false))
-                                            {
-                                                // T("LeftRightCorner " + i + " " + j + ": 1-3 corner inside close, cannot step down");
-                                                ruleTrue = true;
-                                                forbidden.Add(new int[] { x - sx, y - sy });
-                                            }
                                         }
 
                                         if (ruleTrue)
                                         {
                                             AddExamAreas();
                                         }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    currentDirection = l;
-
-                    nextX = possibleNextX;
-                    nextY = possibleNextY;
-                }
-            }
-
-            // #6: 0625_1
-            else if ((j == 1 || j == 2) && !InTakenRel(1, 0) && !InBorderRel(1, 0))
-            {
-                int horiStart = 2;
-                while (!InTakenRel(horiStart, 0) && !InBorderRel(horiStart, 0))
-                {
-                    horiStart++;
-                }
-
-                int currentDirection = 0;
-
-                int nextX = horiStart - 1;
-                int nextY = 0;
-
-                int counter = 0;
-                while (nextX > 0 && !(counter > 0 && nextX == horiStart - 1 && nextY == 0))
-                {
-                    counter++;
-                    if (counter == size * size)
-                    {
-                        errorInWalkthrough = true;
-                        errorString = "Corner discovery error.";
-                        criticalError = true;
-                        return;
-                    }
-
-                    // left direction
-                    currentDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
-                    int l = currentDirection;
-                    int possibleNextX = nextX + directions[currentDirection][0];
-                    int possibleNextY = nextY + directions[currentDirection][1];
-
-                    // turn right until a field is empty 
-                    while (InBorderRel(possibleNextX, possibleNextY) || InTakenRel(possibleNextX, possibleNextY))
-                    {
-                        l = (l == 0) ? 3 : l - 1;
-                        possibleNextX = nextX + directions[l][0];
-                        possibleNextY = nextY + directions[l][1];
-                    }
-
-                    if (currentDirection == 0 && l == 0 && nextX == 4 && nextY == 1)
-                    {
-                        int hori = nextX + 1;
-                        int vert = nextY + 1;
-
-                        bool circleValid = false;
-
-                        int i1 = InTakenIndexRel(hori, vert);
-                        int i2 = InTakenIndexRel(hori + 1, vert);
-
-                        if (i2 > i1)
-                        {
-                            circleValid = true;
-                        }
-
-                        if (circleValid)
-                        {
-                            bool takenFound = false;
-                            int left1 = 1;
-                            int straight1 = 0;
-                            int left2 = hori - 1;
-                            int straight2 = vert - 1;
-                            List<int[]> borderFields = new();
-
-                            for (int k = 1; k <= hori - vert - 1; k++)
-                            {
-                                if (InTakenRel(k, 0))
-                                {
-                                    takenFound = true;
-                                    break;
-                                }
-
-                                if (k > 1)
-                                {
-                                    borderFields.Add(new int[] { k, 0 });
-                                }
-                            }
-
-                            for (int k = 1; k <= vert; k++)
-                            {
-                                if (k <= vert - 1)
-                                {
-                                    if (InTakenRel(hori - vert - 1 + k, k - 1) || InTakenRel(hori - vert + k, k - 1))
-                                    {
-                                        takenFound = true;
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    if (InTakenRel(hori - vert - 1 + k, k - 1))
-                                    {
-                                        takenFound = true;
-                                        break;
-                                    }
-                                }
-
-                                if (k < vert)
-                                {
-                                    borderFields.Add(new int[] { hori - vert - 1 + k, k - 1 });
-                                    borderFields.Add(new int[] { hori - vert + k, k - 1 });
-                                }
-                            }
-
-                            if (!takenFound)
-                            {
-                                List<int[]> newBorderFields = new();
-                                for (int k = borderFields.Count - 1; k >= 0; k--)
-                                {
-                                    newBorderFields.Add(borderFields[k]);
-                                }
-
-                                ResetExamAreas();
-
-                                if (CountAreaRel(left1, straight1, left2, straight2, newBorderFields, circleDirectionLeft, 3, true))
-                                {
-                                    int black = (int)info[1];
-                                    int white = (int)info[2];
-
-                                    bool ruleTrue = false;
-
-                                    if (white == black && CheckNearFieldSmallRel(2, 0, 1, 3, false))
-                                    {
-                                        // T("LeftRightCorner " + i + " " + j + ": 1-4 corner small inside close, cannot step down");
-                                        ruleTrue = true;
-                                        forbidden.Add(new int[] { x - sx, y - sy });
-                                    }
-
-                                    if (ruleTrue)
-                                    {
-                                        AddExamAreas();
                                     }
                                 }
                             }
@@ -2507,7 +2327,7 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
                         switch (ex % 4)
                         {
                             case 0:
-                                // 0627, 0610_4, 0610_5, 121670752
+                                // 0610_4, 0610_5, 121670752, 0627
                                 if (-whiteDiff == ex / 4)
                                 {
                                     // Add field so that a second circle can be drawn
@@ -2949,7 +2769,7 @@ void CheckLeftRightAreaUpBigExtended() // Area as in the first area case of docu
     ly = thisLy;
 }
 
-void CheckStraightBig() // 0626_2
+void CheckStraightBig() // 18677343, 59434452, 0626_2
 {
     for (int i = 0; i < 2; i++)
     {
@@ -2968,7 +2788,7 @@ void CheckStraightBig() // 0626_2
 
             int ex = dist - 1;
 
-            if (ex == 4 && InTakenRel(0, dist) && !InTakenRel(-1, dist))
+            if (InTakenRel(0, dist) && !InTakenRel(-1, dist))
             {
                 int i1 = InTakenIndexRel(0, dist);
                 int i2 = InTakenIndexRel(1, dist);
@@ -2977,31 +2797,56 @@ void CheckStraightBig() // 0626_2
                 {
                     circleValid = true;
                 }
-            }
 
-            if (circleValid)
-            {
-                for (int k = ex - 1; k >= 2; k--)
+                if (circleValid)
                 {
-                    borderFields.Add(new int[] { -1, k });
-                }
-
-                ResetExamAreas();
-
-                if (CountAreaRel(-1, 1, -1, ex, borderFields, circleDirectionLeft, 2, true))
-                {
-                    int black = (int)info[1];
-                    int white = (int)info[2];
-
-                    if (white == black + 1)
+                    for (int k = ex - 1; k >= 2; k--)
                     {
-                        if (CheckNearFieldSmallRel(-1, 3, 0, 2, true) && CheckNearFieldSmallRel(-1, 1, 1, 1, false))
-                        {
-                            // T("CheckStraightBig double close obstacle outside: Cannot step right and down");
-                            forbidden.Add(new int[] { x - sx, y - sy });
-                            forbidden.Add(new int[] { x - lx, y - ly });
+                        borderFields.Add(new int[] { -1, k });
+                    }
 
-                            AddExamAreas();
+                    ResetExamAreas();
+
+                    // 18677343, 59434452
+                    if (ex == 3)
+                    {
+                        if (CountAreaRel(-1, 1, -1, ex, borderFields, circleDirectionLeft, 2, true))
+                        {
+                            int black = (int)info[1];
+                            int white = (int)info[2];
+
+                            if (white == black)
+                            {
+                                if (CheckNearFieldSmallRel(-1, 3, 0, 2, true) && CheckNearFieldSmallRel(-1, 1, 1, 1, false))
+                                {
+                                    // T("CheckStraightBig double close obstacle outside 3 dist: Cannot step right and down");
+                                    forbidden.Add(new int[] { x - sx, y - sy });
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+
+                                    AddExamAreas();
+                                }
+                            }
+                        }
+                    }
+                    // 0626_2
+                    else if (ex == 4)
+                    {
+                        if (CountAreaRel(-1, 1, -1, ex, borderFields, circleDirectionLeft, 2, true))
+                        {
+                            int black = (int)info[1];
+                            int white = (int)info[2];
+
+                            if (white == black + 1)
+                            {
+                                if (CheckNearFieldSmallRel(-1, 3, 0, 2, true) && CheckNearFieldSmallRel(-1, 1, 1, 1, false))
+                                {
+                                    // T("CheckStraightBig double close obstacle outside 4 dist: Cannot step right and down");
+                                    forbidden.Add(new int[] { x - sx, y - sy });
+                                    forbidden.Add(new int[] { x - lx, y - ly });
+
+                                    AddExamAreas();
+                                }
+                            }
                         }
                     }
                 }
@@ -3055,7 +2900,7 @@ void CheckStairArea() // 0630: Stair on one side, and one of the steps creates a
 
                 if (CheckCorner2(1 - i, true))
                 {
-                    AddExamAreas();
+                    AddExamAreas(true);
                     // T("CheckStairArea " + dist + " dist: Cannot step straight");
                     forbidden.Add(new int[] { x + sx, y + sy });
 
@@ -3167,61 +3012,37 @@ void CheckSequence()
 
                         if (black == white)
                         {
-                            int thisX = x;
-                            int thisY = y;
-                            int thisSx = sx;
-                            int thisSy = sy;
-                            int thisLx = lx;
-                            int thisLy = ly;
-
-                            //List<int[]> thisPath = Copy(path);
-                            // necessary for checking C-shape on the left side
-                            //path.Add(new int[] { x + 3 * sx, y + 3 * sy });
-
                             // step after exiting area:
-                            x = x - lx + 2 * sx;
-                            y = y - ly + 2 * sy;
-
-                            //only necessary if recursive function will be used: path.Add(new int[] { x, y });
+                            x2 = x - lx + 2 * sx;
+                            y2 = y - ly + 2 * sy;
 
                             int[] rotatedDir = RotateDir(lx, ly, i);
-                            lx = rotatedDir[0];
-                            ly = rotatedDir[1];
+                            lx2 = rotatedDir[0];
+                            ly2 = rotatedDir[1];
                             rotatedDir = RotateDir(sx, sy, i);
-                            sx = rotatedDir[0];
-                            sy = rotatedDir[1];
+                            sx2 = rotatedDir[0];
+                            sy2 = rotatedDir[1];
 
                             // does not use C-shape up, only left
                             bool leftSideClose = CheckNearFieldSmall1_5();
 
-                            lx = -lx;
-                            ly = -ly;
+                            lx2 = -lx2;
+                            ly2 = -ly2;
 
                             bool rightSideClose = CheckNearFieldSmall1();
-
-                            lx = -lx;
-                            ly = -ly;
 
                             if (leftSideClose && rightSideClose)
                             {
                                 Sequence1 = true;
                                 activeRules.Add("Sequence first case");
                                 activeRuleSizes.Add(new int[] { 5, 5 });
-                                activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisSx, thisY + thisSy } });
+                                activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + sx, y + sy } }); ;
 
-                                // T("CheckSequence case 1 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
+                                // T("CheckSequence case 1 at " + x + " " + y + ", stop at " + x2 + " " + y2);
                                 // Due to CheckStraight, stepping left is already disabled when the obstacle is straight ahead. When it is one to the right, we need the left field to be disabled.
-                                forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
-                                forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                                forbidden.Add(new int[] { x + sx, y + sy });
                             }
-
-                            x = thisX;
-                            y = thisY;
-                            lx = thisLx;
-                            ly = thisLy;
-                            sx = thisSx;
-                            sy = thisSy;
-                            //path = thisPath;
                         }
                     }
                 }
@@ -3236,7 +3057,7 @@ void CheckSequence()
             // Double Area Stair
             // 2024_0516_4
             // Rotated: 2024_0516_5
-            if (InTakenRel(0, 3) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(-1, 3))
+            if (InTakenRel(0, 3) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(-1, 3) && !InTakenRel(-2, 2)) // Field in front of exit should also be empty
             {
                 int directionFieldIndex = InTakenIndexRel(0, 3);
                 int leftIndex = InTakenIndexRel(1, 3);
@@ -3250,47 +3071,33 @@ void CheckSequence()
 
                         if (black == white)
                         {
-                            int thisX = x;
-                            int thisY = y;
-                            int thisSx = sx;
-                            int thisSy = sy;
-                            int thisLx = lx;
-                            int thisLy = ly;
-
-                            //List<int[]> thisPath = Copy(path);
-                            //path.Add(new int[] { x + sx, y + sy });
-                            // step after exiting area:
-                            x = x - lx + 2 * sx;
-                            y = y - ly + 2 * sy;
-
-                            //path.Add(new int[] { x, y });
+                            path.Add(new int[] { x - lx + 2 * sx, y - ly + 2 * sy });
+                            x2 = x - lx + 2 * sx;
+                            y2 = y - ly + 2 * sy;
 
                             int[] rotatedDir = RotateDir(lx, ly, i);
-                            lx = rotatedDir[0];
-                            ly = rotatedDir[1];
+                            lx2 = rotatedDir[0];
+                            ly2 = rotatedDir[1];
                             rotatedDir = RotateDir(sx, sy, i);
-                            sx = rotatedDir[0];
-                            sy = rotatedDir[1];
+                            sx2 = rotatedDir[0];
+                            sy2 = rotatedDir[1];
+
+                            ResetExamAreas();
 
                             if (CheckSequenceRecursive(i))
                             {
+                                AddExamAreas(true);
+
                                 Sequence2 = true;
                                 activeRules.Add("Sequence second case");
                                 activeRuleSizes.Add(new int[] { 5, 5 });
-                                activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisLx, thisY + thisLy }, new int[] { thisX + thisSx, thisY + thisSy } });
+                                activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + lx, y + ly }, new int[] { x + sx, y + sy } });
 
-                                // T("CheckSequence case 2 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
-                                forbidden.Add(new int[] { thisX + thisLx, thisY + thisLy });
-                                forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                                // T("CheckSequence case 2 at " + x + " " + y + ", stop at " + x2 + " " + y2);
+                                forbidden.Add(new int[] { x + lx, y + ly });
+                                forbidden.Add(new int[] { x + sx, y + sy });
                             }
-
-                            x = thisX;
-                            y = thisY;
-                            lx = thisLx;
-                            ly = thisLy;
-                            sx = thisSx;
-                            sy = thisSy;
-                            //path = thisPath;
+                            path.RemoveAt(path.Count - 1);
                         }
                     }
                 }
@@ -3323,7 +3130,7 @@ void CheckSequence()
 
         for (int j = 0; j < 3; j++)
         {
-            if (InTakenRel(1, 3) && !InTakenRel(1, 2) && !InTakenRel(0, 3) && !InTakenRel(0, 1))
+            if (InTakenRel(1, 3) && !InTakenRel(1, 2) && !InTakenRel(0, 3) && !InTakenRel(0, 1) && !InTakenRel(-1, 2))
             {
                 int directionFieldIndex = InTakenIndexRel(1, 3);
                 int leftIndex = InTakenIndexRel(2, 3);
@@ -3337,50 +3144,33 @@ void CheckSequence()
 
                         if (black == white)
                         {
-                            // first circle true
-
-                            // T("CheckSequence third case start area true");
-
-                            int thisX = x;
-                            int thisY = y;
-                            int thisSx = sx;
-                            int thisSy = sy;
-                            int thisLx = lx;
-                            int thisLy = ly;
-
-                            //List<int[]> thisPath = Copy(path);
-                            //path.Add(new int[] { x + sx, y + sy });
-                            // step after exiting area:
-                            x = x + 2 * sx;
-                            y = y + 2 * sy;
-
-                            //path.Add(new int[] { x, y });
+                            path.Add(new int[] { x + 2 * sx, y + 2 * sy });
+                            x2 = x + 2 * sx;
+                            y2 = y + 2 * sy;
 
                             int[] rotatedDir = RotateDir(lx, ly, i);
-                            lx = rotatedDir[0];
-                            ly = rotatedDir[1];
+                            lx2 = rotatedDir[0];
+                            ly2 = rotatedDir[1];
                             rotatedDir = RotateDir(sx, sy, i);
-                            sx = rotatedDir[0];
-                            sy = rotatedDir[1];
+                            sx2 = rotatedDir[0];
+                            sy2 = rotatedDir[1];
 
+                            ResetExamAreas();
+
+                            // T("Third case");
                             if (CheckSequenceRecursive(i))
                             {
+                                AddExamAreas(true);
+
                                 Sequence3 = true;
                                 activeRules.Add("Sequence third case");
                                 activeRuleSizes.Add(new int[] { 4, 5 });
-                                activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + thisSx, thisY + thisSy } });
+                                activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + sx, y + sy } });
 
-                                // T("CheckSequence case 3 at " + thisX + " " + thisY + ", stop at " + x + " " + y);
-                                forbidden.Add(new int[] { thisX + thisSx, thisY + thisSy });
+                                // T("CheckSequence case 3 at " + x + " " + y + ", stop at " + x2 + " " + y2);
+                                forbidden.Add(new int[] { x + sx, y + sy });
                             }
-
-                            x = thisX;
-                            y = thisY;
-                            lx = thisLx;
-                            ly = thisLy;
-                            sx = thisSx;
-                            sy = thisSy;
-                            //path = thisPath;
+                            path.RemoveAt(path.Count - 1);
                         }
                     }
                 }
@@ -3414,178 +3204,6 @@ void CheckSequence()
     ly = thisLy;
 }
 
-bool CheckDownStair(int side = -1, int nLx = 0, int nLy = 0, int nSx = 0, int nSy = 0)
-{
-    for (int i = 0; i < 2; i++)
-    {
-        for (int j = 0; j < 2; j++)
-        {
-            if (side != -1 && !(side == i && j == 0)) continue; // if it is a next step checking, the pattern will not be rotated.
-
-            if (side != -1) // if it is right side, cycling through left side would change the values.
-            {
-                lx = nLx;
-                ly = nLy;
-                sx = nSx;
-                sy = nSy;
-            }
-
-            if (!InTakenRel(1, 0))
-            {
-                int hori = 1;
-                int vert = -1;
-
-
-                while (!InTakenRel(hori, vert) && InTakenRel(hori, vert - 1))
-                {
-                    hori++;
-                    vert--;
-                }
-
-                if (InTakenRel(hori, vert) && !InTakenRel(hori + 1, vert + 1) && InTakenRel(hori + 2, vert + 1))
-                {
-                    hori++;
-                    vert += 2;
-
-                    while (!InTakenRel(hori, vert) && vert <= 0)
-                    {
-                        int thisX = x;
-                        int thisY = y;
-
-                        x = thisX + lx * hori + sx * vert;
-                        y = thisY + ly * hori + sy * vert;
-
-                        if (CheckNearFieldSmall1())
-                        {
-                            if (side != -1)
-                            {
-                                return true; // For next step checking
-                            }
-
-                            DownStair = true;
-                            activeRules.Add("Down Stair");
-                            activeRuleSizes.Add(new int[] { 7, 8 });
-                            activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + lx, thisY + ly } });
-
-                            // T("CheckDownStair far, cannot step left", i, j);
-
-                            forbidden.Add(new int[] { thisX + lx, thisY + ly });
-
-                        }
-
-                        x = thisX;
-                        y = thisY;
-
-                        hori--;
-                        vert++;
-                    }
-                }
-            }
-
-            int s0 = sx;
-            int s1 = sy;
-            sx = -lx;
-            sy = -ly;
-            lx = s0;
-            ly = s1;
-        }
-        sx = thisSx;
-        sy = thisSy;
-        lx = -thisLx;
-        ly = -thisLy;
-    }
-    sx = thisSx;
-    sy = thisSy;
-    lx = thisLx;
-    ly = thisLy;
-
-    return false;
-}
-
-void Check3DistNextStep()
-{
-    for (int i = 0; i < 2; i++)
-    {
-        for (int j = 0; j < 2; j++)
-        {
-            if (Straight3I == i && Straight3J == j) // same side and rotation
-            {
-                int thisX = x;
-                int thisY = y;
-
-                x = thisX + sx;
-                y = thisY + sy;
-
-                // Check3DoubleAreaRotated will change x, y, lx and ly
-                // CheckDownStair may change sx and sy
-                int tempX = x;
-                int tempY = y;
-                int tempLx = lx;
-                int tempLy = ly;
-                int tempSx = sx;
-                int tempSy = sy;
-
-                // Both: 18677343
-
-                // Double Area only: 59434452
-                if (Check3DoubleAreaRotated(i))
-                {
-                    // T("Check3DoubleAreaRotated true ", i, j);
-
-                    DoubleAreaFirstCaseRotatedNext = true;
-                    activeRules.Add("Double Area first case rotated next");
-                    activeRuleSizes.Add(new int[] { 6, 4 });
-                    activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + sx, thisY + sy }, new int[] { thisX - lx, thisY - ly } });
-
-                    forbidden.Add(new int[] { thisX + sx, thisY + sy });
-                    forbidden.Add(new int[] { thisX - lx, thisY - ly });
-                }
-
-                x = tempX;
-                y = tempY;
-                lx = tempLx;
-                ly = tempLy;
-
-                // Stair only: 2024_0604
-                if (CheckDownStair(i, lx, ly, sx, sy))
-                {
-                    // T("CheckDownStair true");
-
-                    DownStairNext = true;
-                    activeRules.Add("Down Stair next");
-                    activeRuleSizes.Add(new int[] { 8, 8 });
-                    activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + sx, thisY + sy }, new int[] { thisX - lx, thisY - ly } });
-
-                    forbidden.Add(new int[] { thisX + sx, thisY + sy });
-                    forbidden.Add(new int[] { thisX - lx, thisY - ly });
-                }
-
-                x = thisX;
-                y = thisY;
-                lx = tempLx;
-                ly = tempLy;
-                sx = tempSx;
-                sy = tempSy;
-            }
-
-            int s0 = sx;
-            int s1 = sy;
-            sx = -lx;
-            sy = -ly;
-            lx = s0;
-            ly = s1;
-        }
-        sx = thisSx;
-        sy = thisSy;
-        lx = -thisLx;
-        ly = -thisLy;
-    }
-    sx = thisSx;
-    sy = thisSy;
-    lx = thisLx;
-    ly = thisLy;
-}
-
 
 bool CheckCorner2(int side, bool strictSmall) // #8
 {
@@ -3598,320 +3216,191 @@ bool CheckCorner2(int side, bool strictSmall) // #8
         horiStart++;
     }
 
-    int currentDirection = 0;
-
-    int nextX = horiStart - 1;
-    int nextY = 1;
-
-    int counter = 0;
-    while (nextX >= 0)
+    if (horiStart >= 2) // at least left field has to be empty
     {
-        counter++;
-        if (counter == size * size)
-        {
-            errorInWalkthrough = true;
-            errorString = "Corner2 discovery error.";
-            criticalError = true;
-            return false;
-        }
+        int currentDirection = 0;
 
-        // left direction
-        currentDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
-        int l = currentDirection;
-        int possibleNextX = nextX + directions[currentDirection][0];
-        int possibleNextY = nextY + directions[currentDirection][1];
+        int nextX = horiStart - 1;
+        int nextY = 1;
 
-        // turn right until a field is empty 
-        while (InBorderRel2(possibleNextX, possibleNextY) || InTakenRel2(possibleNextX, possibleNextY))
-        {
-            l = (l == 0) ? 3 : l - 1;
-            possibleNextX = nextX + directions[l][0];
-            possibleNextY = nextY + directions[l][1];
-        }
-
-        if (currentDirection == 0 && l == 0)
-        {
-            int hori = nextX + 1;
-            int vert = nextY + 1;
-
-            bool circleValid = false;
-            List<int[]> borderFields = new();
-
-            int i1, i2;
-            if (strictSmall)
+        int counter = 0;
+        while (nextX >= 0 && !InCornerRel2(nextX, nextY))
+        { // First condition: Includes AreaUp
+          // Second condition: 0708_1: Finish corner is reached, there cannot be small area from there.
+          // Third condition: 0708_2 (if end corner checking is disabled): !(counter > 0 && nextX == horiStart - 1 && nextY == 1)
+            counter++;
+            if (counter == size * size)
             {
-                i1 = InTakenIndexRel2(hori, vert);
-                i2 = InTakenIndexRel2(hori + 1, vert);
+                // T("Corner2 discovery error.");
 
-                if (i2 > i1)
-                {
-                    circleValid = true;
-                }
+                errorInWalkthrough = true;
+                errorString = "Corner2 discovery error.";
+                criticalError = true;
+                return false;
             }
-            else circleValid = true;
 
-            if (circleValid)
+            // left direction
+            currentDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
+            int l = currentDirection;
+            int possibleNextX = nextX + directions[currentDirection][0];
+            int possibleNextY = nextY + directions[currentDirection][1];
+
+            // turn right until a field is empty 
+            while (InBorderRel2(possibleNextX, possibleNextY) || InTakenRel2(possibleNextX, possibleNextY))
             {
-                if (hori == 1 && vert == 2) // close mid across
+                l = (l == 0) ? 3 : l - 1;
+                possibleNextX = nextX + directions[l][0];
+                possibleNextY = nextY + directions[l][1];
+            }
+
+            if (currentDirection == 0 && l == 0 && nextY >= 1) // 0708: Corner can be found beneath
+            {
+                int hori = nextX + 1;
+                int vert = nextY + 1;
+
+                // T("Corner at", hori, vert, "x2", x2, "y2", y2, "lx", lx, "ly", ly);
+
+                bool circleValid = false;
+                List<int[]> borderFields = new();
+
+                int i1, i2;
+                if (strictSmall)
                 {
-                    if (strictSmall)
+                    i1 = InTakenIndexRel2(hori, vert);
+                    i2 = InTakenIndexRel2(hori + 1, vert);
+
+                    if (i2 > i1)
                     {
-                        i1 = InTakenIndexRel2(1, 2);
-                        i2 = InTakenIndexRel2(2, 2);
-
-                        if (i2 > i1) return true;
+                        circleValid = true;
                     }
-                    else return true;
-
                 }
-                else if (hori == 2 && vert == 2) // close across
+                else circleValid = true;
+
+                if (circleValid)
                 {
-                    if (strictSmall)
+                    if (hori == 1 && vert == 2) // close mid across
                     {
-                        i1 = InTakenIndexRel2(2, 2);
-                        i2 = InTakenIndexRel2(3, 2);
+                        if (strictSmall)
+                        {
+                            i1 = InTakenIndexRel2(1, 2);
+                            i2 = InTakenIndexRel2(2, 2);
 
-                        if (i2 > i1) return true;
+                            if (i2 > i1) return true;
+                        }
+                        else return true;
+
                     }
-                    else return true;
-                }
-                else if (hori == 1) // AreaUp
-                {
-                    /* Example needed
-                    int ex = vert - 1;
-
-                    if (ex > 2)
+                    else if (hori == 2 && vert == 2) // close across
                     {
-                        for (int k = ex - 1; k >= 2; k--)
+                        if (strictSmall)
                         {
-                            borderFields.Add(new int[] { 1, k });
+                            i1 = InTakenIndexRel2(2, 2);
+                            i2 = InTakenIndexRel2(3, 2);
+
+                            if (i2 > i1) return true;
                         }
+                        else return true;
                     }
-
-                    ResetExamAreas();
-
-                    if (CountAreaRel2(1, 1, 1, vert - 1, borderFields, circleDirectionLeft, 2, true))
+                    else if (hori == 1) // AreaUp
                     {
-                        int black = (int)info[1];
-                        int white = (int)info[2];
+                        /* Example needed
+                        int ex = vert - 1;
 
-                        int whiteDiff = white - black;
-                        int nowWCount = 0;
-                        int nowBCount = 0;
-                        int laterWCount = 0;
-                        int laterBCount = 0;
-
-                        switch (ex % 4)
+                        if (ex > 2)
                         {
-                            case 0:
-                                nowWCount = ex / 4;
-                                nowBCount = ex / 4 - 1;
-                                laterWCount = ex / 4;
-                                laterBCount = ex / 4;
-                                break;
-                            case 1:
-                                nowWCount = (ex - 1) / 4;
-                                nowBCount = (ex - 1) / 4;
-                                laterWCount = (ex - 1) / 4;
-                                laterBCount = (ex - 1) / 4;
-                                break;
-                            case 2:
-                                nowWCount = (ex + 2) / 4;
-                                nowBCount = (ex - 2) / 4;
-                                laterWCount = (ex - 2) / 4;
-                                laterBCount = (ex - 2) / 4;
-                                break;
-                            case 3:
-                                nowWCount = (ex + 1) / 4;
-                                nowBCount = (ex - 3) / 4;
-                                laterWCount = (ex - 3) / 4;
-                                laterBCount = (ex + 1) / 4;
-                                break;
-                        }
-
-                        if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
-                        {
-                            // T("Corner2: Cannot enter later");
-                            return true;
-                        }
-                    }*/
-                }
-                else // Corner 0627, 0627_1
-                {
-                    bool takenFound = false;
-                    int left1 = 1;
-                    int straight1 = 1;
-                    int left2 = hori - 1;
-                    int straight2 = vert - 1;
-
-                    int nowWCount, nowWCountDown, nowBCount, laterWCount, laterBCount;
-                    int a, n;
-
-                    //check if all fields on the border line is free
-                    if (vert == hori)
-                    {
-                        a = hori - 1;
-                        nowWCountDown = nowWCount = 0;
-                        nowBCount = a - 1;
-                        laterWCount = -1;// means B = 1
-                        laterBCount = a - 1;
-
-                        for (int k = 1; k < hori; k++)
-                        {
-                            if (k < hori - 1)
+                            for (int k = ex - 1; k >= 2; k--)
                             {
-                                if (InTakenRel2(k, k) || InTakenRel2(k + 1, k))
-                                {
-                                    takenFound = true;
+                                borderFields.Add(new int[] { 1, k });
+                            }
+                        }
+
+                        ResetExamAreas();
+
+                        if (CountAreaRel2(1, 1, 1, vert - 1, borderFields, circleDirectionLeft, 2, true))
+                        {
+                            int black = (int)info[1];
+                            int white = (int)info[2];
+
+                            int whiteDiff = white - black;
+                            int nowWCount = 0;
+                            int nowBCount = 0;
+                            int laterWCount = 0;
+                            int laterBCount = 0;
+
+                            switch (ex % 4)
+                            {
+                                case 0:
+                                    nowWCount = ex / 4;
+                                    nowBCount = ex / 4 - 1;
+                                    laterWCount = ex / 4;
+                                    laterBCount = ex / 4;
                                     break;
-                                }
-                            }
-                            else
-                            {
-                                if (InTakenRel2(k, k))
-                                {
-                                    takenFound = true;
+                                case 1:
+                                    nowWCount = (ex - 1) / 4;
+                                    nowBCount = (ex - 1) / 4;
+                                    laterWCount = (ex - 1) / 4;
+                                    laterBCount = (ex - 1) / 4;
                                     break;
-                                }
+                                case 2:
+                                    nowWCount = (ex + 2) / 4;
+                                    nowBCount = (ex - 2) / 4;
+                                    laterWCount = (ex - 2) / 4;
+                                    laterBCount = (ex - 2) / 4;
+                                    break;
+                                case 3:
+                                    nowWCount = (ex + 1) / 4;
+                                    nowBCount = (ex - 3) / 4;
+                                    laterWCount = (ex - 3) / 4;
+                                    laterBCount = (ex + 1) / 4;
+                                    break;
                             }
 
-                            if (k == 1)
+                            if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                             {
-                                borderFields.Add(new int[] { 2, 1 });
+                                // T("Corner2: Cannot enter later");
+                                return true;
                             }
-                            else if (k < hori - 1)
-                            {
-                                borderFields.Add(new int[] { k, k });
-                                borderFields.Add(new int[] { k + 1, k });
-                            }
-                        }
+                        }*/
                     }
-                    else if (hori > vert)
+                    else // Corner 0627, 0627_1
                     {
-                        a = vert - 1;
-                        n = (hori - vert - (hori - vert) % 2) / 2;
+                        bool takenFound = false;
+                        int left1 = 1;
+                        int straight1 = 1;
+                        int left2 = hori - 1;
+                        int straight2 = vert - 1;
 
-                        if ((hori - vert) % 2 == 0)
+                        int nowWCount, nowWCountDown, nowBCount, laterWCount, laterBCount;
+                        int a, n;
+
+                        //check if all fields on the border line is free
+                        if (vert == hori)
                         {
-                            if (n > 1)
-                            {
-                                nowWCountDown = nowWCount = (n + 1 - (n + 1) % 2) / 2;
-                            }
-                            else
-                            {
-                                nowWCount = 0;
-                                nowWCountDown = 1;
-                            }
-                            nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
-                            laterWCount = (n - n % 2) / 2;
-                            laterBCount = a + (n - n % 2) / 2;
-                        }
-                        else
-                        {
-                            if (n > 0)
-                            {
-                                nowWCountDown = nowWCount = a + (n - n % 2) / 2;
-                                laterBCount = (n + 2 - (n + 2) % 2) / 2;
-                            }
-                            else
-                            {
-                                nowWCount = a - 1;
-                                nowWCountDown = a;
-                                laterBCount = 0;
-                            }
-                            nowBCount = (n + 1 - (n + 1) % 2) / 2;
-                            laterWCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
+                            a = hori - 1;
+                            nowWCountDown = nowWCount = 0;
+                            nowBCount = a - 1;
+                            laterWCount = -1;// means B = 1
+                            laterBCount = a - 1;
 
-                        }
-
-                        for (int k = 1; k <= hori - vert; k++)
-                        {
-                            if (InTakenRel2(k, 1))
+                            for (int k = 1; k < hori; k++)
                             {
-                                takenFound = true;
-                                break;
-                            }
-
-                            if (k > 1)
-                            {
-                                borderFields.Add(new int[] { k, 1 });
-                            }
-                        }
-
-                        for (int k = 1; k < vert; k++)
-                        {
-                            if (k < vert - 1)
-                            {
-                                if (InTakenRel2(hori - vert + k, k) || InTakenRel2(hori - vert + k + 1, k))
+                                if (k < hori - 1)
                                 {
-                                    takenFound = true;
-                                    break;
+                                    if (InTakenRel2(k, k) || InTakenRel2(k + 1, k))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                if (InTakenRel2(hori - vert + k, k))
+                                else
                                 {
-                                    takenFound = true;
-                                    break;
+                                    if (InTakenRel2(k, k))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
                                 }
-                            }
 
-                            if (k < vert - 1)
-                            {
-                                borderFields.Add(new int[] { hori - vert + k, k });
-                                borderFields.Add(new int[] { hori - vert + k + 1, k });
-                            }
-                        }
-                    }
-                    else // vert > hori
-                    {
-                        a = hori - 1;
-                        n = (vert - hori - (vert - hori) % 2) / 2;
-
-                        if ((vert - hori) % 2 == 0)
-                        {
-                            nowWCountDown = nowWCount = (n + 1 - (n + 1) % 2) / 2;
-                            nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
-                            laterWCount = (n - n % 2) / 2;
-                            laterBCount = a + (n - n % 2) / 2;
-                        }
-                        else
-                        {
-                            nowWCountDown = nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;
-                            nowBCount = a - 1 + (n - n % 2) / 2;
-                            if (n > 0)
-                            {
-                                laterWCount = 1 + (n - n % 2) / 2;
-                            }
-                            else
-                            {
-                                laterWCount = 0;
-                            }
-                            laterBCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
-                        }
-
-                        for (int k = 1; k < hori; k++)
-                        {
-                            if (k < hori - 1 && hori > 2)
-                            {
-                                if (InTakenRel2(k, k) || InTakenRel2(k + 1, k))
-                                {
-                                    takenFound = true;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                if (InTakenRel2(k, k))
-                                {
-                                    takenFound = true;
-                                    break;
-                                }
-                            }
-
-                            if (hori > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
-                            {
                                 if (k == 1)
                                 {
                                     borderFields.Add(new int[] { 2, 1 });
@@ -3921,73 +3410,213 @@ bool CheckCorner2(int side, bool strictSmall) // #8
                                     borderFields.Add(new int[] { k, k });
                                     borderFields.Add(new int[] { k + 1, k });
                                 }
+                            }
+                        }
+                        else if (hori > vert)
+                        {
+                            a = vert - 1;
+                            n = (hori - vert - (hori - vert) % 2) / 2;
+
+                            if ((hori - vert) % 2 == 0)
+                            {
+                                if (n > 1)
+                                {
+                                    nowWCountDown = nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                }
                                 else
                                 {
-                                    borderFields.Add(new int[] { k, k });
+                                    nowWCount = 0;
+                                    nowWCountDown = 1;
+                                }
+                                nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
+                                laterWCount = (n - n % 2) / 2;
+                                laterBCount = a + (n - n % 2) / 2;
+                            }
+                            else
+                            {
+                                if (n > 0)
+                                {
+                                    nowWCountDown = nowWCount = a + (n - n % 2) / 2;
+                                    laterBCount = (n + 2 - (n + 2) % 2) / 2;
+                                }
+                                else
+                                {
+                                    nowWCount = a - 1;
+                                    nowWCountDown = a;
+                                    laterBCount = 0;
+                                }
+                                nowBCount = (n + 1 - (n + 1) % 2) / 2;
+                                laterWCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
+
+                            }
+
+                            for (int k = 1; k <= hori - vert; k++)
+                            {
+                                if (InTakenRel2(k, 1))
+                                {
+                                    takenFound = true;
+                                    break;
+                                }
+
+                                if (k > 1)
+                                {
+                                    borderFields.Add(new int[] { k, 1 });
+                                }
+                            }
+
+                            for (int k = 1; k < vert; k++)
+                            {
+                                if (k < vert - 1)
+                                {
+                                    if (InTakenRel2(hori - vert + k, k) || InTakenRel2(hori - vert + k + 1, k))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (InTakenRel2(hori - vert + k, k))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
+                                }
+
+                                if (k < vert - 1)
+                                {
+                                    borderFields.Add(new int[] { hori - vert + k, k });
+                                    borderFields.Add(new int[] { hori - vert + k + 1, k });
+                                }
+                            }
+                        }
+                        else // vert > hori
+                        {
+                            a = hori - 1;
+                            n = (vert - hori - (vert - hori) % 2) / 2;
+
+                            if ((vert - hori) % 2 == 0)
+                            {
+                                nowWCountDown = nowWCount = (n + 1 - (n + 1) % 2) / 2;
+                                nowBCount = a + (n - 1 - (n - 1) % 2) / 2;
+                                laterWCount = (n - n % 2) / 2;
+                                laterBCount = a + (n - n % 2) / 2;
+                            }
+                            else
+                            {
+                                nowWCountDown = nowWCount = 1 + (n + 1 - (n + 1) % 2) / 2;
+                                nowBCount = a - 1 + (n - n % 2) / 2;
+                                if (n > 0)
+                                {
+                                    laterWCount = 1 + (n - n % 2) / 2;
+                                }
+                                else
+                                {
+                                    laterWCount = 0;
+                                }
+                                laterBCount = a - 1 + (n + 1 - (n + 1) % 2) / 2;
+                            }
+
+                            for (int k = 1; k < hori; k++)
+                            {
+                                if (k < hori - 1 && hori > 2)
+                                {
+                                    if (InTakenRel2(k, k) || InTakenRel2(k + 1, k))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (InTakenRel2(k, k))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
+                                }
+
+                                if (hori > 2) // there is no stair if corner is at 1 distance, only one field which is the start field.
+                                {
+                                    if (k == 1)
+                                    {
+                                        borderFields.Add(new int[] { 2, 1 });
+                                    }
+                                    else if (k < hori - 1)
+                                    {
+                                        borderFields.Add(new int[] { k, k });
+                                        borderFields.Add(new int[] { k + 1, k });
+                                    }
+                                    else
+                                    {
+                                        borderFields.Add(new int[] { k, k });
+                                    }
+                                }
+                            }
+
+                            for (int k = 1; k <= vert - hori; k++)
+                            {
+                                if (InTakenRel2(hori - 1 + k, hori - 1))
+                                {
+                                    takenFound = true;
+                                    break;
+                                }
+
+                                if (k < vert - hori)
+                                {
+                                    borderFields.Add(new int[] { hori - 1, hori - 1 + k });
                                 }
                             }
                         }
 
-                        for (int k = 1; k <= vert - hori; k++)
+                        if (!takenFound)
                         {
-                            if (InTakenRel2(hori - 1 + k, hori - 1))
+                            // reverse order
+                            List<int[]> newBorderFields = new();
+                            for (int k = borderFields.Count - 1; k >= 0; k--)
                             {
-                                takenFound = true;
-                                break;
+                                newBorderFields.Add(borderFields[k]);
                             }
 
-                            if (k < vert - hori)
+                            if (CountAreaRel2(left1, straight1, left2, straight2, newBorderFields, circleDirectionLeft, 2, true))
                             {
-                                borderFields.Add(new int[] { hori - 1, hori - 1 + k });
-                            }
-                        }
-                    }
+                                int black = (int)info[1];
+                                int white = (int)info[2];
 
-                    if (!takenFound)
-                    {
-                        // reverse order
-                        List<int[]> newBorderFields = new();
-                        for (int k = borderFields.Count - 1; k >= 0; k--)
-                        {
-                            newBorderFields.Add(borderFields[k]);
-                        }
+                                int whiteDiff = white - black;
 
-                        if (CountAreaRel2(left1, straight1, left2, straight2, newBorderFields, circleDirectionLeft, 2, true))
-                        {
-                            int black = (int)info[1];
-                            int white = (int)info[2];
-
-                            int whiteDiff = white - black;
-
-                            if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
-                            {
-                                // T("Corner2: Cannot enter later");
-                                return true;
+                                if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                                {
+                                    // T("Corner2: Cannot enter later");
+                                    return true;
+                                }
                             }
                         }
                     }
                 }
             }
+
+            currentDirection = l;
+
+            nextX = possibleNextX;
+            nextY = possibleNextY;
         }
-
-        currentDirection = l;
-
-        nextX = possibleNextX;
-        nextY = possibleNextY;
     }
-
 
     return false;
 }
 
-bool CheckSequenceRecursive(int j)
+bool CheckSequenceRecursive(int side)
 {
+    // T("sequence recursive", x2, y2, lx2, ly2);
+
     newExitField = new int[] { 0, 0 };
 
-    bool leftSideClose = CheckNearFieldSmall2(true);
+    bool leftSideClose = CheckNearFieldSmall2(true); // contains exit points for next call but only works for c-shapes and close obstacles.
+    bool leftSideEnterNow = CheckCorner2(side, true);
     bool rightSideClose = CheckNearFieldSmall2(false);
 
-    if (leftSideClose && rightSideClose)
+    if ((leftSideClose || leftSideEnterNow) && rightSideClose)
     {
         return true;
     }
@@ -3996,102 +3625,38 @@ bool CheckSequenceRecursive(int j)
     else if (leftSideClose)
     //else if ((leftSideClose || rightSideClose) && newExitField[0] != 0)
     {
-        // T("CheckSequenceRecursive left side only x " + newExitField[0] + " y " + newExitField[1] + " direction rotated " + newDirectionRotated);
+        // T("CheckSequenceRecursive left side only x2 " + newExitField[0] + " y2 " + newExitField[1] + " direction rotated " + newDirectionRotated);
 
-        x = newExitField[0];
-        y = newExitField[1];
-        //path.Add(new int[] { x, y });
+        x2 = newExitField[0];
+        y2 = newExitField[1];
+        path.Add(new int[] { x2, y2 });
 
         if (newDirectionRotated)
         {
-            int[] rotatedDir = RotateDir(lx, ly, j);
-            lx = rotatedDir[0];
-            ly = rotatedDir[1];
-            rotatedDir = RotateDir(sx, sy, j);
-            sx = rotatedDir[0];
-            sy = rotatedDir[1];
+            int[] rotatedDir = RotateDir(lx2, ly2, side);
+            lx2 = rotatedDir[0];
+            ly2 = rotatedDir[1];
+            rotatedDir = RotateDir(sx2, sy2, side);
+            sx2 = rotatedDir[0];
+            sy2 = rotatedDir[1];
         }
 
-        return CheckSequenceRecursive(j);
+        if (InTakenRel2(0, 1)) // 0708 Field in front of exit should be empty
+        {
+            path.RemoveAt(path.Count - 1);
+            return false;
+        }
+
+        bool ret = CheckSequenceRecursive(side);
+        path.RemoveAt(path.Count - 1);
+
+        return ret;
+
     }
     else
     {
         return false;
     }
-}
-
-bool Check3DoubleAreaRotated(int side = -1) // Take only the first case and rotate it. Next step checking will need it, otherwise it is built into AreaUp.
-{
-    for (int i = 0; i < 2; i++)
-    {
-        if (side != -1 && side != i) continue;
-
-        bool circleValid = false;
-        bool circleDirectionLeft = (i == 0) ? true : false;
-        int startX = 0, startY = 0, endX = 0, endY = 0;
-
-        List<int[]> borderFields = new();
-
-        if (InTakenRel(4, -1) && !InTakenRel(2, 0) && !InTakenRel(3, 0) && !InTakenRel(4, 0) && !InTakenRel(1, -1) && !InTakenRel(3, -1))
-        {
-            int i1 = InTakenIndexRel(4, -1);
-            int i2 = InTakenIndexRel(4, -2);
-
-            if (i2 > i1)
-            {
-                circleValid = true;
-
-                startX = 1;
-                startY = 0;
-                endX = 3;
-                endY = 0;
-                borderFields.Add(new int[] { 2, 0 });
-            }
-        }
-
-        if (circleValid && CountAreaRel(startX, startY, endX, endY, borderFields, circleDirectionLeft, 2, true))
-        {
-            int black = (int)info[1];
-            int white = (int)info[2];
-
-            if (black == white)
-            {
-                int thisX = x;
-                int thisY = y;
-
-                x = x + endX * lx + endY * thisSx;
-                y = y + endX * ly + endY * thisSy;
-
-                // Checking C-Shape not necessary, side straight will take care of it, because area is 1B.
-                if (CheckNearFieldSmall1())
-                {
-                    if (side != -1)
-                    {
-                        return true; // We are only interested in the side the straight obstacle is going to. Both sides cannot be true at the same time.
-                    }
-
-                    // T("Check3DoubleAreaRotated at " + thisX + " " + thisY);
-
-                    DoubleArea1Rotated = true;
-                    activeRules.Add("Double Area first case rotated");
-                    activeRuleSizes.Add(new int[] { 6, 4 });
-                    activeRulesForbiddenFields.Add(new List<int[]> { new int[] { thisX + lx, thisY + ly } });
-
-                    forbidden.Add(new int[] { thisX + lx, thisY + ly });
-                }
-
-                x = thisX;
-                y = thisY;
-            }
-        }
-
-        lx = -lx;
-        ly = -ly;
-    }
-    lx = thisLx;
-    ly = thisLy;
-
-    return false;
 }
 
 bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSmall)
@@ -4181,12 +3746,13 @@ bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSma
 }
 
 bool CheckNearFieldSmall1() // for use only with Double Area case 1, 2, 3 and 1 rotated, and Down Stair. Across is needed at 53144883
+    // Sequence case 1 right side
 {
     // close mid across. In DirectionalArea, the empty fields are already checked.
-    if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+    if (InTakenRel2(1, 2) && !InTakenRel2(0, 2) && !InTakenRel2(1, 1))
     {
-        int middleIndex = InTakenIndexRel(1, 2);
-        int sideIndex = InTakenIndexRel(2, 2);
+        int middleIndex = InTakenIndexRel2(1, 2);
+        int sideIndex = InTakenIndexRel2(2, 2);
 
         if (sideIndex > middleIndex)
         {
@@ -4196,10 +3762,10 @@ bool CheckNearFieldSmall1() // for use only with Double Area case 1, 2, 3 and 1 
     }
 
     // close across
-    if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+    if (InTakenRel2(2, 2) && !InTakenRel2(1, 2) && !InTakenRel2(2, 1))
     {
-        int middleIndex = InTakenIndexRel(2, 2);
-        int sideIndex = InTakenIndexRel(3, 2);
+        int middleIndex = InTakenIndexRel2(2, 2);
+        int sideIndex = InTakenIndexRel2(3, 2);
 
         if (sideIndex > middleIndex)
         {
@@ -4211,18 +3777,19 @@ bool CheckNearFieldSmall1() // for use only with Double Area case 1, 2, 3 and 1 
 }
 
 bool CheckNearFieldSmall1_5() // for use only with Double Area case 1, 2, 3 and 1 rotated
+    // Sequence case 1 left side
 {
     // C-shape (left)
-    if ((InTakenRel(2, 0) || InBorderRel(2, 0)) && !InTakenRel(1, 0))
+    if ((InTakenRel2(2, 0) || InBorderRel2(2, 0)) && !InTakenRel2(1, 0))
     {
         return true;
     }
 
     // close mid across. In DirectionalArea, the empty fields are already checked.
-    if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+    if (InTakenRel2(1, 2) && !InTakenRel2(0, 2) && !InTakenRel2(1, 1))
     {
-        int middleIndex = InTakenIndexRel(1, 2);
-        int sideIndex = InTakenIndexRel(2, 2);
+        int middleIndex = InTakenIndexRel2(1, 2);
+        int sideIndex = InTakenIndexRel2(2, 2);
 
         if (sideIndex > middleIndex)
         {
@@ -4232,10 +3799,10 @@ bool CheckNearFieldSmall1_5() // for use only with Double Area case 1, 2, 3 and 
     }
 
     // close across
-    if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+    if (InTakenRel2(2, 2) && !InTakenRel2(1, 2) && !InTakenRel2(2, 1))
     {
-        int middleIndex = InTakenIndexRel(2, 2);
-        int sideIndex = InTakenIndexRel(3, 2);
+        int middleIndex = InTakenIndexRel2(2, 2);
+        int sideIndex = InTakenIndexRel2(3, 2);
 
         if (sideIndex > middleIndex)
         {
@@ -4247,44 +3814,45 @@ bool CheckNearFieldSmall1_5() // for use only with Double Area case 1, 2, 3 and 
 }
 
 bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
+    // Case 2 and 3, used in recursive function
 {
     bool ret = false;
 
     if (!leftSide)
     {
-        lx = -lx;
-        ly = -ly;
+        lx2 = -lx2;
+        ly2 = -ly2;
     }
     else
     {
         // C-Shape, only left side should have it
-        // Checking for InTakenRel(1, -1) is not possible, because in Sequence first case, we are exiting the area at the middle border field.
+        // Checking for InTakenRel2(1, -1) is not possible, because in Sequence first case, we are exiting the area at the middle border field.
         // But when it comes to the right side (if it was checked), it is necessary, otherwise we can detect a C-shape with the live end as in 213.
-        if (InTakenRel(2, 0) && !InTakenRel(1, 0))
+        if (InTakenRel2(2, 0) && !InTakenRel2(1, 0))
         {
             // T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
             ret = true;
 
-            newExitField = new int[] { x + lx + sx, y + ly + sy };
+            newExitField = new int[] { x2 + lx2 + sx2, y2 + ly2 + sy2 };
             newDirectionRotated = false;
         }
 
         //C-Shape up
-        if (InTakenRel(0, 2) && InTakenRel(1, 1) && !InTakenRel(0, 1))
+        if (InTakenRel2(0, 2) && InTakenRel2(1, 1) && !InTakenRel2(0, 1))
         {
             // T("CheckNearFieldSmall2 C-Shape up, left side " + leftSide);
             ret = true;
 
-            newExitField = new int[] { x - lx + sx, y - ly + sy };
+            newExitField = new int[] { x2 - lx2 + sx2, y2 - ly2 + sy2 };
             newDirectionRotated = true;
         }
     }
 
     // close mid across
-    if (InTakenRel(1, 2) && !InTakenRel(0, 2) && !InTakenRel(1, 1))
+    if (InTakenRel2(1, 2) && !InTakenRel2(0, 2) && !InTakenRel2(1, 1))
     {
-        int middleIndex = InTakenIndexRel(1, 2);
-        int sideIndex = InTakenIndexRel(2, 2);
+        int middleIndex = InTakenIndexRel2(1, 2);
+        int sideIndex = InTakenIndexRel2(2, 2);
 
         if (sideIndex > middleIndex)
         {
@@ -4294,17 +3862,17 @@ bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
             if (leftSide)
             {
                 // mid across overwrites C-shape
-                newExitField = new int[] { x + sx, y + sy };
+                newExitField = new int[] { x2 + sx2, y2 + sy2 };
                 newDirectionRotated = true;
             }
         }
     }
 
     // close across. Checking empty fields necessary, see 29558469
-    if (InTakenRel(2, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 1))
+    if (InTakenRel2(2, 2) && !InTakenRel2(1, 2) && !InTakenRel2(2, 1))
     {
-        int middleIndex = InTakenIndexRel(2, 2);
-        int sideIndex = InTakenIndexRel(3, 2);
+        int middleIndex = InTakenIndexRel2(2, 2);
+        int sideIndex = InTakenIndexRel2(3, 2);
 
         if (sideIndex > middleIndex)
         {
@@ -4313,7 +3881,7 @@ bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
 
             if (leftSide)
             {
-                newExitField = new int[] { x + lx + sx, y + ly + sy };
+                newExitField = new int[] { x2 + lx2 + sx2, y2 + ly2 + sy2 };
                 newDirectionRotated = true;
             }
         }
@@ -4321,8 +3889,8 @@ bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
 
     if (!leftSide)
     {
-        lx = -lx;
-        ly = -ly;
+        lx2 = -lx2;
+        ly2 = -ly2;
     }
 
     return ret;
@@ -4359,7 +3927,7 @@ int[] RotateDir(int xDiff, int yDiff, int ccw)
 
 void ResetExamAreas() { }
 
-void AddExamAreas() { }
+void AddExamAreas(bool secondaryArea = false) { }
 
 /* ----- Count Area ----- */
 
@@ -5193,6 +4761,14 @@ bool InCornerRel(int left, int straight)
 {
     int x0 = x + left * lx + straight * sx;
     int y0 = y + left * ly + straight * sy;
+    if (x0 == size && y0 == size) return true;
+    return false;
+}
+
+bool InCornerRel2(int left, int straight)
+{
+    int x0 = x2 + left * lx2 + straight * sx2;
+    int y0 = y2 + left * ly2 + straight * sy2;
     if (x0 == size && y0 == size) return true;
     return false;
 }

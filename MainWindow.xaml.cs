@@ -161,10 +161,7 @@ namespace OneWayLabyrinth
 
         public MainWindow()
 		{
-            InitializeComponent();
-
             logger = App.ServiceProvider.GetRequiredService<ILogger<MainWindow>>();
-
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
             if (copyToConsole == 1)
@@ -212,7 +209,9 @@ namespace OneWayLabyrinth
                 return;
             }
 
-			timer = new DispatcherTimer();
+            InitializeComponent();
+
+            timer = new DispatcherTimer();
 			timer.Tick += Timer_Tick;
 
 			if (File.Exists(baseDir + "settings.txt"))
@@ -1465,6 +1464,7 @@ namespace OneWayLabyrinth
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
             taken.areaPairFields = new();
+            taken.areaLineSecondary = new();
 
             if (!isTaskRunning) ClearActiveRules();
 
@@ -2973,6 +2973,7 @@ namespace OneWayLabyrinth
             taken.areaLineTypes = new();
             taken.areaLineDirections = new();
             taken.areaPairFields = new();
+            taken.areaLineSecondary = new();
 
             if (!isTaskRunning) ClearActiveRules();
 
@@ -4276,7 +4277,12 @@ namespace OneWayLabyrinth
                         {
                             foreach (int[] field in taken.areaPairFields[i])
                             {
-                                checker += "\t<rect x=\"" + (field[0] - 1) + ".25\" y=\"" + (field[1] - 1) + ".25\" width=\"0.5\" height=\"0.5\" fill=\"black\" fill-opacity=\"0.5\"  />\n";
+                                color = "black";
+                                if (taken.areaLineSecondary[i])
+                                {
+                                    color = "#008000";
+                                }
+                                checker += "\t<rect x=\"" + (field[0] - 1) + ".25\" y=\"" + (field[1] - 1) + ".25\" width=\"0.5\" height=\"0.5\" fill=\"" + color + "\" fill-opacity=\"0.5\"  />\n";
                             }
                         }
                     }

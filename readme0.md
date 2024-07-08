@@ -2185,29 +2185,17 @@ Therefore, we cannot enter later.
 
 <!---->
 
-<img align="top" src="References/2024_0625.svg" width="11"/>
+<img align="top" src="References/2024_0625.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 4 double area.svg" width="5" />
 
-The A and B field cannot be filled simultaneously. In the following representation, the area is 1B, and if we step left, the border movement can only be:
+The first area is 1B, so if we enter now, we will exit at the first black field, coming from above. This creates a second area, which is 1W, so we cannot enter it later.
 
-<img align="top" src="References/1-3 corner inside close.svg" width="5" />
+The next case is similar, only the first obstacle is closer vertically. The first area is W = B.
 
-This conflicts with the obstacle in the upper left corner.
-
-<!---->
-
-The next case is similar, only we have to apply the smaller area, because the normal area borderline is taken.
-
-<img align="top" src="References/2024_0625_1.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/1-4 corner small inside close.svg" width="5" />
-
-The area is W = B, so if we step left, we have to exit at the black field. But the previous field must have been the first white. Because of the close obstacle inside, we could not have filled the upper fields.
-
-It is easy to see that the rule can be made universal by extending both the horizontal and vertical distance:<!--But can we find examples of them?-->
-
-<img align="top" src="References/1-4 corner small inside close 2.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/1-4 corner small inside close 3.svg" width="7" />
+<img align="top" src="References/2024_0625_1.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 double area.svg" width="5" />
 
 <!---->
 
-<img align="top" src="References/2024_0626_2.svg" width="11" />
+<img align="top" src="References/2024_0626_1.svg" width="11" />
 
 It is a straight obstacle case with extended area where two close obstacles are present outside. The area is 1W according to following illustrations:
 
@@ -2218,22 +2206,27 @@ If we enter at the first white field, we collide with the closest close obstacle
 
 <!---->
 
-The two following cases I will handle as one.
+The same area definition at 3 distance will solve Triple Area Exit Down, making the previous solution obsolete. The area is now W = B.
+
+<img align="top" src="References/18677343.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 extended.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 extended 2.svg" width="4" />
+
+The next is a variation of the double area cases. The first area is 1B.
 
 <img align="top" src="References/2024_0627.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/up 4 double area.svg" width="5" />
-
-<img align="top" src="References/2024_0627_1.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/h1 v2 double area.svg" width="5" />
-
-In both cases, if we enter now, we have to exit at the first black from the white above. The second obstacle is now not 1 but 2 distance away, and we must enter now there.
-It can be made universal to include any distance where this happens. The corner discovery process for the second obstacle is the same as for the first.
 
 <!---->
 
 <img align="top" src="References/2024_0630.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/stair area.svg" width="5" />
 
-Here we have a stair shape on the left, and an area is created with one of the steps that should be entered now. We can make an algorithm for a stair of any length.
+Here, we have a stair shape on the left, and an area is created with one of the steps that should be entered now. We can make an algorithm for a stair of any length.
 
+<!---->
+
+<img align="top" src="References/2024_0704.svg" width="11" />
+
+The sequence algorithm can be applied here. So far, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. 
 <!--
+create a downstair case with larger horizontal distance
 other cases where entering now / later is not relevant in certain rotations?
 next step left/right areas should be shown. Find out how to make it in the simplest way.
 change yellow background for second directional obstacles 
