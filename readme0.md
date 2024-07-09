@@ -2230,6 +2230,15 @@ The sequence algorithm can be applied here. So far, we only checked for C-shapes
 
 Again, the second case of sequence, and the area is on the right side.
 
+<!---->
+
+<img align="top" src="References/2024_0706_1.svg" width="11" />
+
+It is the first case of sequence where multiple steps have to be applied, just like we did at the second and third case.
+
+<img align="top" src="References/2024_0709.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 extended C.svg" width="4" />
+
+We saw a similar case on page 174 where there were 2 close obstacles outside the area. We need to add C-shape checking too for an upper obstacle.
 <!--
 cite page numbers when mentioning a rule
 create a downstair case with larger horizontal distance

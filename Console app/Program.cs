@@ -64,6 +64,8 @@ int sy2 = 0;
 int lx2 = 0;
 int ly2 = 0;
 
+int counterrec = 0;
+
 if (File.Exists(baseDir + "settings.txt"))
 {
     string[] lines = File.ReadAllLines(baseDir + "settings.txt");
@@ -1791,6 +1793,7 @@ void CheckLeftRightCorner() // rotations:
                 // When CheckStraight is turned off, we can be at 5,1, going from down, and then nextX will never be 0. In this case, the second condition is needed.
 
                 int counter = 0;
+
                 while (!(nextX <= 0 && nextY >= 1) && !InCornerRel(nextX, nextY) && !(counter > 0 && nextX == horiStart - 1 && nextY == 1))
                 // See explanation at Corner2.
                 {
@@ -3013,6 +3016,9 @@ void CheckSequence()
 
                         if (black == white)
                         {
+                            path.Add(new int[] { x + sx, y + sy }); // right side area checking needs it
+                            path.Add(new int[] { x - lx + 2 * sx, y - ly + 2 * sy });
+
                             // step after exiting area:
                             x2 = x - lx + 2 * sx;
                             y2 = y - ly + 2 * sy;
@@ -3024,26 +3030,26 @@ void CheckSequence()
                             sx2 = rotatedDir[0];
                             sy2 = rotatedDir[1];
 
-                            // does not use C-shape up, only left
-                            bool leftSideClose = CheckNearFieldSmall1_5();
+                            ResetExamAreas();
 
-                            lx2 = -lx2;
-                            ly2 = -ly2;
+                            counterrec = 0;
 
-                            bool rightSideClose = CheckNearFieldSmall1();
-
-                            if (leftSideClose && rightSideClose)
+                            if (CheckSequenceRecursive(i))
                             {
+                                AddExamAreas(true);
+
                                 Sequence1 = true;
                                 activeRules.Add("Sequence first case");
                                 activeRuleSizes.Add(new int[] { 5, 5 });
-                                activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + sx, y + sy } }); ;
+                                activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + lx, y + ly }, new int[] { x + sx, y + sy } });
 
                                 // T("CheckSequence case 1 at " + x + " " + y + ", stop at " + x2 + " " + y2);
                                 // Due to CheckStraight, stepping left is already disabled when the obstacle is straight ahead. When it is one to the right, we need the left field to be disabled.
                                 forbidden.Add(new int[] { x + lx, y + ly });
                                 forbidden.Add(new int[] { x + sx, y + sy });
                             }
+                            path.RemoveAt(path.Count - 1);
+                            path.RemoveAt(path.Count - 1);
                         }
                     }
                 }
@@ -3086,6 +3092,8 @@ void CheckSequence()
                             sy2 = rotatedDir[1];
 
                             ResetExamAreas();
+
+                            counterrec = 0;
 
                             if (CheckSequenceRecursive(i))
                             {
@@ -3163,7 +3171,8 @@ void CheckSequence()
 
                             ResetExamAreas();
 
-                            // T("Third case");
+                            counterrec = 0;
+
                             if (CheckSequenceRecursive(i))
                             {
                                 AddExamAreas(true);
@@ -3618,7 +3627,18 @@ bool CheckCorner2(int side, bool strictSmall) // #8
 
 bool CheckSequenceRecursive(int side)
 {
-    //T("Recursive", side, x2, y2, lx2, ly2);
+    // T("Recursive", side, x2, y2, lx2, ly2);
+
+    counterrec++;
+    if (counterrec == size * size)
+    {
+        errorInWalkthrough = true;
+        errorString = "Recursive overflow.";
+        criticalError = true;
+
+        return false;
+    }
+
     newExitField = new int[] { 0, 0 };
 
     int x = path[path.Count - 1][0];
@@ -3632,6 +3652,8 @@ bool CheckSequenceRecursive(int side)
     bool rightSideEnterNow = CheckCorner2(1 - side, true);
     lx2 = -lx2;
     ly2 = -ly2;
+
+    // T("Recursive", leftSideClose, leftSideEnterNow, rightSideEnterNow);
 
     if ((leftSideClose || leftSideEnterNow) && rightSideEnterNow)
     {
@@ -3704,6 +3726,16 @@ bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSma
         {
             if (i == side && j == rotation)
             {
+                // C-shape left
+                if (strictSmall)
+                {
+                    if (InTakenRel(x + 2 * lx, y + 2 * ly) && InTakenRel(x + lx - sx, y + ly - sy) && !InTakenRel(x + lx, y + ly))
+                    {
+                        return true;
+                    }
+                }
+
+                // close mid across
                 if (InTakenRel(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenRel(x + 2 * sx, y + 2 * sy) && !InTakenRel(x + lx + sx, y + ly + sy))
                 {
                     if (strictSmall)
@@ -3715,6 +3747,7 @@ bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSma
                     }
                     else return true;
                 }
+                // close across
                 if (InTakenRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy) && !InTakenRel(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenRel(x + 2 * lx + sx, y + 2 * ly + sy))
                 {
                     if (strictSmall)
@@ -3762,74 +3795,6 @@ bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSma
     return false;
 }
 
-bool CheckNearFieldSmall1() // for use only with Double Area case 1, 2, 3 and 1 rotated, and Down Stair. Across is needed at 53144883
-    // Sequence case 1 right side
-{
-    // close mid across. In DirectionalArea, the empty fields are already checked.
-    if (InTakenRel2(1, 2) && !InTakenRel2(0, 2) && !InTakenRel2(1, 1))
-    {
-        int middleIndex = InTakenIndexRel2(1, 2);
-        int sideIndex = InTakenIndexRel2(2, 2);
-
-        if (sideIndex > middleIndex)
-        {
-
-            return true;
-        }
-    }
-
-    // close across
-    if (InTakenRel2(2, 2) && !InTakenRel2(1, 2) && !InTakenRel2(2, 1))
-    {
-        int middleIndex = InTakenIndexRel2(2, 2);
-        int sideIndex = InTakenIndexRel2(3, 2);
-
-        if (sideIndex > middleIndex)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool CheckNearFieldSmall1_5() // for use only with Double Area case 1, 2, 3 and 1 rotated
-    // Sequence case 1 left side
-{
-    // C-shape (left)
-    if ((InTakenRel2(2, 0) || InBorderRel2(2, 0)) && !InTakenRel2(1, 0))
-    {
-        return true;
-    }
-
-    // close mid across. In DirectionalArea, the empty fields are already checked.
-    if (InTakenRel2(1, 2) && !InTakenRel2(0, 2) && !InTakenRel2(1, 1))
-    {
-        int middleIndex = InTakenIndexRel2(1, 2);
-        int sideIndex = InTakenIndexRel2(2, 2);
-
-        if (sideIndex > middleIndex)
-        {
-
-            return true;
-        }
-    }
-
-    // close across
-    if (InTakenRel2(2, 2) && !InTakenRel2(1, 2) && !InTakenRel2(2, 1))
-    {
-        int middleIndex = InTakenIndexRel2(2, 2);
-        int sideIndex = InTakenIndexRel2(3, 2);
-
-        if (sideIndex > middleIndex)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
     // Case 2 and 3, used in recursive function
 {
@@ -3845,7 +3810,7 @@ bool CheckNearFieldSmall2(bool leftSide = true) // for use with Sequence
         // C-Shape, only left side should have it
         // Checking for InTakenRel2(1, -1) is not possible, because in Sequence first case, we are exiting the area at the middle border field.
         // But when it comes to the right side (if it was checked), it is necessary, otherwise we can detect a C-shape with the live end as in 213.
-        if (InTakenRel2(2, 0) && !InTakenRel2(1, 0))
+        if ((InTakenRel2(2, 0) || InBorderRelExact2(2, 0)) && !InTakenRel2(1, 0))
         {
             // T("CheckNearFieldSmall2 C-Shape, left side " + leftSide);
             ret = true;
@@ -4726,6 +4691,13 @@ bool InBorderRelExact(int left, int straight)
 {
     int x0 = x + left * lx + straight * sx;
     int y0 = y + left * ly + straight * sy;
+    return InBorderExact(x0, y0);
+}
+
+bool InBorderRelExact2(int left, int straight)
+{
+    int x0 = x2 + left * lx2 + straight * sx2;
+    int y0 = y2 + left * ly2 + straight * sy2;
     return InBorderExact(x0, y0);
 }
 

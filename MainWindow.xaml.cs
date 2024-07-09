@@ -85,8 +85,6 @@ namespace OneWayLabyrinth
 	/// </summaly>
 	public partial class MainWindow : Window
 	{
-        int copyToConsole = 0;
-
 		string grid = "";
 		Random rand = new Random();
 		public Path taken;
@@ -163,51 +161,6 @@ namespace OneWayLabyrinth
 		{
             logger = App.ServiceProvider.GetRequiredService<ILogger<MainWindow>>();
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
-            if (copyToConsole == 1)
-            {
-                string file1 = File.ReadAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Path.cs");
-                string file2 = File.ReadAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Console app\\Program.cs");
-
-                int pos1 = 0;
-                int pos2 = 0;
-                int pos3 = 0;
-                int pos4 = 0;
-
-                List<int> sectionTabs = new() { 3, 2 };
-                int counter = 0;
-                while(pos1 != -1)
-                {
-                    pos1 = file1.IndexOf("// ----- copy start -----", pos2);
-
-                    if (pos1 != -1)
-                    {
-                        pos2 = file1.IndexOf("// ----- copy end -----", pos1);
-
-                        pos3 = file2.IndexOf("// ----- copy start -----", pos4);
-                        pos4 = file2.IndexOf("// ----- copy end -----", pos3);
-
-                        string spaces = "";
-                        for(int i = 0; i < sectionTabs[counter]; i++)
-                        {
-                            spaces += "    ";
-                        }
-                        string section = file1.Substring(pos1, pos2 - pos1).Replace("\n" + spaces, "\n");
-                        file2 = file2.Substring(0, pos3) + section + file2.Substring(pos4);
-                    }
-                    counter++;
-                }
-
-                file2 = file2.Replace("    T(\"", "    // T(\"");
-                file2 = file2.Replace("window.", "");
-                //file2 = Regex.Replace(file2, @"/\*.*?\*/", "");
-
-                File.WriteAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Console app\\Program.cs", file2);
-
-                T("File copied.");
-
-                return;
-            }
 
             InitializeComponent();
 
