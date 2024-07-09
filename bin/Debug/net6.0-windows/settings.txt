@@ -6,7 +6,7 @@ keepLeft: False
 displayFutureLines: False
 displayArea: True
 makeStats: True
-activeRules: True
+activeRules: False
 checkerBoard: True
 appliedSize: 9
 ruleXSize: 5

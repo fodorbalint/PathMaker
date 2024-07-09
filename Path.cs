@@ -1186,7 +1186,8 @@ namespace OneWayLabyrinth
                         // When CheckStraight is turned off, we can be at 5,1, going from down, and then nextX will never be 0. In this case, the second condition is needed.
 
                         int counter = 0;
-                        while (nextX > 0 && !InCornerRel(nextX, nextY))
+                        while (!(nextX <= 0 && nextY >= 1) && !InCornerRel(nextX, nextY) && !(counter > 0 && nextX == horiStart - 1 && nextY == 1))
+                        // See explanation at Corner2.
                         {
                             counter++;
                             if (counter == size * size)
@@ -2466,7 +2467,9 @@ namespace OneWayLabyrinth
 
                                 if (black == white)
                                 {
+                                    path.Add(new int[] { x + sx, y + sy }); // right side area checking needs it
                                     path.Add(new int[] { x - lx + 2 * sx, y - ly + 2 * sy });
+                                    
                                     x2 = x - lx + 2 * sx;
                                     y2 = y - ly + 2 * sy;
 
@@ -2492,6 +2495,7 @@ namespace OneWayLabyrinth
                                         forbidden.Add(new int[] { x + lx, y + ly });
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                     }
+                                    path.RemoveAt(path.Count - 1);
                                     path.RemoveAt(path.Count - 1);
                                 }
                             }
@@ -2539,7 +2543,9 @@ namespace OneWayLabyrinth
 
                                 if (black == white)
                                 {
+                                    path.Add(new int[] { x + sx, y + sy }); // right side area checking needs it
                                     path.Add(new int[] { x + 2 * sx, y + 2 * sy });
+                                    
                                     x2 = x + 2 * sx;
                                     y2 = y + 2 * sy;
 
@@ -2565,6 +2571,7 @@ namespace OneWayLabyrinth
                                         T("CheckSequence case 3 at " + x + " " + y + ", stop at " + x2 + " " + y2);
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                     }
+                                    path.RemoveAt(path.Count - 1);
                                     path.RemoveAt(path.Count - 1);
                                 }
                             }
@@ -2619,10 +2626,13 @@ namespace OneWayLabyrinth
                 int nextY = 1;
 
                 int counter = 0;
-                while (nextX >= 0 && !InCornerRel2(nextX, nextY))
-                { // First condition: Includes AreaUp
+                //T("nextX", nextX, nextY, circleDirectionLeft, x2, y2, lx2, ly2);
+                while (!(nextX < 0 && nextY >= 1) && !InCornerRel2(nextX, nextY) && !(counter > 0 && nextX == horiStart - 1 && nextY == 1))
+                { // First condition: Includes AreaUp. The closed area might go below and to -1 horizontal position.
                   // Second condition: 0708_1: Finish corner is reached, there cannot be small area from there.
-                  // Third condition: 0708_2 (if end corner checking is disabled): !(counter > 0 && nextX == horiStart - 1 && nextY == 1)
+                  // Third condition: 0708_2: We never get to -1 horizontal position, the area is closed. When we get to the first square again, break the cycle.
+
+                    //T("nextX", nextX, nextY);
                     counter++;
                     if (counter == size * size)
                     {
@@ -2653,7 +2663,7 @@ namespace OneWayLabyrinth
                         int hori = nextX + 1;
                         int vert = nextY + 1;
 
-                        // T("Corner at", hori, vert, "x2", x2, "y2", y2, "lx", lx, "ly", ly);
+                        T("Corner at", hori, vert, "x2", x2, "y2", y2, "lx2", lx2, "ly2", ly2, circleDirectionLeft);
 
                         bool circleValid = false;
                         List<int[]> borderFields = new();
@@ -3003,15 +3013,22 @@ namespace OneWayLabyrinth
 
         bool CheckSequenceRecursive(int side)
         {
-            // T("sequence recursive", x2, y2, lx2, ly2);
-
+            //T("Recursive", side, x2, y2, lx2, ly2);
             newExitField = new int[] { 0, 0 };
+
+            int x = path[path.Count - 1][0];
+            int y = path[path.Count - 1][1];
 
             bool leftSideClose = CheckNearFieldSmall2(true); // contains exit points for next call but only works for c-shapes and close obstacles.
             bool leftSideEnterNow = CheckCorner2(side, true);
-            bool rightSideClose = CheckNearFieldSmall2(false);
+            lx2 = -lx2;
+            ly2 = -ly2;
+            //T("Recursive right");
+            bool rightSideEnterNow = CheckCorner2(1 - side, true);
+            lx2 = -lx2;
+            ly2 = -ly2;
 
-            if ((leftSideClose || leftSideEnterNow) && rightSideClose)
+            if ((leftSideClose || leftSideEnterNow) && rightSideEnterNow)
             {
                 return true;
             }
@@ -4582,6 +4599,7 @@ namespace OneWayLabyrinth
 
             int x = path[path.Count - 1][0];
             int y = path[path.Count - 1][1];
+
             // second condition is needed in case of 2024_0411_1 where future possibility creates a 2-field area
             if (x == nextX + xDiff && y == nextY + yDiff || InTaken(nextX + xDiff, nextY + yDiff) || x == nextX + xDiff + directions[turnedDirection][0] && y == nextY + yDiff + directions[turnedDirection][1])
             {

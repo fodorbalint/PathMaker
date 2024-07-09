@@ -189,7 +189,7 @@ It is equal to what is described in the Online Encyclopedia of Integer Series (N
 
 As the sizes grow, it will be impossible to run through all cases with one computer in a reasonable time. In order to discover the patterns, we need to run the program randomly.
 
-Is it possible to develop an algorythm that works for all sizes? The edge-related and area-counting rules are universal, but the size-specific rules get more and more complex. Can you define them with one statement?
+Is it possible to develop an algorithm that works for all sizes? The edge-related and area-counting rules are universal, but the size-specific rules get more and more complex. Can you define them with one statement?
 
 I have made statistics about how many random walkthroughs you can complete on different grids using the 7 x 7-specific and the universal rules before running into an error. Based on 1000 attempts, here are the results:
 
@@ -2225,7 +2225,13 @@ Here, we have a stair shape on the left, and an area is created with one of the 
 <img align="top" src="References/2024_0704.svg" width="11" />
 
 The sequence algorithm can be applied here. So far, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. 
+
+<img align="top" src="References/2024_0706.svg" width="11" />
+
+Again, the second case of sequence, and the area is on the right side.
+
 <!--
+cite page numbers when mentioning a rule
 create a downstair case with larger horizontal distance
 other cases where entering now / later is not relevant in certain rotations?
 next step left/right areas should be shown. Find out how to make it in the simplest way.
