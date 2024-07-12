@@ -2239,7 +2239,25 @@ It is the first case of sequence where multiple steps have to be applied, just l
 <img align="top" src="References/2024_0709.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 extended C.svg" width="4" />
 
 We saw a similar case on page 174 where there were 2 close obstacles outside the area. We need to add C-shape checking too for an upper obstacle.
+
+<!---->
+
+<img align="top" src="References/2024_0710.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up extended 3 dist area.svg" width="5" />
+
+An extension of the case on page 159 where there is an area instead of a close obstacle.
+
+<!---->
+
+<img align="top" src="References/2024_0711.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 3 1 sequence.svg" width="6" />
+
+This is a more complex situation where we start with an 5 x 3 area which is 1B. In order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.
+But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.
+In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the fartest black for the first time.
+
 <!--
+Group random 11x11 examples in logical order.
+In 0710_1, two corners are found as a second area, but only one will evoke the rule. Both of them are displayed though. Secondary circles should always be green.
+0712: Unnecessary second area is displayed
 cite page numbers when mentioning a rule
 create a downstair case with larger horizontal distance
 other cases where entering now / later is not relevant in certain rotations?
