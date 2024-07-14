@@ -9,8 +9,15 @@ obj/
 /bin/Debug/net6.0-windows/log_stats.txt
 /bin/Debug/net6.0-windows/log_rules.txt
 /bin/Debug/net6.0-windows/log_performance.txt
+/bin/Debug/net6.0-windows/error case.txt
+/bin/Debug/net6.0-windows/error case.svg
 /bin/Debug/net6.0-windows/newRule.svg
 /bin/Debug/net6.0-windows/PathRules.cs
 /bin/Debug/net6.0-windows/completed/*.*
 /bin/Debug/net6.0-windows/incomplete/*.*
 /bin/Debug/net6.0-windows/checknearfield
+
+/Console app/log_stats.txt
+/Console app/log_rules.txt
+/Console app/log_performance.txt
+/Console app/error case.txt

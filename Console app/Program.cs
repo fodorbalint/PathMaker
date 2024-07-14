@@ -210,6 +210,9 @@ void DoThread()
             Console.Write("\rIn " + numberOfRuns + " runs, average " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run.                  ");
             Log("Current run: " + completedCount + ", " + numberOfCompleted + " in " + numberOfRuns + " runs. " + Math.Round((float)numberOfCompleted / numberOfRuns, 1) + " per run. " + errorString);
 
+            // Save at every cycle for further study
+            SavePath(false);
+
             if (numberOfRuns < statsRuns)
             {
                 InitializeList();
@@ -218,15 +221,13 @@ void DoThread()
             } 
             else
             {
-                // Save last error for further study
-                SavePath(false, true);
                 Console.Read();
             }
         }
         else
         {
             Console.Write("\r\nError at " + completedCount + ": " + errorString);
-            SavePath(false, true);
+            SavePath(false);
             Console.Read();
         }
     }
@@ -659,8 +660,10 @@ void NextStepPossibilities2()
                     // T("Forbidden: " + ShowForbidden());
                     // ----- copy end -----
 
-                    ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
-
+                    if (!makeStats)
+                    {
+                        ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
+                    }
                     break;
                 }
             }
@@ -715,7 +718,7 @@ void PreviousStep()
     }
 }
 
-void SavePath(bool isCompleted = true, bool inRoot = false) // used in fast run mode
+void SavePath(bool isCompleted = true) // used in fast run mode
 {
     int startX = 1;
     int startY = 1;
@@ -798,23 +801,27 @@ void SavePath(bool isCompleted = true, bool inRoot = false) // used in fast run 
     }
     else
     {
-        string path = "";
-        if (!inRoot)
+        if (!makeStats)
         {
-            path = "incomplete/";
-        }
-        if (File.Exists(baseDir + path + completedCount + ".txt"))
-        {
-            int i = 1;
-            while (File.Exists(baseDir + path + completedCount + "_" + i + ".txt"))
+            string path = "incomplete/";
+
+            if (File.Exists(baseDir + path + completedCount + ".txt"))
             {
-                i++;
+                int i = 1;
+                while (File.Exists(baseDir + path + completedCount + "_" + i + ".txt"))
+                {
+                    i++;
+                }
+                File.WriteAllText(baseDir + path + completedCount + "_" + i + ".txt", savePath);
             }
-            File.WriteAllText(baseDir + path + completedCount + "_" + i + ".txt", savePath);
+            else
+            {
+                File.WriteAllText(baseDir + path + completedCount + ".txt", savePath);
+            }
         }
         else
         {
-            File.WriteAllText(baseDir + path + completedCount + ".txt", savePath);
+            File.WriteAllText(baseDir + "error case.txt", savePath);
         }
     }
 }
@@ -2095,7 +2102,38 @@ void CheckLeftRightCorner() // rotations:
                                         // need to be generalized for larger than 1 vertical distance
                                         if (hori == 2)
                                         {
-                                            if (vert % 4 == 3 && j < 2) //  0610, 0610_1, #6 0625_1
+                                            if (vert == 3 && j < 2 && whiteDiff == 0) // 0713
+                                            {
+                                                path.Add(new int[] { x + lx + 2 * sx, y + ly + 2 * sy });
+                                                x2 = x + lx + sx;
+                                                y2 = y + ly + sy;
+                                                path.Add(new int[] { x2, y2 });
+
+                                                int[] rotatedDir = RotateDir(lx, ly, i);
+                                                lx2 = rotatedDir[0];
+                                                ly2 = rotatedDir[1];
+                                                rotatedDir = RotateDir(sx, sy, i);
+                                                sx2 = rotatedDir[0];
+                                                sy2 = rotatedDir[1];
+                                                lx2 = -lx2;
+                                                ly2 = -ly2;
+
+                                                if (CheckSequenceRecursive(1 - i)) // recursive main side is the right
+                                                {
+                                                    ruleTrue = true;
+                                                    // T("LeftRightCorner 2, 3 start stair: Cannot step left");
+                                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                                    if (j == 1) // big area
+                                                    {
+                                                        // T("LeftRightCorner 2, 3 start stair: Cannot step down");
+                                                        forbidden.Add(new int[] { x - sx, y - sy });
+                                                    }
+                                                }
+                                                path.RemoveAt(path.Count - 1);
+                                                path.RemoveAt(path.Count - 1);
+                                            }
+
+                                            if (vert % 4 == 3 && j < 2) // 0610, 0610_1, #6 0625_1
                                             {
                                                 if (-whiteDiff == (vert - 3) / 4)
                                                 {
@@ -2158,7 +2196,36 @@ void CheckLeftRightCorner() // rotations:
                                             }
                                         }
 
-                                        if (vert == 2 && hori == 4 && -whiteDiff == hori / 4) // 0711
+                                        else if (hori == 3 && vert == 4 && -whiteDiff == vert / 4) // 0712
+                                        {
+                                            path.Add(new int[] { x + 2 * lx + 3 * sx, y + 2 * ly + 3 * sy });
+                                            path.Add(new int[] { x + lx + 2 * sx, y + ly + 2 * sy });
+                                            x2 = x + lx + 2 * sx;
+                                            y2 = y + ly + 2 * sy;
+
+                                            int[] rotatedDir = RotateDir(lx, ly, i);
+                                            lx2 = rotatedDir[0];
+                                            ly2 = rotatedDir[1];
+                                            rotatedDir = RotateDir(sx, sy, i);
+                                            sx2 = rotatedDir[0];
+                                            sy2 = rotatedDir[1];
+
+                                            if (CheckCorner2(i, true))
+                                            {
+                                                ruleTrue = true;
+                                                // T("Corner 2 3 Mid Area at " + x + " " + y + ", stop at " + x2 + " " + y2);
+                                                forbidden.Add(new int[] { x + lx, y + ly });
+                                                if (j == 1)
+                                                {
+                                                    // T("Corner 2 3 Mid Area: Cannot step down");
+                                                    forbidden.Add(new int[] { x - sx, y - sy });
+                                                }
+                                            }
+                                            path.RemoveAt(path.Count - 1);
+                                            path.RemoveAt(path.Count - 1);
+                                        }
+
+                                        else if (hori == 4 && vert == 2 && -whiteDiff == hori / 4) // 0711
                                         {
                                             path.Add(new int[] { x + 3 * lx + sx, y + 3 * ly + sy });
 
@@ -2180,8 +2247,12 @@ void CheckLeftRightCorner() // rotations:
 
                                                 // T("Corner 3 1 Sequence at " + x + " " + y + ", stop at " + x2 + " " + y2);                                                        
                                                 forbidden.Add(new int[] { x + lx, y + ly });
+                                                if (j == 1)
+                                                {
+                                                    // T("Corner 3 1 Sequence: Cannot step down");
+                                                    forbidden.Add(new int[] { x - sx, y - sy });
+                                                }
                                             }
-
                                             path.RemoveAt(path.Count - 1);
                                         }
 
@@ -3680,7 +3751,7 @@ bool CheckCorner2(int side, bool strictSmall) // #8
 
 bool CheckSequenceRecursive(int side)
 {
-    // T("Recursive", side, x2, y2, lx2, ly2);
+    // T("Recursive start side: " + side, "x2 y2 lx2 ly2: " + x2, y2, lx2, ly2);
 
     counterrec++;
     if (counterrec == size * size)
@@ -3702,7 +3773,7 @@ bool CheckSequenceRecursive(int side)
     lx2 = -lx2;
     ly2 = -ly2;
 
-    // T("Recursive2", leftSideClose, leftSideEnterNow, rightSideEnterNow);
+    // T("Recursive checked", leftSideClose, leftSideEnterNow, rightSideEnterNow);
 
     if ((leftSideClose || leftSideEnterNow) && rightSideEnterNow)
     {

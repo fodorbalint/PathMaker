@@ -2254,10 +2254,23 @@ This is a more complex situation where we start with an 5 x 3 area which is 1B. 
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.
 In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the fartest black for the first time.
 
+<!---->
+
+<img align="top" src="References/2024_0712.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 mid area.svg" width="6" />
+
+When we have an obstacle 2 horizontal and 3 vertical distance away, and the area is 1B, the corner black has to be filled separately, and the border movement will make up a stair. At the second step, the area with the new obstacle is 1W, so we cannot enter it later.
+
+<!---->
+
+<img align="top" src="References/2024_0713.svg" width="11" />
+
+In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.
+
+
 <!--
 Group random 11x11 examples in logical order.
 In 0710_1, two corners are found as a second area, but only one will evoke the rule. Both of them are displayed though. Secondary circles should always be green.
-0712: Unnecessary second area is displayed
+0712_1: Unnecessary second area is displayed
 cite page numbers when mentioning a rule
 create a downstair case with larger horizontal distance
 other cases where entering now / later is not relevant in certain rotations?
