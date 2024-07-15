@@ -138,8 +138,7 @@ if (makeStats)
     numberOfRuns = 0;
     numberOfCompleted = 0;
     completedCount = 0;
-    File.WriteAllText(baseDir + "log_stats.txt", "");
-    File.WriteAllText(baseDir + "log_rules.txt", "");    
+    File.WriteAllText(baseDir + "log_stats.txt", "");  
 }
 else
 {
@@ -1316,6 +1315,8 @@ void CheckStraight()
                             int laterWCount = 0;
                             int laterBCount = 0;
 
+                            bool ruleTrue = false;
+
                             switch (ex % 4)
                             {
                                 case 0:
@@ -1329,6 +1330,16 @@ void CheckStraight()
                                     nowBCountLeft = nowBCount = (ex - 5) / 4;
                                     laterWCount = (ex - 1) / 4;
                                     laterBCount = (ex - 5) / 4; // At 5 distance, there are 3 white and 2 black fields on the border. A black to black line is not possible.
+                                    T(whiteDiff, nowWCount, j, CheckNearFieldSmallRel(0, 2, 1, 1, false));
+                                    if (j == 0 && whiteDiff == nowWCount) // 0715
+                                    {
+                                        if (CheckNearFieldSmallRel(0, 2, 1, 1, false))
+                                        {
+                                            ruleTrue = true;
+                                            // T("CheckStraight % 4 = 1 start obstacle: Cannot step straight");
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+                                        }
+                                    }
                                     break;
                                 case 2:
                                     nowWCount = (ex - 2) / 4; // At 6 distance, if we step straight and exit, the 5 distance situation remain with 3 black and 2 white fields. Another white to white line is not possible. 0610_6
@@ -1348,8 +1359,6 @@ void CheckStraight()
 
                             // T(black, white, nowWCount, nowBCount, nowWCountLeft, nowBCountLeft, laterWCount, laterBCount);
 
-                            bool ruleTrue = false;
-
                             if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount))
                             {
                                 ruleTrue = true;
@@ -1366,7 +1375,7 @@ void CheckStraight()
                                     forbidden.Add(new int[] { x - sx, y - sy });
                                 }
                             }
-                            if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
+                            if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount) && j != 2)
                             {
                                 ruleTrue = true;
                                 // T("Straight " + i + " " + j + ": Cannot enter later");
@@ -2666,7 +2675,7 @@ void CheckStraightNext() // 0618, 0619: When we enter the area, we need to step 
     ly = thisLy;
 }
 
-void CheckStraightSmall() // 0619_1
+void CheckStraightSmall() // 0619_1, 0714
 // Two columns are checked for being empty, but at the end the straight field must be taken, and the left field must be empty.
 {
     for (int i = 0; i < 2; i++)
@@ -2686,7 +2695,7 @@ void CheckStraightSmall() // 0619_1
 
             int ex = dist - 1;
 
-            if (ex == 4 && InTakenRel(0, dist) && !InTakenRel(1, dist))
+            if (ex >= 4 && ex <= 5 && InTakenRel(0, dist) && !InTakenRel(1, dist))
             {
                 int i1 = InTakenIndexRel(0, dist);
                 int i2 = InTakenIndexRel(-1, dist);
@@ -2711,11 +2720,23 @@ void CheckStraightSmall() // 0619_1
                     int black = (int)info[1];
                     int white = (int)info[2];
 
-                    if (white == black + 1)
+                    if (ex == 4 && white == black + 1) // 0619_1
                     {
                         if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
                         {
-                            // T("CheckStraightSmall double close obstacle inside: Cannot step straight and right");
+                            // T("CheckStraightSmall 4 double close obstacle inside: Cannot step straight and right");
+                            forbidden.Add(new int[] { x + sx, y + sy });
+                            forbidden.Add(new int[] { x - lx, y - ly });
+
+                            AddExamAreas();
+                        }
+                    }
+
+                    if (ex == 5 && white == black + 1) // 0714
+                    {
+                        if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
+                        {
+                            // T("CheckStraightSmall 5 double close obstacle inside: Cannot step straight and right");
                             forbidden.Add(new int[] { x + sx, y + sy });
                             forbidden.Add(new int[] { x - lx, y - ly });
 

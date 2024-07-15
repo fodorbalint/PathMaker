@@ -1832,15 +1832,21 @@ An extension of the case on page 159 where there is an area instead of a close o
 This is a more complex situation where we start with an 5 x 3 area which is 1B. In order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.<br />
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.<br />
 In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the fartest black for the first time.</div><div class="num">179</div></td>
-<td><div class="border"></div><div><img align="top" src="References/2024_0712.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/corner 2 3 mid area.svg" width="28.571428571429%" /><br />
+<td><div class="border"></div><div><img align="top" src="References/2024_0712.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/corner 2 3 mid area.svg" width="28.571428571429%" /><br />
 <br />
 When we have an obstacle 2 horizontal and 3 vertical distance away, and the area is 1B, the corner black has to be filled separately, and the border movement will make up a stair. At the second step, the area with the new obstacle is 1W, so we cannot enter it later.</div><div class="num">180</div></td></tr>
 <tr><td><div class="border"></div><div><img align="top" src="References/2024_0713.svg" width="52.380952380952%" /><br />
 <br />
-In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.<br />
+In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.</div><div class="num">181</div></td>
+<td><div class="border"></div><div><img align="top" src="References/2024_0714.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight 5 small area movement.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight 5 small area movement 1.svg" width="19.047619047619%" /><br />
 <br />
+The area is 1W. We have seen a case before, just with 4 distance to the main obstacle. There is a field between the entry and exit field, and we encounter an obstacle inside there area no matter if we fill it after entry or before exit.</div><div class="num">182</div></td></tr>
+<tr><td><div class="border"></div><div><img align="top" src="References/2024_0715.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight 5 dist start obstacle.svg" width="19.047619047619%" /><br />
+<br />
+With a 2W area, if we step straight, we have to step right afterwards. This conflicts with the obstacle on the right. The rule can be made universal to include distances of 9, 13 etc. to the first obstacle.<br />
 <br />
 <!--<br />
+Do not apply rules in irrelevant rotation, fx. straight j = 2 enter later<br />
 Group random 11x11 examples in logical order.<br />
 In 0710_1, two corners are found as a second area, but only one will evoke the rule. Both of them are displayed though. Secondary circles should always be green.<br />
 0712_1: Unnecessary second area is displayed<br />
@@ -1963,7 +1969,7 @@ Big area:<br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">181</div></td>
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">183</div></td>
 <td class="right"><div class="border"></div></td></tr>
  
 </table>

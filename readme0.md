@@ -2256,7 +2256,7 @@ In the program, we apply sequence after discovering a start area like this. We m
 
 <!---->
 
-<img align="top" src="References/2024_0712.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 mid area.svg" width="6" />
+<img align="top" src="References/2024_0712.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 mid area.svg" width="6" />
 
 When we have an obstacle 2 horizontal and 3 vertical distance away, and the area is 1B, the corner black has to be filled separately, and the border movement will make up a stair. At the second step, the area with the new obstacle is 1W, so we cannot enter it later.
 
@@ -2266,8 +2266,20 @@ When we have an obstacle 2 horizontal and 3 vertical distance away, and the area
 
 In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.
 
+<!---->
+
+<img align="top" src="References/2024_0714.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 small area movement.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 small area movement 1.svg" width="4" />
+
+The area is 1W. We have seen a case before, just with 4 distance to the main obstacle. There is a field between the entry and exit field, and we encounter an obstacle inside there area no matter if we fill it after entry or before exit.
+
+<!---->
+
+<img align="top" src="References/2024_0715.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 dist start obstacle.svg" width="4" />
+
+With a 2W area, if we step straight, we have to step right afterwards. This conflicts with the obstacle on the right. The rule can be made universal to include distances of 9, 13 etc. to the first obstacle.
 
 <!--
+Do not apply rules in irrelevant rotation, fx. straight j = 2 enter later
 Group random 11x11 examples in logical order.
 In 0710_1, two corners are found as a second area, but only one will evoke the rule. Both of them are displayed though. Secondary circles should always be green.
 0712_1: Unnecessary second area is displayed
