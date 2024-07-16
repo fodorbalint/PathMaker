@@ -1559,7 +1559,7 @@ namespace OneWayLabyrinth
                                                             path.RemoveAt(path.Count - 1);
                                                         }
                                                     }
-                                                    else if (vert % 4 == 0 && j < 2)  // 0610_2, 0610_3, #5 0625
+                                                    else if (vert % 4 == 0 && j < 2)  // 743059_1, 0610_2, 0610_3, #5 0625
                                                     {
                                                         if (-whiteDiff == vert / 4)
                                                         {
@@ -1651,6 +1651,20 @@ namespace OneWayLabyrinth
                                                         }
                                                     }
                                                     path.RemoveAt(path.Count - 1);
+                                                }
+
+                                                if (vert == hori + 2 && -whiteDiff == hori - 1 && CheckNearFieldSmallRel(1, 2, 0, 2, true)) // 743059_1, 0610_2, 0610_3, 0716_1
+                                                    // obstacle at any point of the return step?
+                                                    // far obstacle as in 0625?
+                                                {
+                                                    ruleTrue = true;
+                                                    T("Corner y = x + 2 return stair close obstacle: Cannot step left");
+                                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                                    if (j == 1)
+                                                    {
+                                                        T("Corner y = x + 2 return stair close obstacle: Cannot step down");
+                                                        forbidden.Add(new int[] { x - sx, y - sy });
+                                                    }
                                                 }
 
                                                 if (!(whiteDiff <= nowWCount && whiteDiff >= -nowBCount) && j != 3) // for left rotation, lx, ly is the down field
@@ -2063,72 +2077,93 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
         
-        void CheckStraightSmall() // 0619_1, 0714
+        void CheckStraightSmall() // 0619_1, 0714, 0716
         // Two columns are checked for being empty, but at the end the straight field must be taken, and the left field must be empty.
         {
             for (int i = 0; i < 2; i++)
             {
                 bool circleDirectionLeft = (i == 0) ? true : false;
 
-                for (int j = 0; j < 2; j++) // j = 0: straight area, j = 1: right (big) area
+                for (int j = 0; j < 3; j++) // j = 0: straight area, j = 1: right (big) area, j = 2: behind on right side (0716)
                 {
                     bool circleValid = false;
                     int dist = 1;
                     List<int[]> borderFields = new();
 
-                    while (!InTakenRel(0, dist) && !InBorderRel(0, dist) && !InTakenRel(1, dist) && !InBorderRel(1, dist))
+                    // stop when both 0 and 1 horizontal distance is empty or when border is encountered
+                    while(InTakenRel(0, dist) && !InTakenRel(1, dist))
                     {
                         dist++;
                     }
 
-                    int ex = dist - 1;
-
-                    if (ex >= 4 && ex <= 5 && InTakenRel(0, dist) && !InTakenRel(1, dist))
+                    if (!InTakenRel(0, dist) && !InTakenRel(1, dist))
                     {
-                        int i1 = InTakenIndexRel(0, dist);
-                        int i2 = InTakenIndexRel(-1, dist);
-
-                        if (i1 > i2)
+                        // if border hasn't been encountered, continue and stop when 0 is taken, 1 is empty
+                        while (!InTakenRel(0, dist) && !InTakenRel(1, dist) && !InBorderRel(0, dist))
                         {
-                            circleValid = true;
-                        }
-                    }
-
-                    if (circleValid)
-                    {
-                        for (int k = ex - 1; k >= 2; k--)
-                        {
-                            borderFields.Add(new int[] { 1, k });
+                            dist++;
                         }
 
-                        ResetExamAreas();
+                        int ex = dist - 1;
 
-                        if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                        if (ex >= 3 && ex <= 5 && InTakenRel(0, dist) && !InTakenRel(1, dist))
                         {
-                            int black = (int)info[1];
-                            int white = (int)info[2];
+                            int i1 = InTakenIndexRel(0, dist);
+                            int i2 = InTakenIndexRel(-1, dist);
 
-                            if (ex == 4 && white == black + 1) // 0619_1
+                            if (i1 > i2)
                             {
-                                if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
-                                {
-                                    T("CheckStraightSmall 4 double close obstacle inside: Cannot step straight and right");
-                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                    forbidden.Add(new int[] { x - lx, y - ly });
+                                circleValid = true;
+                            }
+                        }
 
-                                    AddExamAreas();
-                                }
+                        if (circleValid)
+                        {
+                            for (int k = ex - 1; k >= 2; k--)
+                            {
+                                borderFields.Add(new int[] { 1, k });
                             }
 
-                            if (ex == 5 && white == black + 1) // 0714
-                            {
-                                if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
-                                {
-                                    T("CheckStraightSmall 5 double close obstacle inside: Cannot step straight and right");
-                                    forbidden.Add(new int[] { x + sx, y + sy });
-                                    forbidden.Add(new int[] { x - lx, y - ly });
+                            ResetExamAreas();
 
-                                    AddExamAreas();
+                            if (CountAreaRel(1, 1, 1, ex, borderFields, circleDirectionLeft, 2, true))
+                            {
+                                int black = (int)info[1];
+                                int white = (int)info[2];
+
+                                if (j >= 1 && ex == 3 && white == black + 1) // 0716
+                                {
+                                    if (CheckNearFieldSmallRel(1, 0, 0, 1, true) && CheckNearFieldSmallRel(1, 2, 1, 2, false))
+                                    {
+                                        T("CheckStraightSmall 3 double close obstacle inside: Cannot step left");
+                                        forbidden.Add(new int[] { x + lx, y + ly });
+
+                                        AddExamAreas();
+                                    }
+                                }
+
+                                if (ex == 4 && white == black + 1) // 0619_1
+                                {
+                                    if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
+                                    {
+                                        T("CheckStraightSmall 4 double close obstacle inside: Cannot step straight and right");
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+
+                                        AddExamAreas();
+                                    }
+                                }
+
+                                if (ex == 5 && white == black + 1) // 0714
+                                {
+                                    if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
+                                    {
+                                        T("CheckStraightSmall 5 double close obstacle inside: Cannot step straight and right");
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                        forbidden.Add(new int[] { x - lx, y - ly });
+
+                                        AddExamAreas();
+                                    }
                                 }
                             }
                         }

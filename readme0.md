@@ -2185,6 +2185,10 @@ The area is 1W. We have to enter at the first white field and exit at the second
 
 Again, the area is 1W. There is a field between the entry and the exit field, and we encounter an obstacle inside there area no matter if we fill it after entry or before exit.
 
+<img align="top" src="References/2024_0716.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small 3 double obstacle inside.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small 3 double obstacle inside 2.svg" width="4" />
+
+The area is 1W here as well.
+
 <!---->
 
 <b>4. Double obstacle outside</b>
@@ -2254,6 +2258,17 @@ W = B:
 <img align="top" src="References/2024_0712.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 mid area.svg" width="6" />
 
 When we have an obstacle 2 horizontal and 3 vertical distance away, and the area is 1B, the corner black has to be filled separately, and the border movement will make up a stair. For the second step, the area with the new obstacle is 1W, so we cannot enter it later.
+
+<!---->
+
+<img align="top" src="References/2024_0716_1.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/down stair 2 4.svg" width="5" />
+
+This is the stair pattern from page 150, which we had abandoned in favor of area rules. We have already worked it out at a lesser distance:
+
+<img align="top" src="References/double area case 3 line 3.svg" width="4" />
+
+So to make it universal, we can say that if the vertical distance (y) = horizontal distance (x) + 2, and the area is xB, and we have the second obstacle present, we cannot enter now.
+Is the second obstacle a close obstacle relative to the field 1 left and 2 up, or can it occur at any point of the stair? Can it be a far obstacle, creating an area we must enter? We need examples to answer there questions.
 
 <!---->
 

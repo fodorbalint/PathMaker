@@ -1798,7 +1798,11 @@ Let's examine this area:<br />
 The area is 1W. We have to enter at the first white field and exit at the second. The second black field needs to be filled, so it gives us two possible enter / exit movements. In either scenario, a mid across obstacle is encountered inside the area.</div><div class="num">169</div></td></tr>
 <tr><td><div class="border"></div><div><img align="top" src="References/2024_0714.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight 5 small area movement.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight 5 small area movement 1.svg" width="19.047619047619%" /><br />
 <br />
-Again, the area is 1W. There is a field between the entry and the exit field, and we encounter an obstacle inside there area no matter if we fill it after entry or before exit.</div><div class="num">170</div></td></tr>
+Again, the area is 1W. There is a field between the entry and the exit field, and we encounter an obstacle inside there area no matter if we fill it after entry or before exit.<br />
+<br />
+<img align="top" src="References/2024_0716.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight small 3 double obstacle inside.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight small 3 double obstacle inside 2.svg" width="19.047619047619%" /><br />
+<br />
+The area is 1W here as well.</div><div class="num">170</div></td></tr>
 <tr><td><div class="border"></div><div><b>4. Double obstacle outside</b><br />
 <br />
 <img align="top" src="References/2024_0626_1.svg" width="52.380952380952%" /><br />
@@ -1848,26 +1852,34 @@ W = B:<br />
 <img align="top" src="References/2024_0712.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/corner 2 3 mid area.svg" width="28.571428571429%" /><br />
 <br />
 When we have an obstacle 2 horizontal and 3 vertical distance away, and the area is 1B, the corner black has to be filled separately, and the border movement will make up a stair. For the second step, the area with the new obstacle is 1W, so we cannot enter it later.</div><div class="num">177</div></td></tr>
+<tr><td><div class="border"></div><div><img align="top" src="References/2024_0716_1.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/down stair 2 4.svg" width="23.809523809524%" /><br />
+<br />
+This is the stair pattern from page 150, which we had abandoned in favor of area rules. We have already worked it out at a lesser distance:<br />
+<br />
+<img align="top" src="References/double area case 3 line 3.svg" width="19.047619047619%" /><br />
+<br />
+So to make it universal, we can say that if the vertical distance (y) = horizontal distance (x) + 2, and the area is xB, and we have the second obstacle present, we cannot enter now.<br />
+Is the second obstacle a close obstacle relative to the field 1 left and 2 up, or can it occur at any point of the stair? Can it be a far obstacle, creating an area we must enter? We need examples to answer there questions.</div><div class="num">178</div></td></tr>
 <tr><td><div class="border"></div><div><b>7. Stair area</b><br />
 <br />
 <img align="top" src="References/2024_0630.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/stair area.svg" width="23.809523809524%" /><br />
 <br />
-Here, we have a stair shape on the left, and an area is created with one of the steps that should be entered now. We can make an algorithm for a stair of any length.</div><div class="num">178</div></td></tr>
+Here, we have a stair shape on the left, and an area is created with one of the steps that should be entered now. We can make an algorithm for a stair of any length.</div><div class="num">179</div></td></tr>
 <tr><td><div class="border"></div><div><b>8. Sequence extensions</b><br />
 <br />
 <img align="top" src="References/2024_0706_1.svg" width="52.380952380952%" /><br />
 <br />
-It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.</div><div class="num">179</div></td></tr>
+It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.</div><div class="num">180</div></td></tr>
 <tr><td><div class="border"></div><div><img align="top" src="References/2024_0713.svg" width="52.380952380952%" /><br />
 <br />
-Third case (page 146). In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.</div><div class="num">180</div></td></tr>
+Third case (page 146). In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.</div><div class="num">181</div></td></tr>
 <tr><td><div class="border"></div><div><img align="top" src="References/2024_0704.svg" width="52.380952380952%" /><br />
 <br />
 Second case (page 145). Until now, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. <br />
 <br />
 <img align="top" src="References/2024_0706.svg" width="52.380952380952%" /><br />
 <br />
-Here, the area is on the right side.</div><div class="num">181</div></td></tr>
+Here, the area is on the right side.</div><div class="num">182</div></td></tr>
 <tr><td><div class="border"></div><div><b>9. Area end sequence</b><br />
 <br />
 <img align="top" src="References/2024_0711.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/corner 3 1 sequence.svg" width="28.571428571429%" /><br />
@@ -2001,6 +2013,6 @@ Big area:<br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">182</div></td></tr>
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">183</div></td></tr>
  
 </table>
