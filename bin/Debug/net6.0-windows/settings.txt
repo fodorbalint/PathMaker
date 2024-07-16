@@ -10,4 +10,4 @@ activeRules: False
 checkerBoard: True
 appliedSize: 9
 ruleXSize: 4
-ruleYSize: 7
+ruleYSize: 6

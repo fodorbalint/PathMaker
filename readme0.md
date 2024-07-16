@@ -2108,16 +2108,14 @@ In the third rotation position, where the first obstacle is behind on the right 
 It has to be said that at this point, the 9 x 9 grid is complete with this set of rules.
 My program ran through the left side in 45 hours, producing the expected number of walkthroughs of 1 344 153 757.
 
-The are a few examples on bigger boards that get stuck, but I don't think they are unsolvable. Let's see if we can fit them into the system we have built up so far. We run the program on 11 x 11, at random.
+The are a few examples on bigger boards that get stuck, but I don't think they are unsolvable. Let's see if we can fit them into the system we have built up so far.
+Considering the number of walkthroughs on 11 x 11 is 1445 trillion, we should not aim for even completing the half of them. It would take approximately 4300 years with the current rule set on the same computer.
 
 <!---->
 
-<img align="top" src="References/2024_0618.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/5 dist up lines.svg" width="5" />
+Instead, we run the program at random, but I will categorize the cases I have encountered.
 
-It is again about the movement rules on the area border, but it is a new case. If the area at 5 distance is 1W, we can enter later, but we have to step up from there in order to be able to exit at the farthest white field. The first black field will be filled from left to down.
-The field at 2 distance to the left must therefore not be taken.
-
-<!---->
+<b>1. Additional cases of border movement, second obstacle outside the area, at the end of it</b>
 
 <img align="top" src="References/2024_0618_2.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/areaup corner 4 closed later.svg" width="4" />
 
@@ -2130,13 +2128,17 @@ The previous rules can be transferred into this new group.
 
 <!---->
 
-<img align="top" src="References/2024_0619.svg" width="11" />
+<b>2. Start obstacle inside</b>
 
-At the previous step, the big area is 1W. Because of that, in the next step we cannot go straight or right, but there is a mid across obstacle on the other side. We can also say that the movement on the area borderline conflicts the mid across obstacle. Compare the first case with this:
+<img align="top" src="References/2024_0618.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/5 dist up lines.svg" width="5" />
 
-<img align="top" src="References/5 dist up lines.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/5 dist up lines v2.svg" width="4" />
+It is again about the movement rules on the area border, but it is a new case. If the area at 5 distance is 1W, we can enter later, but we have to step up from there in order to be able to exit at the farthest white field. This conflicts with the obstacle inside.
 
 <!---->
+
+<img align="top" src="References/2024_0619.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/5 dist up lines v2.svg" width="4" />
+
+At the previous step, the area is 1W. (1B with the shown checkerboard.) Looking at the rule represenation, stepping right is already disabled, but we cannot step straight either due to the second obstacle.
 
 To group these situations, first we check the area like this:
 
@@ -2145,6 +2147,9 @@ To group these situations, first we check the area like this:
 Then, depending on the distance, we will know that we need to step up after entering the area in the following cases:
 3 distance: 1W
 4 distance: 1B, but this situation cannot arise, because then we wouldn't be able to enter the area now.
+
+<!---->
+
 5 distance: 1W
 6 distance: If the area is 1B, it can be filled without having to enter at the first black field or having to step up if we do so.
 
@@ -2153,22 +2158,20 @@ The rule has three rotations. The obstacle defining the area can be:
 - Right up side
 - Bottom right side
 
-The second obstacle can be either in mid across or across position relative to the entry point as we have seen in the examples.
-
-<!---->
+The second obstacle is in mid across position relative to the entry point as we have seen in the examples. We do not go wrong if we include checking for an across obstacle, but is it necessary?
 
 If we run statistics now, it turns out that without these area border movement rules, the average number of walkthroughs before getting an error is 293, based on 100 attempts. By adding them, the number increases to 695. It tells us that in over half of the failures, this is the solution.
 This is a useful tool for debugging too. If, by introducing a new rule set, the errors become more frequent, there is a mistake in the algorithm.
 When we finished the 7 x 7 grid, the statistics gave us 5.7 walkthroughs on 11 x 11 using those rules.
-By developing the algorithm further, we have solved 99 % of the cases we could not at that time. We get a little less ratio on a 21 x 21 grid, but of a similar order of magniture: 9 vs. 0.2.
+By developing the algorithm further, we have solved 99 % of the cases we could not at that time. We get a little less ratio on a 21 x 21 grid, but of a similar order of magnitude: 9 vs. 0.2.
 
-We continue with random examples.
+<!---->
+
+<b>3. Double obstacle inside</b>
 
 <img align="top" src="References/2024_0619_1.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small area movement 0.svg" width="4" />
 
 If we fill all three areas, a field in the middle will be missed.
-
-<!---->
 
 Let's examine this area:
 
@@ -2178,22 +2181,13 @@ The area is 1W. We have to enter at the first white field and exit at the second
 
 <!---->
 
-<img align="top" src="References/2024_0624.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up big extended.svg" width="4" />
+<img align="top" src="References/2024_0714.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 small area movement.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 small area movement 1.svg" width="4" />
 
-The area is the extended version of the y vertical distance, 0 horizontal distance rule. (The first area we examined in this book.) It is not necessary to decide whether we can enter now or later, it is already taken care of by the other single area groups. But there is a close obstacle at the entry point outside the area. If, at 4 distance, the area is 1W, we enter at the first white field, from which we step down and left.
-Therefore, we cannot enter later.
-
-<!---->
-
-<img align="top" src="References/2024_0625.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 4 double area.svg" width="5" />
-
-The first area is 1B, so if we enter now, we will exit at the first black field, coming from above. This creates a second area, which is 1W, so we cannot enter it later.
-
-The next case is similar, only the first obstacle is closer vertically. The first area is W = B.
-
-<img align="top" src="References/2024_0625_1.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 double area.svg" width="5" />
+Again, the area is 1W. There is a field between the entry and the exit field, and we encounter an obstacle inside there area no matter if we fill it after entry or before exit.
 
 <!---->
+
+<b>4. Double obstacle outside</b>
 
 <img align="top" src="References/2024_0626_1.svg" width="11" />
 
@@ -2210,11 +2204,60 @@ The same area definition at 3 distance will solve Triple Area Exit Down, making 
 
 <img align="top" src="References/18677343.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 extended.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 extended 2.svg" width="4" />
 
-The next is a variation of the double area cases. The first area is 1B.
+<img align="top" src="References/2024_0709.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 extended C.svg" width="4" />
+
+Instead of an upper obstacle, here we have a C-shape, but its function is the same.
+
+<!---->
+
+<b>5. Start obstacle outside</b>
+
+<img align="top" src="References/2024_0624.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up big extended.svg" width="4" />
+
+The area is the extended version of the y vertical distance, 0 horizontal distance rule. (The first area we examined, at page 71.) It is not necessary to decide whether we can enter now or later, it is already taken care of by the other single area groups. But there is a close obstacle at the entry point outside the area. If, at 4 distance, the area is 1W, we enter at the first white field, from which we step down and left.
+Therefore, we cannot enter later.
+
+<!---->
+
+<img align="top" src="References/2024_0715.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 dist start obstacle.svg" width="4" />
+
+With a 2W area, if we step straight, we have to step right afterwards. This conflicts with the obstacle on the right.
+This and the previous rule can be made universal to include distances to the first obstacle increased by a multiple of 4.
+
+<!---->
+
+<b>6. End obstacle outside at x and y distance</b>
+
+We began the border movement rules with end obstacles that were close relative to the exit point. This has to be extended so that if we find any corner at x and y distance in the upper left quarter that makes up an area we cannot enter later, the rule applies.
+
+<img align="top" src="References/2024_0625.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 4 double area.svg" width="5" />
+
+Here, the first area is 1B, so if we enter now, we will exit at the first black field, coming from above. This creates a second area, which is 1W, so we cannot enter it later.
+
+<!---->
+
+The followings are variations, with different start areas.
+Here, the area is 1B:
 
 <img align="top" src="References/2024_0627.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/up 4 double area.svg" width="5" />
 
+W = B:
+
+<img align="top" src="References/2024_0625_1.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 double area.svg" width="5" />
+
 <!---->
+
+W = B:
+
+<img align="top" src="References/2024_0710.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up extended 3 dist area.svg" width="5" />
+
+<img align="top" src="References/2024_0712.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 mid area.svg" width="6" />
+
+When we have an obstacle 2 horizontal and 3 vertical distance away, and the area is 1B, the corner black has to be filled separately, and the border movement will make up a stair. For the second step, the area with the new obstacle is 1W, so we cannot enter it later.
+
+<!---->
+
+<b>7. Stair area</b>
 
 <img align="top" src="References/2024_0630.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/stair area.svg" width="5" />
 
@@ -2222,63 +2265,40 @@ Here, we have a stair shape on the left, and an area is created with one of the 
 
 <!---->
 
-<img align="top" src="References/2024_0704.svg" width="11" />
-
-The sequence algorithm can be applied here. So far, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. 
-
-<img align="top" src="References/2024_0706.svg" width="11" />
-
-Again, the second case of sequence, and the area is on the right side.
-
-<!---->
+<b>8. Sequence extensions</b>
 
 <img align="top" src="References/2024_0706_1.svg" width="11" />
 
-It is the first case of sequence where multiple steps have to be applied, just like we did at the second and third case.
-
-<img align="top" src="References/2024_0709.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 3 extended C.svg" width="4" />
-
-We saw a similar case on page 174 where there were 2 close obstacles outside the area. We need to add C-shape checking too for an upper obstacle.
-
-<!---->
-
-<img align="top" src="References/2024_0710.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up extended 3 dist area.svg" width="5" />
-
-An extension of the case on page 159 where there is an area instead of a close obstacle.
-
-<!---->
-
-<img align="top" src="References/2024_0711.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 3 1 sequence.svg" width="6" />
-
-This is a more complex situation where we start with an 5 x 3 area which is 1B. In order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.
-But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.
-In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the fartest black for the first time.
-
-<!---->
-
-<img align="top" src="References/2024_0712.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 3 mid area.svg" width="6" />
-
-When we have an obstacle 2 horizontal and 3 vertical distance away, and the area is 1B, the corner black has to be filled separately, and the border movement will make up a stair. At the second step, the area with the new obstacle is 1W, so we cannot enter it later.
+It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.
 
 <!---->
 
 <img align="top" src="References/2024_0713.svg" width="11" />
 
-In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.
+Third case (page 146). In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.
 
 <!---->
 
-<img align="top" src="References/2024_0714.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 small area movement.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 small area movement 1.svg" width="4" />
+<img align="top" src="References/2024_0704.svg" width="11" />
 
-The area is 1W. We have seen a case before, just with 4 distance to the main obstacle. There is a field between the entry and exit field, and we encounter an obstacle inside there area no matter if we fill it after entry or before exit.
+Second case (page 145). Until now, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. 
+
+<img align="top" src="References/2024_0706.svg" width="11" />
+
+Here, the area is on the right side.
 
 <!---->
 
-<img align="top" src="References/2024_0715.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 dist start obstacle.svg" width="4" />
+<b>9. Area end sequence</b>
 
-With a 2W area, if we step straight, we have to step right afterwards. This conflicts with the obstacle on the right. The rule can be made universal to include distances of 9, 13 etc. to the first obstacle.
+<img align="top" src="References/2024_0711.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 3 1 sequence.svg" width="6" />
+
+This is a more complex situation where we start with an 5 x 3 area which is 1B. In order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.
+But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.
+In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.
 
 <!--
+Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?
 Do not apply rules in irrelevant rotation, fx. straight j = 2 enter later
 Group random 11x11 examples in logical order.
 In 0710_1, two corners are found as a second area, but only one will evoke the rule. Both of them are displayed though. Secondary circles should always be green.

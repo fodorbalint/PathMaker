@@ -134,61 +134,61 @@ namespace OneWayLabyrinth
             DrawGrid();
 
             string singleGrid = "<svg xmlns =\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1 1\">\n\t<style>\n\t\tsvg { background-color: white; }\n\t</style>\n\t<!---->\n" + grid + "</svg>";
-            if (!File.Exists("singleGrid.svg")) File.WriteAllText(baseDir + "singleGrid.svg", singleGrid);
+            if (!File.Exists(baseDir + "singleGrid.svg")) File.WriteAllText(baseDir + "singleGrid.svg", singleGrid);
 
             string color = "#ff0000";
             string opacity = "0.15";
             liveEnd = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" +
                 "\t<path d=\"M 0.5 1 v -0.5\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             string content = singleGrid.Replace("<!---->", liveEnd);
-            if (!File.Exists("liveEnd.svg")) File.WriteAllText(baseDir + "liveEnd.svg", content);
+            if (!File.Exists(baseDir + "liveEnd.svg")) File.WriteAllText(baseDir + "liveEnd.svg", content);
 
             emptyField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"#dddddd\" fill-opacity=\"1\" />";
             content = singleGrid.Replace("<!---->", emptyField);
-            if (!File.Exists("emptyField.svg")) File.WriteAllText(baseDir + "emptyField.svg", content);
+            if (!File.Exists(baseDir + "emptyField.svg")) File.WriteAllText(baseDir + "emptyField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
             takenField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenField);
-            if (!File.Exists("takenField.svg")) File.WriteAllText(baseDir + "takenField.svg", content);
+            if (!File.Exists(baseDir + "takenField.svg")) File.WriteAllText(baseDir + "takenField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
             takenLeftField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.8 0.5 h -0.6 l 0.2 -0.2 l -0.2 0.2 l 0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenLeftField);
-            if (!File.Exists("takenLeftField.svg")) File.WriteAllText(baseDir + "takenLeftField.svg", content);
+            if (!File.Exists(baseDir + "takenLeftField.svg")) File.WriteAllText(baseDir + "takenLeftField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
             takenRightField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenRightField);
-            if (!File.Exists("takenRightField.svg")) File.WriteAllText(baseDir + "takenRightField.svg", content);
+            if (!File.Exists(baseDir + "takenRightField.svg")) File.WriteAllText(baseDir + "takenRightField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
             takenUpField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.5 0.8 v -0.6 l -0.2 0.2 l 0.2 -0.2 l 0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenUpField);
-            if (!File.Exists("takenUpField.svg")) File.WriteAllText(baseDir + "takenUpField.svg", content);
+            if (!File.Exists(baseDir + "takenUpField.svg")) File.WriteAllText(baseDir + "takenUpField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
             takenDownField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" + "\t<path d=\"M 0.5 0.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", takenDownField);
-            if (!File.Exists("takenDownField.svg")) File.WriteAllText(baseDir + "takenDownField.svg", content);
+            if (!File.Exists(baseDir + "takenDownField.svg")) File.WriteAllText(baseDir + "takenDownField.svg", content);
 
             color = "#000000";
             opacity = "0.5";
             takenOrBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />";
             content = singleGrid.Replace("<!---->", takenOrBorderField);
-            if (!File.Exists("takenOrBorderField.svg")) File.WriteAllText(baseDir + "takenOrBorderField.svg", content);
+            if (!File.Exists(baseDir + "takenOrBorderField.svg")) File.WriteAllText(baseDir + "takenOrBorderField.svg", content);
 
             color = "#0000ff";
             opacity = "0.15";
             futureStartField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" +
                 "\t<path d=\"M 0.2 0.2 v 0.6 v -0.3 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", futureStartField);
-            if (!File.Exists("futureStartField.svg")) File.WriteAllText(baseDir + "futureStartField.svg", content);
+            if (!File.Exists(baseDir + "futureStartField.svg")) File.WriteAllText(baseDir + "futureStartField.svg", content);
 
             color = "#0000ff";
             opacity = "0.15";
@@ -196,55 +196,55 @@ namespace OneWayLabyrinth
             futureEndField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" +
                 "\t<path d=\"M 0.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2 l 0.2 -0.2 v 0.3 v -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", futureEndField);
-            if (!File.Exists("futureEndField.svg")) File.WriteAllText(baseDir + "futureEndField.svg", content);
+            if (!File.Exists(baseDir + "futureEndField.svg")) File.WriteAllText(baseDir + "futureEndField.svg", content);
 
             notCornerField = "<path d=\"M 0.3 0.2 v 0.5 h 0.5 h -0.2 a 0.3 0.3 0 0 0 -0.3 -0.3\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" /><circle cx=\"0.42\" cy=\"0.58\" r=\"0.05\" fill=\"red\" fill-opacity=\"1\" />";
             content = singleGrid.Replace("<!---->", notCornerField);
-            if (!File.Exists("notCornerField.svg")) File.WriteAllText(baseDir + "notCornerField.svg", content);
+            if (!File.Exists(baseDir + "notCornerField.svg")) File.WriteAllText(baseDir + "notCornerField.svg", content);
 
             forbiddenField = "<path d=\"M 0.2 0.2 l 0.6 0.6 M 0.2 0.8 l 0.6 -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", forbiddenField);
-            if (!File.Exists("forbiddenField.svg")) File.WriteAllText(baseDir + "forbiddenField.svg", content);
+            if (!File.Exists(baseDir + "forbiddenField.svg")) File.WriteAllText(baseDir + "forbiddenField.svg", content);
 
             countAreaPairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaPairStartField);
-            if (!File.Exists("countAreaPairStartField.svg")) File.WriteAllText(baseDir + "countAreaPairStartField.svg", content);
+            if (!File.Exists(baseDir + "countAreaPairStartField.svg")) File.WriteAllText(baseDir + "countAreaPairStartField.svg", content);
 
             countAreaPairEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaPairEndField);
-            if (!File.Exists("countAreaPairEndField.svg")) File.WriteAllText(baseDir + "countAreaPairEndField.svg", content);
+            if (!File.Exists(baseDir + "countAreaPairEndField.svg")) File.WriteAllText(baseDir + "countAreaPairEndField.svg", content);
 
             countAreaPairBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />";
             content = singleGrid.Replace("<!---->", countAreaPairBorderField);
-            if (!File.Exists("countAreaPairBorderField.svg")) File.WriteAllText(baseDir + "countAreaPairBorderField.svg", content);
+            if (!File.Exists(baseDir + "countAreaPairBorderField.svg")) File.WriteAllText(baseDir + "countAreaPairBorderField.svg", content);
 
             countAreaImpairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairStartField);
-            if (!File.Exists("countAreaImpairStartField.svg")) File.WriteAllText(baseDir + "countAreaImpairStartField.svg", content);
+            if (!File.Exists(baseDir + "countAreaImpairStartField.svg")) File.WriteAllText(baseDir + "countAreaImpairStartField.svg", content);
 
             countAreaImpairEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairEndField);
-            if (!File.Exists("countAreaImpairEndField.svg")) File.WriteAllText(baseDir + "countAreaImpairEndField.svg", content);
+            if (!File.Exists(baseDir + "countAreaImpairEndField.svg")) File.WriteAllText(baseDir + "countAreaImpairEndField.svg", content);
 
             countAreaImpairBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#808000\" fill-opacity=\"0.25\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairBorderField);
-            if (!File.Exists("countAreaImpairBorderField.svg")) File.WriteAllText(baseDir + "countAreaImpairBorderField.svg", content);
+            if (!File.Exists(baseDir + "countAreaImpairBorderField.svg")) File.WriteAllText(baseDir + "countAreaImpairBorderField.svg", content);
 
             countAreaImpairDeterminedStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedStartField);
-            if (!File.Exists("countAreaImpairDeterminedStartField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedStartField.svg", content);
+            if (!File.Exists(baseDir + "countAreaImpairDeterminedStartField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedStartField.svg", content);
 
             countAreaImpairDeterminedEndField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.5 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13 l 0.13 -0.13 v 0.2 v -0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedEndField);
-            if (!File.Exists("countAreaImpairDeterminedEndField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedEndField.svg", content);
+            if (!File.Exists(baseDir + "countAreaImpairDeterminedEndField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedEndField.svg", content);
 
             countAreaImpairDeterminedBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedBorderField);
-            if (!File.Exists("countAreaImpairDeterminedBorderField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedBorderField.svg", content);
+            if (!File.Exists(baseDir + "countAreaImpairDeterminedBorderField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedBorderField.svg", content);
 
             countAreaImpairDeterminedEntryField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedEntryField);
-            if (!File.Exists("countAreaImpairDeterminedEntryField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedEntryField.svg", content);
+            if (!File.Exists(baseDir + "countAreaImpairDeterminedEntryField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedEntryField.svg", content);
 
             if (RuleGrid.Children.Count == 1)
             {

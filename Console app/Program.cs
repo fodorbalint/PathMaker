@@ -634,8 +634,8 @@ void NextStepPossibilities2()
 
                     // T("CheckLeftRightAreaUpExtended " + ShowForbidden());
                     CheckLeftRightAreaUpExtended(); // #1 close obstacle is at the end of the area, outside.
-                    // T("CheckStraightNext " + ShowForbidden());
-                    CheckStraightNext(); // #2 close obstacle is at the start of the area, inside.
+                    // T("CheckAreaUpStartObstacleInside " + ShowForbidden());
+                    CheckAreaUpStartObstacleInside(); // #2 close obstacle is at the start of the area, inside.
                     // T("CheckStraightSmall " + ShowForbidden());
                     CheckStraightSmall(); // #3 close obstacle is at the start and end of the area, inside. 4 distance only.
                     // T("CheckLeftRightAreaUpBigExtended " + ShowForbidden());
@@ -2563,7 +2563,7 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
     ly = thisLy;
 }
 
-void CheckStraightNext() // 0618, 0619: When we enter the area, we need to step up. There is a close obstacle the other way inside the area.
+void CheckAreaUpStartObstacleInside() // 0618, 0619: When we enter the area, we need to step up. There is a close obstacle the other way inside the area.
 {
     for (int i = 0; i < 2; i++)
     {
@@ -2627,10 +2627,10 @@ void CheckStraightNext() // 0618, 0619: When we enter the area, we need to step 
                     switch (ex % 4)
                     {
                         case 1:
-                            if (whiteDiff == (ex - 1) / 4 && CheckNearFieldSmallRel(1, 2, 0, 1, false))
+                            if (whiteDiff == (ex - 1) / 4 && CheckNearFieldSmallRel0(1, 2, 0, 1, true)) // 0618
                             {
                                 ruleTrue = true;
-                                // T("LeftRightAreaUp enter / exit obstacle: Cannot step straight and right");
+                                // T("AreaUpStartObstacleInside % 4 = 1: Cannot step straight and right");
                                 forbidden.Add(new int[] { x + sx, y + sy });
                                 if (j != 2) // the right field relative to the area (left of the main line) is now inside the area.
                                 {
@@ -2639,10 +2639,10 @@ void CheckStraightNext() // 0618, 0619: When we enter the area, we need to step 
                             }
                             break;
                         case 3:
-                            if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel(1, 0, 0, 1, false))
+                            if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel0(1, 0, 0, 1, true)) // 0619
                             {
                                 ruleTrue = true;
-                                // T("LeftRightAreaUp enter / exit obstacle: Cannot step left");
+                                // T("AreaUpStartObstacleInside % 4 = 3: Cannot step left");
                                 forbidden.Add(new int[] { x + lx, y + ly });
                             }
                             break;
@@ -3837,6 +3837,83 @@ bool CheckSequenceRecursive(int side)
     {
         return false;
     }
+}
+
+bool CheckNearFieldSmallRel0(int x, int y, int side, int rotation, bool strictSmall)
+{ // close mid across only
+  // obstacle right side of the field in question, area up
+  // mid across and across fields
+  // used for LeftRightAreaUp and LeftRightCorner
+    int lx = 1;
+    int ly = 0;
+    int sx = 0;
+    int sy = 1;
+
+    // Mid across obstacle:
+    // left side:
+    // 1, 2
+    // 2, -1
+    // -2, 1
+
+    // right side:
+    // -1, 2
+    // -2, -1
+    // 2, 1
+
+    // direction checkng is not necessary when the close obstacle is inside the area, but it is when the obstacle is at the exit point of the area. 1023055626
+
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 4; j++) // j = 0: middle, j = 1: small area, j = 2: big area, j = 3: big (right down) area
+        {
+            if (i == side && j == rotation)
+            {
+                // close mid across
+                if (InTakenRel(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenRel(x + 2 * sx, y + 2 * sy) && !InTakenRel(x + lx + sx, y + ly + sy))
+                {
+                    if (strictSmall)
+                    {
+                        int i1 = InTakenIndexRel(x + 1 * lx + 2 * sx, y + 1 * ly + 2 * sy);
+                        int i2 = InTakenIndexRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy);
+
+                        if (i2 > i1) return true;
+                    }
+                    else return true;
+                }
+            }
+
+            if (j == 0) // rotate down (CCW): small area
+            {
+                int l0 = lx;
+                int l1 = ly;
+                lx = -sx;
+                ly = -sy;
+                sx = l0;
+                sy = l1;
+            }
+            else if (j == 1) // rotate up (CW): big area
+            {
+                lx = -lx;
+                ly = -ly;
+                sx = -sx;
+                sy = -sy;
+            }
+            else // rotate CW again
+            {
+                int s0 = sx;
+                int s1 = sy;
+                sx = -lx;
+                sy = -ly;
+                lx = s0;
+                ly = s1;
+            }
+        }
+        lx = -1;
+        ly = 0;
+        sx = 0;
+        sy = 1;
+    }
+    return false;
 }
 
 bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSmall)
