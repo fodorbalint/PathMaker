@@ -1533,8 +1533,13 @@ void CheckLeftRightAreaUp()
                                 if (j != 3) // no small small area
                                 {
                                     ruleTrue = true;
-                                    // T("LeftRightAreaUp: Cannot enter now");
+                                    // T("LeftRightAreaUp: Cannot enter now left ");
                                     forbidden.Add(new int[] { x + lx, y + ly });
+                                    if (j == 1)
+                                    {
+                                        // T("LeftRightAreaUp: Cannot enter now down");
+                                        forbidden.Add(new int[] { x - sx, y - sy });
+                                    }
                                 }
                             }
                             if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
@@ -1845,7 +1850,7 @@ void CheckLeftRightCorner() // rotations:
                         int hori = nextX + 1;
                         int vert = nextY + 1;
 
-                        //T("Corner found at " + hori + " " + vert);
+                        //T("Corner found at " + hori + " " + vert + " i " + i + " j " + j);
 
                         bool circleValid = false;
 
@@ -2074,7 +2079,7 @@ void CheckLeftRightCorner() // rotations:
 
                                     for (int k = 1; k <= vert - hori; k++)
                                     {
-                                        if (InTakenRel(hori - 1 + k, hori - 1))
+                                        if (InTakenRel(hori - 1, hori - 1 + k))
                                         {
                                             takenFound = true;
                                             break;
@@ -2266,6 +2271,7 @@ void CheckLeftRightCorner() // rotations:
                                         }
 
                                         if (vert == hori + 2 && -whiteDiff == hori - 1 && CheckNearFieldSmallRel(1, 2, 0, 2, true)) // 743059_1, 0610_2, 0610_3, 0716_1
+                                            // stair entered from side
                                             // obstacle at any point of the return step?
                                             // far obstacle as in 0625?
                                         {
@@ -2276,6 +2282,41 @@ void CheckLeftRightCorner() // rotations:
                                             {
                                                 // T("Corner y = x + 2 return stair close obstacle: Cannot step down");
                                                 forbidden.Add(new int[] { x - sx, y - sy });
+                                            }
+                                        }
+
+                                        if (vert == hori + 3 && -whiteDiff == hori - 1) // 0717, 0717_3 (far obstacle)
+                                            // stair entered from below
+                                        {
+                                            path.Add(new int[] { x + (hori - 1) * lx + (vert - 1) * sx, y + (hori - 1) * ly + (vert - 1) * sy });
+
+                                            int m;
+                                            for (m = 1; m <= hori - 1; m++)
+                                            {
+                                                path.Add(new int[] { x + (hori - 1 - m) * lx + (vert - 1 - m) * sx, y + (hori - 1 - m) * ly + (vert - 1 - m) * sy });
+                                            }
+                                            m--;
+
+                                            x2 = x + (hori - 1 - m) * lx + (vert - 1 - m) * sx;
+                                            y2 = y + (hori - 1 - m) * ly + (vert - 1 - m) * sy;
+
+                                            int[] rotatedDir = RotateDir(lx, ly, i);
+                                            lx2 = rotatedDir[0];
+                                            ly2 = rotatedDir[1];
+                                            rotatedDir = RotateDir(sx, sy, i);
+                                            sx2 = rotatedDir[0];
+                                            sy2 = rotatedDir[1];
+
+                                            if (CheckCorner2(i, true))
+                                            {
+                                                ruleTrue = true;
+                                                // T("Corner y = x + 3 return stair close obstacle: Cannot step up");
+                                                forbidden.Add(new int[] { x + sx, y + sy });
+                                            }
+
+                                            for (m = 0; m <= hori - 1; m++)
+                                            {
+                                                path.RemoveAt(path.Count - 1);
                                             }
                                         }
 
@@ -2594,6 +2635,8 @@ void CheckAreaUpStartObstacleInside() // 0618, 0619: When we enter the area, we 
                 dist++;
             }
 
+            // T("dist", dist, i, j);
+
             int ex = dist - 1;
 
             if (ex >= 3 && ex % 2 == 1)
@@ -2641,7 +2684,7 @@ void CheckAreaUpStartObstacleInside() // 0618, 0619: When we enter the area, we 
                     switch (ex % 4)
                     {
                         case 1:
-                            if (whiteDiff == (ex - 1) / 4 && CheckNearFieldSmallRel0(1, 2, 0, 1, true)) // 0618
+                            if (j <= 1 && whiteDiff == (ex - 1) / 4 && CheckNearFieldSmallRel1(1, 2, 0, 1, true)) // Mid across: 0618, Across: 0717_1
                             {
                                 ruleTrue = true;
                                 // T("AreaUpStartObstacleInside % 4 = 1: Cannot step straight and right");
@@ -2653,7 +2696,7 @@ void CheckAreaUpStartObstacleInside() // 0618, 0619: When we enter the area, we 
                             }
                             break;
                         case 3:
-                            if (whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel0(1, 0, 0, 1, true)) // 0619
+                            if (j >= 1 && whiteDiff == (ex + 1) / 4 && CheckNearFieldSmallRel1(1, 0, 0, 1, true)) // Mid across: 0619, Across: 0717_2, area up 3 start obstacle
                             {
                                 ruleTrue = true;
                                 // T("AreaUpStartObstacleInside % 4 = 3: Cannot step left");
@@ -2689,7 +2732,7 @@ void CheckAreaUpStartObstacleInside() // 0618, 0619: When we enter the area, we 
     ly = thisLy;
 }
 
-void CheckStraightSmall() // 0619_1, 0714, 0716
+void CheckStraightSmall() // 0619_1, 0714, 0716, 0717_4
 // Two columns are checked for being empty, but at the end the straight field must be taken, and the left field must be empty.
 {
     for (int i = 0; i < 2; i++)
@@ -2718,7 +2761,7 @@ void CheckStraightSmall() // 0619_1, 0714, 0716
 
                 int ex = dist - 1;
 
-                if (ex >= 3 && ex <= 5 && InTakenRel(0, dist) && !InTakenRel(1, dist))
+                if (ex >= 2 && ex <= 5 && InTakenRel(0, dist) && !InTakenRel(1, dist))
                 {
                     int i1 = InTakenIndexRel(0, dist);
                     int i2 = InTakenIndexRel(-1, dist);
@@ -2743,6 +2786,17 @@ void CheckStraightSmall() // 0619_1, 0714, 0716
                         int black = (int)info[1];
                         int white = (int)info[2];
 
+                        if (j >= 1 && ex == 2 && white == black + 1) // 0717_4
+                        {
+                            if (CheckNearFieldSmallRel(1, 0, 0, 1, true) && CheckNearFieldSmallRel(1, 2, 1, 2, false))
+                            {
+                                // T("CheckStraightSmall 2 double close obstacle inside: Cannot step left");
+                                forbidden.Add(new int[] { x + lx, y + ly });
+
+                                AddExamAreas();
+                            }
+                        }
+
                         if (j >= 1 && ex == 3 && white == black + 1) // 0716
                         {
                             if (CheckNearFieldSmallRel(1, 0, 0, 1, true) && CheckNearFieldSmallRel(1, 2, 1, 2, false))
@@ -2754,7 +2808,7 @@ void CheckStraightSmall() // 0619_1, 0714, 0716
                             }
                         }
 
-                        if (ex == 4 && white == black + 1) // 0619_1
+                        if (j <= 1 && ex == 4 && white == black + 1) // 0619_1
                         {
                             if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
                             {
@@ -2766,7 +2820,7 @@ void CheckStraightSmall() // 0619_1, 0714, 0716
                             }
                         }
 
-                        if (ex == 5 && white == black + 1) // 0714
+                        if (j <= 1 && ex == 5 && white == black + 1) // 0714
                         {
                             if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
                             {
@@ -3951,6 +4005,96 @@ bool CheckNearFieldSmallRel0(int x, int y, int side, int rotation, bool strictSm
     return false;
 }
 
+bool CheckNearFieldSmallRel1(int x, int y, int side, int rotation, bool strictSmall)
+{ // close mid across and across only
+  // obstacle right side of the field in question, area up
+  // mid across and across fields
+  // used for LeftRightAreaUp and LeftRightCorner
+    int lx = 1;
+    int ly = 0;
+    int sx = 0;
+    int sy = 1;
+
+    // Mid across obstacle:
+    // left side:
+    // 1, 2
+    // 2, -1
+    // -2, 1
+
+    // right side:
+    // -1, 2
+    // -2, -1
+    // 2, 1
+
+    // direction checkng is not necessary when the close obstacle is inside the area, but it is when the obstacle is at the exit point of the area. 1023055626
+
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 4; j++) // j = 0: middle, j = 1: small area, j = 2: big area, j = 3: big (right down) area
+        {
+            if (i == side && j == rotation)
+            {
+                // close mid across
+                if (InTakenRel(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenRel(x + 2 * sx, y + 2 * sy) && !InTakenRel(x + lx + sx, y + ly + sy))
+                {
+                    if (strictSmall)
+                    {
+                        int i1 = InTakenIndexRel(x + 1 * lx + 2 * sx, y + 1 * ly + 2 * sy);
+                        int i2 = InTakenIndexRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy);
+
+                        if (i2 > i1) return true;
+                    }
+                    else return true;
+                }
+
+                // close across
+                if (InTakenRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy) && !InTakenRel(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenRel(x + 2 * lx + sx, y + 2 * ly + sy))
+                {
+                    if (strictSmall)
+                    {
+                        int i1 = InTakenIndexRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy);
+                        int i2 = InTakenIndexRel(x + 3 * lx + 2 * sx, y + 3 * ly + 2 * sy);
+
+                        if (i2 > i1) return true;
+                    }
+                    else return true;
+                }
+            }
+
+            if (j == 0) // rotate down (CCW): small area
+            {
+                int l0 = lx;
+                int l1 = ly;
+                lx = -sx;
+                ly = -sy;
+                sx = l0;
+                sy = l1;
+            }
+            else if (j == 1) // rotate up (CW): big area
+            {
+                lx = -lx;
+                ly = -ly;
+                sx = -sx;
+                sy = -sy;
+            }
+            else // rotate CW again
+            {
+                int s0 = sx;
+                int s1 = sy;
+                sx = -lx;
+                sy = -ly;
+                lx = s0;
+                ly = s1;
+            }
+        }
+        lx = -1;
+        ly = 0;
+        sx = 0;
+        sy = 1;
+    }
+    return false;
+}
+
 bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSmall)
 { // obstacle right side of the field in question, area up
   // mid across and across fields
@@ -4000,6 +4144,7 @@ bool CheckNearFieldSmallRel(int x, int y, int side, int rotation, bool strictSma
                     }
                     else return true;
                 }
+
                 // close across
                 if (InTakenRel(x + 2 * lx + 2 * sx, y + 2 * ly + 2 * sy) && !InTakenRel(x + lx + 2 * sx, y + ly + 2 * sy) && !InTakenRel(x + 2 * lx + sx, y + 2 * ly + sy))
                 {

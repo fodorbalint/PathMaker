@@ -2191,6 +2191,13 @@ The area is 1W here as well.
 
 <!---->
 
+And here is the case for 2 distance, with 1W area:
+
+
+<img align="top" src="References/2024_0717_4.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small 2 double obstacle inside.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight small 2 double obstacle inside 2.svg" width="4" />
+
+<!---->
+
 <b>4. Double obstacle outside</b>
 
 <img align="top" src="References/2024_0626_1.svg" width="11" />
@@ -2269,6 +2276,24 @@ This is the stair pattern from page 150, which we had abandoned in favor of area
 
 So to make it universal, we can say that if the vertical distance (y) = horizontal distance (x) + 2, and the area is xB, and we have the second obstacle present, we cannot enter now.
 Is the second obstacle a close obstacle relative to the field 1 left and 2 up, or can it occur at any point of the stair? Can it be a far obstacle, creating an area we must enter? We need examples to answer there questions.
+
+<!---->
+
+But here is another stair case. This time the entry point is from below.
+
+<img align="top" src="References/2024_0717.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/down stair 1 4.svg" width="5" />
+
+The examined area is 1B. Only stepping up has to be disabled, we can step left and enter the area going 2 up, 1 right, 1 down and 1 right. An extension of this would look like:
+
+<img align="top" src="References/down stair 2 5.svg" width="6" />
+
+If the horizontal distance to the first obstacle is x, an xB area satisfies the condition.
+
+<!---->
+
+The next example shows a stair where there is a far obstacle at the end.
+
+<img align="top" src="References/2024_0717_3.svg" width="11" /><img src="References/spacer.svg" width="1" />
 
 <!---->
 
