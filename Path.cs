@@ -77,6 +77,11 @@ namespace OneWayLabyrinth
         public List<int> examAreaLineTypes = new();
         public List<bool> examAreaLineDirections = new();
         public List<List<int[]>> examAreaPairFields = new();
+        List<int[]> examAreaLine2 = new();
+        int examAreaLineType2 = 0;
+        bool examAreaLineDirection2 = false;
+        List<int[]> examAreaPairField2 = new();
+
         //used only for displaying area
         public List<List<int[]>> areaLines = new();
         public List<int> areaLineTypes = new();
@@ -408,6 +413,8 @@ namespace OneWayLabyrinth
                                 CheckLeftRightAreaUpBigExtended(); // #4 when entering at the first white field, we have to step down to the first black and then left to enter as in 0624
                                 T("CheckStraightBig " + ShowForbidden());
                                 CheckStraightBig(); // #7 close obstacle is at the start and end of the area, outside. 4 distance only.
+                                T("CheckReverseStair " + ShowForbidden());
+                                CheckReverseStair(); // 0718, reverse stair 1/2
                                 T("CheckStairArea " + ShowForbidden());
                                 CheckStairArea(); // #9 Stair on one side, and one of the steps creates an area where we can only enter now.
                                 T("Forbidden: " + ShowForbidden());
@@ -425,7 +432,7 @@ namespace OneWayLabyrinth
                                 T("Forbidden: " + ShowForbidden());
                                 // ----- copy end -----
 
-                                T("DirectionalArea: " + DirectionalArea + "\n" + "DoubleArea1: " + DoubleArea1 + "\n" + "DoubleArea2: " + DoubleArea2 + "\n" + "DoubleArea3: " + DoubleArea3 + "\n" + "DoubleArea4: " + DoubleArea4 + "\n" + "DoubleArea1Rotated: " + DoubleArea1Rotated + "\n" + "Sequence1: " + Sequence1 + "\n" + "Sequence2: " + Sequence2 + "\n" + "Sequence3: " + Sequence3 + "\n" + "DownStairClose: " + DownStairClose + "\n" + "DownStair: " + DownStair + "\n" + "DoubleAreaFirstCaseRotatedNext: " + DoubleAreaFirstCaseRotatedNext + "\n" + "DownStairNext: " + DownStairNext);
+                                /*T("DirectionalArea: " + DirectionalArea + "\n" + "DoubleArea1: " + DoubleArea1 + "\n" + "DoubleArea2: " + DoubleArea2 + "\n" + "DoubleArea3: " + DoubleArea3 + "\n" + "DoubleArea4: " + DoubleArea4 + "\n" + "DoubleArea1Rotated: " + DoubleArea1Rotated + "\n" + "Sequence1: " + Sequence1 + "\n" + "Sequence2: " + Sequence2 + "\n" + "Sequence3: " + Sequence3 + "\n" + "DownStairClose: " + DownStairClose + "\n" + "DownStair: " + DownStair + "\n" + "DoubleAreaFirstCaseRotatedNext: " + DoubleAreaFirstCaseRotatedNext + "\n" + "DownStairNext: " + DownStairNext);*/
 
                                 window.ShowActiveRules(activeRules, activeRulesForbiddenFields, startForbiddenFields, activeRuleSizes);
 
@@ -1204,7 +1211,9 @@ namespace OneWayLabyrinth
                         int counter = 0;
 
                         while (!(nextX <= 0 && nextY >= 1) && !InCornerRel(nextX, nextY) && !(counter > 0 && nextX == horiStart - 1 && nextY == 1))
-                        // See explanation at Corner2.
+                        // First condition: Includes AreaUp. The closed area might go below and to -1 horizontal position.
+                        // Second condition: 0708_1: Finish corner is reached, there cannot be small area from there.
+                        // Third condition: 0708_2: We never get to -1 horizontal position, the area is closed. When we get to the first square again, break the cycle.
                         {
                             counter++;
                             if (counter == size * size)
@@ -1647,7 +1656,7 @@ namespace OneWayLabyrinth
                                                     {
                                                         AddExamAreas(true);
 
-                                                        T("Corner 3 1 Sequence at " + x + " " + y + ", stop at " + x2 + " " + y2);                                                        
+                                                        T("Corner 3 1 Sequence at " + x + " " + y + ", stop at " + x2 + " " + y2 + ": Cannot step left");                                                        
                                                         forbidden.Add(new int[] { x + lx, y + ly });
                                                         if (j == 1)
                                                         {
@@ -1900,7 +1909,7 @@ namespace OneWayLabyrinth
                                             if (CheckCorner2(i, true))
                                             {
                                                 ruleTrue = true;
-                                                T("LeftRightAreaUp open corner 4: Cannot step straight");
+                                                T("LeftRightAreaUpExtended open corner 4: Cannot step straight");
                                                 forbidden.Add(new int[] { x + sx, y + sy });
                                             }
                                             path.RemoveAt(path.Count - 1);
@@ -1917,7 +1926,7 @@ namespace OneWayLabyrinth
                                         else if (whiteDiff == ex / 4 && CheckNearFieldSmallRel(0, ex, 0, 2, true))
                                         {
                                             ruleTrue = true;
-                                            T("LeftRightAreaUp closed corner 4: Cannot step right");
+                                            T("LeftRightAreaUpExtended closed corner 4: Cannot step right");
                                             forbidden.Add(new int[] { x - lx, y - ly });
                                         }
                                         break;
@@ -1926,7 +1935,7 @@ namespace OneWayLabyrinth
                                         if (whiteDiff == (ex + 3) / 4 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
                                         {
                                             ruleTrue = true;
-                                            T("LeftRightAreaUp open corner 5: Cannot step right");
+                                            T("LeftRightAreaUpExtended open corner 5: Cannot step right");
                                             forbidden.Add(new int[] { x - lx, y - ly });
                                         }
                                         break;
@@ -1943,14 +1952,14 @@ namespace OneWayLabyrinth
                                         if (whiteDiff == (ex + 1) / 4 + 1 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
                                         {
                                             ruleTrue = true;
-                                            T("LeftRightAreaUp open corner 3: Cannot step left");
+                                            T("LeftRightAreaUpExtended open corner 3: Cannot step left");
                                             forbidden.Add(new int[] { x + lx, y + ly });
                                         }
                                         // 0611
                                         if (whiteDiff == (ex + 1) / 4 + 1 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
                                         {
                                             ruleTrue = true;
-                                            T("LeftRightAreaUp open corner 3: Cannot step left");
+                                            T("LeftRightAreaUpExtended open corner 3: Cannot step left");
                                             forbidden.Add(new int[] { x + lx, y + ly });
                                         }
                                         // 0611, 0710
@@ -1971,7 +1980,7 @@ namespace OneWayLabyrinth
                                             if (CheckCorner2(i, true))
                                             {
                                                 ruleTrue = true;
-                                                T("LeftRightAreaUp open corner 4: Cannot step straight");
+                                                T("LeftRightAreaUpExtended open corner 3: Cannot step straight");
                                                 forbidden.Add(new int[] { x + sx, y + sy });
                                             }
                                             path.RemoveAt(path.Count - 1);
@@ -2022,8 +2031,6 @@ namespace OneWayLabyrinth
                     {
                         dist++;
                     }
-
-                    T("dist", dist, i, j);
 
                     int ex = dist - 1;
 
@@ -2398,7 +2405,7 @@ namespace OneWayLabyrinth
             {
                 bool circleDirectionLeft = (i == 0) ? true : false;
 
-                for (int j = 0; j < 2; j++) // j = ö: straight area, j = 1: left (small) area
+                for (int j = 0; j < 2; j++) // j = 0: straight area, j = 1: left (small) area
                 {
                     bool circleValid = false;
                     int dist = 1;
@@ -2494,13 +2501,150 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
+        void CheckReverseStair() // 0718, reverse stair 1/2
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 2; j++) // j = 0: straight area, j = 1: left (small) area
+                {
+                    bool circleValid = false;
+                    int dist = 1;                    
+
+                    while (!InTakenRel(dist, 0) && !InBorderRel(dist, 0))
+                    {
+                        dist++;
+                    }
+                    dist--;
+
+                    if (dist >= 3 && !InBorderRel(dist, 0))
+                    {
+                        int nextX = dist;
+                        int nextY = 0;
+
+                        int currentDirection = 0;
+                        int counter = 0;
+
+                        while (!(nextY >= nextX && nextY > 0 && nextX > 0)  && !InCornerRel(nextX, nextY))
+                        {
+                            // Only stop when arealine reaches the 45 degree slope in the first quarter.
+                            counter++;
+                            if (counter == size * size)
+                            {
+                                T("ReverseStair corner discovery error.");
+
+                                window.errorInWalkthrough = true;
+                                window.errorString = "ReverseStair corner discovery error.";
+                                window.criticalError = true;
+                                return;
+                            }
+
+                            // left direction
+                            currentDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
+                            int l = currentDirection;
+                            int possibleNextX = nextX + directions[currentDirection][0];
+                            int possibleNextY = nextY + directions[currentDirection][1];
+
+                            // turn right until a field is empty 
+                            while (InBorderRel(possibleNextX, possibleNextY) || InTakenRel(possibleNextX, possibleNextY))
+                            {
+                                l = (l == 0) ? 3 : l - 1;
+                                possibleNextX = nextX + directions[l][0];
+                                possibleNextY = nextY + directions[l][1];
+                            }
+
+                            if (currentDirection == 1 && l == 1 && nextX >= 3 && nextX == nextY + 2)
+                            {
+                                bool takenFound = false;
+
+                                List<int[]> borderFields = new();
+                                for (int k = 1; k <= nextY; k++)
+                                {
+                                    if (InTakenRel(k, k) || InTakenRel(k + 1, k))
+                                    {
+                                        takenFound = true;
+                                        break;
+                                    }
+
+                                    if (k == 1)
+                                    {
+                                        borderFields.Add(new int[] { 2, 1 });
+                                    }
+                                    else
+                                    {
+                                        borderFields.Add(new int[] { k, k });
+                                        borderFields.Add(new int[] { k + 1, k });
+                                    }
+                                }
+
+                                if (!takenFound)
+                                {
+                                    // reverse order
+                                    List<int[]> newBorderFields = new();
+                                    for (int k = borderFields.Count - 1; k >= 0; k--)
+                                    {
+                                        newBorderFields.Add(borderFields[k]);
+                                    }
+
+                                    ResetExamAreas();
+
+                                    if (CountAreaRel(1, 1, nextX, nextY, newBorderFields, circleDirectionLeft, 2, true))
+                                    {                                        
+                                        int black = (int)info[1];
+                                        int white = (int)info[2];
+
+                                        if (black == white && CheckNearFieldSmallRel0(nextX, nextY, 0, 0, true) && CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false))
+                                        {
+                                            AddExamAreas();
+                                            T("Reverse stair at " + nextX + " " + nextY + ": Cannot step straight");
+                                            forbidden.Add(new int[] { x + sx, y + sy });
+
+                                            if (j == 0)
+                                            {
+                                                T("Reverse stair at " + nextX + " " + nextY + ": Cannot step right");
+                                                forbidden.Add(new int[] { x - lx, y - ly });
+                                            }
+
+                                            
+                                        }
+                                    }
+                                }
+                            }
+
+                            currentDirection = l;
+
+                            nextX = possibleNextX;
+                            nextY = possibleNextY;
+                        }
+                    }
+
+                    // rotate CCW
+                    int l0 = lx;
+                    int l1 = ly;
+                    lx = -sx;
+                    ly = -sy;
+                    sx = l0;
+                    sy = l1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
         void CheckStairArea() // 0630: Stair on one side, and one of the steps creates an area where we can only enter now.
         {
             for (int i = 0; i < 2; i++)
             {
                 bool circleDirectionLeft = (i == 0) ? true : false;
 
-                for (int j = 0; j < 2; j++) // small area, big area
+                for (int j = 0; j < 2; j++) // j = 0: straight area, j = 1: left (small) area
                 {
                     int dist = 1;
                     while (InTakenRel(dist, dist - 1) && InTakenRel(dist + 1, dist) && !InTakenRel(dist, dist))
@@ -2508,6 +2652,8 @@ namespace OneWayLabyrinth
                         dist++;
                     }
                     dist--;
+
+                    T("dist", dist, i, j);
 
                     for (int k = 1; k <= dist; k++)
                     {
@@ -2518,6 +2664,8 @@ namespace OneWayLabyrinth
                         ly2 = -ly;
                         sx2 = sx;
                         sy2 = sy;
+
+                        T("Added x2", x + (k - 1) * lx + k * sx, y + (k - 1) * ly + k * sy);
 
                         ResetExamAreas();
 
@@ -2544,6 +2692,9 @@ namespace OneWayLabyrinth
                     {
                         path.RemoveAt(path.Count - 1);
                     }
+
+                    // double area at the exit point of the stair, 0720
+
 
                     // rotate CCW
                     int l0 = lx;
@@ -3219,6 +3370,8 @@ namespace OneWayLabyrinth
                                         newBorderFields.Add(borderFields[k]);
                                     }
 
+                                    ResetExamAreas2();
+
                                     if (CountAreaRel2(left1, straight1, left2, straight2, newBorderFields, circleDirectionLeft, 2, true))
                                     {
                                         int black = (int)info[1];
@@ -3679,6 +3832,19 @@ namespace OneWayLabyrinth
             examAreaLineTypes = new();
             examAreaLineDirections = new();
             examAreaPairFields = new();
+
+            examAreaLine2 = new();
+            examAreaLineType2 = 0;
+            examAreaLineDirection2 = false;
+            examAreaPairField2 = new();
+        }
+
+        public void ResetExamAreas2()
+        {
+            examAreaLine2 = new();
+            examAreaLineType2 = new();
+            examAreaLineDirection2 = new();
+            examAreaPairField2 = new();
         }
 
         public void AddExamAreas(bool secondaryArea = false) // if a rule is true, we display all examined circles, but only add the checkerboard from the last one.
@@ -3697,6 +3863,15 @@ namespace OneWayLabyrinth
                 {
                     areaLineSecondary.Add(false);
                 }
+            }
+
+            if (examAreaLine2.Count != 0)
+            {
+                areaLines.Add(examAreaLine2);
+                areaLineTypes.Add(examAreaLineType2);
+                areaLineDirections.Add(examAreaLineDirection2);
+                areaPairFields.Add(examAreaPairField2);
+                areaLineSecondary.Add(true);
             }
         }
 
@@ -4901,7 +5076,7 @@ namespace OneWayLabyrinth
                 }
             }
 
-            return CountArea(x1, y1, x2, y2, absBorderFields, circleDirectionLeft, circleType, getInfo);
+            return CountArea(x1, y1, x2, y2, absBorderFields, circleDirectionLeft, circleType, getInfo, false);
         }
 
         public bool CountAreaRel2(int left1, int straight1, int left2, int straight2, List<int[]>? borderFields, bool circleDirectionLeft, int circleType, bool getInfo = false)
@@ -4921,11 +5096,11 @@ namespace OneWayLabyrinth
                 }
             }
 
-            return CountArea(x_1, y_1, x_2, y_2, absBorderFields, circleDirectionLeft, circleType, getInfo);
+            return CountArea(x_1, y_1, x_2, y_2, absBorderFields, circleDirectionLeft, circleType, getInfo, true);
         }
 
         // Due to 0618_1, new algorithm is not used.
-        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]>? borderFields, bool circleDirectionLeft, int circleType, bool getInfo = false)
+        private bool CountArea(int startX, int startY, int endX, int endY, List<int[]>? borderFields, bool circleDirectionLeft, int circleType, bool getInfo = false, bool secondaryArea = false)
         // compareColors is for the starting situation of 1119, where we mark an impair area and know the entry and the exit field. We count the number of white and black cells of a checkered pattern, the color of the entry and exit should be one more than the other color.
         {
             bool debug = false;
@@ -5178,9 +5353,18 @@ namespace OneWayLabyrinth
 
             //Special cases are not yet programmed in here as in MainWindow.xaml.cs. We take a gradual approach, starting from the cases that can happen on 7 x 7.
 
-            examAreaLines.Add(areaLine);
-            examAreaLineTypes.Add(circleType);
-            examAreaLineDirections.Add(circleDirectionLeft);
+            if (!secondaryArea)
+            {
+                examAreaLines.Add(areaLine);
+                examAreaLineTypes.Add(circleType);
+                examAreaLineDirections.Add(circleDirectionLeft);
+            }
+            else
+            {
+                examAreaLine2 = Copy(areaLine);
+                examAreaLineType2 = circleType;
+                examAreaLineDirection2 = circleDirectionLeft;
+            }
 
             int area = 0;
             List<int[]> startSquares = new();
@@ -5687,12 +5871,26 @@ namespace OneWayLabyrinth
                                 if ((startX + startY) % 2 == 0)
                                 {
                                     info = new List<object> { area % 2, pairCount, impairCount };
-                                    examAreaPairFields.Add(pairFields);
+                                    if (!secondaryArea)
+                                    {
+                                        examAreaPairFields.Add(pairFields);
+                                    }
+                                    else
+                                    {
+                                        examAreaPairField2 = Copy(pairFields);
+                                    }                                    
                                 }
                                 else
                                 {
                                     info = new List<object> { area % 2, impairCount, pairCount };
-                                    examAreaPairFields.Add(impairFields);
+                                    if (!secondaryArea)
+                                    {
+                                        examAreaPairFields.Add(impairFields);
+                                    }
+                                    else
+                                    {
+                                        examAreaPairField2 = Copy(impairFields);
+                                    }
                                 }
                             }
                             else
@@ -5700,12 +5898,26 @@ namespace OneWayLabyrinth
                                 if ((startX + startY) % 2 == 1)
                                 {
                                     info = new List<object> { area % 2, pairCount, impairCount };
-                                    examAreaPairFields.Add(pairFields);
+                                    if (!secondaryArea)
+                                    {
+                                        examAreaPairFields.Add(pairFields);
+                                    }
+                                    else
+                                    {
+                                        examAreaPairField2 = Copy(pairFields);
+                                    }
                                 }
                                 else
                                 {
                                     info = new List<object> { area % 2, impairCount, pairCount };
-                                    examAreaPairFields.Add(impairFields);
+                                    if (!secondaryArea)
+                                    {
+                                        examAreaPairFields.Add(impairFields);
+                                    }
+                                    else
+                                    {
+                                        examAreaPairField2 = Copy(impairFields);
+                                    }
                                 }
                             }
 

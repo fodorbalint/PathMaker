@@ -2337,12 +2337,24 @@ This is a more complex situation where we start with an 5 x 3 area which is 1B. 
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.
 In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.
 
+<!---->
+
+<b>10. Reverse stair</b>
+
+<img align="top" src="References/2024_0718.svg" width="11" />
+
+The line in this case has to make a stair as shown on page 179-181, but now we are entering from the end.
+
+<img align="top" src="References/reverse stair 1.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/reverse stair 2.svg" width="6" />
+
+Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).
+
+
 <!--
+Indicate needed disabled fields in 11 x 11 rule representations?
+New pictures where areas were dispalyed incorrectly.
 Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?
 Do not apply rules in irrelevant rotation, fx. straight j = 2 enter later
-Group random 11x11 examples in logical order.
-In 0710_1, two corners are found as a second area, but only one will evoke the rule. Both of them are displayed though. Secondary circles should always be green.
-0712_1: Unnecessary second area is displayed
 cite page numbers when mentioning a rule
 create a downstair case with larger horizontal distance
 other cases where entering now / later is not relevant in certain rotations?

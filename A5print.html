@@ -1893,14 +1893,23 @@ Here, the area is on the right side.</div><div class="num">185</div></td>
 <br />
 This is a more complex situation where we start with an 5 x 3 area which is 1B. In order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.<br />
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.<br />
-In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.<br />
+In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.</div><div class="num">186</div></td></tr>
+<tr><td><div class="border"></div><div><b>10. Reverse stair</b><br />
+<br />
+<img align="top" src="References/2024_0718.svg" width="52.380952380952%" /><br />
+<br />
+The line in this case has to make a stair as shown on page 179-181, but now we are entering from the end.<br />
+<br />
+<img align="top" src="References/reverse stair 1.svg" width="28.571428571429%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/reverse stair 2.svg" width="28.571428571429%" /><br />
+<br />
+Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).<br />
+<br />
 <br />
 <!--<br />
+New pictures where areas were dispalyed incorrectly.<br />
+0718: why is a 1x1 area displayed?<br />
 Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?<br />
 Do not apply rules in irrelevant rotation, fx. straight j = 2 enter later<br />
-Group random 11x11 examples in logical order.<br />
-In 0710_1, two corners are found as a second area, but only one will evoke the rule. Both of them are displayed though. Secondary circles should always be green.<br />
-0712_1: Unnecessary second area is displayed<br />
 cite page numbers when mentioning a rule<br />
 create a downstair case with larger horizontal distance<br />
 other cases where entering now / later is not relevant in certain rotations?<br />
@@ -2020,6 +2029,7 @@ Big area:<br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">186</div></td></tr>
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">187</div></td>
+<td class="right"><div class="border"></div></td></tr>
  
 </table>
