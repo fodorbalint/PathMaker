@@ -2239,7 +2239,15 @@ This and the previous rule can be made universal to include distances to the fir
 
 <b>6. End obstacle outside at x and y distance</b>
 
-We began the border movement rules with end obstacles that were close relative to the exit point. This has to be extended so that if we find any corner at x and y distance in the upper left quarter that makes up an area we cannot enter later, the rule applies.
+We began the border movement rules with end obstacles that were close relative to the exit point. This has to be extended so that if we find any corner at x and y distance in the upper left quarter that makes up an area we cannot enter later, the rule applies. But first, let's look at some cases we have missed.
+
+<img align="top" src="References/2024_0720_3.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 3 1 end obstacle.svg" width="5" />
+
+The area is 1B. If we enter now, we have to reserve the first corner black for later, so we exit at the second black for the first time.
+
+<!---->
+
+And the next is the extension with the second area:
 
 <img align="top" src="References/2024_0625.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 2 4 double area.svg" width="5" />
 
@@ -2303,6 +2311,10 @@ The next example shows a stair where there is a far obstacle at the end.
 
 Here, we have a stair shape on the left, and an area is created with one of the steps that should be entered now. We can make an algorithm for a stair of any length.
 
+And at the end, we might encounter two close obstacles:
+
+<img align="top" src="References/2024_0720.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/stair area end.svg" width="4" />
+
 <!---->
 
 <b>8. Sequence extensions</b>
@@ -2351,6 +2363,8 @@ Having a W = B area, we either need to enter or exit at the white field. It is a
 
 
 <!--
+Extend 0720_3 case to any horizontal distance
+
 Indicate needed disabled fields in 11 x 11 rule representations?
 New pictures where areas were dispalyed incorrectly.
 Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?
