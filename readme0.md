@@ -2305,19 +2305,7 @@ The next example shows a stair where there is a far obstacle at the end.
 
 <!---->
 
-<b>7. Stair area</b>
-
-<img align="top" src="References/2024_0630.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/stair area.svg" width="5" />
-
-Here, we have a stair shape on the left, and an area is created with one of the steps that should be entered now. We can make an algorithm for a stair of any length.
-
-And at the end, we might encounter two close obstacles:
-
-<img align="top" src="References/2024_0720.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/stair area end.svg" width="4" />
-
-<!---->
-
-<b>8. Sequence extensions</b>
+<b>7. Sequence extensions</b>
 
 <img align="top" src="References/2024_0706_1.svg" width="11" />
 
@@ -2335,23 +2323,43 @@ Third case (page 146). In this, when we exit the 2 x 4 area, the stair on the ri
 
 Second case (page 145). Until now, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. 
 
-<img align="top" src="References/2024_0706.svg" width="11" />
+In the next one, the area is on the right side.
 
-Here, the area is on the right side.
+<img align="top" src="References/2024_0706.svg" width="11" />
 
 <!---->
 
-<b>9. Area end sequence</b>
+And here, the sequence has to be applied on the opposite side of what we are used to.
+
+<img align="top" src="References/2024_0722.svg" width="11" />
+
+A new start area might occur in the form of a next step C-shape. In this, there is a regular stair pattern that leads to an area on the right side.
+
+<img align="top" src="References/2024_0630.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/stair area.svg" width="5" />
+
+<!---->
+
+There can also be two close obstacles in the end:
+
+<img align="top" src="References/2024_0720.svg" width="11" /><img src="References/spacer.svg" width="1" /><img src="References/stair area end.svg" width="4" />
+
+And here is an example where the sequence is not only a stair but changes direction twice.
+
+<img align="top" src="References/2024_0723_1.svg" width="11" />
+
+<!---->
+
+<b>8. Area end sequence</b>
 
 <img align="top" src="References/2024_0711.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 3 1 sequence.svg" width="6" />
 
-This is a more complex situation where we start with an 5 x 3 area which is 1B. In order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.
+This can be considered as the fifth start area of sequence, but what in reality happens here is that we start with an 5 x 3 area which is 1B, and in order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.
 In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.
 
 <!---->
 
-<b>10. Reverse stair</b>
+<b>9. Reverse stair</b>
 
 <img align="top" src="References/2024_0718.svg" width="11" />
 
