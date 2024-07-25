@@ -2221,6 +2221,14 @@ Instead of an upper obstacle, here we have a C-shape, but its function is the sa
 
 <!---->
 
+There can be two obstacles outside with a different start area as well:
+
+<img align="top" src="References/2024_0725.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle outside 0 4 dist 1.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle outside 0 4 dist 2.svg" width="4" />
+
+If we step straight, there are two ways to fill an 1W area. In the first, we collide with the end obstacle, and in the second, the start obstacle.
+
+<!---->
+
 <b>5. Start obstacle outside</b>
 
 <img align="top" src="References/2024_0624.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up big extended.svg" width="4" />
@@ -2243,7 +2251,7 @@ We began the border movement rules with end obstacles that were close relative t
 
 <img align="top" src="References/2024_0720_3.svg" width="11"/><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 3 1 end obstacle.svg" width="5" />
 
-The area is 1B. If we enter now, we have to reserve the first corner black for later, so we exit at the second black for the first time.
+The area is 1B. If we enter now, we have to reserve the first corner black for later, so we exit at the second black for the first time. There have been found a case where the end obstacle can be in across position as well.
 
 <!---->
 
@@ -2349,6 +2357,28 @@ And here is an example where the sequence is not only a stair but changes direct
 
 <!---->
 
+We know the area and the border movement of the following case.
+
+<img align="top" src="References/2024_0724.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up 3 sequence.svg" width="5" />
+
+Until now, we checked for end obstacles at the white corner, but given the known exit field, we should also check for two close (and maybe far) obstacles on each side.
+And indeed, the left side turns out to be a far obstacle here:
+
+<img align="top" src="References/2024_0725_2.svg" width="11" />
+
+<!---->
+
+<img align="top" src="References/2024_0724_1.svg" width="11" />
+
+This is a perfect example of a sequence that travels along the edges, not filling the center.
+For start pattern, we check the following:
+
+<img align="top" src="References/corner sequence.svg" width="5" />
+
+It is also obvious that it has two rotations.
+
+<!---->
+
 <b>8. Area end sequence</b>
 
 <img align="top" src="References/2024_0711.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 3 1 sequence.svg" width="6" />
@@ -2368,7 +2398,6 @@ The line in this case has to make a stair as shown on page 179-181, but now we a
 <img align="top" src="References/reverse stair 1.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/reverse stair 2.svg" width="6" />
 
 Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).
-
 
 <!--
 Extend 0720_3 case to any horizontal distance
