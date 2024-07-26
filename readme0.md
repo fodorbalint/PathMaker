@@ -2309,7 +2309,18 @@ If the horizontal distance to the first obstacle is x, an xB area satisfies the 
 
 The next example shows a stair where there is a far obstacle at the end.
 
-<img align="top" src="References/2024_0717_3.svg" width="11" /><img src="References/spacer.svg" width="1" />
+<img align="top" src="References/2024_0717_3.svg" width="11" />
+
+<!---->
+
+If we reverse the horizontal and vertical distance for the first obstacle, we find ourselves in a similar situation.
+
+<img align="top" src="References/2024_0725_6.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 1 4 stair.svg" width="6" />
+
+In order to make the 1B area, we need to exit at the second black field, and a stair pattern will be drawn from there.
+Again, the distance can be increased:
+
+<img align="top" src="References/corner 2 5 stair.svg" width="7" />
 
 <!---->
 
@@ -2365,6 +2376,12 @@ Until now, we checked for end obstacles at the white corner, but given the known
 And indeed, the left side turns out to be a far obstacle here:
 
 <img align="top" src="References/2024_0725_2.svg" width="11" />
+
+<!---->
+
+The distance to the first obstacle can be longer, here is an example for 4 distance, with a 1B area:
+
+<img align="top" src="References/2024_0725_5.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up 4 sequence.svg" width="5" />
 
 <!---->
 

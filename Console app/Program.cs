@@ -824,7 +824,19 @@ void SavePath(bool isCompleted = true) // used in fast run mode
         }
         else
         {
-            File.WriteAllText(baseDir + "error case.txt", savePath);
+            if (File.Exists(baseDir + "error case.txt"))
+            {
+                int i = 1;
+                while (File.Exists(baseDir + "error case " + i + ".txt"))
+                {
+                    i++;
+                }
+                File.WriteAllText(baseDir + "error case " + i + ".txt", savePath);
+            }
+            else
+            {
+                File.WriteAllText(baseDir + "error case.txt", savePath);
+            }
         }
     }
 }
@@ -2210,6 +2222,28 @@ void CheckLeftRightCorner() // rotations:
                                                             forbidden.Add(new int[] { x - sx, y - sy });
                                                         }
                                                     }
+
+                                                    // 0726, sequence on right side
+
+                                                    ResetExamAreas();
+
+                                                    counterrec = 0;
+
+                                                    lx2 = -lx2;
+                                                    ly2 = -ly2;
+                                                    if (CheckSequenceRecursive(1 - i))
+                                                    {
+                                                        AddExamAreas(true);
+
+                                                        // T("Corner 1 3 Sequence at " + x + " " + y + ", stop at " + x2 + " " + y2 + ": Cannot step left");
+                                                        forbidden.Add(new int[] { x + lx, y + ly });
+                                                        if (j == 1)
+                                                        {
+                                                            // T("Corner 1 3 Sequence: Cannot step down");
+                                                            forbidden.Add(new int[] { x - sx, y - sy });
+                                                        }
+                                                    }
+
                                                     path.RemoveAt(path.Count - 1);
                                                     path.RemoveAt(path.Count - 1);
                                                 }
@@ -2220,7 +2254,8 @@ void CheckLeftRightCorner() // rotations:
                                             if (hori % 4 == 0 && j < 2 && -whiteDiff == hori / 4)
                                             {
                                                 // 0720_3: mid across, 0725_1: across
-                                                if (CheckNearFieldSmallRel1(2, 1, 1, 0, true))
+                                                // Find example for area
+                                                if (CheckNearFieldSmallRel1(hori - 2, 1, 1, 0, true))
                                                 {
                                                     ruleTrue = true;
                                                     // T("LeftRightCorner 4 2 1B: Cannot step left");
@@ -2232,11 +2267,11 @@ void CheckLeftRightCorner() // rotations:
                                                     }
                                                 }
 
-                                                // 0711
-                                                path.Add(new int[] { x + 3 * lx + sx, y + 3 * ly + sy });
+                                                // 0711, sequence on left side
+                                                path.Add(new int[] { x + (hori - 1) * lx + sx, y + (hori - 1) * ly + sy });
 
-                                                x2 = x + 3 * lx + sx;
-                                                y2 = y + 3 * ly + sy;
+                                                x2 = x + (hori - 1) * lx + sx;
+                                                y2 = y + (hori - 1) * ly + sy;
 
                                                 lx2 = lx;
                                                 ly2 = ly;
@@ -2259,6 +2294,7 @@ void CheckLeftRightCorner() // rotations:
                                                         forbidden.Add(new int[] { x - sx, y - sy });
                                                     }
                                                 }
+
                                                 path.RemoveAt(path.Count - 1);
                                             }
                                         }
@@ -2358,11 +2394,48 @@ void CheckLeftRightCorner() // rotations:
                                             if (CheckCorner2(i, true))
                                             {
                                                 ruleTrue = true;
-                                                // T("Corner y = x + 3 return stair close obstacle: Cannot step up");
+                                                // T("Corner y = x + 3 return stair second obstacle: Cannot step up");
                                                 forbidden.Add(new int[] { x + sx, y + sy });
                                             }
 
                                             for (m = 0; m <= hori - 1; m++)
+                                            {
+                                                path.RemoveAt(path.Count - 1);
+                                            }
+                                        }
+
+                                        if (hori == vert + 3 && -whiteDiff == 1) // 0725_6, stair up left after first exit
+                                        {
+                                            path.Add(new int[] { x + lx, y + ly });
+
+                                            int m;
+                                            for (m = 1; m <= vert; m++)
+                                            {
+                                                path.Add(new int[] { x + (1 + m) * lx + m * sx, y + (1 + m) * ly + m * sy });
+                                            }
+                                            m--;
+
+                                            x2 = x + (1 + m) * lx + m * sx;
+                                            y2 = y + (1 + m) * ly + m * sy;
+                                            lx2 = -lx;
+                                            ly2 = -ly;
+                                            sx2 = sx;
+                                            sy2 = sy;
+
+                                            // T("x = y + 3 corner: lx2", lx2, ly2, sx2, sy2, x2, y2);
+                                            if (CheckCorner2(1 - i, true))
+                                            {
+                                                ruleTrue = true;
+                                                // T("Corner x = y + 3 up left stair second obstacle: Cannot step left");
+                                                forbidden.Add(new int[] { x + lx, y + ly });
+                                                if (j == 1)
+                                                {
+                                                    // T("Corner x = y + 3 up left stair second obstacle: Cannot step down");
+                                                    forbidden.Add(new int[] { x - sx, y - sy });
+                                                }
+                                            }
+
+                                            for (m = 0; m <= vert; m++)
                                             {
                                                 path.RemoveAt(path.Count - 1);
                                             }
@@ -2563,6 +2636,21 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
                                         // T("LeftRightAreaUpExtended open corner 4: Cannot step straight");
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                     }
+
+                                    path.Add(new int[] { x - lx + (ex - 2) * sx, y - ly + (ex - 2) * sy });
+
+                                    x2 = x - lx + (ex - 2) * sx;
+                                    y2 = y - ly + (ex - 2) * sy;
+
+                                    // 0725_5: mid across (up), mid across (down), 0726_1: mid across, across, 0726_2: area, mid across
+                                    if (CheckCorner2(i, true) && CheckNearFieldSmallRel1(-1, ex - 2, 1, 1, true))
+                                    {
+                                        ruleTrue = true;
+                                        // T("LeftRightAreaUpExtended open corner 4 exit: Cannot step straight");
+                                        forbidden.Add(new int[] { x + sx, y + sy });
+                                    }
+
+                                    path.RemoveAt(path.Count - 1);
                                     path.RemoveAt(path.Count - 1);
                                     path.RemoveAt(path.Count - 1);
                                 }
@@ -2645,6 +2733,7 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
 
                                     // 0724, two close obstacles at the exit field
                                     // 0725_2, on left side it is an area
+                                    // Find example for across as a down obstacle
                                     if (CheckCorner2(i, true) && CheckNearFieldSmallRel0(-1, ex - 1, 1, 1, true))
                                     {
                                         ruleTrue = true;
