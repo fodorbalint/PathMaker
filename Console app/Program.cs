@@ -2165,7 +2165,7 @@ void CheckLeftRightCorner() // rotations:
                                                 path.RemoveAt(path.Count - 1);
                                             }
 
-                                            if (vert % 4 == 3 && j < 2) // 0610, 0610_1, #6 0625_1
+                                            if (vert % 4 == 3 && j < 2) // 0610, 0610_1, #6 0625_1, 0611_3 (21 cutout)
                                             {
                                                 if (-whiteDiff == (vert - 3) / 4)
                                                 {
@@ -2472,8 +2472,10 @@ void CheckLeftRightCorner() // rotations:
                                             {
                                                 // 0611_6
                                                 // If we can enter later at the hori 2, vert 3 case, the area must be W = B
-                                                if ((hori == 2 && vert == 3) ||
-                                                    (hori == 2 && vert == 4 && -whiteDiff == 1))
+                                                if (
+                                                    (hori == 2 && vert == 3) ||
+                                                    (hori == 2 && vert == 4 && -whiteDiff == 1) ||
+                                                    (hori == 3 && vert == 4 && -whiteDiff == 1)) // 0726_3
                                                 {
                                                     if (i == 0)
                                                     {
@@ -3363,7 +3365,6 @@ void CheckReverseStair() // 0718, reverse stair 1/2, 0720_2
 
                                 ResetExamAreas();
 
-                                // T("nextX", nextX, nextY, circleDirectionLeft);
                                 if (CountAreaRel(1, 1, nextX, nextY, newBorderFields, circleDirectionLeft, 2, true))
                                 {
                                     int black = (int)info[1];
@@ -3371,7 +3372,8 @@ void CheckReverseStair() // 0718, reverse stair 1/2, 0720_2
 
                                     // 0718: Mid across, across
                                     // 0720_2: Mid across, mid across
-                                    if (black == white && CheckNearFieldSmallRel0(nextX, nextY, 0, 0, true) && CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false))
+                                    // 0727: C-shape, mid across
+                                    if (black == white && CheckNearFieldSmallRel(nextX, nextY, 0, 0, true) && CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false))
                                     {
                                         AddExamAreas();
                                         // T("Reverse stair at " + nextX + " " + nextY + ": Cannot step straight");

@@ -1665,6 +1665,10 @@ C-Shape Next:
 
 <img align="top" src="References/Corner 2x4 Next.svg" width="3" />
 
+2 horizontal distance, 3 vertical distance obstacle, area is 1B:
+
+<img align="top" src="References/Corner 3x4 Next.svg" width="4" />
+
 This can be calculated for any x and y distance obstacle, but we are still missing some single field rules.
 
 Straight obstacle:
@@ -2416,59 +2420,78 @@ The line in this case has to make a stair as shown on page 179-181, but now we a
 
 Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).
 
-<!--
-Extend 0720_3 case to any horizontal distance
+There have been found cases where the left obstacle is mid across, and the right obstacle is a C-shape.
+<!---->
 
-Indicate needed disabled fields in 11 x 11 rule representations?
-New pictures where areas were dispalyed incorrectly.
-Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?
-Do not apply rules in irrelevant rotation, fx. straight j = 2 enter later
-cite page numbers when mentioning a rule
-create a downstair case with larger horizontal distance
-other cases where entering now / later is not relevant in certain rotations?
-next step left/right areas should be shown. Find out how to make it in the simplest way.
-change yellow background for second directional obstacles 
-&nbsp; in math expressions
-arrow symbol in text
+<span class="header">11 x 11 estimates</span>
 
-merge two cases with one that draws a future line with a blue background. 
-Add future lines on page 144?
+9 x 9 total: 2 688 307 514
 
-Review CountArea old and new algorithms
-<img align="top" src="References/2024_0611_3.svg" width="9" />
+Multiplications when increasing the board:
+3 to 5: 104/2 = 52
+5 to 7: 111712/104 = 1074.15
+7 to 9: 2 688 307 514 / 111 712 = 24064.63
 
-2 688 307 514
-1 344 153 757
-
-104/2 = 52
-111712/104 = 1074.15
-2 688 307 514 / 111 712 = 24064.63
-
+Added number of fields respectively:
 +16 fields
 +24 fields
 +32 fields
 
-1.2801
-	0.0574
-1.3375
-	0.0331
-1.3706
-	0.0191
-1.3897
+Bases per added field:
+<sup>16</sup>√52 = 1.2801
+<sup>24</sup>√1074.15 = 1.3375
+<sup>32</sup>√24064.63 = 1.3706
 
-1400 trillion => 1445 trillion
+Differences of bases:
+0.0574
+0.0331
 
-2024_0611_6: No need for checking next step. (page 108)
+Next difference estimate: 0.0331 * 331/574 = 0.0191
+Next base: 1.3897
 
-Check if opposite empty fields should be disabled at certain rotations of the 4 rule groups.
+2 688 307 514 * 1.3897 ^ 40 = 1402 trillion (Actual value according to OEIS: 1445 trillion)
 
-LeftRightAreaUpBig rule presentation on page 97: there is an empty field to the right of the obstacle, which is inconsistent with the examples given. Either change the rule representation and correct it later or change the example / rule.
+<!---->
 
+Exact calculation line:
+2688307514 * ((2688307514/111712) ^ (1/32) + ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) * ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) / ((111712/104) ^ (1/24) - (104/2) ^ (1/16))) ^ 40
 
-x and y distance obstacle: we check empty fields from the middle line, but it may not be necessary, sequence might be avoided.
+<!---->
 
-A similar concept will be used when solving Triple Area Exit Down (at over 18 million): The furthest border field have a taken field next to, which limits the possibilities of entering and exiting an area. 
+<span class="header">Development / correction notes</span>
 
+<b>Developments:</b>
+
+Calculate next step enter left and right for any AreaUp and Corner distance. (page 129)
+Extend 0720_3 case to any horizontal distance (page 177)
+Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?
+Check if opposite empty fields should be disabled at certain rotations of the 4 single area rule groups.
+
+<b>Improvements:</b>
+
+Review rules if they have unnecessary rotations when disabling a field, fx. straight j = 2 enter later
+Review CountArea old and new algorithms
+
+<b>Display:</b>
+
+Indicate needed disabled fields in 11 x 11 rule representations?
+New pictures where areas were displayed incorrectly.
+Cite page numbers when mentioning a rule
+Next step left/right areas could be shown
+Change yellow background for second directional obstacles 
+Non-breaking space in math expressions
+Arrow symbol in text
+Merge two cases with one that draws a future line with a blue background. 
+
+<!---->
+
+Add future lines on page 144 (2034760)
+
+<b>Unsolved:</b>
+
+<img align="top" src="References/2024_0725_4.svg" width="11" />
+
+<!--
 <img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />
 
 Previously we used open corners:

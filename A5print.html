@@ -1394,6 +1394,10 @@ C-Shape Next:<br />
 <br />
 <img align="top" src="References/Corner 2x4 Next.svg" width="14.285714285714%" /><br />
 <br />
+2 horizontal distance, 3 vertical distance obstacle, area is 1B:<br />
+<br />
+<img align="top" src="References/Corner 3x4 Next.svg" width="19.047619047619%" /><br />
+<br />
 This can be calculated for any x and y distance obstacle, but we are still missing some single field rules.<br />
 <br />
 Straight obstacle:<br />
@@ -1950,59 +1954,67 @@ The line in this case has to make a stair as shown on page 179-181, but now we a
 <br />
 Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).<br />
 <br />
-<!--<br />
-Extend 0720_3 case to any horizontal distance<br />
+There have been found cases where the left obstacle is mid across, and the right obstacle is a C-shape.</div><div class="num">194</div></td></tr>
+<tr><td><div class="border"></div><div><span class="header">11 x 11 estimates</span><br />
 <br />
-Indicate needed disabled fields in 11 x 11 rule representations?<br />
-New pictures where areas were dispalyed incorrectly.<br />
-Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?<br />
-Do not apply rules in irrelevant rotation, fx. straight j = 2 enter later<br />
-cite page numbers when mentioning a rule<br />
-create a downstair case with larger horizontal distance<br />
-other cases where entering now / later is not relevant in certain rotations?<br />
-next step left/right areas should be shown. Find out how to make it in the simplest way.<br />
-change yellow background for second directional obstacles <br />
-&nbsp; in math expressions<br />
-arrow symbol in text<br />
+9 x 9 total: 2 688 307 514<br />
 <br />
-merge two cases with one that draws a future line with a blue background. <br />
-Add future lines on page 144?<br />
+Multiplications when increasing the board:<br />
+3 to 5: 104/2 = 52<br />
+5 to 7: 111712/104 = 1074.15<br />
+7 to 9: 2 688 307 514 / 111 712 = 24064.63<br />
 <br />
-Review CountArea old and new algorithms<br />
-<img align="top" src="References/2024_0611_3.svg" width="42.857142857143%" /><br />
-<br />
-2 688 307 514<br />
-1 344 153 757<br />
-<br />
-104/2 = 52<br />
-111712/104 = 1074.15<br />
-2 688 307 514 / 111 712 = 24064.63<br />
-<br />
+Added number of fields respectively:<br />
 +16 fields<br />
 +24 fields<br />
 +32 fields<br />
 <br />
-1.2801<br />
-	0.0574<br />
-1.3375<br />
-	0.0331<br />
-1.3706<br />
-	0.0191<br />
-1.3897<br />
+Bases per added field:<br />
+<sup>16</sup>√52 = 1.2801<br />
+<sup>24</sup>√1074.15 = 1.3375<br />
+<sup>32</sup>√24064.63 = 1.3706<br />
 <br />
-1400 trillion => 1445 trillion<br />
+Differences of bases:<br />
+0.0574<br />
+0.0331<br />
 <br />
-2024_0611_6: No need for checking next step. (page 108)<br />
+Next difference estimate: 0.0331 * 331/574 = 0.0191<br />
+Next base: 1.3897<br />
 <br />
-Check if opposite empty fields should be disabled at certain rotations of the 4 rule groups.<br />
+2 688 307 514 * 1.3897 ^ 40 = 1402 trillion (Actual value according to OEIS: 1445 trillion)</div><div class="num">195</div></td>
+<td><div class="border"></div><div>Exact calculation line:<br />
+2688307514 * ((2688307514/111712) ^ (1/32) + ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) * ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) / ((111712/104) ^ (1/24) - (104/2) ^ (1/16))) ^ 40</div><div class="num">196</div></td></tr>
+<tr><td><div class="border"></div><div><span class="header">Development / correction notes</span><br />
 <br />
-LeftRightAreaUpBig rule presentation on page 97: there is an empty field to the right of the obstacle, which is inconsistent with the examples given. Either change the rule representation and correct it later or change the example / rule.<br />
+<b>Developments:</b><br />
 <br />
+Calculate next step enter left and right for any AreaUp and Corner distance. (page 129)<br />
+Extend 0720_3 case to any horizontal distance (page 177)<br />
+Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?<br />
+Check if opposite empty fields should be disabled at certain rotations of the 4 single area rule groups.<br />
 <br />
-x and y distance obstacle: we check empty fields from the middle line, but it may not be necessary, sequence might be avoided.<br />
+<b>Improvements:</b><br />
 <br />
-A similar concept will be used when solving Triple Area Exit Down (at over 18 million): The furthest border field have a taken field next to, which limits the possibilities of entering and exiting an area. <br />
+Review rules if they have unnecessary rotations when disabling a field, fx. straight j = 2 enter later<br />
+Review CountArea old and new algorithms<br />
 <br />
+<b>Display:</b><br />
+<br />
+Indicate needed disabled fields in 11 x 11 rule representations?<br />
+New pictures where areas were displayed incorrectly.<br />
+Cite page numbers when mentioning a rule<br />
+Next step left/right areas could be shown<br />
+Change yellow background for second directional obstacles <br />
+Non-breaking space in math expressions<br />
+Arrow symbol in text<br />
+Merge two cases with one that draws a future line with a blue background.</div><div class="num">197</div></td>
+<td><div class="border"></div><div>Add future lines on page 144 (2034760)<br />
+<br />
+<b>Unsolved:</b><br />
+<br />
+<img align="top" src="References/2024_0725_4.svg" width="52.380952380952%" /><br />
+<br />
+<!--<br />
 <img align="top" src="References/18665383.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.571428571429%" /><br />
 <br />
 Previously we used open corners:<br />
@@ -2076,6 +2088,6 @@ Big area:<br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">194</div></td></tr>
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">198</div></td></tr>
  
 </table>
