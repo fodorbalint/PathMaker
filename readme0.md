@@ -2233,7 +2233,20 @@ If we step straight, there are two ways to fill an 1W area. In the first, we col
 
 <!---->
 
+Increasing the distance by 1 and the area to 2W, in order to make the area, we either have fill the last white field alone or the first as a corner. The middle white will be either entry or exit point, with the preceding/following field the neighbor black:
+
+<img align="top" src="References/2024_0727_3.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle outside 0 5 dist 1.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle outside 0 5 dist 2.svg" width="4" />
+
+<!---->
+
 <b>5. Start obstacle outside</b>
+
+<img align="top" src="References/2024_0715.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 dist start obstacle.svg" width="4" />
+
+With a 2W area, if we step straight, we have to step right afterwards. This conflicts with the obstacle on the right.
+This and the previous rule can be made universal to include distances to the first obstacle increased by a multiple of 4.
+
+<!---->
 
 <img align="top" src="References/2024_0624.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up big extended.svg" width="4" />
 
@@ -2242,10 +2255,19 @@ Therefore, we cannot enter later.
 
 <!---->
 
-<img align="top" src="References/2024_0715.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 dist start obstacle.svg" width="4" />
+Here, we have to extend the area of the previous example along the short axis. The area is still 1W.
 
-With a 2W area, if we step straight, we have to step right afterwards. This conflicts with the obstacle on the right.
-This and the previous rule can be made universal to include distances to the first obstacle increased by a multiple of 4.
+<img align="top" src="References/2024_0727_1.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 5 1 extended stair.svg" width="7" />
+
+But we don't have to define this area separately. The x and y distance obstacle will solve it too:
+
+<img align="top" src="References/corner 5 1 extended stair 2.svg" width="7" />
+
+<!---->
+
+It can be proved that the corner at (3,3) position does not do anything, so it is not a double obstacle outside case. The rule still holds if we move that obstacle.
+
+<img align="top" src="References/2024_0727_1_1.svg" width="9" />
 
 <!---->
 
@@ -2463,7 +2485,7 @@ Exact calculation line:
 <b>Developments:</b>
 
 Calculate next step enter left and right for any AreaUp and Corner distance. (page 129)
-Extend 0720_3 case to any horizontal distance (page 177)
+Extend 0720_3 case to any horizontal distance (page 180)
 Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?
 Check if opposite empty fields should be disabled at certain rotations of the 4 single area rule groups.
 
@@ -2474,17 +2496,18 @@ Review CountArea old and new algorithms
 
 <b>Display:</b>
 
+Should we display non-critical border movements in rules? Fx. 0624 vs 0227_1 solutions (page 177-178)
 Indicate needed disabled fields in 11 x 11 rule representations?
 New pictures where areas were displayed incorrectly.
 Cite page numbers when mentioning a rule
 Next step left/right areas could be shown
-Change yellow background for second directional obstacles 
+Change yellow background to blue for all second obstacles 
 Non-breaking space in math expressions
 Arrow symbol in text
-Merge two cases with one that draws a future line with a blue background. 
 
 <!---->
 
+Merge two cases with one that draws a future line with a blue background.
 Add future lines on page 144 (2034760)
 
 <b>Unsolved:</b>
