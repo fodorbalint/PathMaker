@@ -1677,8 +1677,8 @@ namespace OneWayLabyrinth
                                                         path.RemoveAt(path.Count - 1);
                                                     }
 
-                                                    // 0727_1
-                                                    if (hori % 4 == 2 && j < 2 && whiteDiff == (hori - 2) / 4 && CheckNearFieldSmallRel(2, 2, 1, 0, false))
+                                                    // 0727_1: mid across
+                                                    if (hori % 4 == 2 && j < 2 && whiteDiff == (hori - 2) / 4 && CheckNearFieldSmallRel0(2, 2, 1, 0, false))
                                                     {
                                                         ruleTrue = true;
                                                         T("Corner hori % 4 = 2 vert 2 start obstacle: Cannot step straight");
@@ -2068,14 +2068,14 @@ namespace OneWayLabyrinth
                                         } 
                                         break;
                                     case 1:
-                                        // 0626
-                                        if (whiteDiff == (ex + 3) / 4 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
+                                        // 0626, across
+                                        if (whiteDiff == (ex + 3) / 4 && CheckNearFieldSmallRel1(0, ex - 1, 0, 2, true))
                                         {
                                             ruleTrue = true;
                                             T("LeftRightAreaUpExtended open corner 5: Cannot step right");
                                             forbidden.Add(new int[] { x - lx, y - ly });
 
-                                            // 0727_3: double obstacle outside 
+                                            // 0727_3: double obstacle outside: mid across x 2 
                                             if (CheckNearFieldSmallRel0(0, 2, 1, 1, false))
                                             {
                                                 T("LeftRightAreaUpExtended 5 dist double obstacle outside: Cannot step straight");
@@ -2085,27 +2085,15 @@ namespace OneWayLabyrinth
                                         break;
                                     case 2:
                                         // We cannot get to the 2- or 6-distance case if the other rules are applied. 0611_1
-                                        /*if (!found && whiteDiff == (ex + 2) / 4 && CheckNearFieldSmallRel(0, ex, 0, 2, true))
-                                        {
-                                            ruleTrue = true;
-                                            T("LeftRightAreaUp closed corner 2: Cannot step left");
-                                            forbidden.Add(new int[] { x + lx, y + ly });
-                                        }*/
                                         break;
                                     case 3:
-                                        if (whiteDiff == (ex + 1) / 4 + 1 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
+                                        // Can we get here?
+                                        /*if (whiteDiff == (ex + 1) / 4 + 1 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
                                         {
                                             ruleTrue = true;
                                             T("LeftRightAreaUpExtended open corner 3: Cannot step left");
                                             forbidden.Add(new int[] { x + lx, y + ly });
-                                        }
-                                        // 0611
-                                        if (whiteDiff == (ex + 1) / 4 + 1 && CheckNearFieldSmallRel(0, ex - 1, 0, 2, true))
-                                        {
-                                            ruleTrue = true;
-                                            T("LeftRightAreaUpExtended open corner 3: Cannot step left");
-                                            forbidden.Add(new int[] { x + lx, y + ly });
-                                        }
+                                        }*/
                                         // 0611, 0710
                                         if (-whiteDiff == (ex + 1) / 4 - 1)
                                         {
@@ -2344,9 +2332,11 @@ namespace OneWayLabyrinth
                                 int black = (int)info[1];
                                 int white = (int)info[2];
 
-                                if (j >= 1 && ex == 2 && white == black + 1) // 0717_4
+                                if (j >= 1 && ex == 2 && white == black + 1)
+                                // 0717_4: across down, mid across up
+                                // 0729_2: mid across down, across up
                                 {
-                                    if (CheckNearFieldSmallRel(1, 0, 0, 1, true) && CheckNearFieldSmallRel(1, 2, 1, 2, false))
+                                    if (CheckNearFieldSmallRel1(1, 0, 0, 1, true) && CheckNearFieldSmallRel1(1, 2, 1, 2, false))
                                     {
                                         T("CheckStraightSmall 2 double close obstacle inside: Cannot step left");
                                         forbidden.Add(new int[] { x + lx, y + ly });
@@ -2355,9 +2345,11 @@ namespace OneWayLabyrinth
                                     }
                                 }
 
-                                if (j >= 1 && ex == 3 && white == black + 1) // 0716
+                                if (j >= 1 && ex == 3 && white == black + 1)
+                                // 0716: mid across x 2
+                                // 0729: mid across down, across up
                                 {
-                                    if (CheckNearFieldSmallRel(1, 0, 0, 1, true) && CheckNearFieldSmallRel(1, 2, 1, 2, false))
+                                    if (CheckNearFieldSmallRel0(1, 0, 0, 1, true) && CheckNearFieldSmallRel1(1, 2, 1, 2, false))
                                     {
                                         T("CheckStraightSmall 3 double close obstacle inside: Cannot step left");
                                         forbidden.Add(new int[] { x + lx, y + ly });
@@ -2366,9 +2358,12 @@ namespace OneWayLabyrinth
                                     }
                                 }
 
-                                if (j <= 1 && ex == 4 && white == black + 1) // 0619_1
+                                if (j <= 1 && ex == 4 && white == black + 1)
+                                // 0619_1: mid across x 2
+                                // 0729_1: across down, mid across up
+                                // 0729_4: mid across down, across up
                                 {
-                                    if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
+                                    if (CheckNearFieldSmallRel1(1, 2, 0, 1, true) && CheckNearFieldSmallRel1(1, 4, 1, 2, false))
                                     {
                                         T("CheckStraightSmall 4 double close obstacle inside: Cannot step straight and right");
                                         forbidden.Add(new int[] { x + sx, y + sy });
@@ -2378,9 +2373,9 @@ namespace OneWayLabyrinth
                                     }
                                 }
 
-                                if (j <= 1 && ex == 5 && white == black + 1) // 0714
+                                if (j <= 1 && ex == 5 && white == black + 1) // 0714: mid across x 2
                                 {
-                                    if (CheckNearFieldSmallRel(1, 2, 0, 1, true) && CheckNearFieldSmallRel(1, 4, 1, 2, false))
+                                    if (CheckNearFieldSmallRel1(1, 2, 0, 1, true) && CheckNearFieldSmallRel1(1, 4, 1, 2, false))
                                     {
                                         T("CheckStraightSmall 5 double close obstacle inside: Cannot step straight and right");
                                         forbidden.Add(new int[] { x + sx, y + sy });
@@ -2487,7 +2482,8 @@ namespace OneWayLabyrinth
                                     laterWCount = ex / 4;
                                     laterBCount = ex / 4;
 
-                                    if (whiteDiff == laterWCount && CheckNearFieldSmallRel(1, 1, 0, 1, false)) // when entering at the first white field, we have to step down to the first black and then left to enter as in 0624
+                                    if (whiteDiff == laterWCount && CheckNearFieldSmallRel0(1, 1, 0, 1, false)) // 0624: mid across
+                                    // When entering at the first white field, we have to step down to the first black and then left to enter
                                     {
                                         ruleTrue = true;
                                         T("CheckLeftRightAreaUpBigExtended start obstacle: Cannot step left");
@@ -2600,7 +2596,8 @@ namespace OneWayLabyrinth
 
                             ResetExamAreas();
 
-                            // 18677343, 59434452
+                            // 18677343, 59434452: mid across x 2
+                            // 0709: mid across down, C-shape up 
                             if (ex == 3)
                             {
                                 if (CountAreaRel(-1, 1, -1, ex, borderFields, circleDirectionLeft, 2, true))
@@ -2610,7 +2607,7 @@ namespace OneWayLabyrinth
 
                                     if (white == black)
                                     {
-                                        if (CheckNearFieldSmallRel(-1, 3, 0, 2, true) && CheckNearFieldSmallRel1(-1, 1, 1, 1, false))
+                                        if (CheckNearFieldSmallRel0(-1, 1, 1, 1, false) && CheckNearFieldSmallRel(-1, 3, 0, 2, true))
                                         {
                                             T("CheckStraightBig double close obstacle outside 3 dist: Cannot step right and down");
                                             forbidden.Add(new int[] { x - sx, y - sy });
@@ -2621,7 +2618,8 @@ namespace OneWayLabyrinth
                                     }
                                 }
                             }
-                            // 0626_1
+                            // 0626_1: mid across x 2
+                            // 0729_3: mid across down, across up
                             else if (ex == 4)
                             {
                                 if (CountAreaRel(-1, 1, -1, ex, borderFields, circleDirectionLeft, 2, true))
@@ -2631,7 +2629,7 @@ namespace OneWayLabyrinth
 
                                     if (white == black + 1)
                                     {
-                                        if (CheckNearFieldSmallRel(-1, 3, 0, 2, true) && CheckNearFieldSmallRel1(-1, 1, 1, 1, false))
+                                        if (CheckNearFieldSmallRel0(-1, 1, 1, 1, false) && CheckNearFieldSmallRel1(-1, 3, 0, 2, true))
                                         {
                                             T("CheckStraightBig double close obstacle outside 4 dist: Cannot step right and down");
                                             forbidden.Add(new int[] { x - sx, y - sy });
@@ -2718,8 +2716,6 @@ namespace OneWayLabyrinth
 
                             if (currentDirection == 1 && l == 1 && nextX >= 3 && nextX == nextY + 2)
                             {
-                                T("corner found", nextX, nextY);
-
                                 bool circleValid = false;
 
                                 int i1 = InTakenIndexRel(nextX + 1, nextY - 1);
@@ -2732,7 +2728,6 @@ namespace OneWayLabyrinth
 
                                 if (circleValid)
                                 {
-                                    T("circle valid", i, j);
                                     bool takenFound = false;
 
                                     List<int[]> borderFields = new();
@@ -2771,10 +2766,10 @@ namespace OneWayLabyrinth
                                             int black = (int)info[1];
                                             int white = (int)info[2];
 
-                                            // 0718: Mid across, across
-                                            // 0720_2: Mid across, mid across
-                                            // 0727: C-shape, mid across
-                                            if (black == white && CheckNearFieldSmallRel(nextX, nextY, 0, 0, true) && CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false))
+                                            // 0718: across close, mid across far
+                                            // 0720_2: mid across x 2
+                                            // 0727: mid across close, C-shape far
+                                            if (black == white && CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false) && CheckNearFieldSmallRel(nextX, nextY, 0, 0, true))
                                             {
                                                 AddExamAreas();
                                                 T("Reverse stair at " + nextX + " " + nextY + ": Cannot step straight");

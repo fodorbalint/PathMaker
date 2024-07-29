@@ -7,16 +7,19 @@
 	<rect x="11.25" y="10.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="8.25" y="9.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="10.25" y="9.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
+	<rect x="12.25" y="9.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="7.25" y="8.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="9.25" y="8.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="11.25" y="8.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="8.25" y="7.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="10.25" y="7.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
+	<rect x="12.25" y="7.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="7.25" y="6.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="9.25" y="6.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="11.25" y="6.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="8.25" y="5.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="10.25" y="5.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
+	<rect x="12.25" y="5.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="7.25" y="4.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="9.25" y="4.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
 	<rect x="11.25" y="4.25" width="0.5" height="0.5" fill="black" fill-opacity="0.5"  />
@@ -70,12 +73,13 @@
 	<rect width="1" height="1" x="12" y="11" fill="#e2bcbc" fill-opacity="1" />
 	<rect width="1" height="1" x="13" y="11" fill="#000000" fill-opacity="0.1" />
 	<rect width="1" height="1" x="12" y="12" fill="#000000" fill-opacity="0.1" />
-	<rect width="0.25" height="1" x="11.75" y="5" fill="#FF4000" fill-opacity="0.25" />
-	<rect width="0.25" height="1" x="11.75" y="6" fill="#FF4000" fill-opacity="0.25" />
-	<rect width="0.25" height="1" x="11.75" y="7" fill="#FF4000" fill-opacity="0.25" />
-	<rect width="0.25" height="1" x="11.75" y="8" fill="#FF4000" fill-opacity="0.25" />
-	<rect width="0.25" height="1" x="11.75" y="9" fill="#FF4000" fill-opacity="0.25" />
-	<path d="M 12 11 h -1 v -0.25 h 0.75 v -0.75 h 0.25 z" fill="#FF4000" fill-opacity="0.25" />
+	<rect width="0.25" height="1" x="12.75" y="5" fill="#FF4000" fill-opacity="0.25" />
+	<rect width="0.25" height="1" x="12.75" y="6" fill="#FF4000" fill-opacity="0.25" />
+	<rect width="0.25" height="1" x="12.75" y="7" fill="#FF4000" fill-opacity="0.25" />
+	<rect width="0.25" height="1" x="12.75" y="8" fill="#FF4000" fill-opacity="0.25" />
+	<rect width="0.25" height="1" x="12.75" y="9" fill="#FF4000" fill-opacity="0.25" />
+	<path d="M 13 11 h -1 v -0.25 h 0.75 v -0.75 h 0.25 z" fill="#FF4000" fill-opacity="0.25" />
+	<rect width="1" height="0.25" x="11" y="10.75" fill="#FF4000" fill-opacity="0.25" />
 	<rect width="0.25" height="0.25" x="10.75" y="10.75" fill="#FF4000" fill-opacity="0.25" />
 	<path d="M 11 12 h -1 v -0.25 h 0.75 v -0.75 h 0.25 z" fill="#FF4000" fill-opacity="0.25" />
 	<rect width="1" height="0.25" x="9" y="11.75" fill="#FF4000" fill-opacity="0.25" />
@@ -91,7 +95,8 @@
 	<rect width="1" height="0.25" x="8" y="4" fill="#FF4000" fill-opacity="0.25" />
 	<rect width="1" height="0.25" x="9" y="4" fill="#FF4000" fill-opacity="0.25" />
 	<rect width="1" height="0.25" x="10" y="4" fill="#FF4000" fill-opacity="0.25" />
-	<path d="M 12 4 v 1 h -0.25 v -0.75 h -0.75 v -0.25 z" fill="#FF4000" fill-opacity="0.25" />
+	<rect width="1" height="0.25" x="11" y="4" fill="#FF4000" fill-opacity="0.25" />
+	<path d="M 13 4 v 1 h -0.25 v -0.75 h -0.75 v -0.25 z" fill="#FF4000" fill-opacity="0.25" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0.01 0 v 19" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 0 0.01 h 19" />
 	<path fill="transparent" stroke="gray" stroke-width="0.02" d="M 1 0 v 19" />
