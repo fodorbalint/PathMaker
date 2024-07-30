@@ -2405,9 +2405,17 @@ And indeed, the left side turns out to be a far obstacle here:
 
 <!---->
 
+There can also be a sequence by going along the left side here:
+
+<img align="top" src="References/2024_0727_5.svg" width="11" />
+
+<!---->
+
 The distance to the first obstacle can be longer, here is an example for 4 distance, with a 1B area:
 
 <img align="top" src="References/2024_0725_5.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up 4 sequence.svg" width="5" />
+
+However, it is an immediate close obstacle checking on both sides, not a multiple-step sequence. When the distance to the first obstacle is over 3, the chances are no sequence exist, because the line can exit and re-enter the start area, filling some fields outside of it.
 
 <!---->
 

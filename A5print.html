@@ -1939,25 +1939,30 @@ Until now, we checked for end obstacles at the white corner, but given the known
 And indeed, the left side turns out to be a far obstacle here:<br />
 <br />
 <img align="top" src="References/2024_0725_2.svg" width="52.380952380952%" /></div><div class="num">193</div></td>
-<td><div class="border"></div><div>The distance to the first obstacle can be longer, here is an example for 4 distance, with a 1B area:<br />
+<td><div class="border"></div><div>There can also be a sequence by going along the left side here:<br />
 <br />
-<img align="top" src="References/2024_0725_5.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/up 4 sequence.svg" width="23.809523809524%" /></div><div class="num">194</div></td></tr>
-<tr><td><div class="border"></div><div><img align="top" src="References/2024_0724_1.svg" width="52.380952380952%" /><br />
+<img align="top" src="References/2024_0727_5.svg" width="52.380952380952%" /></div><div class="num">194</div></td></tr>
+<tr><td><div class="border"></div><div>The distance to the first obstacle can be longer, here is an example for 4 distance, with a 1B area:<br />
+<br />
+<img align="top" src="References/2024_0725_5.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/up 4 sequence.svg" width="23.809523809524%" /><br />
+<br />
+However, it is an immediate close obstacle checking on both sides, not a multiple-step sequence. When the distance to the first obstacle is over 3, the chances are no sequence exist, because the line can exit and re-enter the start area, filling some fields outside of it.</div><div class="num">195</div></td>
+<td><div class="border"></div><div><img align="top" src="References/2024_0724_1.svg" width="52.380952380952%" /><br />
 <br />
 This is a perfect example of a sequence that travels along the edges, not filling the center.<br />
 For start pattern, we check the following:<br />
 <br />
 <img align="top" src="References/corner sequence.svg" width="23.809523809524%" /><br />
 <br />
-It is also obvious that it has two rotations.</div><div class="num">195</div></td>
-<td><div class="border"></div><div><b>8. Area end sequence</b><br />
+It is also obvious that it has two rotations.</div><div class="num">196</div></td></tr>
+<tr><td><div class="border"></div><div><b>8. Area end sequence</b><br />
 <br />
 <img align="top" src="References/2024_0711.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/corner 3 1 sequence.svg" width="28.571428571429%" /><br />
 <br />
 This can be considered as the fifth start area of sequence, but what in reality happens here is that we start with an 5 x 3 area which is 1B, and in order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.<br />
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.<br />
-In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.</div><div class="num">196</div></td></tr>
-<tr><td><div class="border"></div><div><b>9. Reverse stair</b><br />
+In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.</div><div class="num">197</div></td>
+<td><div class="border"></div><div><b>9. Reverse stair</b><br />
 <br />
 <img align="top" src="References/2024_0718.svg" width="52.380952380952%" /><br />
 <br />
@@ -1967,8 +1972,8 @@ The line in this case has to make a stair as shown on page 179-181, but now we a
 <br />
 Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).<br />
 <br />
-There have been found cases where the left obstacle is mid across, and the right obstacle is a C-shape.</div><div class="num">197</div></td>
-<td><div class="border"></div><div><span class="header">11 x 11 estimates</span><br />
+There have been found cases where the left obstacle is mid across, and the right obstacle is a C-shape.</div><div class="num">198</div></td></tr>
+<tr><td><div class="border"></div><div><span class="header">11 x 11 estimates</span><br />
 <br />
 9 x 9 total: 2 688 307 514<br />
 <br />
@@ -1994,10 +1999,10 @@ Differences of bases:<br />
 Next difference estimate: 0.0331 * 331/574 = 0.0191<br />
 Next base: 1.3897<br />
 <br />
-2 688 307 514 * 1.3897 ^ 40 = 1402 trillion (Actual value according to OEIS: 1445 trillion)</div><div class="num">198</div></td></tr>
-<tr><td><div class="border"></div><div>Exact calculation line:<br />
-2688307514 * ((2688307514/111712) ^ (1/32) + ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) * ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) / ((111712/104) ^ (1/24) - (104/2) ^ (1/16))) ^ 40</div><div class="num">199</div></td>
-<td><div class="border"></div><div><span class="header">Development / correction notes</span><br />
+2 688 307 514 * 1.3897 ^ 40 = 1402 trillion (Actual value according to OEIS: 1445 trillion)</div><div class="num">199</div></td>
+<td><div class="border"></div><div>Exact calculation line:<br />
+2688307514 * ((2688307514/111712) ^ (1/32) + ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) * ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) / ((111712/104) ^ (1/24) - (104/2) ^ (1/16))) ^ 40</div><div class="num">200</div></td></tr>
+<tr><td><div class="border"></div><div><span class="header">Development / correction notes</span><br />
 <br />
 <b>Developments:</b><br />
 <br />
@@ -2020,8 +2025,8 @@ Cite page numbers when mentioning a rule<br />
 Next step left/right areas could be shown<br />
 Change yellow background to blue for all second obstacles <br />
 Non-breaking space in math expressions<br />
-Arrow symbol in text</div><div class="num">200</div></td></tr>
-<tr><td><div class="border"></div><div>Merge two cases with one that draws a future line with a blue background.<br />
+Arrow symbol in text</div><div class="num">201</div></td>
+<td><div class="border"></div><div>Merge two cases with one that draws a future line with a blue background.<br />
 Add future lines on page 144 (2034760)<br />
 <br />
 <b>Unsolved:</b><br />
@@ -2102,7 +2107,6 @@ Big area:<br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">201</div></td>
-<td class="right"><div class="border"></div></td></tr>
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">202</div></td></tr>
  
 </table>

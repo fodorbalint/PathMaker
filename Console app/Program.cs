@@ -41,7 +41,7 @@ bool CShape = false;
 bool closeStraightSmall, closeMidAcrossSmall, closeAcrossSmall, closeStraightLarge, closeMidAcrossLarge, closeAcrossLarge = false;
 List<object> info = new();
 
-bool DirectionalArea, DoubleArea1, DoubleArea2, DoubleArea3, DoubleArea4, DoubleArea1Rotated, Sequence1, Sequence2, Sequence3, DownStairClose, DownStair = false;
+bool DirectionalArea, DoubleArea1, DoubleArea2, DoubleArea3, DoubleArea4, DoubleArea1Rotated, DownStairClose, DownStair = false;
 bool DoubleAreaFirstCaseRotatedNext, DownStairNext = false;
 
 int[] newExitField0 = new int[] { 0, 0 };
@@ -590,7 +590,7 @@ void NextStepPossibilities2()
                     activeRuleSizes = new();
 
                     // ----- copy start -----
-                    DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = Sequence1 = Sequence2 = Sequence3 = DownStairClose = DownStair = false;
+                    DirectionalArea = DoubleArea1 = DoubleArea2 = DoubleArea3 = DoubleArea4 = DoubleArea1Rotated = DownStairClose = DownStair = false;
                     DoubleAreaFirstCaseRotatedNext = DownStairNext = false;
                     nextStepEnterLeft = -1;
                     nextStepEnterRight = -1;
@@ -2737,26 +2737,44 @@ void CheckLeftRightAreaUpExtended() // used for double area. As 0618_2 shows, 1,
                                         // T("LeftRightAreaUpExtended closed corner 3: Cannot step straight");
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                     }
+                                    path.RemoveAt(path.Count - 1);
 
-                                    path.Add(new int[] { x - lx + (ex - 1) * sx, y - ly + (ex - 1) * sy });
+                                }
 
-                                    x2 = x - lx + (ex - 1) * sx;
-                                    y2 = y - ly + (ex - 1) * sy;
+                                // Sequence sixth case
+                                // Sequence can only exist at a short distance where the line cannot exit and enter again.
+                                // 0724, up across, down mid across
+                                // 0725_2, up area, down mid across
+                                // 0727_2: up mid across, down across
+                                // 0727_5: sequence up
 
-                                    // 0724, up across, down mid across
-                                    // 0725_2, up area, down mid across
-                                    // 0727_2: up mid across, down across
-                                    // Find example for across as a down obstacle
-                                    if (CheckCorner2(i, true) && CheckNearFieldSmallRel1(-1, ex - 1, 1, 1, true))
+                                if (ex == 3 && (j == 0 || j == 3) && white == black)
+                                {
+                                    path.Add(new int[] { x + sx, y + sy });
+                                    path.Add(new int[] { x + 3 * sx, y + 3 * sy });
+                                    path.Add(new int[] { x - lx + 2 * sx, y - ly + 2 * sy });
+                                    x2 = x - lx + 2 * sx;
+                                    y2 = y - ly + 2 * sy;
+
+                                    int[] rotatedDir = RotateDir(lx, ly, i);
+                                    lx2 = rotatedDir[0];
+                                    ly2 = rotatedDir[1];
+                                    rotatedDir = RotateDir(sx, sy, i);
+                                    sx2 = rotatedDir[0];
+                                    sy2 = rotatedDir[1];
+
+                                    counterrec = 0;
+
+                                    if (CheckSequenceRecursive(i))
                                     {
-                                        ruleTrue = true;
-                                        // T("LeftRightAreaUpExtended closed corner 3 exit: Cannot step straight");
+                                        AddExamAreas();
+
+                                        // T("CheckSequence case 6 at " + x + " " + y + ", stop at " + x2 + " " + y2 + ": Cannot step straight");
                                         forbidden.Add(new int[] { x + sx, y + sy });
                                     }
-
                                     path.RemoveAt(path.Count - 1);
                                     path.RemoveAt(path.Count - 1);
-
+                                    path.RemoveAt(path.Count - 1);
                                 }
                                 break;
                         }
@@ -2970,8 +2988,9 @@ void CheckStraightSmall() // 0619_1, 0714, 0716, 0717_4
                         if (j >= 1 && ex == 3 && white == black + 1)
                         // 0716: mid across x 2
                         // 0729: mid across down, across up
+                        // 0730_1: across down, mid across up
                         {
-                            if (CheckNearFieldSmallRel0(1, 0, 0, 1, true) && CheckNearFieldSmallRel1(1, 2, 1, 2, false))
+                            if (CheckNearFieldSmallRel1(1, 0, 0, 1, true) && CheckNearFieldSmallRel1(1, 2, 1, 2, false))
                             {
                                 // T("CheckStraightSmall 3 double close obstacle inside: Cannot step left");
                                 forbidden.Add(new int[] { x + lx, y + ly });
@@ -3104,7 +3123,9 @@ void CheckLeftRightAreaUpBigExtended() // Area as in the first area case of docu
                             laterWCount = ex / 4;
                             laterBCount = ex / 4;
 
-                            if (whiteDiff == laterWCount && CheckNearFieldSmallRel0(1, 1, 0, 1, false)) // 0624: mid across
+                            if (whiteDiff == laterWCount && CheckNearFieldSmallRel1(1, 1, 0, 1, false))
+                                // 0624: mid across
+                                // 0730_2: across
                             // When entering at the first white field, we have to step down to the first black and then left to enter
                             {
                                 ruleTrue = true;
@@ -3219,7 +3240,7 @@ void CheckStraightBig() // 18677343, 59434452, 0626_1
                     ResetExamAreas();
 
                     // 18677343, 59434452: mid across x 2
-                    // 0709: C-shape up, mid across down
+                    // 0709: mid across down, C-shape up 
                     if (ex == 3)
                     {
                         if (CountAreaRel(-1, 1, -1, ex, borderFields, circleDirectionLeft, 2, true))
@@ -3229,7 +3250,7 @@ void CheckStraightBig() // 18677343, 59434452, 0626_1
 
                             if (white == black)
                             {
-                                if (CheckNearFieldSmallRel(-1, 3, 0, 2, true) && CheckNearFieldSmallRel0(-1, 1, 1, 1, false))
+                                if (CheckNearFieldSmallRel0(-1, 1, 1, 1, false) && CheckNearFieldSmallRel(-1, 3, 0, 2, true))
                                 {
                                     // T("CheckStraightBig double close obstacle outside 3 dist: Cannot step right and down");
                                     forbidden.Add(new int[] { x - sx, y - sy });
@@ -3242,6 +3263,7 @@ void CheckStraightBig() // 18677343, 59434452, 0626_1
                     }
                     // 0626_1: mid across x 2
                     // 0729_3: mid across down, across up
+                    // 0730: across down, mid across up
                     else if (ex == 4)
                     {
                         if (CountAreaRel(-1, 1, -1, ex, borderFields, circleDirectionLeft, 2, true))
@@ -3251,7 +3273,7 @@ void CheckStraightBig() // 18677343, 59434452, 0626_1
 
                             if (white == black + 1)
                             {
-                                if (CheckNearFieldSmallRel0(-1, 1, 1, 1, false) && CheckNearFieldSmallRel1(-1, 3, 0, 2, true))
+                                if (CheckNearFieldSmallRel1(-1, 1, 1, 1, false) && CheckNearFieldSmallRel1(-1, 3, 0, 2, true))
                                 {
                                     // T("CheckStraightBig double close obstacle outside 4 dist: Cannot step right and down");
                                     forbidden.Add(new int[] { x - sx, y - sy });
@@ -3388,10 +3410,10 @@ void CheckReverseStair() // 0718, reverse stair 1/2, 0720_2
                                     int black = (int)info[1];
                                     int white = (int)info[2];
 
-                                    // 0718: Mid across, across
-                                    // 0720_2: Mid across, mid across
-                                    // 0727: C-shape, mid across
-                                    if (black == white && CheckNearFieldSmallRel(nextX, nextY, 0, 0, true) && CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false))
+                                    // 0718: across close, mid across far
+                                    // 0720_2: mid across x 2
+                                    // 0727: mid across close, C-shape far
+                                    if (black == white && CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false) && CheckNearFieldSmallRel(nextX, nextY, 0, 0, true))
                                     {
                                         AddExamAreas();
                                         // T("Reverse stair at " + nextX + " " + nextY + ": Cannot step straight");
@@ -3529,7 +3551,6 @@ void CheckSequence()
                             {
                                 AddExamAreas(true);
 
-                                Sequence1 = true;
                                 activeRules.Add("Sequence first case");
                                 activeRuleSizes.Add(new int[] { 5, 5 });
                                 activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + lx, y + ly }, new int[] { x + sx, y + sy } });
@@ -3600,7 +3621,6 @@ void CheckSequence()
                             {
                                 AddExamAreas(true);
 
-                                Sequence2 = true;
                                 activeRules.Add("Sequence second case");
                                 activeRuleSizes.Add(new int[] { 5, 5 });
                                 activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + lx, y + ly }, new int[] { x + sx, y + sy } });
@@ -3683,7 +3703,6 @@ void CheckSequence()
                             {
                                 AddExamAreas(true);
 
-                                Sequence3 = true;
                                 activeRules.Add("Sequence third case");
                                 activeRuleSizes.Add(new int[] { 4, 5 });
                                 activeRulesForbiddenFields.Add(new List<int[]> { new int[] { x + sx, y + sy } });
@@ -3777,7 +3796,7 @@ void CheckSequence()
     lx = thisLx;
     ly = thisLy;
 
-    // fifth case, 0724_1: Step right next step C-shape. There is an obstacle 2 distance to the right to start with.
+    // Fifth case, 0724_1: Step right next step C-shape. There is an obstacle 2 distance to the right to start with.
 
     for (int i = 0; i < 2; i++)
     {
@@ -3843,6 +3862,8 @@ void CheckSequence()
     sy = thisSy;
     lx = thisLx;
     ly = thisLy;
+
+    // Sixth case: 0727_5, implemented in UpExtended
 }
 
 bool CheckCorner2(int side, bool smallArea) // #8
