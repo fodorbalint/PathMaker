@@ -2,12 +2,12 @@ size: 11
 loadFromFile: True
 saveOnCompletion: True
 continueOnCompletion: True
-keepLeft: True
+keepLeft: False
 displayFutureLines: False
 displayArea: True
 makeStats: True
 activeRules: False
 checkerBoard: True
 appliedSize: 9
-ruleXSize: 4
-ruleYSize: 7
+ruleXSize: 3
+ruleYSize: 5

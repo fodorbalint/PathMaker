@@ -2451,6 +2451,22 @@ The line in this case has to make a stair as shown on page 179-181, but now we a
 Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).
 
 There have been found cases where the left obstacle is mid across, and the right obstacle is a C-shape.
+
+<!---->
+
+<b>10. Unsolved case</b>
+
+At every 7 million random attempts, a pattern like this emerges:
+
+<img align="top" src="References/2024_0725_4 marked.svg" width="11" />
+
+It is easy to see the parts that contribute to the case being impossible, but how do we define a universal or simplified rule?
+Below the first pattern descibes the exit point of the pair area (A), while the second is the border movement rule with the end obstacle at the start point B.
+
+<img align="top" src="References/unsolved part 1.svg" width="3" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/unsolved part 2.svg" width="4" />
+
+In order to fill the marked area with respect to the end obstacle, we need to enter at either C or D. But because of E, we cannot step from A to C, and because of E and F, we cannot reach D.
+
 <!---->
 
 <span class="header">11 x 11 estimates</span>
@@ -2517,10 +2533,6 @@ Arrow symbol in text
 
 Merge two cases with one that draws a future line with a blue background.
 Add future lines on page 144 (2034760)
-
-<b>Unsolved:</b>
-
-<img align="top" src="References/2024_0725_4.svg" width="11" />
 
 <!--
 <img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />

@@ -20,4 +20,4 @@ obj/
 /Console app/log_stats.txt
 /Console app/log_rules.txt
 /Console app/log_performance.txt
-/Console app/error case.txt
+/Console app/error case*.txt
