@@ -1503,11 +1503,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\fodor\\OneWayLabyrinth\\OneWayLabyrinth.csproj",
+      "projectUniqueName": "c:\\Users\\fodor\\OneWayLabyrinth\\OneWayLabyrinth.csproj",
       "projectName": "OneWayLabyrinth",
-      "projectPath": "C:\\Users\\fodor\\OneWayLabyrinth\\OneWayLabyrinth.csproj",
+      "projectPath": "c:\\Users\\fodor\\OneWayLabyrinth\\OneWayLabyrinth.csproj",
       "packagesPath": "C:\\Users\\fodor\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\fodor\\OneWayLabyrinth\\obj\\",
+      "outputPath": "c:\\Users\\fodor\\OneWayLabyrinth\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

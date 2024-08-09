@@ -12,10 +12,10 @@
 	<!-- 2 2 2 -->
 	<path d="M 1 1 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />	
 	<!-- 4 1 6 -->
-	<path d="M 3 0 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
+	<path d="M 3 0 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 3.5 0.8 v -0.6 l -0.2 0.2 l 0.2 -0.2 l 0.2 0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 4 2 6 -->
-	<path d="M 3 1 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
+	<path d="M 3 1 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 3.5 1.8 v -0.6 l -0.2 0.2 l 0.2 -0.2 l 0.2 0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 2 5 1 -->
 	<path d="M 1 4 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />

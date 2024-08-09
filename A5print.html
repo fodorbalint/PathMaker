@@ -114,7 +114,7 @@
 <tr><td><div class="border"></div><div><span class="header">The one-way labyrinth algorithm</span><br />
 <br />
 This research aims to solve the following problem:<br />
-"Draw a line that goes through an n x n grid (where n is an odd number), passing through each field once. The line has to start from the field at the upper left corner (1,1) and end at (n,n). At any time it is allowed to move left, right, up or down, and it has to randomly choose between the available fields."<br />
+"Draw a line that goes through an n&nbsp;x&nbsp;n grid (where n is an odd number), passing through each field once. The line has to start from the field at the upper left corner (1,1) and end at (n,n). At any time it is allowed to move left, right, up or down, and it has to randomly choose between the available fields."<br />
 <br />
 At first sight it may look easy. But look at the following example:<br />
 <br />
@@ -125,22 +125,22 @@ Based on the black line's shape, blue fragments were drawn to indicate a path we
 Do you see why the situation is impossible from now on?<br />
 <br />
 The question is, is there a single rule or a set of rules that will guarantee you can draw a labyrinth of any size? Or do the rules get infinitely complex?<br />
-It is not a viable option to draw the path until it cannot continue, only to step back and choose a different direction at some point. For a 21 x 21 grid, the number of steps are 440, and for each step, if we have to choose between 3 directions, the number of operations would be immense: 3<sup>440</sup><br />
-In turn, if we found an algorithm that requires at most a * n<sup>b</sup> operations (where a and b are fixed numbers), the problem is solved.<br />
+It is not a viable option to draw the path until it cannot continue, only to step back and choose a different direction at some point. For a 21&nbsp;x&nbsp;21 grid, the number of steps are 440, and for each step, if we have to choose between 3 directions, the number of operations would be immense: 3<sup>440</sup><br />
+In turn, if we found an algorithm that requires at most a&nbsp;*&nbsp;n<sup>b</sup> operations (where a and b are fixed numbers), the problem is solved.<br />
 <br />
 What I have found is not a simple formula but a collection of cases we have to examine at each step. Where it gets complicated, we might discover an universal system that simplify things.<br />
 Instead of simply presenting the solution, this study takes you along its chronological development, but where it is necessary, I go ahead in time or summarize what we have learned to give you a better overview.<br />
 <br />
 The research required writing a computer program, which I have made available at<br />
 github.com/fodorbalint/OneWayLabyrinth</div><div class="num">2</div></td></tr>
-<tr><td><div class="border"></div><div>In the beginning, I let it run on a 21 x 21 field, and whenever the line stopped, I coded the solution into it. But soon things got too complex, and I was still far from solving the board. That's where I decided to take a gradual approach.<br />
+<tr><td><div class="border"></div><div>In the beginning, I let it run on a 21&nbsp;x&nbsp;21 field, and whenever the line stopped, I coded the solution into it. But soon things got too complex, and I was still far from solving the board. That's where I decided to take a gradual approach.<br />
 <br />
-A 3 x 3 area can only be filled in two ways, which are mirrored versions of each other:<br />
+A 3&nbsp;x&nbsp;3 area can only be filled in two ways, which are mirrored versions of each other:<br />
 <br />
 <img src="References/3x3.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/3x3_1.svg" width="14.285714285714%" /><br />
 <br />
-The 5 x 5 requires much more consideration. Whenever it is possible to draw future lines, the program has to be able to do it. The future lines can not only extend at each step but connect too.<br />
-<!-- specify extension and connection rules --><br />
+The 5&nbsp;x&nbsp;5 requires much more consideration. Whenever it is possible to draw future lines, the program has to be able to do it. The future lines can not only extend at each step but connect too.<br />
+<br />
 <img src="References/0806.svg" width="23.809523809524%" /><br />
 <br />
 Using this method, I found the number of walkthroughs to be 104.<br />
@@ -154,11 +154,11 @@ Here are the things to consider on a grid of this size:</div><div class="num">3<
 - Movement near the edge: In the example, we cannot step left (3,5), since the (2,5) field is empty.</div><div class="num">4</div></td></tr>
 <tr><td><div class="border"></div><div><img src="References/0821_1.svg" width="23.809523809524%" /><br />
 <br />
-- A 2 x 3 empty area next to the live end that is walled by three sides (2-3-2 long) will have a future line going through along the walls. At the wall next to the main line, its direction is the opposite of the main line, meaning it will go from (3,2) upwards whereas the main line just took a step downwards. How the middle field will be filled is not yet known. Either the near end (the one the main line will go through first) or the far end can fill it.<br />
+- A 2&nbsp;x&nbsp;3 empty area next to the live end that is walled by three sides (2-3-2 long) will have a future line going through along the walls. At the wall next to the main line, its direction is the opposite of the main line, meaning it will go from (3,2) upwards whereas the main line just took a step downwards. How the middle field will be filled is not yet known. Either the near end (the one the main line will go through first) or the far end can fill it.<br />
 <br />
 <img src="References/0821_2.svg" width="23.809523809524%" /><br />
 <br />
-- A 2 x 2 empty area next to the live end that is walled by three sides (2-2-2 long) will have a future line going through along the walls. In this example, the far end is already extended by one step as it had only one option to move.</div><div class="num">5</div></td>
+- A 2&nbsp;x&nbsp;2 empty area next to the live end that is walled by three sides (2-2-2 long) will have a future line going through along the walls. In this example, the far end is already extended by one step as it had only one option to move.</div><div class="num">5</div></td>
 <td><div class="border"></div><div><img src="References/1019_9.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/1019_10.svg" width="23.809523809524%" /><br />
 <br />
 - Future line extension when we step on a future line: The far can be extended if it was 2 distance away from the near end. It can now fill the C-shape.<br />
@@ -183,16 +183,16 @@ If the far end was near the end corner, it has to choose the other empty field.<
 - When we are two distance away from the edge, we need to check if stepping towards it is possible.</div><div class="num">7</div></td>
 <td><div class="border"></div><div>It is because if we do so, an enclosed area is created, with one way to go out of it. If that area has an impair amount of cells, it cannot be filled, so we cannot take that step.<br />
 The explanation is simple: Imagine if the table was a chess board. In order to step from white to black, you would need to take an impair amount of steps - the color changes at every step. Here, the entry of the area would be (4,3) and the exit (5,3). An impair amount of steps means pair amount of cells.<br />
-In the example, you can also say that we cannot step right, because there is a future line start 2 to straight and an end 2 to straight and 2 to right. On 7 x 7, there will be examples where this is the rule we have to apply, because area counting is not getting triggered: <br />
+In the example, you can also say that we cannot step right, because there is a future line start 2 to straight and an end 2 to straight and 2 to right. On 7&nbsp;x&nbsp;7, there will be examples where this is the rule we have to apply, because area counting is not getting triggered: <br />
 <br />
 <img src="References/1001.svg" width="33.333333333333%" /></div><div class="num">8</div></td></tr>
 <tr><td><div class="border"></div><div>But let's start with the simpler rules:<br />
 <br />
-- Future line extension: When a near end is at 2 distance left or right from the live end, it will fill the field between them if the live end steps elsewhere. That's what happened in the 5 x 5 example above before the line failed.<br />
+- Future line extension: When a near end is at 2 distance left or right from the live end, it will fill the field between them if the live end steps elsewhere. That's what happened in the 5&nbsp;x&nbsp;5 example above before the line failed.<br />
 <br />
 <img src="References/0911.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/0911_0_1.svg" width="33.333333333333%" /><br />
 <br />
-In other situations, there is a 1-thin future line next to the live end that can be extended if its far end is at the corner. Though disabling this rule does not affect the total amount of walkthroughs on a 7 x 7 grid, I chose to include it in the project on the basis that if a future line can be extended, we should do it. It can make a considerable difference. The left picture is without the rule, the right is with it.</div><div class="num">9</div></td>
+In other situations, there is a 1-thin future line next to the live end that can be extended if its far end is at the corner. Though disabling this rule does not affect the total amount of walkthroughs on a 7&nbsp;x&nbsp;7 grid, I chose to include it in the project on the basis that if a future line can be extended, we should do it. It can make a considerable difference. The left picture is without the rule, the right is with it.</div><div class="num">9</div></td>
 <td><div class="border"></div><div><img src="References/0901.svg" width="33.333333333333%" /><br />
 <br />
 - Just like moving near the edge, we need to disable some fields if we are approaching an older section of the main line. In order to determine on which side the enclosed area is created, we need to examine the direction of the line at the connection point.<br />
@@ -243,7 +243,7 @@ And these are the rest of the rules:<br />
 <br />
 <img align="top" src="References/rules/7/Future L.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Future L 65.svg" width="33.333333333333%" /><br />
 <br />
-This is what I started the 7 x 7 introduction with. I will call it Future L.</div><div class="num">14</div></td></tr>
+This is what I started the 7&nbsp;x&nbsp;7 introduction with. I will call it Future L.</div><div class="num">14</div></td></tr>
 <tr><td><div class="border"></div><div><img align="top" src="References/rules/7/Future 2 x 2 Start End.svg" width="28.571428571429%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Future 2 x 2 Start End 450.svg" width="33.333333333333%" /><br />
 <br />
 <br />
@@ -251,15 +251,15 @@ This is what I started the 7 x 7 introduction with. I will call it Future L.</di
 <br />
 <img align="top" src="References/rules/7/Future 3 x 3 Start End.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Future 3 x 3 Start End 1861.svg" width="33.333333333333%" /><br />
 <br />
-And these are the remaining size-specific rules. Future 2 x 2 Start End, Future 2 x 3 Start End and Future 3 x 3 Start End.</div><div class="num">15</div></td>
-<td><div class="border"></div><div>The program, in fast mode, can run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7 x 7 walkthroughs, which is 111 712.<br />
-It is equal to what is described in the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1 x 2n+1 grid).<br />
+And these are the remaining size-specific rules. Future 2&nbsp;x&nbsp;2 Start End, Future 2&nbsp;x&nbsp;3 Start End and Future 3&nbsp;x&nbsp;3 Start End.</div><div class="num">15</div></td>
+<td><div class="border"></div><div>The program, in fast mode, can run through approximately 100 cases per second, depending on your computer speed. This enables us to discover all 7&nbsp;x&nbsp;7 walkthroughs, which is 111&nbsp;712.<br />
+It is equal to what is described in the Online Encyclopedia of Integer Series (Number of simple Hamiltonian paths connecting opposite corners of a 2n+1&nbsp;x&nbsp;2n+1 grid).<br />
 <br />
 As the sizes grow, it will be impossible to run through all cases with one computer in a reasonable time. In order to discover the patterns, we need to run the program randomly.<br />
 <br />
 Is it possible to develop an algorithm that works for all sizes? The edge-related and area-counting rules are universal, but the size-specific rules get more and more complex. Can you define them with one statement?<br />
 <br />
-I have made statistics about how many random walkthroughs you can complete on different grids using the 7 x 7-specific and the universal rules before running into an error. Based on 1000 attempts, here are the results:<br />
+I have made statistics about how many random walkthroughs you can complete on different grids using the 7&nbsp;x&nbsp;7-specific and the universal rules before running into an error. Based on 1000 attempts, here are the results:<br />
 <br />
 9: 19.5<br />
 11: 5.7<br />
@@ -268,14 +268,14 @@ I have made statistics about how many random walkthroughs you can complete on di
 17: 0.7<br />
 19: 0.4<br />
 21: 0.2</div><div class="num">16</div></td></tr>
-<tr><td><div class="border"></div><div>To discover 9-specific patterns, I run the program keeping it left as long as the time to get to the first error is too big. After that, I will run it randomly. The first 13 826 walkthroughs are completed before we encounter a situation. It is similar to the last one we discovered on 7 x 7:<br />
+<tr><td><div class="border"></div><div>To discover 9-specific patterns, I run the program keeping it left as long as the time to get to the first error is too big. After that, I will run it randomly. The first 13 826 walkthroughs are completed before we encounter a situation. It is similar to the last one we discovered on 7&nbsp;x&nbsp;7:<br />
 <br />
 <img align="top" src="References/1007.svg" width="42.857142857143%" /></div><div class="num">17</div></td>
 <td><div class="border"></div><div>Let's simplify the pattern. Which will be impossible to fill?<br />
 <br />
 <img align="top" src="References/1008.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/1008_1.svg" width="42.857142857143%" /><br />
 <br />
-It is the picture on the left. Since the yellow-bordered area is impair, adding the (4,2) (4,3) (4,4) fields will be pair. We enter the area at (4,4), so we will exit at (4,3). Now we enter the 3 x 3 area in the top left corner at its side, (3,3) and will exit at (2,4). The result is two C-shapes on each side:<br />
+It is the picture on the left. Since the yellow-bordered area is impair, adding the (4,2) (4,3) (4,4) fields will be pair. We enter the area at (4,4), so we will exit at (4,3). Now we enter the 3&nbsp;x&nbsp;3 area in the top left corner at its side, (3,3) and will exit at (2,4). The result is two C-shapes on each side:<br />
 <br />
 <img align="top" src="References/1008_2.svg" width="42.857142857143%" /></div><div class="num">18</div></td></tr>
 <tr><td><div class="border"></div><div>We can define a rule by marking the following fields and counting the area from the fields in front of the main line to the right:<br />
@@ -291,12 +291,12 @@ When generating code from the drawing, we have to check on which side the enclos
 <br />
 <img align="top" src="References/1010_2.svg" width="42.857142857143%" /><br />
 <br />
-This will probably be another rule, because in this case it is not necessary to have an empty 3 x 3 field on the left.</div><div class="num">20</div></td></tr>
-<tr><td><div class="border"></div><div>Now let's run the program further up to number 13 992:<!-- (from stepping back + 142 (with first rule disabled) / 158 = 13 984) why? --><br />
+This will probably be another rule, because in this case it is not necessary to have an empty 3&nbsp;x&nbsp;3 field on the left.</div><div class="num">20</div></td></tr>
+<tr><td><div class="border"></div><div>Now let's run the program further up to number 13 992:<br />
 <br />
 <img align="top" src="References/1010_4_error.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/1010_4.svg" width="42.857142857143%" /><br />
 <br />
-It is also just like the 7 x 7 rule, just with the extension of the area on the opposite side of the future line ends. But we can't simply remove the two taken fields on that side, because the line might continue in that direction, as it is the case here:<br />
+It is also just like the 7&nbsp;x&nbsp;7 rule, just with the extension of the area on the opposite side of the future line ends. But we can't simply remove the two taken fields on that side, because the line might continue in that direction, as it is the case here:<br />
 <br />
 <img align="top" src="References/1013.svg" width="33.333333333333%" /><br />
 <br />
@@ -323,7 +323,7 @@ Let's analyze it! A double C-shape is created, because the line occupied the A f
 <img align="top" src="References/Double C-Shape orig.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/1022_1.svg" width="42.857142857143%" /><br />
 <br />
 But what if from the A position, we step upwards in another situation?</div><div class="num">24</div></td></tr>
-<tr><td><div class="border"></div><div>Compare these two on 11 x 11:<br />
+<tr><td><div class="border"></div><div>Compare these two on 11&nbsp;x&nbsp;11:<br />
 <br />
 <img align="top" src="References/1022_2.svg" width="52.380952380952%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
@@ -334,7 +334,7 @@ If the area we started with is pair, then the other will be impair. We can only 
 <br />
 <img align="top" src="References/Future 2 x 2 Start End rotated.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/1027.svg" width="42.857142857143%" /><br />
 <br />
-Rotating was not necessary to start with on 7 x 7, because no such situation occurred.</div><div class="num">26</div></td></tr>
+Rotating was not necessary to start with on 7&nbsp;x&nbsp;7, because no such situation occurred.</div><div class="num">26</div></td></tr>
 <tr><td><div class="border"></div><div>We can see that defining a rule with future line starts and ends does not tell us on which side the future line was created. That is the side that contains the enclosed area. We need to therefore replace such rules with area counting, which we actually already did, with the exception of Future L. Here the future line couldn't have been created on the other side, because that's the side the live end is at right now. And area counting is not always possible, like in this situation:<br />
 <br />
 <img align="top" src="References/1031.svg" width="61.904761904762%" /></div><div class="num">27</div></td>
@@ -385,7 +385,7 @@ We have to mark where the area has been created in another way.<br />
 <br />
 <img align="top" src="References/Square 4 x 2 orig.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Square 4 x 2.svg" width="19.047619047619%" /><br />
 <br />
-The taken field in the upper right corner is now checked for direction, but it is not enough. It can go upwards, and the exit of the area can still be on the bottom edge, just look at the example and imagine the live end was at A with the pattern already drawn. (On 11 x 11, it is possible to draw it.)<br />
+The taken field in the upper right corner is now checked for direction, but it is not enough. It can go upwards, and the exit of the area can still be on the bottom edge, just look at the example and imagine the live end was at A with the pattern already drawn. (On 11&nbsp;x&nbsp;11, it is possible to draw it.)<br />
 In order to establish an enclosed area, we must not encounter the bottom-right corner of the grid when walking along the edge of it.</div><div class="num">33</div></td>
 <td><div class="border"></div><div>626 071 is:<br />
 <br />
@@ -402,7 +402,7 @@ The taken field C creates a C-shape, which we need to step into from B.</div><di
 The same concept we encounter at 635 301, only the C-shape is created when we enter an area, on the other side of it.<br />
 <br />
 <img align="top" src="References/635301.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/635301_1.svg" width="42.857142857143%" /></div><div class="num">35</div></td>
-<td><div class="border"></div><div>We have seen this in the third 9 x 9 rule. There the taken field next to the exit was in middle across position, and now it is across. And we also need to think about an obstacle straight ahead. Here are the original universal rules and their modifications.<br />
+<td><div class="border"></div><div>We have seen this in the third 9&nbsp;x&nbsp;9 rule. There the taken field next to the exit was in middle across position, and now it is across. And we also need to think about an obstacle straight ahead. Here are the original universal rules and their modifications.<br />
 Straight, circle direction left:<br />
 <br />
 <img src="References/checknearfield/far straight left.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/checknearfield/far straight left start C.svg" width="23.809523809524%" /><br />
@@ -435,7 +435,7 @@ I have made some changes by adding some empty fields in side positions, so they 
 Also, I have added the side across down rule and changed the straight across rule accordingly. Not only fields next to each other can define an area, they can be across too. In that case, if the area originally was marked impair, now it has to be pair.</div><div class="num">38</div></td></tr>
 <tr><td><div class="border"></div><div>Notice that in side rules, when the taken field that would create the C-shape is below the obstacle creating the area, it can be a border field too. We have seen an example of that previously.<br />
 <br />
-Now what if both the start and end C-conditions are true? We can construct this on 13 x 13:<br />
+Now what if both the start and end C-conditions are true? We can construct this on 13&nbsp;x&nbsp;13:<br />
 <br />
 <img align="top" src="References/1119.svg" width="61.904761904762%" /><br />
 <br />
@@ -456,7 +456,7 @@ Here there are 14 black fields and 15 white. That's why the area cannot be fille
 And now the walkthrough is possible.<br />
 <br />
 <img align="top" src="References/1119_3.svg" width="61.904761904762%" /></div><div class="num">41</div></td>
-<td><div class="border"></div><div>Continuing the 9 x 9 program, we get this at 641 019:<br />
+<td><div class="border"></div><div>Continuing the 9&nbsp;x&nbsp;9 program, we get this at 641 019:<br />
 <br />
 <img align="top" src="References/641019.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/641019_1.svg" width="42.857142857143%" /><br />
 <br />
@@ -521,7 +521,7 @@ Though not as universal as we want it to be, this will solve this specific situa
 <img align="top" src="References/2022773.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2022773_1.svg" width="42.857142857143%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="23.809523809524%" /></div><div class="num">49</div></td>
-<td><div class="border"></div><div>On 17 x 17, we can construct a situation where the obstacle across the stair is 2 behind and 2 to right. As the table size increases, the stair-obstacle narrowing can move infinite distance away from the live end. That's why it is important to group these rules as one.<br />
+<td><div class="border"></div><div>On 17&nbsp;x&nbsp;17, we can construct a situation where the obstacle across the stair is 2 behind and 2 to right. As the table size increases, the stair-obstacle narrowing can move infinite distance away from the live end. That's why it is important to group these rules as one.<br />
 <br />
 <img align="top" src="References/1218_1.svg" width="80.952380952381%" /></div><div class="num">50</div></td></tr>
 <tr><td><div class="border"></div><div>We have all the tools to handle 2 034 575.<br />
@@ -560,7 +560,7 @@ Here, a C-shape at the start would force the line to enter the area.<br />
 <br />
 <img align="top" src="References/8076044.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/8076044_1.svg" width="42.857142857143%" /><br />
 <br />
-If we step to A, we cannot step left and therefure must continue to B (or right). From B, the only possibility is C, but the 5 x 3 area is not just impair, there is less of the C-parity field than the other.<br />
+If we step to A, we cannot step left and therefure must continue to B (or right). From B, the only possibility is C, but the 5&nbsp;x&nbsp;3 area is not just impair, there is less of the C-parity field than the other.<br />
 In the rule, I introduced a new field that indicates the entry point; this has always been the start field until now.<br />
 <br />
 <img align="top" src="References/rules/9_old/Double C-Shape Determined.svg" width="14.285714285714%" /></div><div class="num">55</div></td>
@@ -572,13 +572,13 @@ Obvously, we cannot step straight, but had we extended the future line until the
 <br />
 <img align="top" src="References/19717655_2.svg" width="42.857142857143%" /><br />
 <br />
-Though the algorithm including the reliance on the future lines is just as solvable, we miss patterns and therefore narrow the spectrum of the discoverable rules. We would eventually discover the patterns as we increase the table, but why not gain the most out of the 9 x 9 study?</div><div class="num">56</div></td></tr>
+Though the algorithm including the reliance on the future lines is just as solvable, we miss patterns and therefore narrow the spectrum of the discoverable rules. We would eventually discover the patterns as we increase the table, but why not gain the most out of the 9&nbsp;x&nbsp;9 study?</div><div class="num">56</div></td></tr>
 <tr><td><div class="border"></div><div>From now on, future lines are treated as a visible aid, but they do not play a role in deciding which fields are available for the next move. When a possible field is within the body of a future line, the program should stop. <br />
 <br />
 <img align="top" src="References/19717655_3.svg" width="42.857142857143%" /><br />
 <br />
 It is not the only thing. So far, when we entered a future line, the program just followed it without checking the possibilities for the next step.<br />
-This behaviour needs to be changed too. Future lines are no longer needed, and we should restart the 9 x 9 walkthroughs.<br />
+This behaviour needs to be changed too. Future lines are no longer needed, and we should restart the 9&nbsp;x&nbsp;9 walkthroughs.<br />
 <br />
 For now, here is the solution to this and the next cases:<br />
 <br />
@@ -596,8 +596,8 @@ We encounter a new constellation of 3 areas in 23 310 321 where the exit is next
 <br />
 <img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.571428571429%" /><br />
 <br />
-When restarting the run with the new approach, we will find that some walkthroughs were missed previously. The 10 000 th path is slightly younger than before. It is not because the future lines had been drawn incorrecty, but because the 7 x 7 rules that I used in the beginning were not precise for this size.<br />
-In the following section, I list the 9 x 9 rules in chronological order. The patterns are not introduced when they are first recognized, but when they are first needed, meaning that they disable fields that the other rules don't. And the disabled fields have to be empty.<br />
+When restarting the run with the new approach, we will find that some walkthroughs were missed previously. The 10 000 th path is slightly younger than before. It is not because the future lines had been drawn incorrecty, but because the 7&nbsp;x&nbsp;7 rules that I used in the beginning were not precise for this size.<br />
+In the following section, I list the 9&nbsp;x&nbsp;9 rules in chronological order. The patterns are not introduced when they are first recognized, but when they are first needed, meaning that they disable fields that the other rules don't. And the disabled fields have to be empty.<br />
 Still, the number of completed walkthroughs before the appereance of the rule may not be the same as the number of those before getting stuck in the lack of that rule. If the rule disables a field right to a possible field, the left branch would run through first.</div><div class="num">59</div></td>
 <td><div class="border"></div><div>462, Double Area C-Shape <br />
 <br />
@@ -620,11 +620,11 @@ Still, the number of completed walkthroughs before the appereance of the rule ma
 25 153, Straight Across End C<br />
 <br />
 <img align="top" src="References/25153.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Straight Across End C.svg" width="14.285714285714%" /></div><div class="num">62</div></td></tr>
-<tr><td><div class="border"></div><div>227 130, Square 4 x 2 C-Shape <br />
+<tr><td><div class="border"></div><div>227 130, Square 4&nbsp;x&nbsp;2 C-Shape <br />
 <br />
 <img align="top" src="References/227130.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Square 4 x 2 C-Shape.svg" width="23.809523809524%" /><br />
 <br />
-231 960, Square 4 x 2 Area<br />
+231 960, Square 43&nbsp;x&nbsp;2 Area<br />
 <br />
 <img align="top" src="References/231960.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Square 4 x 2 Area.svg" width="23.809523809524%" /></div><div class="num">63</div></td>
 <td><div class="border"></div><div>740 129, Straight Across 3 End Area <br />
@@ -679,7 +679,7 @@ If we step left in the impair area, we can only exit at the count area middle fi
 And no fields can be omitted from the area for entry and exit later.<br />
 When the count area start field + middle field is omitted (subtracting a pair amount of cells from the area), the possible exit is the count area end field, which has a different parity than the field to the left.<br />
 When the count area middle + end field is omitted, the possible exit is the count area start field, which has again different parity.</div><div class="num">70</div></td></tr>
-<tr><td><div class="border"></div><div>By now, we are able to group some rules and even solve the original 21 x 21 example. Previously, we have covered all of the cases where an obstacle is 2 distance away from the live end. Let's examine distances of 3, 4 and so on in this constellation:<br />
+<tr><td><div class="border"></div><div>By now, we are able to group some rules and even solve the original 213&nbsp;x&nbsp;21 example. Previously, we have covered all of the cases where an obstacle is 2 distance away from the live end. Let's examine distances of 3, 4 and so on in this constellation:<br />
 <br />
 <img align="top" src="References/3pair.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/4pair.svg" width="28.571428571429%" /><br />
 <br />
@@ -774,53 +774,53 @@ But we cannot enter later and make two white to white lines using three white fi
 <br />
 <b>1) Pair distance, pair black and white</b> (indicated by B and W): 4, 8, 12 etc. distance<br />
 <br />
-If we enter now and exit on black, B-1 black field remains on the border. B-1 is impair, and the corner alone can make a black to black line. Hence (B-2) / 2 + 1 = B / 2 black to black line would be possible, but...<br />
-- if the first line finishes at the corner black, the opportunity for it to make a single line is lost, and the remaining B-1 black fields cannot make B / 2 black lines.<br />
+If we enter now and exit on black, B-1 black field remains on the border. B-1 is impair, and the corner alone can make a black to black line. Hence (B-2)&nbsp;/&nbsp;2&nbsp;+&nbsp;1&nbsp;=&nbsp;B&nbsp;/&nbsp; 2 black to black lines would be possible, but...<br />
+- if the first line finishes at the corner black, the opportunity for it to make a single line is lost, and the remaining B-1 black fields cannot make B/2 black lines.<br />
 - if it finishes on any other black field, on one side there will be a section that has white fields on both ends (below the greenish fields were taken by the first line)<br />
 <br />
 <img align="top" src="References/8dist.svg" width="47.619047619048%" /><br />
 <br />
 A black to black line cannot have three white fields on the border (unless more black fields were used up).<br />
 <br />
-So there can be at most B / 2 - 1 black to black lines.<br />
+So there can be at most B/2&nbsp;-&nbsp;1 black to black lines.<br />
 <br />
-If we enter now and exit on white, W-1 white fields remain, so 1 + (W-2) / 2 = W / 2 white to white lines is possible.<br />
+If we enter now and exit on white, W-1 white fields remain, so 1&nbsp;+&nbsp;(W-2)&nbsp;/&nbsp;2&nbsp;=&nbsp;W&nbsp;/&nbsp;2 white to white lines are possible.<br />
 <br />
-If we enter later, the number of possible black to black lines is at most B / 2, and the white ones W / 2.</div><div class="num">81</div></td>
-<td><div class="border"></div><div>Our rule will look like this: If the number of black fields in the area is greater or equal than the number of white fields plus B / 2, we cannot enter now.<br />
+If we enter later, the number of possible black to black lines is at most B/2, and the white ones W/2.</div><div class="num">81</div></td>
+<td><div class="border"></div><div>Our rule will look like this: If the number of black fields in the area is greater or equal than the number of white fields plus B/2, we cannot enter now.<br />
 <br />
 <b>2) Pair distance, impair black and white</b>: 6, 10 etc.<br />
 <br />
-If we enter now and exit at black, (B-1) / 2 black to black lines can be drawn.<br />
+If we enter now and exit at black, (B-1)&nbsp;/&nbsp;2 black to black lines can be drawn.<br />
 <br />
-If we exit at white, (W+1) / 2 white to white lines can be drawn. (We have to move to the corner black and exit at the first white during the first line)<br />
+If we exit at white, (W+1)&nbsp;/&nbsp;2 white to white lines can be drawn. (We have to move to the corner black and exit at the first white during the first line)<br />
 <br />
-If we enter later, (B+1) / 2 and (W-1) / 2 black and white lines are possible, respectively.<br />
+If we enter later, (B+1)&nbsp;/&nbsp;2 and (W-1)&nbsp;/&nbsp;2 black and white lines are possible, respectively.<br />
 <br />
 The rule is double:<br />
-- If the number of black fields is greater or equal than the number of whites plus (B+1) / 2, we cannot enter now.<br />
-- If the number of white fields is greater or equal than the number of blacks plus (W+1) / 2, we have to enter now.<br />
+- If the number of black fields is greater or equal than the number of whites plus (B+1)&nbsp;/&nbsp;2, we cannot enter now.<br />
+- If the number of white fields is greater or equal than the number of blacks plus (W+1)&nbsp;/&nbsp;2, we have to enter now.<br />
 <br />
 <b>3) Impair distance, impair black and pair white</b>: 5, 9 etc.<br />
 <br />
-If we enter now and exit at black, (B-1) / 2 black lines are possible.<br />
+If we enter now and exit at black, (B-1)&nbsp;/&nbsp;2 black lines are possible.<br />
 <br />
 If we exit at white, W/2 white lines are possible.</div><div class="num">82</div></td></tr>
-<tr><td><div class="border"></div><div>If we enter later, the number of black lines can be up to (B+1)/2, the whites W/2<br />
+<tr><td><div class="border"></div><div>If we enter later, the number of black lines can be up to (B+1)&nbsp;/&nbsp;2, the whites W/2<br />
 <br />
-Single rule: When the difference is at least (B+1)/2, we cannot enter now.<br />
+Single rule: When the difference is at least (B+1)&nbsp;/&nbsp;2, we cannot enter now.<br />
 <br />
 <b>4) Impair distance, pair black and impair white</b>: 3, 7 etc.<br />
 <br />
-If we enter now and exit at black, B / 2 black lines are possible.<br />
+If we enter now and exit at black, B/2 black lines are possible.<br />
 <br />
-If we exit at white: Similarly to the first of the four cases, a black to black edge will remain on one side. Drawing (W-1) / 2 more white lines is either not possible, or if we do so, the corner black may make up a black to black line, decreasing the difference.<br />
+If we exit at white: Similarly to the first of the four cases, a black to black edge will remain on one side. Drawing (W-1)&nbsp;/&nbsp;2 more white lines is either not possible, or if we do so, the corner black may make up a black to black line, decreasing the difference.<br />
 <br />
 <img align="top" src="References/7dist.svg" width="42.857142857143%" /><br />
 <br />
-When entering later, B / 2 and (W-1) / 2 are the numbers. Since they match the above, no rule is applied.<br />
+When entering later, B/2 and (W-1)&nbsp;/&nbsp;2 are the numbers. Since they match the above, no rule is applied.<br />
 <br />
-Check the original 21 x 21 example. Two steps back, there will be 9 distance with the wall to the left. The number of black fields on the edge is 5, therefore there cannot be 3 more black fields in the area than white, but counting them, they are 51 and 48.</div><div class="num">83</div></td>
+Check the original 21&nbsp;x&nbsp;21 example. Two steps back, there will be 9 distance with the wall to the left. The number of black fields on the edge is 5, therefore there cannot be 3 more black fields in the area than white, but counting them, they are 51 and 48.</div><div class="num">83</div></td>
 <td><div class="border"></div><div>Does this procedure apply to any of the size-specific rules? Not exactly, but let's look them through. Here are all of them that deal with black and white field imbalance:<br />
 <br />
 <img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Mid Mid Across 3 Determined.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/13_old/Across 3 Impair Determined.svg" width="28.571428571429%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Mid Across 3 Impair Determined 2.svg" width="14.285714285714%" /><br />
@@ -836,12 +836,12 @@ In the fourth, the field marked with + (white) is the type that needs to be 1 mo
 If we enter now:<br />
 - We can exit at the end white, so 1 white line is possible.<br />
 - We can exit at the black farthest away and then make a line using the black field closest. 1 black line is pssible.<br />
-I will mark it like this: 1W -> 1B<br />
+I will mark it like this: 1W &rarr; 1B<br />
 <br />
 If we enter later:<br />
 - Having two black fields, 1 black line is possible.<br />
 - There is only one white field. It sits in a corner, but the two black fields will give 1 black line. 0 white line is possible.<br />
-0W -> 1B<br />
+0W &rarr; 1B<br />
 <br />
 So if there are 1 more white fields in the area than black (1W), we cannot enter later.</div><div class="num">85</div></td>
 <td><div class="border"></div><div>Now let's increase the vertical distance.<br />
@@ -849,9 +849,9 @@ So if there are 1 more white fields in the area than black (1W), we cannot enter
 <img align="top" src="References/2x4dist.svg" width="19.047619047619%" /><br />
 <br />
 If we enter now, 1 white line to 2 black lines are possible. There are 2 black fields on a corner.<br />
-1W -> 2B<br />
+1W &rarr; 2B<br />
 Later, 0 white line and 2 black lines can be drawn.<br />
-0W -> 2B<br />
+0W &rarr; 2B<br />
 <br />
 Conclusion: in case of 1W, we cannot enter later.<br />
 <br />
@@ -859,24 +859,24 @@ Conclusion: in case of 1W, we cannot enter later.<br />
 <br />
 <img align="top" src="References/2x5dist.svg" width="19.047619047619%" /><br />
 <br />
-Now: 2W -> 1B<br />
-Later: 1W -> 2B<br />
+Now: 2W &rarr; 1B<br />
+Later: 1W &rarr; 2B<br />
 2W: cannot enter later<br />
 2B: cannot enter now</div><div class="num">86</div></td></tr>
 <tr><td><div class="border"></div><div>6 distance:<br />
 <br />
 <img align="top" src="References/2x6dist.svg" width="19.047619047619%" /><br />
 <br />
-Now: 1W -> 2B<br />
-Later: 1W -> 3B<br />
+Now: 1W &rarr; 2B<br />
+Later: 1W &rarr; 3B<br />
 3B: cannot enter now<br />
 <br />
 7 distance:<br />
 <br />
 <img align="top" src="References/2x7dist.svg" width="19.047619047619%" /><br />
 <br />
-Now: 2W -> 2B<br />
-Later: 2W -> 2B<br />
+Now: 2W &rarr; 2B<br />
+Later: 2W &rarr; 2B<br />
 No rule.</div><div class="num">87</div></td>
 <td><div class="border"></div><div>In case of 7, there are 4 fields added to the 3-distance example. We would expect that in case of 2W, we cannot enter later, but now, 2W is possible even when entering later, because one line will be the corner white, and the other can go between the other two white fields, taking up all the blacks along the way.<br />
 From now on, increasing the numbers by 1 for every 4 distance increase will work.<br />
@@ -889,38 +889,38 @@ The next thing to do is the horizontal increase.<br />
 <br />
 The picture on the left is the representation we have used so far. However, we cannot exit at the black in the middle, and when we exit at one of the whites, the other is only accessible for immediate entry. Therefore, I will add the extra field. If there is a taken field anywhere ahead acting as the obstacle, we can get to it by drawing a straight line and a stair.<br />
 <br />
-Now: 0W -> 2B<br />
-Later: 1B -> 2B<br />
+Now: 0W &rarr; 2B<br />
+Later: 1B &rarr; 2B<br />
 If we used all 3 black corners for a separate line, we would not enter the area.</div><div class="num">88</div></td></tr>
 <tr><td><div class="border"></div><div>4 distance:<br />
 <br />
 <img align="top" src="References/4x3dist.svg" width="28.571428571429%" />		<br />
 <br />
-Now: 2W -> 0B<br />
+Now: 2W &rarr; 0B<br />
 If we exited at the nearest white after entering, we have either not entered the area or not filled the black field.<br />
-Later: 2W -> 0B<br />
+Later: 2W &rarr; 0B<br />
 <br />
 5 distance:<br />
 <br />
 <img align="top" src="References/5x3dist.svg" width="33.333333333333%" /><br />
 <br />
-Now: 0W -> 3B<br />
+Now: 0W &rarr; 3B<br />
 If we reserved the 3 black corners, the only way to end the first line on black is to move downwards after entry.<br />
-Later: 0W -> 3B</div><div class="num">89</div></td>
+Later: 0W &rarr; 3B</div><div class="num">89</div></td>
 <td><div class="border"></div><div>6 distance:<br />
 <br />
 <img align="top" src="References/6x3dist.svg" width="38.095238095238%" /><br />
 <br />
-Now: 3W -> 1B<br />
+Now: 3W &rarr; 1B<br />
 Similarly, we need to move down after entry in order to finish at the second black field, leaving the first for itself.<br />
-Later: 3W -> 1B<br />
+Later: 3W &rarr; 1B<br />
 <br />
 7 distance:<br />
 <br />
 <img align="top" src="References/7x3dist.svg" width="42.857142857143%" /><br />
 <br />
-Now: 1W -> 3B<br />
-Later: 0W -> 4B<br />
+Now: 1W &rarr; 3B<br />
+Later: 0W &rarr; 4B<br />
 There cannot be one white line, because out of the first three black fields only 2 would be filled.<br />
 <br />
 Notice that as we added 4 distance to 3, now both the white and the black end of the ranges have increased by one.</div><div class="num">90</div></td></tr>
@@ -928,10 +928,10 @@ Notice that as we added 4 distance to 3, now both the white and the black end of
 <br />
 <img align="top" src="References/8x3dist.svg" width="47.619047619048%" /><br />
 <br />
-Now: 4W -> 1B<br />
+Now: 4W &rarr; 1B<br />
 After entry, we need to move up to fill the corner black and exit at the first white field.<br />
 At 4 distance, only 2W was possible, but now we can exit at the first white and fill the area when entering at the second and exiting at the third.<br />
-Later: 3W -> 1B<br />
+Later: 3W &rarr; 1B<br />
 <br />
 After this practice, let's calculate how many white and black lines we can draw when we have an obstacle x and y distance away.<br />
 <br />
@@ -943,23 +943,23 @@ There are three cases to look at.</div><div class="num">91</div></td>
 There are an x number of black fields on the area boundary.<br />
 <br />
 x = 1:<br />
-Now: 0W -> 0B<br />
+Now: 0W &rarr; 0B<br />
 We cannot enter later.<br />
 <br />
 x = 2:<br />
-Now: 0W -> 1B<br />
+Now: 0W &rarr; 1B<br />
 Later: 1B<br />
 <br />
 x = 3:<br />
-Now: 0W -> 2B<br />
-Later: 1B -> 2B<br />
+Now: 0W &rarr; 2B<br />
+Later: 1B &rarr; 2B<br />
 <br />
 x = 4:<br />
-Now: 0W -> 3B<br />
-Later: 1B -> 3B</div><div class="num">92</div></td></tr>
+Now: 0W &rarr; 3B<br />
+Later: 1B &rarr; 3B</div><div class="num">92</div></td></tr>
 <tr><td><div class="border"></div><div>x = n:<br />
-Now: 0W -> (n-1)B<br />
-Later: 1B -> (n-1)B<br />
+Now: 0W &rarr; (n-1)B<br />
+Later: 1B &rarr; (n-1)B<br />
 There is an x amount of corner blacks, but we need to enter the area as well. <br />
 <br />
 Conclusion: if the white and black fields in the area are equal, we cannot enter later.<br />
@@ -975,18 +975,18 @@ Conclusion: if the white and black fields in the area are equal, we cannot enter
 <br />
 Now: Can we make 1W? No, because that would require going through the first black field to end at the first white, while filling the other parts of the area too.<br />
 What about the black line count? Without the horizontal addition, (x-1)B was possible. Can we now make x amount? Yes, by stepping down and ending the line at the first white field and the second black, having filled everything except the corner blacks.<br />
-0W -> xB<br />
+0W &rarr; xB<br />
 <br />
 Later: We can use all corner blacks, and the line starting at the first white and ending at the second black will fill the area.<br />
-0W -> xB</div><div class="num">94</div></td></tr>
+0W &rarr; xB</div><div class="num">94</div></td></tr>
 <tr><td><div class="border"></div><div>2n = 4:<br />
 <br />
 <img align="top" src="References/2n=4.svg" width="47.619047619048%" /><br />
 <br />
 Now: 1W is now possible by ending at the second white, and everything can be filled on the way, while (x+1)B is not possible. Two inline blacks remain after taking off all the corner blacks, and we have to use one of them to exit the first line.<br />
-1W -> xB<br />
+1W &rarr; xB<br />
 <br />
-Later: 1W -> (x+1)B<br />
+Later: 1W &rarr; (x+1)B<br />
 The line connecting the two inline blacks can fill the rest of the area.</div><div class="num">95</div></td>
 <td><div class="border"></div><div>2n = 6:<br />
 <br />
@@ -994,55 +994,60 @@ The line connecting the two inline blacks can fill the rest of the area.</div><d
 <br />
 Now: If the first line goes through the first black and exits at the first white, the second line can go between the remaining two whites.<br />
 As far as the blacks concerned, if we exit at the second black, we can use the third and fourth for a line, plus the x amount of corners.<br />
-2W -> (x+1)B<br />
+2W &rarr; (x+1)B<br />
 <br />
 Later: Because of three inline white fields, one white line is possible. For blacks, we can use all the corners and two out of the three inline blacks.<br />
-1W -> (x+1)B</div><div class="num">96</div></td></tr>
+1W &rarr; (x+1)B</div><div class="num">96</div></td></tr>
 <tr><td><div class="border"></div><div>We don't need more examples.<br />
 <br />
 For 2n added fields, there will be n amount of inline white fields.<br />
 <br />
-If we enter now, (n+1 - (n+1) % 2 ) / 2 white lines can be drawn if n > 1.<br />
+If we enter now, (n+1&nbsp;-&nbsp;(n+1)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2 white lines can be drawn if n&nbsp;>&nbsp;1.<br />
 The black line count is all the corners minus one for finishing the first line, plus one for each remaining pair.<br />
-x + (n-1 - (n-1) % 2 ) / 2<br />
+x&nbsp;+&nbsp;(n-1&nbsp;-&nbsp;(n-1)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2<br />
 <br />
-For entering later, the white line count is (n - n % 2 ) / 2, and the black line count is x + (n - n % 2 ) / 2.</div><div class="num">97</div></td>
+For entering later, the white line count is (n&nbsp;-&nbsp;n&nbsp;%&nbsp;2)&nbsp;/&nbsp;2, and the black line count is x&nbsp;+&nbsp;(n&nbsp;-&nbsp;n&nbsp;%&nbsp;2)&nbsp;/&nbsp;2.</div><div class="num">97</div></td>
 <td><div class="border"></div><div><b>If the added distance is impair:</b><br />
 <br />
-2n + 1 = 1, n = 0:<br />
+2n + 1 = 1<br />
+n = 0:<br />
 <br />
 <img align="top" src="References/2n 1=1.svg" width="33.333333333333%" /><br />
 <br />
 Now: If we end the first line at the first white, we could not have filled the corner black and the area simultaneously. xW is therefore not possible, but (x-1)W is.<br />
 And since there is only one black field, the black line count will be 0.<br />
-(x-1)W -> 0B<br />
+(x-1)W &rarr; 0B<br />
 <br />
 Later: All the corner whites plus the neutral line makes (x-1)W. The black line count is still 0. The black field is a corner, but it will be counterbalanced by at least one white to white line.<br />
-(x-1)W -> 0B</div><div class="num">98</div></td></tr>
-<tr><td><div class="border"></div><div>2n + 1 = 3, n = 1:<br />
+(x-1)W &rarr; 0B</div><div class="num">98</div></td></tr>
+<tr><td><div class="border"></div><div>2n + 1 = 3<br />
+n = 1:<br />
 <br />
 <img align="top" src="References/2n 1=3.svg" width="42.857142857143%" /><br />
 <br />
-Now: Aside the corner whites, 1W is possible by ending at the second white, just like in the 2n = 4 case.<br />
+Now: Aside the corner whites, 1W is possible by ending at the second white, just like in the 2n&nbsp;=&nbsp;4 case.<br />
 The black line count is now 1, but we need to step downwards and finish at the first white and second black in order to have the corner black available.<br />
-xW -> 1B<br />
+xW &rarr; 1B<br />
 <br />
-Later: xW -> 1B</div><div class="num">99</div></td>
-<td><div class="border"></div><div>2n + 1 = 5, n = 2:<br />
+Later: xW &rarr; 1B</div><div class="num">99</div></td>
+<td><div class="border"></div><div>2n + 1 = 5<br />
+n = 2:<br />
 <br />
 <img align="top" src="References/2n 1=5.svg" width="52.380952380952%" /><br />
 <br />
 Now: We can step up and finish at the first white, because line connecting the remaining two whites can fill the area.<br />
-(x+1)W -> 1B<br />
+(x+1)W &rarr; 1B<br />
 <br />
-Later: xW -> 2B<br />
+Later: xW &rarr; 2B<br />
 <br />
 From now on, the calculations are the following:<br />
 <br />
-If we enter now, x + (n - n % 2) / 2 white lines can be drawn if n > 0.<br />
-The number of black fields is n+1, and when we use up one to finish the first line, n amount remains, one of which is a corner. Add one to make pairs, and the formula will be (n+1 - (n+1) % 2) / 2.<br />
+If we enter now, x&nbsp;+&nbsp;(n&nbsp;-&nbsp;n&nbsp;%&nbsp;2)&nbsp;/&nbsp;2 white lines can be drawn if n > 0.<br />
+The number of black fields is n+1, and when we use up one to finish the first line, n amount remains, one of which is a corner. Add one to make pairs, and the formula will be (n+1&nbsp;-&nbsp;(n+1)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2.<br />
 <br />
-When entering later, the white line count is x-1 + (n+1 - (n+1) % 2) / 2, and the black line count is (n+2 - (n+2) % 2) / 2 if n > 0.</div><div class="num">100</div></td></tr>
+When entering later, the white line count is<br />
+x-1&nbsp;+&nbsp;(n+1&nbsp;-&nbsp;(n+1)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2,<br />
+and the black line count is (n+2&nbsp;-&nbsp;(n+2)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2 if n&nbsp;>&nbsp;0.</div><div class="num">100</div></td></tr>
 <tr><td><div class="border"></div><div>3. Larger vertical distance<br />
 <br />
 <img align="top" src="References/2n x.svg" width="28.571428571429%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2n 1 x.svg" width="28.571428571429%" /></div><div class="num">101</div></td>
@@ -1054,48 +1059,51 @@ When entering later, the white line count is x-1 + (n+1 - (n+1) % 2) / 2, and th
 <br />
 Now: It is possible to exit at the white field, having filled everything. The previous step must have been the last black.<br />
 When counting the blacks, we exit the first line at the first black field above the stair, and x amount of corner blacks will remain.<br />
-1W -> xB<br />
+1W &rarr; xB<br />
 <br />
-Later: Same as the 2n = 2 case previously.<br />
-0W -> xB</div><div class="num">102</div></td></tr>
+Later: Same as the 2n&nbsp;=&nbsp;2 case previously.<br />
+0W &rarr; xB</div><div class="num">102</div></td></tr>
 <tr><td><div class="border"></div><div>2n = 4:<br />
 <br />
 <img align="top" src="References/2n=4v.svg" width="28.571428571429%" /><br />
 <br />
 Now: There cannot be more than 1W. And the black line count is unchanged too. One of the two inline blacks will be used for completing the first line, and one remains plus x amount of corner.<br />
-1W -> xB<br />
+1W &rarr; xB<br />
 <br />
-Later: 1W -> (x+1)B</div><div class="num">103</div></td>
+Later: 1W &rarr; (x+1)B</div><div class="num">103</div></td>
 <td><div class="border"></div><div>2n = 6:<br />
 <br />
 <img align="top" src="References/2n=6v.svg" width="28.571428571429%" /><br />
 <br />
-Now: 2W -> (x+1)B<br />
-Later: 1W -> (x+1)B<br />
+Now: 2W &rarr; (x+1)B<br />
+Later: 1W &rarr; (x+1)B<br />
 <br />
-When entering now, the general formula will be (n+1 - (n+1) % 2) / 2 white and x + (n-1 - (n-1) % 2) / 2 black.<br />
-The later case is the same as previously, (n - n % 2 ) / 2 for white and x + (n - n % 2 ) / 2 for black.</div><div class="num">104</div></td></tr>
+When entering now, the general formula will be<br />
+(n+1&nbsp;-&nbsp;(n+1)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2 white and x&nbsp;+&nbsp;(n-1&nbsp;-&nbsp;(n-1)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2 black.<br />
+The later case is the same as previously, (n&nbsp;-&nbsp;n&nbsp;%&nbsp;2)&nbsp;/&nbsp;2 for white and x&nbsp;+&nbsp;(n&nbsp;-&nbsp;n&nbsp;%&nbsp;2)&nbsp;/&nbsp;2 for black.</div><div class="num">104</div></td></tr>
 <tr><td><div class="border"></div><div><b>If the added distance is impair:</b><br />
 <br />
-2n + 1 = 1, n = 0:<br />
+2n + 1 = 1<br />
+n = 0:<br />
 <br />
 <img align="top" src="References/2n 1=1v.svg" width="28.571428571429%" /><br />
 <br />
-Now: 1W -> (x-1)B<br />
-Later: (see horizontal case) 0W -> (x-1)B<br />
+Now: 1W &rarr; (x-1)B<br />
+Later: (see horizontal case) 0W &rarr; (x-1)B<br />
 <br />
-2n + 1 = 3, n = 1:<br />
+2n + 1 = 3<br />
+n = 1:<br />
 <br />
 <img align="top" src="References/2n 1=3v.svg" width="28.571428571429%" /><br />
 <br />
-Now: 2W -> (x-1)B<br />
-Later: 1W -> xB</div><div class="num">105</div></td>
+Now: 2W &rarr; (x-1)B<br />
+Later: 1W &rarr; xB</div><div class="num">105</div></td>
 <td><div class="border"></div><div>Now: The corner white always gives 1. Then make pairs with the remaining inline whites plus the white field we are stepping first.<br />
-1 + (n+1 - (n+1) % 2) / 2<br />
+1&nbsp;+&nbsp;(n+1&nbsp;-&nbsp;(n+1)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2<br />
 For the blacks, one of the inline black fields will be taken by the first line. We can then make pairs with the remaining inline blacks and add the corners.<br />
-x - 1 + (n - n % 2) / 2.<br />
+x-1&nbsp;+&nbsp;(n&nbsp;-&nbsp;n&nbsp;%&nbsp;2)&nbsp;/&nbsp;2.<br />
 <br />
-Later: The white line count is 1 + (n - n % 2) / 2 if n > 0, and the black line count is x - 1 + (n+1 - (n+1) % 2) / 2.<br />
+Later: The white line count is 1&nbsp;+&nbsp;(n&nbsp;-&nbsp;n&nbsp;%&nbsp;2)&nbsp;/&nbsp;2 if n&nbsp;>&nbsp;0, and the black line count is x-1&nbsp;+&nbsp;(n+1&nbsp;-&nbsp;(n+1)&nbsp;%&nbsp;2)&nbsp;/&nbsp;2.<br />
 <br />
 Next, we will look at the corner discovery algorithm.<br />
 <br />
@@ -1111,7 +1119,7 @@ If, at any point we step right and then up, a corner field is found. If it is go
 <br />
 <img align="top" src="References/0321_1.svg" width="80.952380952381%" /><br />
 <br />
-The only difference is the added 2x2 area. To the first, we apply the straight-to-side algorithm, while at the second, we have a corner that defines the area, but essentially, the procedure is the same.</div><div class="num">107</div></td>
+The only difference is the added 2 x 2 area. To the first, we apply the straight-to-side algorithm, while at the second, we have a corner that defines the area, but essentially, the procedure is the same.</div><div class="num">107</div></td>
 <td><div class="border"></div><div>Having the universal algorithm, these two size-specific rules can be deleted:<br />
 <br />
 <img align="top" src="References/rules/9_old/Mid Mid Across 3 Determined.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/13_old/Across 3 Impair Determined.svg" width="28.571428571429%" /><br />
@@ -1135,25 +1143,25 @@ Let's look at the distances from 3 to 6 to have an example of each case of modul
 <br />
 D (distance) % 4 = 3:<br />
 <br />
-Now: 1W -> 0B, 2W -> 1B etc. = (D+1)/4 W -> (D-3)/4 B<br />
-Later: 0W -> 1B, 1W -> 2B etc. = (D-3)/4 W -> (D+1)/4 B<br />
+Now: 1W &rarr; 0B, 2W &rarr; 1B etc. = (D+1)/4 W &rarr; (D-3)/4 B<br />
+Later: 0W &rarr; 1B, 1W &rarr; 2B etc. = (D-3)/4 W &rarr; (D+1)/4 B<br />
 (double rule)<br />
 <br />
 D % 4 = 0:<br />
 <br />
-Now: 1W -> 0B, 2W -> 1B etc. = D/4 W -> D/4 - 1 B<br />
-Later: 1W -> 1B, 2W -> 2B etc. = D/4 W -> D/4 B<br />
+Now: 1W &rarr; 0B, 2W &rarr; 1B etc. = D/4 W &rarr; D/4 - 1 B<br />
+Later: 1W &rarr; 1B, 2W &rarr; 2B etc. = D/4 W &rarr; D/4 B<br />
 (single rule)<br />
 <br />
 D % 4 = 1:<br />
 <br />
-Now: 1W -> 1B, 2W -> 2B etc. = (D-1)/4 W -> (D-1)/4 B<br />
-Later: 1W -> 1B, 2W -> 2B etc. = (D-1)/4 W -> (D-1)/4 B<br />
+Now: 1W &rarr; 1B, 2W &rarr; 2B etc. = (D-1)/4 W &rarr; (D-1)/4 B<br />
+Later: 1W &rarr; 1B, 2W &rarr; 2B etc. = (D-1)/4 W &rarr; (D-1)/4 B<br />
 (no rule)</div><div class="num">110</div></td></tr>
 <tr><td><div class="border"></div><div>D % 4 = 2:<br />
 <br />
-Now: 2W -> 1B, 3W -> 2B etc. = (D+2)/4 W -> (D-2)/4 B<br />
-Later: 1W -> 1B, 2W -> 2B etc. = (D-2)/4 W -> (D-2)/4 B<br />
+Now: 2W &rarr; 1B, 3W &rarr; 2B etc. = (D+2)/4 W &rarr; (D-2)/4 B<br />
+Later: 1W &rarr; 1B, 2W &rarr; 2B etc. = (D-2)/4 W &rarr; (D-2)/4 B<br />
 (single rule)<br />
 <br />
 And as we step back, we find the point where the line should move in another direction.<br />
@@ -1176,26 +1184,26 @@ An extension of the universal rule is necessary to include cases of a "big" area
 <br />
 D % 4 = 3:<br />
 <br />
-Now: 1W -> 0B = (D+1)/4 W -> (D-3)/4 B<br />
-Later: 1W -> 0B = (D+1)/4 W -> (D-3)/4 B<br />
+Now: 1W &rarr; 0B = (D+1)/4 W &rarr; (D-3)/4 B<br />
+Later: 1W &rarr; 0B = (D+1)/4 W &rarr; (D-3)/4 B<br />
 (no rule)<br />
 <br />
 D % 4 = 0:<br />
 <br />
-Now: 1W -> 0B = D/4 W -> D/4 - 1 B<br />
-Later: 1W -> 1B = D/4 W -> D/4 B<br />
+Now: 1W &rarr; 0B = D/4 W &rarr; D/4 - 1 B<br />
+Later: 1W &rarr; 1B = D/4 W &rarr; D/4 B<br />
 (single rule)<br />
 <br />
 D % 4 = 1:<br />
 <br />
-Now: 2W -> 0B = (D+3)/4 W -> (D-5)/4 B<br />
-Later: 1W -> 1B = (D-1)/4 W -> (D-1)/4 B<br />
+Now: 2W &rarr; 0B = (D+3)/4 W &rarr; (D-5)/4 B<br />
+Later: 1W &rarr; 1B = (D-1)/4 W &rarr; (D-1)/4 B<br />
 (double rule)</div><div class="num">114</div></td></tr>
 <tr><td><div class="border"></div><div>D % 4 = 2:<br />
 <br />
-Now: 2W -> 1B = (D+2)/4 W -> (D-2)/4 B<br />
+Now: 2W &rarr; 1B = (D+2)/4 W &rarr; (D-2)/4 B<br />
 If the distance is 2, the area has to be W = B if we enter now by stepping straight.<br />
-Later: 1W -> 1B = (D-2)/4 W -> (D-2)/4 B<br />
+Later: 1W &rarr; 1B = (D-2)/4 W &rarr; (D-2)/4 B<br />
 (single rule)<br />
 <br />
 While this will not solve the case above (we are not able to step left), we can construct one where it is of use when the Double C-Shape Determined rule is turned off.<br />
@@ -1217,16 +1225,16 @@ So I will just summarize the black and white limits here.</div><div class="num">
 <tr><td><div class="border"></div><div>1. Equal horizontal and vertical distance<br />
 <br />
 x = 2:<br />
-Now: 0W -> 1B<br />
+Now: 0W &rarr; 1B<br />
 Later: 1B<br />
 <br />
 x = 3:<br />
-Now: 0W -> 2B<br />
-Later: 1B -> 2B<br />
+Now: 0W &rarr; 2B<br />
+Later: 1B &rarr; 2B<br />
 <br />
 x = n:<br />
-Now: 0W -> (n-1)B<br />
-Later: 1B -> (n-1)B<br />
+Now: 0W &rarr; (n-1)B<br />
+Later: 1B &rarr; (n-1)B<br />
 <br />
 Exactly the same as with the small area.</div><div class="num">117</div></td>
 <td><div class="border"></div><div>2. Larger horizontal distance<br />
@@ -1236,43 +1244,48 @@ Exactly the same as with the small area.</div><div class="num">117</div></td>
 2n = 2:<br />
 <br />
 Now: 1W is possible. The entry field and the first white is at least 2 distance from each other, the whole area can be filled between them.<br />
-1W -> xB<br />
+1W &rarr; xB<br />
 <br />
 Later: All corner blacks can be used. The line between the first black and first white will fill the area.<br />
-0W -> xB<br />
+0W &rarr; xB<br />
 <br />
 General:<br />
 <br />
 The only difference is the n = 1 case. Otherwise, the number of inline and corner fields are the same.<br />
-Now: (n+1 - (n+1) % 2 ) / 2 W -> x + (n-1 - (n-1) % 2 ) / 2 B<br />
-Later: (n - n % 2 ) / 2 W -> x + (n - n % 2 ) / 2 B</div><div class="num">118</div></td></tr>
+Now: (n+1 - (n+1) % 2) / 2 W &rarr; x + (n-1 - (n-1) % 2) / 2 B<br />
+Later: (n - n % 2) / 2 W &rarr; x + (n - n % 2) / 2 B</div><div class="num">118</div></td></tr>
 <tr><td><div class="border"></div><div><b>If the added distance is impair:</b><br />
 <br />
-2n + 1 = 1, n = 0:<br />
+2n + 1 = 1<br />
+n = 0:<br />
 <br />
 Now: xW is possible.<br />
-xW -> 0B<br />
+xW &rarr; 0B<br />
 <br />
 Later: Same values as previously.<br />
-(x-1)W -> 0B<br />
+(x-1)W &rarr; 0B<br />
 <br />
-2n + 1 = 3, n = 1:<br />
+2n + 1 = 3<br />
+n = 1:<br />
 <br />
 Note that in the small area case, there were x-1 corner whites and 1 corner black. Now there are x amount of corner whites and 2 inline blacks insted of 1.<br />
 <br />
-Now: xW -> 0B<br />
-Later: xW -> 1B<br />
+Now: xW &rarr; 0B<br />
+Later: xW &rarr; 1B<br />
 <br />
-2n + 1 = 5, n = 2:<br />
+2n + 1 = 5<br />
+n = 2:<br />
 <br />
-Now: (x+1)W -> 1B<br />
-Later: (x+1)W -> 1B<br />
+Now: (x+1)W &rarr; 1B<br />
+Later: (x+1)W &rarr; 1B</div><div class="num">119</div></td>
+<td><div class="border"></div><div>General:<br />
 <br />
-General:<br />
+Now:<br />
+x + (n+1 - (n+1) % 2) / 2 W &rarr; (n - n % 2) / 2 B<br />
+Later:<br />
+x + (n - n % 2) / 2 W if n > 0&rarr; (n+1 - (n+1) % 2) / 2 B<br />
 <br />
-Now: x + (n+1 - (n+1) % 2) / 2 W -> (n - n % 2) / 2 B<br />
-Later: x + (n - n % 2) / 2 W if n > 0 -> (n+1 - (n+1) % 2) / 2 B</div><div class="num">119</div></td>
-<td><div class="border"></div><div>3. Larger vertical distance<br />
+3. Larger vertical distance<br />
 <br />
 <b>If the added distance is pair:</b><br />
 <br />
@@ -1280,37 +1293,41 @@ We will find it is the same as the small area.<br />
 <br />
 2n = 2:<br />
 <br />
-Now: 1W -> xB<br />
-Later: 0W -> xB<br />
+Now: 1W &rarr; xB<br />
+Later: 0W &rarr; xB<br />
 <br />
 2n = 4:<br />
 <br />
-Now: 1W -> xB<br />
-Later: 1W -> (x+1)B<br />
+Now: 1W &rarr; xB<br />
+Later: 1W &rarr; (x+1)B<br />
 <br />
 General:<br />
 <br />
-Now: (n+1 - (n+1) % 2) / 2 W -> x + (n-1 - (n-1) % 2) / 2 B<br />
-Later: (n - n % 2) / 2 W -> x + (n - n % 2) / 2 B</div><div class="num">120</div></td></tr>
+Now: (n+1 - (n+1) % 2) / 2 W &rarr; x + (n-1 - (n-1) % 2) / 2 B<br />
+Later: (n - n % 2) / 2 W &rarr; x + (n - n % 2) / 2 B</div><div class="num">120</div></td></tr>
 <tr><td><div class="border"></div><div><b>If the added distance is impair:</b><br />
 <br />
-2n + 1 = 1, n = 0:<br />
+2n + 1 = 1<br />
+n = 0:<br />
 <br />
-Now: 1W -> (x-1)B<br />
-Later: 0W -> (x-1)B<br />
+Now: 1W &rarr; (x-1)B<br />
+Later: 0W &rarr; (x-1)B<br />
 <br />
-2n + 1 = 3, n = 1:<br />
+2n + 1 = 3<br />
+n = 1:<br />
 <br />
 Here comes the change again, due to having one more corner black field and one less corner white field than in the small area case.<br />
 <br />
-Now: 1W -> xB<br />
-Later: 1W -> xB<br />
+Now: 1W &rarr; xB<br />
+Later: 1W &rarr; xB<br />
 <br />
 General:<br />
 <br />
 Now: If n > 0, we can use all corner blacks after exiting the first line.<br />
-(n+2 - (n+2) % 2) / 2 W -> x + (n-1 - (n-1) % 2) / 2 B if n > 0.<br />
-Later: (n+1 - (n+1) % 2) / 2 W -> x + (n - n % 2) / 2 B if n > 0.</div><div class="num">121</div></td>
+(n+2 - (n+2) % 2) / 2 W &rarr;<br />
+x + (n-1 - (n-1) % 2) / 2 B if n > 0.<br />
+Later:<br />
+(n+1 - (n+1) % 2) / 2 W &rarr; x + (n - n % 2) / 2 B if n > 0.</div><div class="num">121</div></td>
 <td><div class="border"></div><div>While creating a case to verify the newly created rule set, I have encountered this:<br />
 <br />
 <img align="top" src="References/2024_0330.svg" width="47.619047619048%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0330_1.svg" width="47.619047619048%" /><br />
@@ -1332,7 +1349,7 @@ Can it be a problem?<br />
 We will see, but let's look at one detail: If we step upwards, we have to step left to fill the corner white, otherwise it is only good for an exit, which we do not want if the area contains 1 more white fields than black (for the left representation).<br />
 After this, we step upwards and then left again. We did not enter the area.<br />
 <br />
-The 1 added distance case is therefore 0W -> (x-1)B when entering now by stepping upwards and 1W -> (x-1)B when stepping right.<br />
+The 1 added distance case is therefore 0W&nbsp;&rarr;&nbsp;(x-1)B when entering now by stepping upwards and 1W&nbsp;&rarr;&nbsp;(x-1)B when stepping right.<br />
 <br />
 To simplify things, I will specify the cases again using the minimal area representation.<br />
 <br />
@@ -1341,28 +1358,34 @@ Notice that these are the same as the small area patterns, things are just mirro
 <br />
 <img align="top" src="References/2n=2 big.svg" width="38.095238095238%" /><br />
 <br />
-Now: (n+1 - (n+1) % 2) / 2 W -> x + (n-1 - (n-1) % 2) / 2 B<br />
-Later: (n - n % 2) / 2 W -> x + (n - n % 2) / 2 B<br />
+Now: (n+1 - (n+1) % 2) / 2 W &rarr; x + (n-1 - (n-1) % 2) / 2 B<br />
+Later: (n - n % 2) / 2 W &rarr; x + (n - n % 2) / 2 B<br />
 <br />
 n = 0<br />
 <br />
 <img align="top" src="References/2n 1=1 big.svg" width="33.333333333333%" /><br />
 <br />
-Now: 1 + (n+1 - (n+1) % 2) / 2 W -> x - 1 + (n - n % 2) / 2 B<br />
-Later: 1 + (n - n % 2) / 2 W if n > 0 (0 if n = 0) -> x - 1 + (n+1 - (n+1) % 2) / 2 B</div><div class="num">125</div></td>
+Now: 1 + (n+1 - (n+1) % 2) / 2 W &rarr; x - 1 + (n - n % 2) / 2 B<br />
+Later: 1 + (n - n % 2) / 2 W if n > 0 (0 if n = 0) &rarr;<br />
+x - 1 + (n+1 - (n+1) % 2) / 2 B</div><div class="num">125</div></td>
 <td><div class="border"></div><div>n = 1<br />
 <br />
 <img align="top" src="References/2n=2v big.svg" width="28.571428571429%" /><br />
 <br />
-Now: (n+1 - (n+1) % 2) / 2 W if n > 1 (0 if n = 1) -> x + (n-1 - (n-1) % 2) / 2 B<br />
-Later: (n - n % 2) / 2 W -> x + (n - n % 2) / 2 B<br />
+Now: (n+1 - (n+1) % 2) / 2 W if n > 1 (0 if n = 1) &rarr;<br />
+x + (n-1 - (n-1) % 2) / 2 B<br />
+Later: (n - n % 2) / 2 W &rarr; x + (n - n % 2) / 2 B<br />
 <br />
 n = 0<br />
 <br />
 <img align="top" src="References/2n 1=1v big.svg" width="28.571428571429%" /><br />
 <br />
-Now: x - 1 + (n+2 - (n+2) % 2) / 2 W if n > 0 (x - 1 if n = 0) -> (n+1 - (n+1) % 2) / 2 B<br />
-Later: x - 1 + (n+1 - (n+1) % 2) / 2 W -> (n+2 - (n+2) % 2) / 2 B if n > 0 (0 if n = 0)</div><div class="num">126</div></td></tr>
+Now:<br />
+x - 1 + (n+2 - (n+2) % 2) / 2 W if n > 0 (x - 1 if n = 0) &rarr;<br />
+(n+1 - (n+1) % 2) / 2 B<br />
+Later:<br />
+x - 1 + (n+1 - (n+1) % 2) / 2 W &rarr;<br />
+(n+2 - (n+2) % 2) / 2 B if n > 0 (0 if n = 0)</div><div class="num">126</div></td></tr>
 <tr><td><div class="border"></div><div>The difference between stepping up and right still remains in these vertical expansion cases. We didn't have to deal with it at the small area, because the line could not step backwards.<br />
 It just means we have to remove the Now W conditions for stepping right.<br />
 <br />
@@ -1383,11 +1406,11 @@ C-Shape Next:<br />
 <br />
 <img align="top" src="References/C-Shape Next.svg" width="14.285714285714%" /><br />
 <br />
-0 horizontal distance obstacle, area is W = B:<br />
+0 horizontal distance obstacle, area is W&nbsp;=&nbsp;B:<br />
 <br />
 <img align="top" src="References/AreaUp Next.svg" width="9.5238095238095%" /><br />
 <br />
-1 horizontal distance, 2 vertical distance obstacle, area is W = B:<br />
+1 horizontal distance, 2 vertical distance obstacle, area is W&nbsp;=&nbsp;B:<br />
 <br />
 <img align="top" src="References/Corner 2x3 Next.svg" width="14.285714285714%" /></div><div class="num">128</div></td></tr>
 <tr><td><div class="border"></div><div>1 horizontal distance, 3 vertical distance obstacle, area is 1B:<br />
@@ -1415,13 +1438,13 @@ These are the new values:<br />
 <br />
 D % 4 = 3:<br />
 <br />
-Now: 1W -> -1B = (D+1)/4 W -> (D-7)/4 B<br />
-Later: 1W -> 0B = (D+1)/4 W -> (D-3)/4 B<br />
+Now: 1W &rarr; -1B = (D+1)/4 W &rarr; (D-7)/4 B<br />
+Later: 1W &rarr; 0B = (D+1)/4 W &rarr; (D-3)/4 B<br />
 (single rule)</div><div class="num">130</div></td></tr>
 <tr><td><div class="border"></div><div>D % 4 = 1:<br />
 <br />
-Now: 2W -> 0B = (D+3)/4 W -> (D-5)/4 B<br />
-Later: 1W -> 0B = (D-1)/4 W -> (D-5)/4 B<br />
+Now: 2W &rarr; 0B = (D+3)/4 W &rarr; (D-5)/4 B<br />
+Later: 1W &rarr; 0B = (D-1)/4 W &rarr; (D-5)/4 B<br />
 (single rule)<br />
 <br />
 Also, pay attention to the 2-distance case. If we enter now by stepping left, 1W is possible. If we step straight, it is 0W. When the distance is 6, there is no difference, because if the step straight, we can exit the area immediately.<br />
@@ -1433,7 +1456,7 @@ And here is an example of the x horizontal, 0 vertical distance big area corner.
 <img align="top" src="References/2024_0410.svg" width="33.333333333333%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/area big.svg" width="28.571428571429%" /></div><div class="num">131</div></td>
-<td><div class="border"></div><div>When we re-run the program on 9 x 9, it will be obvious that covering all the above 9 cases of area checking still does not solve everything.<br />
+<td><div class="border"></div><div>When we re-run the program on 9&nbsp;x&nbsp;9, it will be obvious that covering all the above 9 cases of area checking still does not solve everything.<br />
 <br />
 If we don't apply the first size-specific rule, we get stuck here:<br />
 <br />
@@ -1444,7 +1467,7 @@ As a reminder:<br />
 <img align="top" src="References/462.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Double Area C-Shape.svg" width="23.809523809524%" /><br />
 <br />
 Let's put this into the perspective of our current knowledge.</div><div class="num">132</div></td></tr>
-<tr><td><div class="border"></div><div>What happens here is that the 3 x 2 area has a certain exit point, the middle, because the area is pair. Then it will create a C-Shape on one side and an area on the other side with a 1-wide gap.<br />
+<tr><td><div class="border"></div><div>What happens here is that the 3&nbsp;x&nbsp;2 area has a certain exit point, the middle, because the area is pair. Then it will create a C-Shape on one side and an area on the other side with a 1-wide gap.<br />
 <br />
 In general, if we have an area of this shape,<br />
 <br />
@@ -1512,7 +1535,7 @@ Notice that the first two cases can exist simultaneously. Then we examine the sm
 <br />
 If we look at 4 distance: It is true that if the area is 1W and we step forward, only one white field remains on the border, but we can also exit immediately, leaving a 3-long border line and a 0W area. Then, the area can be entered at the second white and exited at the last black.<br />
 <br />
-The next stop is similar in concept (Square 4 x 2 C-Shape and Square 4 x 2 Area): When we exit the first area, there are two close obstacles on either side:<br />
+The next stop is similar in concept (Square 4&nbsp;x&nbsp;2 C-Shape and Square 4&nbsp;x&nbsp;2 Area): When we exit the first area, there are two close obstacles on either side:<br />
 <br />
 <img align="top" src="References/rules/9_old/Square 4 x 2 C-Shape.svg" width="23.809523809524%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9_old/Square 4 x 2 Area.svg" width="23.809523809524%" /></div><div class="num">140</div></td></tr>
 <tr><td><div class="border"></div><div>The pattern is rotated counter-clockwise.<br />
@@ -1524,7 +1547,7 @@ We can see that the mechanism is not limited to a few cases, but it can go on in
 <img align="top" src="References/2024_0531_5.svg" width="38.095238095238%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/2024_0531_3.svg" width="42.857142857143%" /><br />
 <br />
 A sequence is made from the start area and the close obstacle cases, and this can be programmed.</div><div class="num">141</div></td>
-<td><div class="border"></div><div>But let's build the program step by step, based on the discovered 9 x 9 rules. The second case, Triple Area, uses an area where the obstacle is 3 distance away.<br />
+<td><div class="border"></div><div>But let's build the program step by step, based on the discovered 9&nbsp;x&nbsp;9 rules. The second case, Triple Area, uses an area where the obstacle is 3 distance away.<br />
 <br />
 <img align="top" src="References/rules/9_old/Triple Area.svg" width="23.809523809524%" /><br />
 <br />
@@ -1554,7 +1577,7 @@ Notice that if the first obstacle placement 4 straight, 1 right, the Directional
 <br />
 <img align="top" src="References/2034760.svg" width="42.857142857143%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Directional Area.svg" width="33.333333333333%" /><br />
 <br />
-I have rotated the rule to accomodate both fields that need to be distabled, as well as I added the Across cases for a yellow obstacle. While in theory this is a workable rule, is there a case where the distance to the first obstacle is greater than 3? When I tried to recreate such a scenario, one of the single area rules got in the way.</div><div class="num">144</div></td></tr>
+I have rotated the rule to accomodate both fields that need to be distabled, as well as I added the Across cases for a blue obstacle. While in theory this is a workable rule, is there a case where the distance to the first obstacle is greater than 3? When I tried to recreate such a scenario, one of the single area rules got in the way.</div><div class="num">144</div></td></tr>
 <tr><td><div class="border"></div><div>It is okay to deactivate Directional Area until we get stuck because of the lack of it.<br />
 <br />
 Double Area Stair will be a 4-step sequence.<br />
@@ -1562,7 +1585,7 @@ Double Area Stair will be a 4-step sequence.<br />
 <img align="top" src="References/Double Area Stair numbered.svg" width="33.333333333333%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Sequence second case.svg" width="23.809523809524%" /><br />
 <br />
 After exiting the first area, we step to the field 2 straight, 1 right (A). There will be a Mid across obstacle on the left side, so we exit that area at the field marked with B. From the C-shape we exit at C where we encounter a C-shape on the left and an Across obstacle on the right.<br />
-We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4 x 2 C-Shape and Square 4 x 2 Area. So these are also solved by this algorithm.</div><div class="num">145</div></td>
+We do not code the 4 steps in the program. We are writing a recursive function that calls itself until it runs into the double obstacle case. Notice, the start area is the same as in Square 4&nbsp;x&nbsp;2 C-Shape and Square 4&nbsp;x&nbsp;2 Area. So these are also solved by this algorithm.</div><div class="num">145</div></td>
 <td><div class="border"></div><div>Double Area Stair 2 - although looking similar - will have a somewhat different solution.<br />
 <br />
 <img align="top" src="References/rules/9_old/Double Area Stair 2.svg" width="23.809523809524%" /><img align="top" src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Sequence third case.svg" width="19.047619047619%" /><br />
@@ -1733,11 +1756,11 @@ At 7 distance, it is 2B.</div><div class="num">163</div></td>
 <br />
 In the third rotation position, where the first obstacle is behind on the right side, all 3 directions would have to be disabled. Therefore, it is safe to say, such a situation does not exist.<br />
 <br />
-It has to be said that at this point, the 9 x 9 grid is complete with this set of rules.<br />
-My program ran through the left side in 45 hours, producing the expected number of walkthroughs of 1 344 153 757.<br />
+It has to be said that at this point, the 9&nbsp;x&nbsp;9 grid is complete with this set of rules.<br />
+My program ran through the left side in 45 hours, producing the expected number of walkthroughs of 1&nbsp;344&nbsp;153&nbsp;757.<br />
 <br />
 The are a few examples on bigger boards that get stuck, but I don't think they are unsolvable. Let's see if we can fit them into the system we have built up so far.<br />
-Considering the number of walkthroughs on 11 x 11 is 1445 trillion, we should not aim for even completing the half of them. It would take approximately 4300 years with the current rule set on the same computer.</div><div class="num">164</div></td></tr>
+Considering the number of walkthroughs on 11&nbsp;x&nbsp;11 is 1445 trillion, we should not aim for even completing the half of them. It would take approximately 4300 years with the current rule set on the same computer.</div><div class="num">164</div></td></tr>
 <tr><td><div class="border"></div><div>Instead, we run the program at random, but I will categorize the cases I have encountered.<br />
 <br />
 <b>1. Additional cases of border movement, second obstacle outside the area, at the end of it</b><br />
@@ -1778,8 +1801,8 @@ The second obstacle is in mid across position relative to the entry point as we 
 <br />
 If we run statistics now, it turns out that without these area border movement rules, the average number of walkthroughs before getting an error is 293, based on 100 attempts. By adding them, the number increases to 695. It tells us that in over half of the failures, this is the solution.<br />
 This is a useful tool for debugging too. If, by introducing a new rule set, the errors become more frequent, there is a mistake in the algorithm.<br />
-When we finished the 7 x 7 grid, the statistics gave us 5.7 walkthroughs on 11 x 11 using those rules.<br />
-By developing the algorithm further, we have solved 99 % of the cases we could not at that time. We get a little less ratio on a 21 x 21 grid, but of a similar order of magnitude: 9 vs. 0.2.</div><div class="num">168</div></td></tr>
+When we finished the 7&nbsp;x&nbsp;7 grid, the statistics gave us 5.7 walkthroughs on 11&nbsp;x&nbsp;11 using those rules.<br />
+By developing the algorithm further, we have solved 99% of the cases we could not at that time. We get a little less ratio on a 21&nbsp;x&nbsp;21 grid, but of a similar order of magnitude: 9 vs. 0.2.</div><div class="num">168</div></td></tr>
 <tr><td><div class="border"></div><div><b>3. Double obstacle inside</b><br />
 <br />
 <img align="top" src="References/2024_0619_1.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/straight small area movement 0.svg" width="19.047619047619%" /><br />
@@ -1880,7 +1903,7 @@ This is the stair pattern from page 150, which we had abandoned in favor of area
 <br />
 <img align="top" src="References/double area case 3 line 3.svg" width="19.047619047619%" /><br />
 <br />
-So to make it universal, we can say that if the vertical distance (y) = horizontal distance (x) + 2, and the area is xB, and we have the second obstacle present, we cannot enter now.<br />
+So to make it universal, we can say that if the vertical distance (y)&nbsp;=&nbsp;horizontal&nbsp;distance&nbsp;(x)&nbsp;+&nbsp;2, and the area is xB, and we have the second obstacle present, we cannot enter now.<br />
 Is the second obstacle a close obstacle relative to the field 1 left and 2 up, or can it occur at any point of the stair? Can it be a far obstacle, creating an area we must enter? We need examples to answer there questions.</div><div class="num">184</div></td></tr>
 <tr><td><div class="border"></div><div>But here is another stair case. This time the entry point is from below.<br />
 <br />
@@ -1909,7 +1932,7 @@ Again, the distance can be increased:<br />
 It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.</div><div class="num">188</div></td></tr>
 <tr><td><div class="border"></div><div><img align="top" src="References/2024_0713.svg" width="52.380952380952%" /><br />
 <br />
-Third case (page 146). In this, when we exit the 2 x 4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.</div><div class="num">189</div></td>
+Third case (page 146). In this, when we exit the 2&nbsp;x&nbsp;4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.</div><div class="num">189</div></td>
 <td><div class="border"></div><div><img align="top" src="References/2024_0704.svg" width="52.380952380952%" /><br />
 <br />
 Second case (page 145). Until now, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. <br />
@@ -1959,7 +1982,7 @@ It is also obvious that it has two rotations.</div><div class="num">196</div></t
 <br />
 <img align="top" src="References/2024_0711.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/corner 3 1 sequence.svg" width="28.571428571429%" /><br />
 <br />
-This can be considered as the fifth start area of sequence, but what in reality happens here is that we start with an 5 x 3 area which is 1B, and in order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.<br />
+This can be considered as the fifth start area of sequence, but what in reality happens here is that we start with an 5&nbsp;x&nbsp;3 area which is 1B, and in order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.<br />
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.<br />
 In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.</div><div class="num">197</div></td>
 <td><div class="border"></div><div><b>9. Reverse stair</b><br />
@@ -1973,21 +1996,47 @@ The line in this case has to make a stair as shown on page 179-181, but now we a
 Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).<br />
 <br />
 There have been found cases where the left obstacle is mid across, and the right obstacle is a C-shape.</div><div class="num">198</div></td></tr>
-<tr><td><div class="border"></div><div><b>10. Unsolved case</b><br />
+<tr><td><div class="border"></div><div><b>10. Reverse stair 3 obstacles</b><br />
 <br />
-At every 7 million random attempts, a pattern like this emerges:<br />
+At every 10 million random attempts, a pattern like this emerges:<br />
 <br />
 <img align="top" src="References/2024_0725_4 marked.svg" width="52.380952380952%" /><br />
 <br />
 It is easy to see the parts that contribute to the case being impossible, but how do we define a universal or simplified rule?<br />
 Below the first pattern descibes the exit point of the pair area (A), while the second is the border movement rule with the end obstacle at the start point B.<br />
 <br />
-<img align="top" src="References/unsolved part 1.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/unsolved part 2.svg" width="19.047619047619%" /><br />
+<img align="top" src="References/Reverse Stair 3 Obstacles 1.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Reverse Stair 3 Obstacles 2.svg" width="19.047619047619%" /><br />
 <br />
 In order to fill the marked area with respect to the end obstacle, we need to enter at either C or D. But because of E, we cannot step from A to C, and because of E and F, we cannot reach D.</div><div class="num">199</div></td>
-<td><div class="border"></div><div><span class="header">11 x 11 estimates</span><br />
+<td><div class="border"></div><div>The next example will shed more light onto the pattern.<br />
 <br />
-9 x 9 total: 2 688 307 514<br />
+<img align="top" src="References/2024_0808.svg" width="52.380952380952%" /><br />
+<br />
+If we make a stair shaped pattern that leads up to the first obstacle, it is clear that there are only two possible entry points if the second obstacle is taken into account.<br />
+- 1 straight<br />
+- 3 straight and 2 right<br />
+<br />
+<img align="top" src="References/Reverse Stair 3 Obstacles 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Reverse Stair 3 Obstacles 4.svg" width="23.809523809524%" /><br />
+<br />
+Now let's check if we can get to any of these fields and enter the area afterwards.<br />
+<br />
+It is evident that if we step straight, we cannot step right because of the C-shape on the left.</div><div class="num">200</div></td></tr>
+<tr><td><div class="border"></div><div>But how do we explain that we are unable to get to the far entry point?<br />
+<br />
+In the following representation the three important obstacles are shown. The area occupied by the stair is dark gray, and the return path by the far obstacle we must leave empty is light gray. We need to get to point A.<br />
+<br />
+<img align="top" src="References/Reverse Stair 3 Obstacles 5.svg" width="23.809523809524%" /><br />
+<br />
+We can check for a left close obstacle at the first green field, and a left and right close obstacle at the second.<br />
+<br />
+Theoretically, if we extended the length of the stair by one, the following fields would have to be checked:<br />
+<br />
+<img align="top" src="References/Reverse Stair 3 Obstacles 6.svg" width="38.095238095238%" /><br />
+<br />
+Because of the stair shape, it is certain that we would enter the second green field from below.</div><div class="num">201</div></td>
+<td><div class="border"></div><div><span class="header">11&nbsp;x&nbsp;11 estimates</span><br />
+<br />
+9&nbsp;x&nbsp;9 total: 2 688 307 514<br />
 <br />
 Multiplications when increasing the board:<br />
 3 to 5: 104/2 = 52<br />
@@ -2008,38 +2057,37 @@ Differences of bases:<br />
 0.0574<br />
 0.0331<br />
 <br />
-Next difference estimate: 0.0331 * 331/574 = 0.0191<br />
+Next difference estimate: 0.0331&nbsp;*&nbsp;331/574 = 0.0191<br />
 Next base: 1.3897<br />
 <br />
-2 688 307 514 * 1.3897 ^ 40 = 1402 trillion (Actual value according to OEIS: 1445 trillion)</div><div class="num">200</div></td></tr>
+2 688 307 514&nbsp;*&nbsp;1.3897 ^ 40 = 1402 trillion (Actual value according to OEIS: 1445 trillion)</div><div class="num">202</div></td></tr>
 <tr><td><div class="border"></div><div>Exact calculation line:<br />
-2688307514 * ((2688307514/111712) ^ (1/32) + ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) * ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) / ((111712/104) ^ (1/24) - (104/2) ^ (1/16))) ^ 40</div><div class="num">201</div></td>
+2688307514 * ((2688307514/111712) ^ (1/32) + ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) * ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) / ((111712/104) ^ (1/24) - (104/2) ^ (1/16))) ^ 40</div><div class="num">203</div></td>
 <td><div class="border"></div><div><span class="header">Development / correction notes</span><br />
 <br />
 <b>Developments:</b><br />
 <br />
 Calculate next step enter left and right for any AreaUp and Corner distance. (page 129)<br />
 Extend 0720_3 case to any horizontal distance (page 180)<br />
-Where CheckNearFieldSmallRel is used, is checking for mid across obstacle enough?<br />
 Check if opposite empty fields should be disabled at certain rotations of the 4 single area rule groups.<br />
 <br />
 <b>Improvements:</b><br />
 <br />
 Review rules if they have unnecessary rotations when disabling a field, fx. straight j = 2 enter later<br />
 Review CountArea old and new algorithms<br />
+Do not disable a possible field (and display the area) if the field is taken anyway (0725_4)<br />
 <br />
 <b>Display:</b><br />
 <br />
-Should we display non-critical border movements in rules? Fx. 0624 vs 0227_1 solutions (page 177-178)<br />
-Indicate needed disabled fields in 11 x 11 rule representations?<br />
+Should we display non-critical border movements in rules? Fx. 0624 vs 0727_1 solutions (page 177-178)<br />
+Indicate needed disabled fields in 11&nbsp;x&nbsp;11 rule representations?<br />
 New pictures where areas were displayed incorrectly.<br />
 Cite page numbers when mentioning a rule<br />
-Next step left/right areas could be shown<br />
-Change yellow background to blue for all second obstacles <br />
-Non-breaking space in math expressions<br />
-Arrow symbol in text</div><div class="num">202</div></td></tr>
-<tr><td><div class="border"></div><div>Merge two cases with one that draws a future line with a blue background.<br />
-Add future lines on page 144 (2034760)<br />
+Next step left/right areas could be shown in program<br />
+Specify future line extension and connection rules on page 3?</div><div class="num">204</div></td></tr>
+<tr><td><div class="border"></div><div><b>Find example:</b><br />
+<br />
+ReverseStair3Obtacles where nextX > 1 (case 1) or > 3 (case 2)<br />
 <br />
 <!--<br />
 <img align="top" src="References/18665383.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.571428571429%" /><br />
@@ -2115,7 +2163,7 @@ Big area:<br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">203</div></td>
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">205</div></td>
 <td class="right"><div class="border"></div></td></tr>
  
 </table>

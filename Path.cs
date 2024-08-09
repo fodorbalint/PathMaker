@@ -415,7 +415,11 @@ namespace OneWayLabyrinth
                                 T("CheckStraightBig " + ShowForbidden());
                                 CheckStraightBig(); // #7 close obstacle is at the start and end of the area, outside. 4 distance only.
                                 T("CheckReverseStair " + ShowForbidden());
-                                CheckReverseStair(); // 0718, reverse stair 1/2/ 
+                                CheckReverseStair(); // 0718, reverse stair 1/2 
+                                T("CheckReverseStair3Obtacles1 " + ShowForbidden());
+                                CheckReverseStair3Obtacles1(); // 0725_4, 0731 - 0808
+                                T("CheckReverseStair3Obtacles2 " + ShowForbidden());
+                                CheckReverseStair3Obtacles2(); // 0805, 0808
                                 T("Forbidden: " + ShowForbidden());
 
                                 List<int[]> startForbiddenFields = Copy(forbidden);
@@ -2837,6 +2841,348 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
+        void CheckReverseStair3Obtacles1() // 0731_1 straight area, 0725_4 small area
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 2; j++) // j = 0: straight area, j = 1: small area
+                {
+                    if (InTakenRel(1, 0) && !InTakenRel(1, 1) && !InBorderRel(1, 1)) // 0725_4
+                    {
+                        int nextX = 1;
+                        int nextY = 1;
+
+                        int currentDirection = 1;
+                        int counter = 1;
+
+                        while (!(nextY > nextX + 1 && nextY > 0 && nextX > 0) && !InCornerRel(nextX, nextY))
+                        {
+                            // Only stop when arealine reaches the 45 degree slope in the first quarter.
+                            counter++;
+                            if (counter == size * size)
+                            {
+                                T("ReverseStair3Obtacles corner discovery error.");
+
+                                window.errorInWalkthrough = true;
+                                window.errorString = "ReverseStair3Obtacles corner discovery error.";
+                                window.criticalError = true;
+                                return;
+                            }
+
+                            // left direction
+                            currentDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
+                            int l = currentDirection;
+                            int possibleNextX = nextX + directions[currentDirection][0];
+                            int possibleNextY = nextY + directions[currentDirection][1];
+
+                            // turn right until a field is empty 
+                            while (InBorderRel(possibleNextX, possibleNextY) || InTakenRel(possibleNextX, possibleNextY))
+                            {
+                                l = (l == 0) ? 3 : l - 1;
+                                possibleNextX = nextX + directions[l][0];
+                                possibleNextY = nextY + directions[l][1];
+                            }
+
+                            if (currentDirection == 1 && l == 1 && nextX == nextY - 1)
+                            {
+                                bool circleValid = false;
+
+                                int i1 = InTakenIndexRel(nextX + 1, nextY - 1);
+                                int i2 = InTakenIndexRel(nextX + 2, nextY - 1);
+
+                                if (i2 < i1)
+                                {
+                                    circleValid = true;
+                                }
+
+                                if (circleValid)
+                                {
+                                    bool takenFound = false;
+
+                                    List<int[]> borderFields = new();
+                                    for (int k = 1; k <= nextY; k++)
+                                    {
+                                        if (InTakenRel(k - 2, k) || InTakenRel(k - 1, k))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+
+                                        if (k == 1)
+                                        {
+                                            borderFields.Add(new int[] { 0, 1 });
+                                        }
+                                        else
+                                        {
+                                            borderFields.Add(new int[] { k - 2, k });
+                                            borderFields.Add(new int[] { k - 1, k });
+                                        }
+                                    }
+
+                                    if (!takenFound)
+                                    {
+                                        // no reverse order, count area from left of end obstacle
+                                        ResetExamAreas();
+
+                                        if (CountAreaRel(nextX, nextY - 1, -1, 1, borderFields, !circleDirectionLeft, 2, true))
+                                        {
+                                            int black = (int)info[1];
+                                            int white = (int)info[2];
+
+                                            if (black == white + nextY - 1 && CheckNearFieldSmallRel0(nextX, nextY, 0, 0, true))
+                                            {
+                                                // Find straight obstacle on the left at 3 distance
+                                                int dist = 1;
+
+                                                while (!InTakenRel(-dist, 0) && !InBorderRel(-dist, 0))
+                                                {
+                                                    dist++;
+                                                }
+
+                                                if (dist == 4)
+                                                {
+                                                    circleValid = false;
+
+                                                    if (InBorderRel(-dist, 0))
+                                                    {
+                                                        i1 = InBorderIndexRel(-dist, 0);
+                                                        i2 = InBorderIndexRel(-dist, -1);
+
+                                                        if (i1 > i2)
+                                                        {
+                                                            circleValid = true;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        i1 = InTakenIndexRel(-dist, 0);
+                                                        i2 = InTakenIndexRel(-dist, -1);
+
+                                                        if (i2 != -1)
+                                                        {
+                                                            if (i2 > i1)
+                                                            {
+                                                                circleValid = true;
+
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            i2 = InTakenIndexRel(-dist, 1);
+                                                            if (i1 > i2)
+                                                            {
+                                                                circleValid = true;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (circleValid)
+                                                    {
+                                                        if (CountAreaRel(-1, 0, -3, 0, new List<int[]> { new int[] { -2, 0 } }, !circleDirectionLeft, 3, true))
+                                                        {
+                                                            black = (int)info[1];
+                                                            white = (int)info[2];
+
+                                                            if (black == white && CheckNearFieldSmallRel(-2, 1, 1, 0, true) && CheckNearFieldSmallRel(nextX - 3, nextY + 1, 1, 0, true) && CheckNearFieldSmallRel0(nextX - 3, nextY + 1, 0, 0, true))
+                                                            {
+                                                                AddExamAreas();
+                                                                T("Reverse stair 3 obstacles case 1 at " + nextX + " " + nextY + ": Cannot step right");
+                                                                forbidden.Add(new int[] { x - lx, y - ly });
+                                                                if (nextX > 1) // example needs to be saved
+                                                                {
+                                                                    window.errorInWalkthrough = true;
+                                                                    window.criticalError = true;
+                                                                    window.errorString = "Reverse stair 3 obstacles nextX > 3";
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            currentDirection = l;
+
+                            nextX = possibleNextX;
+                            nextY = possibleNextY;
+                        }
+                    }
+
+                    // rotate CCW
+                    int l0 = lx;
+                    int l1 = ly;
+                    lx = -sx;
+                    ly = -sy;
+                    sx = l0;
+                    sy = l1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        void CheckReverseStair3Obtacles2() // 0805, 0808
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 2; j++) // j = 0: straight area, j = 1: big area
+                {
+                    int dist = 1;
+
+                    while (!InTakenRel(dist, 0) && !InBorderRel(dist, 0))
+                    {
+                        dist++;
+                    }
+                    dist--;
+
+                    if (dist >= 2 && !InBorderRel(dist, 0)) // 0805: 2 dist, 0808: 3 dist
+                    {
+                        int nextX = dist;
+                        int nextY = 0;
+
+                        int currentDirection = 0;
+                        int counter = 0;
+
+                        while (!(nextY >= nextX && nextY > 0 && nextX > 0) && !InCornerRel(nextX, nextY))
+                        {
+                            // Only stop when arealine reaches the 45 degree slope in the first quarter.
+                            counter++;
+                            if (counter == size * size)
+                            {
+                                T("ReverseStair3Obtacles corner discovery error.");
+
+                                window.errorInWalkthrough = true;
+                                window.errorString = "ReverseStair3Obtacles corner discovery error.";
+                                window.criticalError = true;
+                                return;
+                            }
+
+                            // left direction
+                            currentDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
+                            int l = currentDirection;
+                            int possibleNextX = nextX + directions[currentDirection][0];
+                            int possibleNextY = nextY + directions[currentDirection][1];
+
+                            // turn right until a field is empty 
+                            while (InBorderRel(possibleNextX, possibleNextY) || InTakenRel(possibleNextX, possibleNextY))
+                            {
+                                l = (l == 0) ? 3 : l - 1;
+                                possibleNextX = nextX + directions[l][0];
+                                possibleNextY = nextY + directions[l][1];
+                            }
+
+                            if (currentDirection == 1 && l == 1 && nextX >= 3 && nextX == nextY + 1)
+                            {
+                                bool circleValid = false;
+
+                                int i1 = InTakenIndexRel(nextX + 1, nextY - 1);
+                                int i2 = InTakenIndexRel(nextX + 2, nextY - 1);
+
+                                if (i2 < i1)
+                                {
+                                    circleValid = true;
+                                }
+
+                                if (circleValid)
+                                {
+                                    bool takenFound = false;
+
+                                    List<int[]> borderFields = new();
+                                    for (int k = 1; k <= nextY; k++)
+                                    {
+                                        if (InTakenRel(k, k) || InTakenRel(k + 1, k))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+
+                                        if (k == 1)
+                                        {
+                                            borderFields.Add(new int[] { 2, 1 });
+                                        }
+                                        else if (k < nextY)
+                                        {
+                                            borderFields.Add(new int[] { k, k });
+                                            borderFields.Add(new int[] { k + 1, k });
+                                        }
+                                        else
+                                        {
+                                            borderFields.Add(new int[] { k, k });
+                                        }
+                                    }
+
+                                    if (!takenFound)
+                                    {
+                                        // reverse order
+                                        List<int[]> newBorderFields = new();
+                                        for (int k = borderFields.Count - 1; k >= 0; k--)
+                                        {
+                                            newBorderFields.Add(borderFields[k]);
+                                        }
+
+                                        ResetExamAreas();
+
+                                        if (CountAreaRel(1, 1, nextX, nextY, newBorderFields, circleDirectionLeft, 2, true))
+                                        {
+                                            int black = (int)info[1];
+                                            int white = (int)info[2];
+
+                                            if (black == white + nextY - 1 && CheckNearFieldSmallRel0(nextX, nextY, 0, 0, true) && CheckNearFieldSmallRel(0, 1, 1, 0, true) && CheckNearFieldSmallRel(nextX - 3, nextY + 1, 1, 0, true) && CheckNearFieldSmallRel0(nextX - 3, nextY + 1, 0, 0, true))
+                                            {
+                                                AddExamAreas();
+                                                T("Reverse stair 3 obstacles case 2 at " + nextX + " " + nextY + ": Cannot step straight");
+                                                forbidden.Add(new int[] { x + sx, y + sy });
+                                                if (nextX > 3) // example needs to be saved
+                                                {
+                                                    window.errorInWalkthrough = true;
+                                                    window.criticalError = true;
+                                                    window.errorString = "Reverse stair 3 obstacles nextX > 3";
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            currentDirection = l;
+
+                            nextX = possibleNextX;
+                            nextY = possibleNextY;
+                        }
+                    }
+
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
         void CheckSequence()
         {
             for (int i = 0; i < 2; i++)
@@ -3945,7 +4291,9 @@ namespace OneWayLabyrinth
                         // C-shape left
                         if (smallArea)
                         {
-                            if (InTakenRel(x + 2 * lx, y + 2 * ly) && InTakenRel(x + lx - sx, y + ly - sy) && !InTakenRel(x + lx, y + ly))
+                            // if (InTakenRel(x + 2 * lx, y + 2 * ly) && InTakenRel(x + lx - sx, y + ly - sy) && !InTakenRel(x + lx, y + ly))
+                            // For 0808, border checking is needed too.
+                            if ((InTakenRel(x + 2 * lx, y + 2 * ly) || InBorderRel(x + 2 * lx, y + 2 * ly)) && !InTakenRel(x + lx, y + ly))
                             {
                                 return true;
                             }
@@ -5644,7 +5992,6 @@ namespace OneWayLabyrinth
                 nextX = possibleNextX;
                 nextY = possibleNextY;
 
-                //T(nextX + " " + nextY);
                 // when getting info about area
                 if (nextX == size && nextY == size)
                 {

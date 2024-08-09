@@ -11,22 +11,22 @@
 	<path d="M 4 0 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
 	<path d="M 4.8 0.5 h -0.6 l 0.2 -0.2 l -0.2 0.2 l 0.2 0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 7 4 7 -->
-	<path d="M 6 3 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
+	<path d="M 6 3 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 6.5 3.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 7 5 7 -->
-	<path d="M 6 4 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
+	<path d="M 6 4 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 6.5 4.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 6 5 7 -->
-	<path d="M 5 4 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
+	<path d="M 5 4 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 5.5 4.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 6 6 7 -->
-	<path d="M 5 5 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
+	<path d="M 5 5 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 5.5 5.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 5 6 7 -->
-	<path d="M 4 5 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
+	<path d="M 4 5 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 4.5 5.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 5 7 7 -->
-	<path d="M 4 6 h 1 v 1 h -1 z" fill="#ffff00" fill-opacity="0.15" />
+	<path d="M 4 6 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 4.5 6.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 2 6 2 -->
 	<path d="M 1 5 h 1 v 1 h -1 z" fill="#dddddd" fill-opacity="1" />
