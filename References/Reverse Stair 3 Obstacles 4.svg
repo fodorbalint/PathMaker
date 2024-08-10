@@ -11,7 +11,7 @@
 	<path d="M 4 3 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
 	<path d="M 4.5 3.2 v 0.6 l -0.2 -0.2 l 0.2 0.2 l 0.2 -0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 5 1 5 -->
-	<path d="M 4 0 h 1 v 1 h -1 z" fill="#ff0000" fill-opacity="0.15" />
+	<path d="M 4 0 h 1 v 1 h -1 z" fill="#0000ff" fill-opacity="0.15" />
 	<path d="M 4.2 0.5 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2" fill="white" fill-opacity="0" stroke="black" stroke-width="0.05" stroke-linecap="round" />
 	<!-- 3 3 8 -->
 	<path d="M 2 2 h 1 v 1 h -1 z" fill="#000000" fill-opacity="1" />

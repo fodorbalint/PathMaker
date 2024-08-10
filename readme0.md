@@ -23,6 +23,7 @@ Instead of simply presenting the solution, this study takes you along its chrono
 
 The research required writing a computer program, which I have made available at
 github.com/fodorbalint/OneWayLabyrinth
+Path.cs contains the algorithm itself.
 
 <!---->
 
@@ -2479,7 +2480,7 @@ There have been found cases where the left obstacle is mid across, and the right
 
 <b>10. Reverse stair 3 obstacles</b>
 
-At every 10 million random attempts, a pattern like this emerges:
+At every 10 million attempts, a pattern like this emerges:
 
 <img align="top" src="References/2024_0725_4 marked.svg" width="11" />
 
@@ -2521,6 +2522,12 @@ Theoretically, if we extended the length of the stair by one, the following fiel
 <img align="top" src="References/Reverse Stair 3 Obstacles 6.svg" width="8" />
 
 Because of the stair shape, it is certain that we would enter the second green field from below.
+
+<!---->
+
+The next case uses the stair area described in the previous chapter, so that it has 3 fields in the top row. Because of the blue obstacle, A is the entry point, and similarly to the previous example, we get stuck at the green field if we do not enter now.
+
+<img align="top" src="References/2024_0731.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Reverse Stair 3 Obstacles 7.svg" width="7" />
 
 <!---->
 
@@ -2571,7 +2578,7 @@ Check if opposite empty fields should be disabled at certain rotations of the 4 
 
 Review rules if they have unnecessary rotations when disabling a field, fx. straight j = 2 enter later
 Review CountArea old and new algorithms
-Do not disable a possible field (and display the area) if the field is taken anyway (0725_4)
+Do not disable a possible field (and display the area) if the field is taken anyway (0725_4, 0731 step straight)
 
 <b>Display:</b>
 

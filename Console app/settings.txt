@@ -1,4 +1,4 @@
-size: 11
+size: 13
 saveFrequency: 1000000
 makeStats: True
-statsRuns: 50
+statsRuns: 100

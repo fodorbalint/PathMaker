@@ -415,7 +415,7 @@ namespace OneWayLabyrinth
                                 T("CheckStraightBig " + ShowForbidden());
                                 CheckStraightBig(); // #7 close obstacle is at the start and end of the area, outside. 4 distance only.
                                 T("CheckReverseStair " + ShowForbidden());
-                                CheckReverseStair(); // 0718, reverse stair 1/2 
+                                CheckReverseStair(); // 0718, reverse stair 1/2, 0720_2, 0731: 3 obstacles 
                                 T("CheckReverseStair3Obtacles1 " + ShowForbidden());
                                 CheckReverseStair3Obtacles1(); // 0725_4, 0731 - 0808
                                 T("CheckReverseStair3Obtacles2 " + ShowForbidden());
@@ -2689,7 +2689,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckReverseStair() // 0718, reverse stair 1/2, 0720_2
+        void CheckReverseStair() // 0718, reverse stair 1/2, 0720_2, 0731: 3 obstacles
         {
             for (int i = 0; i < 2; i++)
             {
@@ -2796,7 +2796,7 @@ namespace OneWayLabyrinth
                                             // 0718: across close, mid across far
                                             // 0720_2: mid across x 2
                                             // 0727: mid across close, C-shape far
-                                            if (black == white && CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false) && CheckNearFieldSmallRel(nextX, nextY, 0, 0, true))
+                                            if (black == white && CheckNearFieldSmallRel(nextX, nextY, 0, 0, true) && (CheckNearFieldSmallRel1(nextX - 2, nextY, 1, 0, false) || (CheckNearFieldSmallRel(nextX - 3, nextY + 1, 1, 0, true) && CheckNearFieldSmallRel0(nextX - 3, nextY + 1, 0, 0, true))))
                                             {
                                                 AddExamAreas();
                                                 T("Reverse stair at " + nextX + " " + nextY + ": Cannot step straight");
@@ -2885,7 +2885,7 @@ namespace OneWayLabyrinth
                                 possibleNextY = nextY + directions[l][1];
                             }
 
-                            if (currentDirection == 1 && l == 1 && nextX == nextY - 1)
+                            if (currentDirection == 1 && l == 1 && nextX >= 1 && nextX == nextY - 1)
                             {
                                 bool circleValid = false;
 
@@ -2914,20 +2914,57 @@ namespace OneWayLabyrinth
                                         {
                                             borderFields.Add(new int[] { 0, 1 });
                                         }
-                                        else
+                                        else if (k < nextY)
                                         {
                                             borderFields.Add(new int[] { k - 2, k });
                                             borderFields.Add(new int[] { k - 1, k });
+                                        }
+                                        else
+                                        {
+                                            borderFields.Add(new int[] { k - 2, k });
                                         }
                                     }
 
                                     if (!takenFound)
                                     {
-                                        // no reverse order, count area from left of end obstacle
+                                        // reverse order
+                                        List<int[]> newBorderFields = new();
+                                        for (int k = borderFields.Count - 1; k >= 0; k--)
+                                        {
+                                            newBorderFields.Add(borderFields[k]);
+                                        }
+
+                                        //in order to be able to walk through the area, the field to the left has to be added and current position set to 2 left. CountAreaRel must be implemented here.
+                                        int left1 = -1;
+                                        int straight1 = 1;
+                                        int left2 = nextX;
+                                        int straight2 = nextY;
+                                        
+                                        int x1 = x + left1 * lx + straight1 * sx;
+                                        int y1 = y + left1 * ly + straight1 * sy;
+                                        int x2 = x + left2 * lx + straight2 * sx;
+                                        int y2 = y + left2 * ly + straight2 * sy;
+
+                                        List<int[]> absBorderFields = new();
+                                        foreach (int[] field in newBorderFields)
+                                        {
+                                            absBorderFields.Add(new int[] { x + field[0] * lx + field[1] * sx, y + field[0] * ly + field[1] * sy });
+                                        }
+
+                                        path.Add(new int[] { x - lx, y - ly });
+                                        path.Add(new int[] { x - 2 * lx, y - 2 * ly });
+                                        x = x - 2 * lx;
+                                        y = y - 2 * ly;
+
                                         ResetExamAreas();
 
-                                        if (CountAreaRel(nextX, nextY - 1, -1, 1, borderFields, !circleDirectionLeft, 2, true))
+                                        if (CountArea(x1, y1, x2, y2, absBorderFields, circleDirectionLeft, 2, true))
                                         {
+                                            path.RemoveAt(path.Count - 1);
+                                            path.RemoveAt(path.Count - 1);
+                                            x = x + 2 * lx;
+                                            y = y + 2 * ly;
+
                                             int black = (int)info[1];
                                             int white = (int)info[2];
 
@@ -3001,6 +3038,13 @@ namespace OneWayLabyrinth
                                                     }
                                                 }
                                             }
+                                        }
+                                        else
+                                        {
+                                            path.RemoveAt(path.Count - 1);
+                                            path.RemoveAt(path.Count - 1);
+                                            x = x + 2 * lx;
+                                            y = y + 2 * ly;
                                         }
                                     }
                                 }
