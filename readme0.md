@@ -2529,6 +2529,43 @@ The next case uses the stair area described in the previous chapter, so that it 
 
 <img align="top" src="References/2024_0731.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/Reverse Stair 3 Obstacles 7.svg" width="7" />
 
+No more cases are found after several days of running. It is time to move on to the 13&nbsp;x&nbsp;13 board.
+
+<!---->
+
+An example for the Reverse stair 3 obstacles is quickly found where the stair is a step longer.
+
+<img align="top" src="References/2024_0811_3.svg" width="13" />
+
+<!---->
+
+And, here is the next one to figure out:
+
+<img align="top" src="References/2024_0814.svg" width="13" />
+
+We have seen this pattern before. It is the Double obstacle inside, but now it starts with a stair.
+
+<img align="top" src="References/double obstacle inside 4x1 1.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle inside 4x1 2.svg" width="5" />
+
+Since the area is 1W, we enter at the first white field and exit at the second. The black in between will be either filled after entry or before exit. In both cases, there is a close obstacle in the way.
+It is easy to see that the stair part can be extended to any length.
+
+<!---->
+
+Wherever we get stuck and see a 3-long indentation in the taken area, we can suspect a double obstacle pattern. 
+
+The next example would be another variation, only the upper obstacle does not need to be checked due to the fixed movement on the area borderline.
+
+<img align="top" src="References/2024_0817.svg" width="13" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 1 5 double obstacle inside.svg" width="4" />
+
+The result is a Start obstacle inside pattern (page 166). While at that time we only looked at the 0 horizontal distance obstacle, now it is at 1 distance, but the examined area is the same.
+
+<!---->
+
+We can also make the rule general by adding stairs to the beginning. As long as the area is 1W, a start obstacle should be checked.
+
+<img align="top" src="References/start obstacle inside 1 6 across.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/start obstacle inside 1 4 across.svg" width="4" />
+
 <!---->
 
 <span class="header">11&nbsp;x&nbsp;11 estimates</span>
@@ -2572,7 +2609,7 @@ Exact calculation line:
 
 Calculate next step enter left and right for any AreaUp and Corner distance. (page 129)
 Extend 0720_3 case to any horizontal distance (page 180)
-Check if opposite empty fields should be disabled at certain rotations of the 4 single area rule groups.
+Check if opposite empty fields should be disabled at certain rotations of the 4 single area rule groups. (fx. LeftRightAreaUpExtended closed corner 4: Cannot step down). A safety check can be impelmented: if the left and right direction is available but the straight direction is disabled, and there is not a close obstacle/corner on both sides, it is an error.
 
 <b>Improvements:</b>
 
@@ -2586,14 +2623,16 @@ Should we display non-critical border movements in rules? Fx. 0624 vs 0727_1 sol
 Indicate needed disabled fields in 11&nbsp;x&nbsp;11 rule representations?
 New pictures where areas were displayed incorrectly.
 Cite page numbers when mentioning a rule
-Next step left/right areas could be shown in program
-Specify future line extension and connection rules on page 3?
 
 <!---->
 
+Next step left/right areas could be shown in program
+Specify future line extension and connection rules on page 3?
+The corner discovery head can be in any of the 4 quarters and the area is still closed at the right position. Only stop when reaching the corner or passing by the live end.
+
 <b>Find example:</b>
 
-ReverseStair3Obtacles where nextX > 1 (case 1) or > 3 (case 2)
+StartObstacleInside corner (nextY - nextX) % 4 = 2 (0619 extension, page 206)
 
 <!--
 <img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />
