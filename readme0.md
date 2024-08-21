@@ -2568,6 +2568,15 @@ We can also make the rule general by adding stairs to the beginning. As long as 
 
 <!---->
 
+In the next example, the 3-long wall on the left together with the stair going downwards right encloses and area where the live end makes a near obstacle with one of the fields on the borderline. 
+
+<img align="top" src="References/2024_0818_1.svg" width="13" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/remote stair.svg" width="7" />
+
+To start with, we can search for a corner obstacle enclosing a big area; its relative y coordinate must be x + 3. From there, taking each field to left and down, we check for the closest wall on the left side. If it is 2 distance away, the pattern is found and depending on the number of step taken, the live end now acts as a close mid across obstacle, so we can only step left. Of course, the area has to be white = black.
+In theory, the live end can also be a close across obstacle. In that case, the corner obstacle is y = x + 4.
+
+<!---->
+
 <span class="header">11&nbsp;x&nbsp;11 estimates</span>
 
 9&nbsp;x&nbsp;9 total: 2 688 307 514
@@ -2613,6 +2622,7 @@ Check if opposite empty fields should be disabled at certain rotations of the 4 
 
 <b>Improvements:</b>
 
+Use new CornerDiscovery function everywhere
 Review rules if they have unnecessary rotations when disabling a field, fx. straight j = 2 enter later
 Review CountArea old and new algorithms
 Do not disable a possible field (and display the area) if the field is taken anyway (0725_4, 0731 step straight)
@@ -2622,10 +2632,10 @@ Do not disable a possible field (and display the area) if the field is taken any
 Should we display non-critical border movements in rules? Fx. 0624 vs 0727_1 solutions (page 177-178)
 Indicate needed disabled fields in 11&nbsp;x&nbsp;11 rule representations?
 New pictures where areas were displayed incorrectly.
-Cite page numbers when mentioning a rule
 
 <!---->
 
+Cite page numbers when mentioning a rule
 Next step left/right areas could be shown in program
 Specify future line extension and connection rules on page 3?
 The corner discovery head can be in any of the 4 quarters and the area is still closed at the right position. Only stop when reaching the corner or passing by the live end.
@@ -2633,6 +2643,7 @@ The corner discovery head can be in any of the 4 quarters and the area is still 
 <b>Find example:</b>
 
 StartObstacleInside corner (nextY - nextX) % 4 = 2 (0619 extension, page 206)
+RemoteStair across (0818_1, page 207)
 
 <!--
 <img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />

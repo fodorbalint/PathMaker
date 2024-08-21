@@ -148,7 +148,8 @@ namespace OneWayLabyrinth
         long numberOfCompleted = 0;
         int saveFrequency = 100000;
         bool saveConcise = false; // save only routes without their possibilities in one file
-        bool showChecker = true;
+        bool showCheckerArea = false;
+        bool showCheckerBoard = false;
 
         public bool calculateFuture = false; // does not allow a future line body or end to be a possibility. Stepped on future lines are followed through without checking possibilities on the way.
         Stopwatch watch;
@@ -197,8 +198,11 @@ namespace OneWayLabyrinth
                 ShowActiveRulesCheck.IsChecked = bool.Parse(arr[1]);
                 activeRules = (bool)ShowActiveRulesCheck.IsChecked;
                 arr = lines[9].Split(": ");
-                ShowCheckerCheck.IsChecked = bool.Parse(arr[1]);
-                showChecker = (bool)ShowCheckerCheck.IsChecked;
+                ShowCheckerAreaCheck.IsChecked = bool.Parse(arr[1]);
+                showCheckerArea = (bool)ShowCheckerAreaCheck.IsChecked;
+                arr = lines[10].Split(": ");
+                ShowCheckerBoardCheck.IsChecked = bool.Parse(arr[1]);
+                showCheckerBoard = (bool)ShowCheckerBoardCheck.IsChecked;
 
                 CheckSize();
 				Size.Text = size.ToString();
@@ -223,8 +227,10 @@ namespace OneWayLabyrinth
                 makeStats = false;
                 ShowActiveRulesCheck.IsChecked = false;
                 activeRules = false;
-                ShowCheckerCheck.IsChecked = false;
-                showChecker = false;
+                ShowCheckerAreaCheck.IsChecked = false;
+                showCheckerArea = false;
+                ShowCheckerBoardCheck.IsChecked = false;
+                showCheckerBoard = false;
             }
 
             SetActiveRules();
@@ -1052,15 +1058,20 @@ namespace OneWayLabyrinth
             makeStats = (bool)MakeStatsCheck.IsChecked;
             activeRules = (bool)ShowActiveRulesCheck.IsChecked;
 
-            if (showChecker != ShowCheckerCheck.IsChecked)
+            if (showCheckerArea != ShowCheckerAreaCheck.IsChecked)
             {
-                showChecker = (bool)ShowCheckerCheck.IsChecked; 
+                showCheckerArea = (bool)ShowCheckerAreaCheck.IsChecked; 
                 DrawPath();               
+            }
+            if (showCheckerBoard != ShowCheckerBoardCheck.IsChecked)
+            {
+                showCheckerBoard = (bool)ShowCheckerBoardCheck.IsChecked;
+                DrawPath();
             }
 
             SetActiveRules();
 
-            string[] lines = new string[] { "size: " + size, "loadFromFile: " + loadCheck, "saveOnCompletion: " + saveCheck, "continueOnCompletion: " + continueCheck, "keepLeft: " + keepLeftCheck, "displayFutureLines: " + displayFuture, "displayArea: " + displayArea, "makeStats: " + makeStats, "activeRules: " + activeRules, "checkerBoard: " + showChecker };
+            string[] lines = new string[] { "size: " + size, "loadFromFile: " + loadCheck, "saveOnCompletion: " + saveCheck, "continueOnCompletion: " + continueCheck, "keepLeft: " + keepLeftCheck, "displayFutureLines: " + displayFuture, "displayArea: " + displayArea, "makeStats: " + makeStats, "activeRules: " + activeRules, "checkerArea: " + showCheckerArea, "checkerBoard: " + showCheckerBoard };
 
             string linesStr = string.Join("\n", lines);
 
@@ -4224,7 +4235,7 @@ namespace OneWayLabyrinth
                 {
                     areaBackground += DrawAreaLine(taken.areaLines[i], taken.areaLineTypes[i], taken.areaLineDirections[i]);
 
-                    if (showChecker)
+                    if (showCheckerArea)
                     { 
                         if ((taken.areaLineTypes[i] == 2 || taken.areaLineTypes[i] == 3) && taken.areaPairFields.Count > i)
                         {
@@ -4242,20 +4253,19 @@ namespace OneWayLabyrinth
                 } 
             }
 
-            /*string checker = "";
-            if (showChecker)
+            if (showCheckerBoard)
             { 
                 for(int i = 0; i < size; i++)
                 {
                     for (int j = 0; j < size; j++)
                     {
-                        if ((i + j) % 2 == 0)
+                        if ((taken.x + taken.y) % 2 == (i + j) % 2)
                         {
                             checker += "\t<rect x=\"" + i + ".25\" y=\"" + j + ".25\" width=\"0.5\" height=\"0.5\" fill=\"black\" fill-opacity=\"0.5\"  />\n";
                         }
                     }
                 }
-            }*/
+            }
 
 			string content = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + size + " " + size + "\">\r\n\t<path d=\"M0,0 h" + size + " v" + size + " h-" + size + " z\" fill=\"#dddddd\" />\r\n" + checker + backgrounds + futureBackgrounds + possibles + areaBackground + grid +
 				"\t<path d=\"M " + startPos + "\r\n[path]\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />\r\n" +

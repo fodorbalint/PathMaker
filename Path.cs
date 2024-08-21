@@ -432,6 +432,8 @@ namespace OneWayLabyrinth
 
                                 T("CheckSequence " + ShowForbidden());
                                 CheckSequence();
+                                T("CheckRemoteStair " + ShowForbidden());
+                                CheckRemoteStair();
 
                                 T("Forbidden: " + ShowForbidden());
                                 // ----- copy end -----
@@ -2505,10 +2507,8 @@ namespace OneWayLabyrinth
                                                     {
                                                         ruleTrue = true;
                                                         T("StartObstacleInside % 4 = 2: Cannot step left");
-                                                        // straight direction is disabled already due to single area rule
-                                                        forbidden.Add(new int[] { x + lx, y + ly });
-
-                                                        if (hori > 2)
+                                                        // straight direction is disabled already due to single area rule                                                        
+                                                        if (hori > 2 && !InForbidden(new int[] { x + lx, y + ly }))
                                                         {
                                                             T("StartObstacleInside corner (y - x) % 4 = 2");
 
@@ -2517,6 +2517,8 @@ namespace OneWayLabyrinth
                                                             window.criticalError = true;
                                                             return;
                                                         }
+
+                                                        forbidden.Add(new int[] { x + lx, y + ly });
                                                     }
                                                     break;
                                             }
@@ -3035,8 +3037,6 @@ namespace OneWayLabyrinth
 
                                 if (circleValid)
                                 {
-                                    bool takenFound = false;
-
                                     List<int[]> borderFields = new();
                                     for (int k = 1; k <= nextY; k++)
                                     {
@@ -3083,6 +3083,7 @@ namespace OneWayLabyrinth
                                         }
                                     }
 
+                                    bool takenFound = false;
                                     foreach (int[] field in borderFields)
                                     {
                                         if (InTakenRel(field[0], field[1]))
@@ -3952,6 +3953,301 @@ namespace OneWayLabyrinth
             ly = thisLy;
 
             // Sixth case: 0727_5, implemented in UpExtended
+        }
+
+        void CheckRemoteStair()
+        // 0818_1
+        // Find big area corner in the first quarter, mirrored of remote stair.svg. Rotate CCW.
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 2; j++)
+                {
+                    List<int[]>? foundCorners = CornerDiscovery(0, 1, false, true, 3);
+
+                    if (foundCorners != null)
+                    {
+                        foreach (int[] field in foundCorners)
+                        {
+                            //T("RemoteStair corner " + field[0], field[1], "side " + i, "rotation " + j);
+                            int hori = field[0];
+                            int vert = field[1];
+                            
+                            if (vert == hori + 3 || vert == hori + 4)
+                            {
+                                bool circleValid = false;
+
+                                int i1 = InTakenIndexRel(hori, vert);
+                                int i2 = InTakenIndexRel(hori + 1, vert);
+
+                                if (i2 < i1)
+                                {
+                                    circleValid = true;
+                                }
+
+                                if (circleValid)
+                                {
+                                    int nextX = hori - 1;
+                                    int nextY = vert - 1;
+                                    bool rightWallFound = false;
+                                    bool liveEndPassed = false;
+
+                                    List<int[]> borderFields = new();
+                                    int wallX = 0;
+
+                                    while (true)
+                                    {
+                                        borderFields.Add(new int[] { nextX, nextY });
+                                        borderFields.Add(new int[] { nextX - 1, nextY });
+
+                                        if (InTakenRel(nextX, nextY)) break;
+
+                                        wallX = nextX - 1;
+                                        while(!InTakenRel(wallX, nextY))
+                                        {
+                                            wallX--;
+                                        }
+
+                                        if (vert == hori + 3 && nextX == -2 && nextY == 1)
+                                        // for live end making a mid across obstacle
+                                        {
+                                            liveEndPassed = true;
+                                        }
+                                        if (vert == hori + 4 && nextX == -3 && nextY == 1)
+                                        // for live end making an across obstacle
+                                        {
+                                            liveEndPassed = true;
+                                        }
+
+                                        if (nextX - wallX == 3)
+                                        {
+                                            rightWallFound = true;
+                                            break;
+                                        }
+                                        else if (nextX - wallX < 3) break;
+
+                                        nextX--;
+                                        nextY--;
+                                    }
+
+                                    bool takenFound = false;
+                                    foreach (int[] bField in borderFields)
+                                    {
+                                        if (InTakenRel(bField[0], bField[1]))
+                                        {
+                                            takenFound = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (rightWallFound && liveEndPassed && !takenFound)
+                                    {
+                                        // reverse order
+                                        List<int[]> newBorderFields = new();
+                                        for (int k = borderFields.Count - 1; k >= 0; k--)
+                                        {
+                                            newBorderFields.Add(borderFields[k]);
+                                        }
+
+                                        ResetExamAreas();
+
+                                        if (CountAreaRel(hori - 1, vert, wallX + 1, nextY, newBorderFields, circleDirectionLeft, 2, true))
+                                        {
+                                            int black = (int)info[1];
+                                            int white = (int)info[2];
+
+                                            if (black == white)
+                                            {
+                                                if (vert == hori + 4)
+                                                {
+                                                    window.errorInWalkthrough = true;
+                                                    window.errorString = "RemoteStair across found.";
+                                                    window.criticalError = true;
+                                                    return;
+                                                }
+
+                                                AddExamAreas();
+
+                                                T("RemoteStair mid across: Cannot step up");
+                                                forbidden.Add(new int[] { x + sx, y + sy });
+
+                                                if (j == 0)
+                                                {
+                                                    T("RemoteStair mid across: Cannot step left");
+                                                    forbidden.Add(new int[] { x + lx, y + ly });
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // rotate CCW
+                    int l0 = lx;
+                    int l1 = ly;
+                    lx = -sx;
+                    ly = -sy;
+                    sx = l0;
+                    sy = l1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        List<int[]>? CornerDiscovery(int startX, int startY, bool toLeft, bool closedCorner, int minEndCoord)
+        {
+            List<int[]> foundCorners = new();
+
+            // Can we have an area with a corner if this field is taken? It isn't in the border line.
+            if (!InTakenRel(startX, startY) && !InBorderRel(startX, startY))
+            {
+                // checking taken fields from the middle to side is incomplete: 17699719
+                // instead, we check fields in the first row until an obstacle is found, then we walk around the first (top-left) quarter.
+                if (toLeft)
+                {
+                    int coordStart = startX + 1;
+                    while (!InTakenRel(coordStart, startY) && !InBorderRel(coordStart, startY))
+                    {
+                        coordStart++;
+                    }
+
+                    // relative directions and coordinates. Since the relative x and y is expanding towards the upper left corner, the current direction is what we use for downwards motion in the absolute coordinate system.
+                    int currentDirection = 0;
+
+                    int nextX = coordStart - 1;
+                    int nextY = startY;
+
+                    int counter = 0;
+
+                    // area walls can be found in any of the four quarters. Therefore, we only stop when we have reached the corner or passed by the live end.
+                    while (!InCornerRel(nextX, nextY) && !(nextX == startX && nextY == startY))
+                    {
+                        //T("Corner discovery nextX " + nextX, "nextY " + nextY);
+                        counter++;
+                        if (counter == size * size)
+                        {
+                            T("Corner discovery error.");
+
+                            window.errorInWalkthrough = true;
+                            window.errorString = "Corner discovery error.";
+                            window.criticalError = true;
+                            return null;
+                        }
+
+                        // left direction
+                        int leftDirection = (currentDirection == 3) ? 0 : currentDirection + 1;
+                        currentDirection = leftDirection;
+                        int possibleNextX = nextX + directions[leftDirection][0];
+                        int possibleNextY = nextY + directions[leftDirection][1];
+
+                        // turn right until a field is empty 
+                        while (InBorderRel(possibleNextX, possibleNextY) || InTakenRel(possibleNextX, possibleNextY))
+                        {
+                            leftDirection = (leftDirection == 0) ? 3 : leftDirection - 1;
+                            possibleNextX = nextX + directions[leftDirection][0];
+                            possibleNextY = nextY + directions[leftDirection][1];
+                        }
+
+                        // if we have turned left from a right direction (to upwards), a corner is found
+                        // It has to be left and up. In 0619_2 the walking edge goes below the current position.
+                        // minEndCoord is 2 for across corner, 1 for up left, 0 for corner straight ahead
+                        if (nextX >= minEndCoord - 1 && nextY >= 0)
+                        {
+                            if (closedCorner && currentDirection == 0 && leftDirection == 0)
+                            {
+                                foundCorners.Add(new int[] { nextX + 1, nextY + 1 });
+                            }
+                            else if (!closedCorner && currentDirection == 1 && leftDirection == 1)
+                            {
+                                foundCorners.Add(new int[] { nextX + 1, nextY - 1 });
+                            }
+                        }
+
+                        currentDirection = leftDirection;
+
+                        nextX = possibleNextX;
+                        nextY = possibleNextY;
+                    }
+                }
+                else // up
+                {
+                    int coordStart = startY + 1;
+                    while (!InTakenRel(startX, coordStart) && !InBorderRel(startX, coordStart))
+                    {
+                        coordStart++;
+                    }
+
+                    int currentDirection = 1;
+
+                    int nextX = startX;
+                    int nextY = coordStart - 1;
+
+                    int counter = 0;
+
+                    // area walls can be found in any of the four quarters. Therefore, we only stop when we have reached the corner or passed by the live end.
+                    while (!InCornerRel(nextX, nextY) && !(nextX == startX && nextY == startY))
+                    {                        
+                        counter++;
+                        if (counter == size * size)
+                        {
+                            T("Corner discovery error.");
+
+                            window.errorInWalkthrough = true;
+                            window.errorString = "Corner discovery error.";
+                            window.criticalError = true;
+                            return null;
+                        }
+
+                        // up direction
+                        int upDirection = (currentDirection == 0) ? 3 : currentDirection - 1;
+                        currentDirection = upDirection;
+                        int possibleNextX = nextX + directions[upDirection][0];
+                        int possibleNextY = nextY + directions[upDirection][1];
+
+                        // turn left until a field is empty 
+                        while (InBorderRel(possibleNextX, possibleNextY) || InTakenRel(possibleNextX, possibleNextY))
+                        {
+                            upDirection = (upDirection == 3) ? 0 : upDirection + 1;
+                            possibleNextX = nextX + directions[upDirection][0];
+                            possibleNextY = nextY + directions[upDirection][1];
+                        }
+
+                        if (nextX >= 0 && nextY >= minEndCoord - 1)
+                        {
+                            if (closedCorner && currentDirection == 1 && upDirection == 1)
+                            {
+                                foundCorners.Add(new int[] { nextX + 1, nextY + 1 });
+                            }
+                            else if (!closedCorner && currentDirection == 0 && upDirection == 0)
+                            {
+                                foundCorners.Add(new int[] { nextX - 1, nextY + 1 });
+                            }
+                        }
+
+                        currentDirection = upDirection;
+
+                        nextX = possibleNextX;
+                        nextY = possibleNextY;
+                    }
+                }
+
+                return foundCorners;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         bool CheckCorner2(int side, bool smallArea) // #8

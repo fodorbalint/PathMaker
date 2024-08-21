@@ -83,8 +83,9 @@
                         <CheckBox x:Name="DisplayAreaCheck" Content="Display area" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,31,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <CheckBox x:Name="MakeStatsCheck" Content="Make statistics in random fast run" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,52,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <CheckBox x:Name="ShowActiveRulesCheck" Content="Show active rules" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,73,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        <CheckBox x:Name="ShowCheckerCheck" Content="Show checker board" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,94,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        <Button Content="Close" HorizontalAlignment="Right" Margin="100,123,10,10" VerticalAlignment="Top" Width="70" Click="CloseSettings_Click" Height="21" Focusable="False" />
+                        <CheckBox x:Name="ShowCheckerAreaCheck" Content="Show checker board of active areas" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,94,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <CheckBox x:Name="ShowCheckerBoardCheck" Content="Show checker board of entire table" Click="SaveSettings" IsChecked="False" Focusable="False" Margin="10,115,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <Button Content="Close" HorizontalAlignment="Right" Margin="100,144,10,10" VerticalAlignment="Top" Width="70" Click="CloseSettings_Click" Height="21" Focusable="False" />
                     </Grid>
                 </Border>
             </Grid>
