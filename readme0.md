@@ -2263,6 +2263,16 @@ Increasing the distance by 1 and the area to 2W, in order to make the area, we e
 
 <!---->
 
+And the pattern can be extended along a stair:
+
+<img align="top" src="References/2024_0725_5.svg" width="11" />
+
+<img align="top" src="References/double obstacle outside 3 stair 1.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle outside 3 stair 2.svg" width="5" />
+
+The area is 2B. If we enter now, we have to exit at a black field and then fill the remaining to as corners.
+
+<!---->
+
 <b>5. Start obstacle outside</b>
 
 <img align="top" src="References/2024_0715.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/straight 5 dist start obstacle.svg" width="4" />
@@ -2368,7 +2378,7 @@ If we reverse the horizontal and vertical distance for the first obstacle, we fi
 <img align="top" src="References/2024_0725_6.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/corner 1 4 stair.svg" width="6" />
 
 In order to make the 1B area, we need to exit at the second black field, and a stair pattern will be drawn from there.
-Again, the distance can be increased:
+Again, the distance can be increased, the area is now 2B:
 
 <img align="top" src="References/corner 2 5 stair.svg" width="7" />
 
@@ -2433,13 +2443,7 @@ There can also be a sequence by going along the left side here:
 
 <img align="top" src="References/2024_0727_5.svg" width="11" />
 
-<!---->
-
-The distance to the first obstacle can be longer, here is an example for 4 distance, with a 1B area:
-
-<img align="top" src="References/2024_0725_5.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/up 4 sequence.svg" width="5" />
-
-However, it is an immediate close obstacle checking on both sides, not a multiple-step sequence. When the distance to the first obstacle is over 3, the chances are no sequence exist, because the line can exit and re-enter the start area, filling some fields outside of it.
+<!--When the distance to the first obstacle is over 3, the chances are no sequence exist, because the line can exit and re-enter the start area, filling some fields outside of it.-->
 
 <!---->
 
@@ -2543,12 +2547,18 @@ And, here is the next one to figure out:
 
 <img align="top" src="References/2024_0814.svg" width="13" />
 
-We have seen this pattern before. It is the Double obstacle inside, but now it starts with a stair.
+We have seen this pattern before. It is the Double obstacle inside (page 169), but now it starts with a stair.
 
 <img align="top" src="References/double obstacle inside 4x1 1.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle inside 4x1 2.svg" width="5" />
 
 Since the area is 1W, we enter at the first white field and exit at the second. The black in between will be either filled after entry or before exit. In both cases, there is a close obstacle in the way.
 It is easy to see that the stair part can be extended to any length.
+
+<!---->
+
+And also, the top can be a field longer, so it will solve the second case of Double obstacle inside as shown on page 170:
+
+<img align="top" src="References/double obstacle inside 5x1 1.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle inside 5x1 2.svg" width="5" />
 
 <!---->
 
@@ -2572,8 +2582,18 @@ In the next example, the 3-long wall on the left together with the stair going d
 
 <img align="top" src="References/2024_0818_1.svg" width="13" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/remote stair.svg" width="7" />
 
-To start with, we can search for a corner obstacle enclosing a big area; its relative y coordinate must be x + 3. From there, taking each field to left and down, we check for the closest wall on the left side. If it is 2 distance away, the pattern is found and depending on the number of step taken, the live end now acts as a close mid across obstacle, so we can only step left. Of course, the area has to be white = black.
+To start with, we can search for a corner obstacle enclosing a big area; its relative y coordinate must be x + 3. From there, taking each field to left and down, we check for the closest wall on the left side. If it is 2 distance away, the pattern is found and depending on the number of steps taken, the live end now acts as a close mid across obstacle, so we can only step left. Of course, the area has to be white = black.
 In theory, the live end can also be a close across obstacle. In that case, the corner obstacle is y = x + 4.
+
+<!---->
+
+This is a variation of the double obstacle inside pattern at 4 distance (page 169):
+
+<img align="top" src="References/2024_0820.svg" width="13" />
+
+<img align="top" src="References/double obstacle inside 4 dist mid across C 1.svg" width="4" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle inside 4 dist mid across C 2.svg" width="4" />
+
+This time, we have a C-shape at the far end. This can be applied to any of the three other distances as well.
 
 <!---->
 
@@ -2626,15 +2646,15 @@ Use new CornerDiscovery function everywhere
 Review rules if they have unnecessary rotations when disabling a field, fx. straight j = 2 enter later
 Review CountArea old and new algorithms
 Do not disable a possible field (and display the area) if the field is taken anyway (0725_4, 0731 step straight)
+All Sequence patterns should be replaced with stair-area rules like 0725_5. Is it possible? At 0726_2, applying sequence is unnecessary. 
+
+<!---->
 
 <b>Display:</b>
 
 Should we display non-critical border movements in rules? Fx. 0624 vs 0727_1 solutions (page 177-178)
 Indicate needed disabled fields in 11&nbsp;x&nbsp;11 rule representations?
 New pictures where areas were displayed incorrectly.
-
-<!---->
-
 Cite page numbers when mentioning a rule
 Next step left/right areas could be shown in program
 Specify future line extension and connection rules on page 3?
@@ -2642,8 +2662,19 @@ The corner discovery head can be in any of the 4 quarters and the area is still 
 
 <b>Find example:</b>
 
-StartObstacleInside corner (nextY - nextX) % 4 = 2 (0619 extension, page 206)
+StartObstacleInside corner (nextY - nextX) % 4 = 2 (0619 extension, page 207)
 RemoteStair across (0818_1, page 207)
+Stair extensions: flat top far away (0725_6) where the end obstacle is far away. 
+StraightSmall 2 and 3 with stair leg, like StairAtEndConcave5 and 6.
+StairAtEndConcave6 with other than 2 x mid across obstacles 
+
+<b>To do:</b>
+
+Solve sequence cases with a stair pattern if possible. 0726, 0713: Document newly created NearStair function
+
+<!---->
+
+Make pattern set representation: 0625 can be extended vertically, holding a fixed 2 horizontal distance, or in a stair at the far end, so that vert = hori + 2. The two can also be combined. The same can happen with 0625_1, which is just one vertical distance shorter. (Stair extension: 0712)
 
 <!--
 <img align="top" src="References/18665383.svg" width="9" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="6" />

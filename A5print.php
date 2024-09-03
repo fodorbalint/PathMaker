@@ -130,6 +130,13 @@
     }
 
 </style>
+<script>
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+        // Page is active; perform actions to refresh content or maintain state
+    }
+});
+</script>
 <table width="<?php print $order < 2 ? 1040 : 520 ?>" align="center">
 <?php
     $content = str_replace("\r", "", str_replace("<br />", "", file_get_contents("readme0.md")));
