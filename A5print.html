@@ -1940,64 +1940,76 @@ In order to make the 1B area, we need to exit at the second black field, and a s
 Again, the distance can be increased, the area is now 2B:<br />
 <br />
 <img align="top" src="References/corner 2 5 stair.svg" width="33.333333333333%" /></div><div class="num">188</div></td></tr>
-<tr><td><div class="border"></div><div><b>7. Sequence extensions</b><br />
+<tr><td><div class="border"></div><div><b>7. Stair patterns</b><br />
 <br />
 <img align="top" src="References/2024_0706_1.svg" width="52.380952380952%" /><br />
 <br />
-It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.</div><div class="num">189</div></td>
-<td><div class="border"></div><div><img align="top" src="References/2024_0713.svg" width="52.380952380952%" /><br />
+It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.<br />
+But let's phase out sequences and solve them in a different way that gives a recognizable pattern.<br />
 <br />
-Third case (page 146). In this, when we exit the 2&nbsp;x&nbsp;4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.</div><div class="num">190</div></td></tr>
-<tr><td><div class="border"></div><div><img align="top" src="References/2024_0704.svg" width="52.380952380952%" /><br />
+<img align="top" src="References/double stair.svg" width="28.571428571429%" /><br />
+<br />
+Next to the remote stair, a similar path will go the opposite way. This creates two across obstacles with the live end and the taken field down left. If we step up, the blue fields can neither be filled before or after walking through the stair.<br />
+I will call this Double Stair.</div><div class="num">189</div></td>
+<td><div class="border"></div><div><img align="top" src="References/2024_0726.svg" width="52.380952380952%" /><br />
+<br />
+In this case, the line would continue on the right after exiting the area until it conflicts with an obstacle on the opposite side.<br />
+<br />
+<img align="top" src="References/nearStair 1.svg" width="28.571428571429%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/nearStair 2.svg" width="28.571428571429%" /><br />
+<br />
+On the right a theoretical extension is shown.<br />
+For now, we apply the mid across obstacle to the last step, and the across to the last before one, but there might come other combinations, like in the next case:</div><div class="num">190</div></td></tr>
+<tr><td><div class="border"></div><div><img align="top" src="References/2024_0713.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/nearStair 3.svg" width="28.571428571429%" /></div><div class="num">191</div></td>
+<td><div class="border"></div><div><img align="top" src="References/2024_0704.svg" width="52.380952380952%" /><br />
 <br />
 Second case (page 145). Until now, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. <br />
 <br />
 In the next one, the area is on the right side.<br />
 <br />
-<img align="top" src="References/2024_0706.svg" width="52.380952380952%" /></div><div class="num">191</div></td>
-<td><div class="border"></div><div>And here, the sequence has to be applied on the opposite side of what we are used to.<br />
+<img align="top" src="References/2024_0706.svg" width="52.380952380952%" /></div><div class="num">192</div></td></tr>
+<tr><td><div class="border"></div><div>And here, the sequence has to be applied on the opposite side of what we are used to.<br />
 <br />
 <img align="top" src="References/2024_0722.svg" width="52.380952380952%" /><br />
 <br />
 A new start area might occur in the form of a next step C-shape. In this, there is a regular stair pattern that leads to an area on the right side.<br />
 <br />
-<img align="top" src="References/2024_0630.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/stair area.svg" width="23.809523809524%" /></div><div class="num">192</div></td></tr>
-<tr><td><div class="border"></div><div>There can also be two close obstacles in the end:<br />
+<img align="top" src="References/2024_0630.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/stair area.svg" width="23.809523809524%" /></div><div class="num">193</div></td>
+<td><div class="border"></div><div>There can also be two close obstacles in the end:<br />
 <br />
 <img align="top" src="References/2024_0720.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img src="References/stair area end.svg" width="19.047619047619%" /><br />
 <br />
 And here is an example where the sequence is not only a stair but changes direction twice.<br />
 <br />
-<img align="top" src="References/2024_0723_1.svg" width="52.380952380952%" /></div><div class="num">193</div></td>
-<td><div class="border"></div><div>We know the area and the border movement of the following case.<br />
+<img align="top" src="References/2024_0723_1.svg" width="52.380952380952%" /></div><div class="num">194</div></td></tr>
+<tr><td><div class="border"></div><div>We know the area and the border movement of the following case.<br />
 <br />
 <img align="top" src="References/2024_0724.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/up 3 sequence.svg" width="23.809523809524%" /><br />
 <br />
 Until now, we checked for end obstacles at the white corner, but given the known exit field, we should also check for two close (and maybe far) obstacles on each side.<br />
 And indeed, the left side turns out to be a far obstacle here:<br />
 <br />
-<img align="top" src="References/2024_0725_2.svg" width="52.380952380952%" /></div><div class="num">194</div></td></tr>
-<tr><td><div class="border"></div><div>There can also be a sequence by going along the left side here:<br />
+<img align="top" src="References/2024_0725_2.svg" width="52.380952380952%" /></div><div class="num">195</div></td>
+<td><div class="border"></div><div>There can also be a sequence by going along the left side here:<br />
 <br />
 <img align="top" src="References/2024_0727_5.svg" width="52.380952380952%" /><br />
 <br />
-<!--When the distance to the first obstacle is over 3, the chances are no sequence exist, because the line can exit and re-enter the start area, filling some fields outside of it.--></div><div class="num">195</div></td>
-<td><div class="border"></div><div><img align="top" src="References/2024_0724_1.svg" width="52.380952380952%" /><br />
+<!--When the distance to the first obstacle is over 3, the chances are no sequence exist, because the line can exit and re-enter the start area, filling some fields outside of it.--></div><div class="num">196</div></td></tr>
+<tr><td><div class="border"></div><div><img align="top" src="References/2024_0724_1.svg" width="52.380952380952%" /><br />
 <br />
 This is a perfect example of a sequence that travels along the edges, not filling the center.<br />
 For start pattern, we check the following:<br />
 <br />
 <img align="top" src="References/corner sequence.svg" width="23.809523809524%" /><br />
 <br />
-It is also obvious that it has two rotations.</div><div class="num">196</div></td></tr>
-<tr><td><div class="border"></div><div><b>8. Area end sequence</b><br />
+It is also obvious that it has two rotations.</div><div class="num">197</div></td>
+<td><div class="border"></div><div><b>8. Area end sequence</b><br />
 <br />
 <img align="top" src="References/2024_0711.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/corner 3 1 sequence.svg" width="28.571428571429%" /><br />
 <br />
 This can be considered as the fifth start area of sequence, but what in reality happens here is that we start with an 5&nbsp;x&nbsp;3 area which is 1B, and in order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.<br />
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.<br />
-In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.</div><div class="num">197</div></td>
-<td><div class="border"></div><div><b>9. Reverse stair</b><br />
+In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.</div><div class="num">198</div></td></tr>
+<tr><td><div class="border"></div><div><b>9. Reverse stair</b><br />
 <br />
 <img align="top" src="References/2024_0718.svg" width="52.380952380952%" /><br />
 <br />
@@ -2007,8 +2019,8 @@ The line in this case has to make a stair as shown on page 179-181, but now we a
 <br />
 Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).<br />
 <br />
-There have been found cases where the left obstacle is mid across, and the right obstacle is a C-shape.</div><div class="num">198</div></td></tr>
-<tr><td><div class="border"></div><div><b>10. Reverse stair 3 obstacles</b><br />
+There have been found cases where the left obstacle is mid across, and the right obstacle is a C-shape.</div><div class="num">199</div></td>
+<td><div class="border"></div><div><b>10. Reverse stair 3 obstacles</b><br />
 <br />
 At every 10 million attempts, a pattern like this emerges:<br />
 <br />
@@ -2019,8 +2031,8 @@ Below the first pattern descibes the exit point of the pair area (A), while the 
 <br />
 <img align="top" src="References/Reverse Stair 3 Obstacles 1.svg" width="14.285714285714%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Reverse Stair 3 Obstacles 2.svg" width="19.047619047619%" /><br />
 <br />
-In order to fill the marked area with respect to the end obstacle, we need to enter at either C or D. But because of E, we cannot step from A to C, and because of E and F, we cannot reach D.</div><div class="num">199</div></td>
-<td><div class="border"></div><div>The next example will shed more light onto the pattern.<br />
+In order to fill the marked area with respect to the end obstacle, we need to enter at either C or D. But because of E, we cannot step from A to C, and because of E and F, we cannot reach D.</div><div class="num">200</div></td></tr>
+<tr><td><div class="border"></div><div>The next example will shed more light onto the pattern.<br />
 <br />
 <img align="top" src="References/2024_0808.svg" width="52.380952380952%" /><br />
 <br />
@@ -2032,8 +2044,8 @@ If we make a stair shaped pattern that leads up to the first obstacle, it is cle
 <br />
 Now let's check if we can get to any of these fields and enter the area afterwards.<br />
 <br />
-It is evident that if we step straight, we cannot step right because of the C-shape on the left.</div><div class="num">200</div></td></tr>
-<tr><td><div class="border"></div><div>But how do we explain that we are unable to get to the far entry point?<br />
+It is evident that if we step straight, we cannot step right because of the C-shape on the left.</div><div class="num">201</div></td>
+<td><div class="border"></div><div>But how do we explain that we are unable to get to the far entry point?<br />
 <br />
 In the following representation the three important obstacles are shown. The area occupied by the stair is dark gray, and the return path by the far obstacle we must leave empty is light gray. We need to get to point A.<br />
 <br />
@@ -2045,16 +2057,16 @@ Theoretically, if we extended the length of the stair by one, the following fiel
 <br />
 <img align="top" src="References/Reverse Stair 3 Obstacles 6.svg" width="38.095238095238%" /><br />
 <br />
-Because of the stair shape, it is certain that we would enter the second green field from below.</div><div class="num">201</div></td>
-<td><div class="border"></div><div>The next case uses the stair area described in the previous chapter, so that it has 3 fields in the top row. Because of the blue obstacle, A is the entry point, and similarly to the previous example, we get stuck at the green field if we do not enter now.<br />
+Because of the stair shape, it is certain that we would enter the second green field from below.</div><div class="num">202</div></td></tr>
+<tr><td><div class="border"></div><div>The next case uses the stair area described in the previous chapter, so that it has 3 fields in the top row. Because of the blue obstacle, A is the entry point, and similarly to the previous example, we get stuck at the green field if we do not enter now.<br />
 <br />
 <img align="top" src="References/2024_0731.svg" width="52.380952380952%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/Reverse Stair 3 Obstacles 7.svg" width="33.333333333333%" /><br />
 <br />
-No more cases are found after several days of running. It is time to move on to the 13&nbsp;x&nbsp;13 board.</div><div class="num">202</div></td></tr>
-<tr><td><div class="border"></div><div>An example for the Reverse stair 3 obstacles is quickly found where the stair is a step longer.<br />
+No more cases are found after several days of running. It is time to move on to the 13&nbsp;x&nbsp;13 board.</div><div class="num">203</div></td>
+<td><div class="border"></div><div>An example for the Reverse stair 3 obstacles is quickly found where the stair is a step longer.<br />
 <br />
-<img align="top" src="References/2024_0811_3.svg" width="61.904761904762%" /></div><div class="num">203</div></td>
-<td><div class="border"></div><div>And, here is the next one to figure out:<br />
+<img align="top" src="References/2024_0811_3.svg" width="61.904761904762%" /></div><div class="num">204</div></td></tr>
+<tr><td><div class="border"></div><div>And, here is the next one to figure out:<br />
 <br />
 <img align="top" src="References/2024_0814.svg" width="61.904761904762%" /><br />
 <br />
@@ -2063,34 +2075,34 @@ We have seen this pattern before. It is the Double obstacle inside (page 169), b
 <img align="top" src="References/double obstacle inside 4x1 1.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/double obstacle inside 4x1 2.svg" width="23.809523809524%" /><br />
 <br />
 Since the area is 1W, we enter at the first white field and exit at the second. The black in between will be either filled after entry or before exit. In both cases, there is a close obstacle in the way.<br />
-It is easy to see that the stair part can be extended to any length.</div><div class="num">204</div></td></tr>
-<tr><td><div class="border"></div><div>And also, the top can be a field longer, so it will solve the second case of Double obstacle inside as shown on page 170:<br />
+It is easy to see that the stair part can be extended to any length.</div><div class="num">205</div></td>
+<td><div class="border"></div><div>And also, the top can be a field longer, so it will solve the second case of Double obstacle inside as shown on page 170:<br />
 <br />
-<img align="top" src="References/double obstacle inside 5x1 1.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/double obstacle inside 5x1 2.svg" width="23.809523809524%" /></div><div class="num">205</div></td>
-<td><div class="border"></div><div>Wherever we get stuck and see a 3-long indentation in the taken area, we can suspect a double obstacle pattern. <br />
+<img align="top" src="References/double obstacle inside 5x1 1.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/double obstacle inside 5x1 2.svg" width="23.809523809524%" /></div><div class="num">206</div></td></tr>
+<tr><td><div class="border"></div><div>Wherever we get stuck and see a 3-long indentation in the taken area, we can suspect a double obstacle pattern. <br />
 <br />
 The next example would be another variation, only the upper obstacle does not need to be checked due to the fixed movement on the area borderline.<br />
 <br />
 <img align="top" src="References/2024_0817.svg" width="61.904761904762%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/corner 1 5 double obstacle inside.svg" width="19.047619047619%" /><br />
 <br />
-The result is a Start obstacle inside pattern (page 166). While at that time we only looked at the 0 horizontal distance obstacle, now it is at 1 distance, but the examined area is the same.</div><div class="num">206</div></td></tr>
-<tr><td><div class="border"></div><div>We can also make the rule general by adding stairs to the beginning. As long as the area is 1W, a start obstacle should be checked.<br />
+The result is a Start obstacle inside pattern (page 166). While at that time we only looked at the 0 horizontal distance obstacle, now it is at 1 distance, but the examined area is the same.</div><div class="num">207</div></td>
+<td><div class="border"></div><div>We can also make the rule general by adding stairs to the beginning. As long as the area is 1W, a start obstacle should be checked.<br />
 <br />
-<img align="top" src="References/start obstacle inside 1 6 across.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/start obstacle inside 1 4 across.svg" width="19.047619047619%" /></div><div class="num">207</div></td>
-<td><div class="border"></div><div>In the next example, the 3-long wall on the left together with the stair going downwards right encloses and area where the live end makes a near obstacle with one of the fields on the borderline. <br />
+<img align="top" src="References/start obstacle inside 1 6 across.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/start obstacle inside 1 4 across.svg" width="19.047619047619%" /></div><div class="num">208</div></td></tr>
+<tr><td><div class="border"></div><div>In the next example, the 3-long wall on the left together with the stair going downwards right encloses and area where the live end makes a near obstacle with one of the fields on the borderline. <br />
 <br />
 <img align="top" src="References/2024_0818_1.svg" width="61.904761904762%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/remote stair.svg" width="33.333333333333%" /><br />
 <br />
 To start with, we can search for a corner obstacle enclosing a big area; its relative y coordinate must be x + 3. From there, taking each field to left and down, we check for the closest wall on the left side. If it is 2 distance away, the pattern is found and depending on the number of steps taken, the live end now acts as a close mid across obstacle, so we can only step left. Of course, the area has to be white = black.<br />
-In theory, the live end can also be a close across obstacle. In that case, the corner obstacle is y = x + 4.</div><div class="num">208</div></td></tr>
-<tr><td><div class="border"></div><div>This is a variation of the double obstacle inside pattern at 4 distance (page 169):<br />
+In theory, the live end can also be a close across obstacle. In that case, the corner obstacle is y = x + 4.</div><div class="num">209</div></td>
+<td><div class="border"></div><div>This is a variation of the double obstacle inside pattern at 4 distance (page 169):<br />
 <br />
 <img align="top" src="References/2024_0820.svg" width="61.904761904762%" /><br />
 <br />
 <img align="top" src="References/double obstacle inside 4 dist mid across C 1.svg" width="19.047619047619%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/double obstacle inside 4 dist mid across C 2.svg" width="19.047619047619%" /><br />
 <br />
-This time, we have a C-shape at the far end. This can be applied to any of the three other distances as well.</div><div class="num">209</div></td>
-<td><div class="border"></div><div><span class="header">11&nbsp;x&nbsp;11 estimates</span><br />
+This time, we have a C-shape at the far end. This can be applied to any of the three other distances as well.</div><div class="num">210</div></td></tr>
+<tr><td><div class="border"></div><div><span class="header">11&nbsp;x&nbsp;11 estimates</span><br />
 <br />
 9&nbsp;x&nbsp;9 total: 2 688 307 514<br />
 <br />
@@ -2116,10 +2128,10 @@ Differences of bases:<br />
 Next difference estimate: 0.0331&nbsp;*&nbsp;331/574 = 0.0191<br />
 Next base: 1.3897<br />
 <br />
-2 688 307 514&nbsp;*&nbsp;1.3897 ^ 40 = 1402 trillion (Actual value according to OEIS: 1445 trillion)</div><div class="num">210</div></td></tr>
-<tr><td><div class="border"></div><div>Exact calculation line:<br />
-2688307514 * ((2688307514/111712) ^ (1/32) + ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) * ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) / ((111712/104) ^ (1/24) - (104/2) ^ (1/16))) ^ 40</div><div class="num">211</div></td>
-<td><div class="border"></div><div><span class="header">Development / correction notes</span><br />
+2 688 307 514&nbsp;*&nbsp;1.3897 ^ 40 = 1402 trillion (Actual value according to OEIS: 1445 trillion)</div><div class="num">211</div></td>
+<td><div class="border"></div><div>Exact calculation line:<br />
+2688307514 * ((2688307514/111712) ^ (1/32) + ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) * ((2688307514/111712) ^ (1/32) - (111712/104) ^ (1/24)) / ((111712/104) ^ (1/24) - (104/2) ^ (1/16))) ^ 40</div><div class="num">212</div></td></tr>
+<tr><td><div class="border"></div><div><span class="header">Development / correction notes</span><br />
 <br />
 <b>Developments:</b><br />
 <br />
@@ -2133,8 +2145,8 @@ Use new CornerDiscovery function everywhere<br />
 Review rules if they have unnecessary rotations when disabling a field, fx. straight j = 2 enter later<br />
 Review CountArea old and new algorithms<br />
 Do not disable a possible field (and display the area) if the field is taken anyway (0725_4, 0731 step straight)<br />
-All Sequence patterns should be replaced with stair-area rules like 0725_5. Is it possible? At 0726_2, applying sequence is unnecessary.</div><div class="num">212</div></td></tr>
-<tr><td><div class="border"></div><div><b>Display:</b><br />
+All Sequence patterns should be replaced with stair-area rules like 0725_5. Is it possible? At 0726_2, applying sequence is unnecessary.</div><div class="num">213</div></td>
+<td><div class="border"></div><div><b>Display:</b><br />
 <br />
 Should we display non-critical border movements in rules? Fx. 0624 vs 0727_1 solutions (page 177-178)<br />
 Indicate needed disabled fields in 11&nbsp;x&nbsp;11 rule representations?<br />
@@ -2154,8 +2166,8 @@ StairAtEndConcave6 with other than 2 x mid across obstacles <br />
 <br />
 <b>To do:</b><br />
 <br />
-Solve sequence cases with a stair pattern if possible. 0726, 0713: Document newly created NearStair function</div><div class="num">213</div></td>
-<td><div class="border"></div><div>Make pattern set representation: 0625 can be extended vertically, holding a fixed 2 horizontal distance, or in a stair at the far end, so that vert = hori + 2. The two can also be combined. The same can happen with 0625_1, which is just one vertical distance shorter. (Stair extension: 0712)<br />
+Solve all sequence cases with a pattern -> StraightBig needs to be incorporated into StairAtStart or StairAtEnd. Sequence first case 665575 needs to be added.</div><div class="num">214</div></td></tr>
+<tr><td><div class="border"></div><div>Make pattern set representation: 0625 can be extended vertically, holding a fixed 2 horizontal distance, or in a stair at the far end, so that vert = hori + 2. The two can also be combined. The same can happen with 0625_1, which is just one vertical distance shorter. (Stair extension: 0712)<br />
 <br />
 <!--<br />
 <img align="top" src="References/18665383.svg" width="42.857142857143%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/rules/9/Triple Area Exit Down.svg" width="28.571428571429%" /><br />
@@ -2231,6 +2243,7 @@ Big area:<br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">214</div></td></tr>
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">215</div></td>
+<td class="right"><div class="border"></div></td></tr>
  
 </table>

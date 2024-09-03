@@ -451,6 +451,8 @@ namespace OneWayLabyrinth
                                 CheckSequence();
                                 T("CheckNearStair " + ShowForbidden());
                                 CheckNearStair();
+                                T("CheckDoubleStair " + ShowForbidden());
+                                CheckDoubleStair();
                                 T("CheckRemoteStair " + ShowForbidden());
                                 CheckRemoteStair();
 
@@ -2359,13 +2361,26 @@ namespace OneWayLabyrinth
                                         if (black == white && CheckNearFieldSmallRel(hori - 1, vert + 1, 0, 0, true) && (CheckNearFieldSmallRel1(hori - 3, vert + 1, 1, 0, false) || (CheckNearFieldSmallRel(hori - 4, vert + 2, 1, 0, true) && CheckNearFieldSmallRel0(hori - 4, vert + 2, 0, 0, true))))
                                         {
                                             AddExamAreas();
-                                            T("CheckStairAtEndConvex at " + hori + " " + vert + ": Cannot step straight");
+                                            T("CheckStairAtEndConvex 0B at " + hori + " " + vert + ": Cannot step straight");
                                             AddForbidden(0, 1);
 
                                             if (j == 0)
                                             {
-                                                T("CheckStairAtEndConvex at " + hori + " " + vert + ": Cannot step right");
+                                                T("CheckStairAtEndConvex 0B at " + hori + " " + vert + ": Cannot step right");
                                                 AddForbidden(-1, 0);
+                                            }
+                                        }
+                                        // 0516_2: across up, mid across down
+                                        else if (black == white + vert + 1 && CheckNearFieldSmallRel1(hori - 2, vert + 1, 0, 0, true) && CheckNearFieldSmallRel0(hori - 2, vert + 1, 1, 0, true))
+                                        {
+                                            AddExamAreas();
+                                            T("CheckStairAtEndConvex 1B at " + hori + " " + vert + ": Cannot step left");
+                                            AddForbidden(1, 0);
+
+                                            if (j == 1)
+                                            {
+                                                T("CheckStairAtEndConvex 1B at " + hori + " " + vert + ": Cannot step down");
+                                                AddForbidden(0, -1);
                                             }
                                         }
                                     }
@@ -3784,7 +3799,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckStraightBig() // 18677343, 59434452, 0626_1
+        void CheckStraightBig() // 18677343, 59434452, 0626_1, 0516_2
         {
             for (int i = 0; i < 2; i++)
             {
@@ -3821,9 +3836,6 @@ namespace OneWayLabyrinth
                             }
 
                             ResetExamAreas();
-
-                            // 18677343, 59434452: mid across x 2
-                            // 0709: mid across down, C-shape up 
                             if (ex == 3)
                             {
                                 if (CountAreaRel(-1, 1, -1, ex, borderFields, circleDirectionLeft, 2, true))
@@ -3831,17 +3843,31 @@ namespace OneWayLabyrinth
                                     int black = (int)info[1];
                                     int white = (int)info[2];
 
+                                    // 18677343, 59434452: mid across x 2
+                                    // 0709: mid across down, C-shape up 
                                     if (white == black)
                                     {
                                         if (CheckNearFieldSmallRel0(-1, 1, 1, 1, false) && CheckNearFieldSmallRel(-1, 3, 0, 2, true))
                                         {
-                                            T("CheckStraightBig double close obstacle outside 3 dist: Cannot step right and down");
+                                            T("CheckStraightBig double close obstacle outside 3 dist 0W: Cannot step right and down");
                                             AddForbidden(0, -1);
                                             AddForbidden(-1, 0);
 
                                             AddExamAreas();
                                         }
                                     }
+                                    // 0516_2
+                                    /*else if (black == white + 1)
+                                    {
+                                        if (CheckNearFieldSmallRel1(-1, 2, 0, 2, true) && CheckNearFieldSmallRel0(-1, 2, 1, 1, true))
+                                        {
+                                            T("CheckStraightBig double close obstacle outside 3 dist 1B: Cannot step up and left");
+                                            AddForbidden(0, 1);
+                                            AddForbidden(1, 0);
+
+                                            AddExamAreas();
+                                        }
+                                    }*/
                                 }
                             }
                             // 0626_1: mid across x 2
@@ -3904,7 +3930,7 @@ namespace OneWayLabyrinth
                     // Rotated: 2024_0516_3
 
                     // See also 665575 for alternative start obstacle placement
-                    bool circleValid = false;
+                    /*bool circleValid = false;
 
                     if (((InBorderRelExact(0, 4) && !InCornerRel(0, 3)) || InTakenRel(0, 4) || InTakenRel(-1, 4)) && !InTakenRel(0, 1) && !InTakenRel(0, 2) && !InTakenRel(0, 3) && !InTakenRel(1, 1) && !InTakenRel(1, 3) && !InTakenRel(-1, 3))
                     {
@@ -4012,7 +4038,7 @@ namespace OneWayLabyrinth
                                 }
                             }
                         }
-                    }
+                    }*/
 
                     // Second case
 
@@ -4339,8 +4365,6 @@ namespace OneWayLabyrinth
                     }
                     dist--;
 
-                    T("NearStair dist:" + dist);
-
                     if (dist >= 3)
                     {
                         if (CheckNearFieldSmallRel0(-dist + 2, dist, 0, 0, true) && CheckNearFieldSmallRel1(-dist + 3, dist - 1, 0, 0, true) || CheckNearFieldSmallRel1(-dist + 2, dist, 0, 0, true) && CheckNearFieldSmallRel0(-dist + 4, dist - 2, 0, 0, true))
@@ -4376,7 +4400,84 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckRemoteStair()
+        void CheckDoubleStair()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++) // normal or big area
+                {
+                    int dist = size;
+                    int quarter = quarters[i][j];
+                    int nearQuarter;
+
+                    List<int[]>[] corners;
+
+                    if (i == 0)
+                    {
+                        nearQuarter = quarter == 0 ? 3 : quarter - 1;
+                        corners = openCWCorners;
+                    }
+                    else
+                    {
+                        nearQuarter = quarter == 3 ? 0 : quarter + 1;
+                        corners = openCCWCorners;
+                    }
+
+                    bool corner0Found = false;
+
+                    foreach (int[] corner in corners[nearQuarter])
+                    {
+                        if (corner[0] == 1 && corner[1] == 1)
+                        {
+                            corner0Found = true;
+                        }
+                    }
+
+                    if (corner0Found)
+                    {
+                        bool corner1Found = false;
+                        bool corner2Found = false;
+
+                        foreach (int[] corner in closedCorners[quarter])
+                        {
+                            if (corner[0] == 3 && corner[1] == 3)
+                            {
+                                corner1Found = true;
+                            }
+                            else if (j == 0 && corner[0] == 4 && corner[1] == 2 ||
+                                j == 1 && corner[0] == 2 && corner[1] == 4)
+                            {
+                                corner2Found = true;
+                            }
+                        }
+
+                        if (corner1Found && corner2Found)
+                        {
+                            T("DoubleStair: Cannot step up");
+                            AddForbidden(0, 1);
+                        }
+                    }                    
+
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+    void CheckRemoteStair()
         // 0818_1
         // Find big area corner in the first quarter, mirrored of remote stair.svg. Rotate CCW.
         {

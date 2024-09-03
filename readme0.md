@@ -2384,17 +2384,32 @@ Again, the distance can be increased, the area is now 2B:
 
 <!---->
 
-<b>7. Sequence extensions</b>
+<b>7. Stair patterns</b>
 
 <img align="top" src="References/2024_0706_1.svg" width="11" />
 
 It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.
+But let's phase out sequences and solve them in a different way that gives a recognizable pattern.
+
+<img align="top" src="References/double stair.svg" width="6" />
+
+Next to the remote stair, a similar path will go the opposite way. This creates two across obstacles with the live end and the taken field down left. If we step up, the blue fields can neither be filled before or after walking through the stair.
+I will call this Double Stair.
 
 <!---->
 
-<img align="top" src="References/2024_0713.svg" width="11" />
+<img align="top" src="References/2024_0726.svg" width="11" />
 
-Third case (page 146). In this, when we exit the 2&nbsp;x&nbsp;4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.
+In this case, the line would continue on the right after exiting the area until it conflicts with an obstacle on the opposite side.
+
+<img align="top" src="References/nearStair 1.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/nearStair 2.svg" width="6" />
+
+On the right a theoretical extension is shown.
+For now, we apply the mid across obstacle to the last step, and the across to the last before one, but there might come other combinations, like in the next case:
+
+<!---->
+
+<img align="top" src="References/2024_0713.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/nearStair 3.svg" width="6" />
 
 <!---->
 
@@ -2670,7 +2685,7 @@ StairAtEndConcave6 with other than 2 x mid across obstacles
 
 <b>To do:</b>
 
-Solve sequence cases with a stair pattern if possible. 0726, 0713: Document newly created NearStair function
+Solve all sequence cases with a pattern -> StraightBig needs to be incorporated into StairAtEnd. Sequence first case 665575 needs to be added.
 
 <!---->
 
