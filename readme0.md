@@ -2685,7 +2685,7 @@ StairAtEndConcave6 with other than 2 x mid across obstacles
 
 <b>To do:</b>
 
-Solve all sequence cases with a pattern -> StraightBig needs to be incorporated into StairAtEnd. Sequence first case 665575 needs to be added.
+Solve all sequence cases with a pattern -> StraightBig needs to be incorporated into StairAtEnd
 
 <!---->
 

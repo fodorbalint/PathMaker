@@ -419,6 +419,8 @@ namespace OneWayLabyrinth
                                 CheckStairAtStart();
                                 T("CheckStairAtEndConvex " + ShowForbidden());
                                 CheckStairAtEndConvex(); // 0718, reverse stair 1/2, 0720_2, 0731: 3 obstacles 
+                                T("CheckStairAtEndConvexStraight3 " + ShowForbidden());
+                                CheckStairAtEndConvexStraight3();
                                 T("CheckStairAtEndConcave5 " + ShowForbidden());
                                 CheckStairAtEndConcave5(); // 0814
                                 T("CheckStairAtEndConcave6 " + ShowForbidden());
@@ -2087,10 +2089,13 @@ namespace OneWayLabyrinth
         }
 
         void CheckStairAtStart()
+        // 3 distance on top:
         // 0725_5: mid across (up), mid across (down)
         // 0726_1: mid across, across
         // 0726_2: area, mid across
         // double obstacle outside 3 stair 1/2
+
+
         {
             for (int i = 0; i < 2; i++)
             {
@@ -2221,8 +2226,14 @@ namespace OneWayLabyrinth
         }
 
         void CheckStairAtEndConvex()
+        // 
+        // Enter later, 0B area:
         // 0718, reverse stair 1/2, 0720_2, 0727
         // 0731: 3 obstacles
+
+        // Enter now, 1B -> xB area:
+        // 0516_2
+
         // Corner for convex and concave area can both exist at the same time (0831), so they need two separate functions
         {
             for (int i = 0; i < 2; i++)
@@ -2387,6 +2398,124 @@ namespace OneWayLabyrinth
                                 }
                             }
                         }
+                    }
+
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        void CheckStairAtEndConvexStraight3()
+        // Straight: 0905
+        // AreaUp: 665575
+        {   
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 2; j++) // j = 0: straight area, j = 1: big area
+                {
+                    int hori = 1;
+                    int vert = 1;
+
+                    while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                    {
+                        // look for a wall 4 left at 1 vertical distance, 5 left for 2 etc.
+                        while(!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                        {
+                            hori++;
+                        }
+
+                        if (hori == vert + 3)
+                        {
+                            bool circleValid = false;
+
+                            if (InBorderRel(hori, vert))
+                            {
+                                int i1 = InBorderIndexRel(hori, vert);
+                                int i2 = InBorderIndexRel(hori, vert + 1);
+
+                                if (i2 > i1)
+                                {
+                                    circleValid = true;
+                                }
+                            }
+                            else
+                            {
+                                int i1 = InTakenIndexRel(hori, vert);
+                                int i2 = InTakenIndexRel(hori, vert + 1);
+
+                                if (i2 != -1)
+                                {
+                                    if (i2 < i1)
+                                    {
+                                        circleValid = true;
+                                    }
+                                }
+                                else
+                                {
+                                    i2 = InTakenIndexRel(hori, vert - 1);
+                                    if (i2 > i1)
+                                    {
+                                        circleValid = true;
+                                    }
+                                }
+                            }
+
+                            if (circleValid)
+                            {
+                                List<int[]> borderFields = new();
+
+                                borderFields.Add(new int[] { hori - 2, vert });
+
+                                if (vert >= 2)
+                                {
+                                    for (int k = vert; k >= 2; k--)
+                                    {
+                                        borderFields.Add(new int[] { k, k });
+                                        borderFields.Add(new int[] { k, k - 1 });
+                                    }
+                                }
+
+                                if (CountAreaRel(1, 1, hori - 1, vert, borderFields, circleDirectionLeft, 2, true))
+                                {
+                                    int black = (int)info[1];
+                                    int white = (int)info[2];
+
+                                    if (black - white == vert)
+                                    {
+                                        if (CheckNearFieldSmallRel0(hori - 2, vert, 1, 0, true))
+                                        {
+                                            AddForbidden(1, 0);
+                                            T("CheckStairAtEndConvexStraight3 start obstacle: Cannot step left" );
+
+                                            if (j == 1)
+                                            {
+                                                AddForbidden(0, -1);
+                                                T("CheckStairAtEndConvexStraight3 start obstacle: Cannot step down");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        vert++;
+                        hori = vert;
                     }
 
                     // rotate CW
@@ -3799,7 +3928,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckStraightBig() // 18677343, 59434452, 0626_1, 0516_2
+        void CheckStraightBig() // 18677343, 59434452, 0626_1, (0516_2 -> CheckStairAtEndConvex)
         {
             for (int i = 0; i < 2; i++)
             {
@@ -7227,7 +7356,6 @@ namespace OneWayLabyrinth
                                         if (i2 < i1)
                                         {
                                             circleValid = true;
-
                                         }
                                     }
                                     else

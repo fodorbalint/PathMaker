@@ -1,4 +1,5 @@
 ﻿using SkiaSharp.Views.Desktop;
+using SkiaSharp.Views.Desktop;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -33,12 +34,12 @@ namespace OneWayLabyrinth
     public partial class Rules : Window
     {
         string svgName;
-        int size;
+        //int size;
         int xSize;
         int ySize;
         string grid;
-        string[] ruleElements = new string[] { "liveEnd", "emptyField", "takenField", "takenLeftField", "takenRightField", "takenUpField", "takenDownField", "takenOrBorderField", "futureStartField", "futureEndField", "notCornerField", "forbiddenField", "countAreaPairStartField", "countAreaPairEndField", "countAreaPairBorderField", "countAreaImpairStartField", "countAreaImpairEndField", "countAreaImpairBorderField", "countAreaImpairDeterminedStartField", "countAreaImpairDeterminedEndField", "countAreaImpairDeterminedBorderField", "countAreaImpairDeterminedEntryField" };      
-        string liveEnd, emptyField, takenField, takenLeftField, takenRightField, takenUpField, takenDownField, takenOrBorderField, futureStartField, futureEndField, forbiddenField, notCornerField, countAreaPairStartField, countAreaPairEndField, countAreaPairBorderField, countAreaImpairStartField, countAreaImpairEndField, countAreaImpairBorderField, countAreaImpairDeterminedStartField, countAreaImpairDeterminedEndField, countAreaImpairDeterminedBorderField, countAreaImpairDeterminedEntryField;
+        string[] ruleElements = new string[] { "liveEnd", "emptyField", "takenOrBorderField", "takenField", "takenLeftField", "takenRightField", "takenUpField", "takenDownField", "futureLineField", "forbiddenField" }; //"futureStartField", "futureEndField", "notCornerField", "countAreaPairStartField", "countAreaPairEndField", "countAreaPairBorderField", "countAreaImpairStartField", "countAreaImpairEndField", "countAreaImpairBorderField", "countAreaImpairDeterminedStartField", "countAreaImpairDeterminedEndField", "countAreaImpairDeterminedBorderField", "countAreaImpairDeterminedEntryField" };      
+        string liveEnd, emptyField, takenOrBorderField, takenField, takenLeftField, takenRightField, takenUpField, takenDownField, futureLineField, futureLineField1, forbiddenField; // futureStartField, futureEndField, notCornerField, countAreaPairStartField, countAreaPairEndField, countAreaPairBorderField, countAreaImpairStartField, countAreaImpairEndField, countAreaImpairBorderField, countAreaImpairDeterminedStartField, countAreaImpairDeterminedEndField, countAreaImpairDeterminedBorderField, countAreaImpairDeterminedEntryField;
         int elementsInRow = 8;
 
         string newRule;
@@ -61,11 +62,16 @@ namespace OneWayLabyrinth
         List<string> activeRules = new();
         List<int[]> directions = new() { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
         public string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        bool futureLineMoving = false;
+        List<int[]> futureLine; 
+        int futureLineCurrentX = 0;
+        int futureLineCurrentY = 0;
+        int futureLinePrevDir = -1;
 
         public Rules()
         {
             InitializeComponent();
-            LoadDir();
+            //LoadDir();
             LoadSizeSetting();           
         }
 
@@ -73,14 +79,14 @@ namespace OneWayLabyrinth
         {
             xSize = int.Parse(XSize.Text);
             ySize = int.Parse(YSize.Text);
-            size = int.Parse(AppliedSize.Text);
+            /*size = int.Parse(AppliedSize.Text);*/
 
-            string[] lines = new string[] { "appliedSize: " + size, "ruleXSize: " + xSize, "ruleYSize: " + ySize };
+            string[] lines = new string[] { "ruleXSize: " + xSize, "ruleYSize: " + ySize };
 
             string linesStr = string.Join("\n", lines);
 
             string fileContent = File.ReadAllText(baseDir + "settings.txt");
-            int pos = fileContent.IndexOf("appliedSize");
+            int pos = fileContent.IndexOf("ruleXSize");
 
             if (pos != -1)
             {
@@ -98,22 +104,22 @@ namespace OneWayLabyrinth
 
             if (lines.Length > 11)
             {
-                string[] arr = lines[11].Split(": ");
+                /*string[] arr = lines[11].Split(": ");
                 size = int.Parse(arr[1]);
-                AppliedSize.Text = arr[1];
+                AppliedSize.Text = arr[1];*/
 
-                arr = lines[12].Split(": ");
+                string[] arr = lines[11].Split(": ");
                 xSize = int.Parse(arr[1]);
                 XSize.Text = arr[1];
 
-                arr = lines[13].Split(": ");
+                arr = lines[12].Split(": ");
                 ySize = int.Parse(arr[1]);
                 YSize.Text = arr[1];
             }
             else
             {
-                size = 9;
-                AppliedSize.Text = "9";
+                /*size = 9;
+                AppliedSize.Text = "9";*/
 
                 xSize = 5;
                 XSize.Text = "5";
@@ -129,6 +135,8 @@ namespace OneWayLabyrinth
 
         private void CreateNew_Click(object sender, RoutedEventArgs e)
         {
+            CloseFutureLine();
+
             xSize = 1;
             ySize = 1;
             DrawGrid();
@@ -146,6 +154,12 @@ namespace OneWayLabyrinth
             emptyField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"#dddddd\" fill-opacity=\"1\" />";
             content = singleGrid.Replace("<!---->", emptyField);
             if (!File.Exists(baseDir + "emptyField.svg")) File.WriteAllText(baseDir + "emptyField.svg", content);
+
+            color = "#000000";
+            opacity = "1"; // originally 0.5
+            takenOrBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />";
+            content = singleGrid.Replace("<!---->", takenOrBorderField);
+            if (!File.Exists(baseDir + "takenOrBorderField.svg")) File.WriteAllText(baseDir + "takenOrBorderField.svg", content);
 
             color = "#ff0000";
             opacity = "0.15";
@@ -177,13 +191,16 @@ namespace OneWayLabyrinth
             content = singleGrid.Replace("<!---->", takenDownField);
             if (!File.Exists(baseDir + "takenDownField.svg")) File.WriteAllText(baseDir + "takenDownField.svg", content);
 
-            color = "#000000";
-            opacity = "0.5";
-            takenOrBorderField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />";
-            content = singleGrid.Replace("<!---->", takenOrBorderField);
-            if (!File.Exists(baseDir + "takenOrBorderField.svg")) File.WriteAllText(baseDir + "takenOrBorderField.svg", content);
+            futureLineField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"#dddddd\" fill-opacity=\"1\" />\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"white\" stroke-width=\"0.1\" stroke-linecap=\"round\" />\n\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            futureLineField1 = "<!--4--><path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"white\" stroke-width=\"0.1\" stroke-linecap=\"round\" />\n" + "<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" /><!--5-->";
+            content = singleGrid.Replace("<!---->", futureLineField);
+            if (!File.Exists(baseDir + "futureLineField.svg")) File.WriteAllText(baseDir + "futureLineField.svg", content);
 
-            color = "#0000ff";
+            forbiddenField = "<path d=\"M 0.2 0.2 l 0.6 0.6 M 0.2 0.8 l 0.6 -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            content = singleGrid.Replace("<!---->", forbiddenField);
+            if (!File.Exists(baseDir + "forbiddenField.svg")) File.WriteAllText(baseDir + "forbiddenField.svg", content);
+
+            /*color = "#0000ff";
             opacity = "0.15";
             futureStartField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"" + color + "\" fill-opacity=\"" + opacity + "\" />\n" +
                 "\t<path d=\"M 0.2 0.2 v 0.6 v -0.3 h 0.6 l -0.2 -0.2 l 0.2 0.2 l -0.2 0.2\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
@@ -200,13 +217,9 @@ namespace OneWayLabyrinth
 
             notCornerField = "<path d=\"M 0.3 0.2 v 0.5 h 0.5 h -0.2 a 0.3 0.3 0 0 0 -0.3 -0.3\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" /><circle cx=\"0.42\" cy=\"0.58\" r=\"0.05\" fill=\"red\" fill-opacity=\"1\" />";
             content = singleGrid.Replace("<!---->", notCornerField);
-            if (!File.Exists(baseDir + "notCornerField.svg")) File.WriteAllText(baseDir + "notCornerField.svg", content);
+            if (!File.Exists(baseDir + "notCornerField.svg")) File.WriteAllText(baseDir + "notCornerField.svg", content);*/
 
-            forbiddenField = "<path d=\"M 0.2 0.2 l 0.6 0.6 M 0.2 0.8 l 0.6 -0.6\" fill=\"white\" fill-opacity=\"0\" stroke=\"red\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
-            content = singleGrid.Replace("<!---->", forbiddenField);
-            if (!File.Exists(baseDir + "forbiddenField.svg")) File.WriteAllText(baseDir + "forbiddenField.svg", content);
-
-            countAreaPairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
+            /*countAreaPairStartField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#008000\" fill-opacity=\"0.25\" />\n\t<path d=\"M 0.3 0.3 v 0.4 v -0.2 h 0.4 l -0.13 -0.13 l 0.13 0.13 l -0.13 0.13\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaPairStartField);
             if (!File.Exists(baseDir + "countAreaPairStartField.svg")) File.WriteAllText(baseDir + "countAreaPairStartField.svg", content);
 
@@ -244,7 +257,7 @@ namespace OneWayLabyrinth
 
             countAreaImpairDeterminedEntryField = "<path d=\"M 0 0 h 1 v 1 h -1 v -0.8 h 0.2 v 0.6 h 0.6 v -0.6 h -0.8 z\" fill=\"#FF4000\" fill-opacity=\"0.25\" />\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             content = singleGrid.Replace("<!---->", countAreaImpairDeterminedEntryField);
-            if (!File.Exists(baseDir + "countAreaImpairDeterminedEntryField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedEntryField.svg", content);
+            if (!File.Exists(baseDir + "countAreaImpairDeterminedEntryField.svg")) File.WriteAllText(baseDir + "countAreaImpairDeterminedEntryField.svg", content);*/
 
             if (RuleGrid.Children.Count == 1)
             {
@@ -286,6 +299,7 @@ namespace OneWayLabyrinth
 
         private void ResetRule_Click(object sender, RoutedEventArgs e)
         {
+            CloseFutureLine();
             SaveSizeSetting();
 
             Canvas.Width = xSize * 40;
@@ -293,7 +307,7 @@ namespace OneWayLabyrinth
 
             DrawGrid();
 
-            newRule = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + xSize + " " + ySize + "\">\n\t<style>\n\t\tsvg { background-color: white; }\n\t</style>\n\t<!--1-->\n\t<!--2-->\n\t<!--3-->\n" + grid + "</svg>";
+            newRule = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + xSize + " " + ySize + "\">\n\t<style>\n\t\tsvg { background-color: white; }\n\t</style>\n\t<!--1-->\n\t<!--2-->\n" + grid + "\n\t<!--3-->\n</svg>";
             File.WriteAllText(baseDir + svgName, newRule);
             takenCoordinates = new();
             forbiddenCoordinates = new();
@@ -305,8 +319,8 @@ namespace OneWayLabyrinth
             arrowEnd = null;
 
             NewRuleGrid.Height = 98 + ((RuleGrid.Children.Count - 2 - (RuleGrid.Children.Count - 2) % elementsInRow) / elementsInRow + 1) * 50 + ySize * 40; // the dragged element will otherwise stretch it on the bottom, no other solution have been found.
-            RotateClockwise.IsChecked = false;
-            RotateCounterClockwise.IsChecked = false;
+            /*RotateClockwise.IsChecked = false;
+            RotateCounterClockwise.IsChecked = false;*/
             Canvas.InvalidateVisual();
         }
 
@@ -374,8 +388,11 @@ namespace OneWayLabyrinth
             string sizeStr = newRule.Substring(pos + 13, lastPos - pos - 13);
             newRule = newRule.Replace("viewBox=\"0 0 " + sizeStr, "viewBox=\"0 0 " + xSize + " " + ySize);
 
-            pos = newRule.IndexOf("<!--3-->");
-            newRule = newRule.Substring(0, pos + 8) + "\n" + grid + "</svg>";
+            T(newRule);
+
+            int pos1 = newRule.IndexOf("<!--2-->");
+            int pos2 = newRule.IndexOf("<!--3-->");
+            newRule = newRule.Substring(0, pos1 + 8) + "\n" + grid + newRule.Substring(pos2);
 
             // remove fields that are now outside the area
 
@@ -407,6 +424,7 @@ namespace OneWayLabyrinth
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
+            CloseFutureLine();
             NewRuleGrid.Visibility = Visibility.Collapsed;
             SaveRule.Visibility = Visibility.Collapsed;
             ResetRule.Visibility = Visibility.Collapsed;
@@ -460,8 +478,10 @@ namespace OneWayLabyrinth
         // ----- Rule creation process -----
 
 
-            private void RuleGrid_MouseDown(object sender, MouseButtonEventArgs e)
+        private void RuleGrid_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            CloseFutureLine();
+
             T("Start mouse coordinates: " + e.GetPosition(RuleGrid).X + " " + e.GetPosition(RuleGrid).Y);
             T("NewRuleGrid height " + NewRuleGrid.ActualHeight);
             double x = e.GetPosition(RuleGrid).X;
@@ -532,7 +552,7 @@ namespace OneWayLabyrinth
             {
                 T("End in table: " + coordX + " " + coordY);        
                 
-                if (draggedElement >= 13 && draggedElement <= 21)
+                /*if (draggedElement >= 13 && draggedElement <= 21)
                 { // count area fields can only be placed on empty fields
                     foreach (int[] coord in takenCoordinates)
                     {
@@ -598,8 +618,8 @@ namespace OneWayLabyrinth
                     }
 
                     noCornerCoordinates = new int[] { coordX, coordY };
-                }
-                else if (draggedElement == 12) // forbidden
+                }*/
+                if (draggedElement == 10) // forbidden
                 {
                     if (!(noCornerCoordinates is null) && coordX == noCornerCoordinates[0] && coordY == noCornerCoordinates[1])
                     {
@@ -650,7 +670,7 @@ namespace OneWayLabyrinth
 
                     forbiddenCoordinates.Add(new int[] { coordX, coordY });
                 }
-                else if (draggedElement == 13 || draggedElement == 16 || draggedElement == 19) // count area start
+                /*else if (draggedElement == 13 || draggedElement == 16 || draggedElement == 19) // count area start
                 {
                     countAreaStartCoordinates.Add(new int[] { coordX, coordY, draggedElement - 12 });               
                     SaveMeta();
@@ -668,9 +688,15 @@ namespace OneWayLabyrinth
                 else if (draggedElement == 22)
                 {
                     countAreaBorderCoordinates.Add(new int[] { coordX, coordY, draggedElement - 12 });
-                }
-                else
+                }*/
+                else if (draggedElement == 9)
                 {
+                    futureLineMoving = true;                    
+                    futureLineCurrentX = coordX;
+                    futureLineCurrentY = coordY;
+                    futureLine = new List<int[]> { new int[] { coordX, coordY } };                    
+                }
+                else {
                     if (draggedElement == 1)
                     {
                         if (forbiddenCoordinates.Count == 1)
@@ -792,24 +818,30 @@ namespace OneWayLabyrinth
                         addField = emptyField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
                         break;
                     case 3:
-                        addField = takenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 0.7f) + " " + (coordY - 0.5f)).Replace("M 0.5 0.3", "M " + (coordX - 0.5f) + " " + (coordY - 0.7f));
-                        break;
-                    case 4:
-                        addField = takenLeftField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.8 0.5", "M " + (coordX - 0.2f) + " " + (coordY - 0.5f));
-                        break;
-                    case 5:
-                        addField = takenRightField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.5", "M " + (coordX - 0.8f) + " " + (coordY - 0.5f));
-                        break;
-                    case 6:
-                        addField = takenUpField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 0.8", "M " + (coordX - 0.5f) + " " + (coordY - 0.2f));
-                        break;
-                    case 7:
-                        addField = takenDownField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 0.2", "M " + (coordX - 0.5f) + " " + (coordY - 0.8f));
-                        break;
-                    case 8:
                         addField = takenOrBorderField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1));
                         break;
+                    case 4:
+                        addField = takenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 0.7f) + " " + (coordY - 0.5f)).Replace("M 0.5 0.3", "M " + (coordX - 0.5f) + " " + (coordY - 0.7f));
+                        break;
+                    case 5:
+                        addField = takenLeftField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.8 0.5", "M " + (coordX - 0.2f) + " " + (coordY - 0.5f));
+                        break;
+                    case 6:
+                        addField = takenRightField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.5", "M " + (coordX - 0.8f) + " " + (coordY - 0.5f));
+                        break;
+                    case 7:
+                        addField = takenUpField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 0.8", "M " + (coordX - 0.5f) + " " + (coordY - 0.2f));
+                        break;
+                    case 8:
+                        addField = takenDownField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.5 0.2", "M " + (coordX - 0.5f) + " " + (coordY - 0.8f));
+                        break;
                     case 9:
+                        addField = futureLineField1.Replace("M 0.3 0.5", "M " + (coordX - 0.7f) + " " + (coordY - 0.5f)).Replace("M 0.5 0.3", "M " + (coordX - 0.5f) + " " + (coordY - 0.7f));
+                        break;
+                    case 10:
+                        addField = forbiddenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.2", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.2f)).Replace("M 0.2 0.8", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.8f));
+                        break;
+                    /*case 9:
                         addField = futureStartField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.2", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.2f));
                         break;
                     case 10:
@@ -818,9 +850,7 @@ namespace OneWayLabyrinth
                     case 11:
                         addField = notCornerField.Replace("M 0.3 0.2", "M " + (coordX - 0.7f) + " " + (coordY - 0.8f)).Replace("0.42", (coordX - 0.58f).ToString()).Replace("0.58", (coordY - 0.42f).ToString());
                         break;
-                    case 12:
-                        addField = forbiddenField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.2 0.2", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.2f)).Replace("M 0.2 0.8", "M " + (coordX - 1 + 0.2f) + " " + (coordY - 1 + 0.8f));
-                        break;
+                    case 12:                        
                     case 13:
                         addField = countAreaPairStartField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.3", "M " + (coordX - 1 + 0.3f) + " " + (coordY - 1 + 0.3f));
                         break;
@@ -850,17 +880,21 @@ namespace OneWayLabyrinth
                         break;
                     case 22:
                         addField = countAreaImpairDeterminedEntryField.Replace("M 0 0", "M " + (coordX - 1) + " " + (coordY - 1)).Replace("M 0.3 0.5", "M " + (coordX - 0.7f) + " " + (coordY - 0.5f)).Replace("M 0.5 0.3", "M " + (coordX - 0.5f) + " " + (coordY - 0.7f));
-                        break;
+                        break;*/
                 }
 
-                if (draggedElement == 11 || draggedElement == 12)
+                if (draggedElement == 9)
                 {
-                    newRule = newRule.Replace("<!--3-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\n\t" + addField + "\n\t<!--3-->");
+                    newRule = newRule.Replace("<!--3-->", "<!--3-->\n\t<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\n\t" + addField);
                 }
-                else if (draggedElement >= 13)
+                else if (draggedElement == 10)
                 {
                     newRule = newRule.Replace("<!--2-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\n\t" + addField + "\n\t<!--2-->");
                 }
+                /*else if (draggedElement >= 13)
+                {
+                    newRule = newRule.Replace("<!--2-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\n\t" + addField + "\n\t<!--2-->");
+                }*/
                 else
                 {
                     newRule = newRule.Replace("<!--1-->", "<!-- " + coordX + " " + coordY + " " + draggedElement + " -->\n\t" + addField + "\n\t<!--1-->");
@@ -871,6 +905,151 @@ namespace OneWayLabyrinth
             }
 
             draggedElement = 0;
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e) // with normal KeyDown, event does not fire after calling FocusButton.Focus();
+        {
+            if (e.Key == Key.Enter)
+            {
+                CloseFutureLine();
+                return;
+            }
+
+            directions = new List<int[]> { new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { -1, 0 } };
+            int index = -1;
+
+            if (futureLineMoving)
+            {
+                if (e.Key == Key.Down)
+                {
+                    index = 0;
+                }
+                else if (e.Key == Key.Right)
+                {
+                    index = 1;
+                }
+                else if (e.Key == Key.Up)
+                {
+                    index = 2;
+                }
+                else if (e.Key == Key.Left)
+                {
+                    index = 3;
+                }
+
+                if (futureLinePrevDir != -1 && index != futureLinePrevDir && Math.Abs(index - futureLinePrevDir) == 2)
+                {
+                    return;
+                }
+                else futureLinePrevDir = index;
+
+                if (index != -1)
+                {
+                    futureLineCurrentX += directions[index][0];
+                    futureLineCurrentY += directions[index][1];
+
+                    futureLine.Add(new int[] { futureLineCurrentX, futureLineCurrentY });
+
+                    DrawPath();
+                }
+            }            
+        }
+
+        private void DrawPath()
+        {            
+            int startX = futureLine[0][0];
+            int startY = futureLine[0][1];
+            float posX = startX - 0.5f;
+            float posY = startY - 0.5f;
+            string path = "M " + posX + " " + posY + "\r\n";
+            int newX = 0;
+            int newY = 0;
+
+            for (int i = 1; i < futureLine.Count; i++)
+            {
+                int[] field = futureLine[i];
+                newX = field[0];
+                newY = field[1];
+
+                float prevX = posX;
+                float prevY = posY;
+
+                if(startY == newY)
+
+                {
+                    posX = (float)(startX + newX) / 2 - 0.5f;
+                    posY = newY - 0.5f;
+                }
+
+                else
+                {
+                    posY = (float)(startY + newY) / 2 - 0.5f;
+                    posX = newX - 0.5f;
+                }
+
+                if (prevX == posX || prevY == posY)
+                {
+                    path += "L " + posX + " " + posY + "\r\n";
+                }
+                else
+                {
+                    int dir = 0; //counter-clockwise
+
+                    if (posX > prevX && posY > prevY)
+                    {
+                        if (startX - 0.5f == posX)
+                        {
+                            dir = 1;
+                        }
+                    }
+                    if (posX < prevX && posY < prevY)
+                    {
+                        if (startX - 0.5f == posX)
+                        {
+                            dir = 1;
+                        }
+                    }
+                    if (posX > prevX && posY < prevY)
+                    {
+                        if (startY - 0.5f == posY)
+                        {
+                            dir = 1;
+                        }
+                    }
+                    if (posX < prevX && posY > prevY)
+                    {
+                        if (startY - 0.5f == posY)
+                        {
+                            dir = 1;
+                        }
+                    }
+                    path += "A 0.5 0.5 0 0 " + dir + " " + posX + " " + posY + "\r\n";
+                }
+
+                startX = newX;
+                startY = newY;
+            }
+
+            path += "L " + (newX - 0.5f) + " " + (newY - 0.5f) + "\r\n";
+
+            int startPos = newRule.IndexOf("<!--4-->");
+            int endPos = newRule.IndexOf("<!--5-->");
+            newRule = newRule.Substring(0, startPos) + "<!--4--><path d=\"" + path + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"white\" stroke-width=\"0.1\" stroke-linecap=\"round\" />\n" + "<path d=\"" + path + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" />" + newRule.Substring(endPos);
+
+            File.WriteAllText(baseDir + svgName, newRule);
+            Canvas.InvalidateVisual();
+        }
+
+        private void CloseFutureLine()
+        {
+            futureLineMoving = false;
+            futureLinePrevDir = -1;
+
+            if (newRule != null)
+            {
+                newRule = newRule.Replace("<!--4-->", "").Replace("<!--5-->", "");
+                File.WriteAllText(baseDir + svgName, newRule);
+            }
         }
 
         /*private void CheckArrow(int coordX, int coordY)
@@ -1075,9 +1254,10 @@ namespace OneWayLabyrinth
 
         private void SaveRule_Click(object sender, RoutedEventArgs e)
         {
+            CloseFutureLine();
             SaveSizeSetting();
 
-            if (countAreaStartCoordinates.Count != countAreaEndCoordinates.Count)
+            /*if (countAreaStartCoordinates.Count != countAreaEndCoordinates.Count)
             {
                 M("Count area start and end fields are not equal.");
                 return;
@@ -1086,13 +1266,13 @@ namespace OneWayLabyrinth
             if (!ValidateCountAreaFields())
             {
                 return;
-            }
+            }*/
 
-            if (xSize > size || ySize > size)
+            /*if (xSize > size || ySize > size)
             {
                 M("The rule is larger than the applied size.");
                 return;
-            }
+            }*/
             if (takenCoordinates.Count == 0)
             {
                 M("Empty rule not saved.");
@@ -1103,30 +1283,30 @@ namespace OneWayLabyrinth
                 M("Enter filename.");
                 return;
             }
-            if (size % 2 == 0 || size < 5 || size > 21)
+            /*if (size % 2 == 0 || size < 5 || size > 21)
             {
                 M("Applied size must be impair and between 5 and 21.");
                 return;
-            }
+            }*/
             if (newRule.IndexOf("1 -->") == -1)
             {
                 M("No live end added.");
                 return;
             }
-            if (newRule.IndexOf("12 -->") == -1)
+            /*if (newRule.IndexOf("12 -->") == -1)
             {
                 M("No forbidden fields added.");
                 return;
-            }
+            }*/
             if (newRule.IndexOf("2 -->") == -1 && newRule.IndexOf("3 -->") == -1 && newRule.IndexOf("4 -->") == -1 && newRule.IndexOf("5 -->") == -1 && newRule.IndexOf("6 -->") == -1 && newRule.IndexOf("7 -->") == -1 && newRule.IndexOf("8 -->") == -1 && newRule.IndexOf("9 -->") == -1 && newRule.IndexOf("10 -->") == -1)
             {
                 M("No conditions are added.");
                 return;
             }
-            if (!Directory.Exists(baseDir + "rules/" + size))
+            /*if (!Directory.Exists(baseDir + "rules/" + size))
             {
                 Directory.CreateDirectory(baseDir + "rules/" + size);
-            }
+            }*/
 
             string fileName = RuleName.Text + ".svg";
             if (RuleName.Text.Length > 4)
@@ -1134,7 +1314,7 @@ namespace OneWayLabyrinth
                 fileName = RuleName.Text.Substring(RuleName.Text.Length - 4) == ".svg" ? RuleName.Text : RuleName.Text + ".svg";
             }
 
-            string fullName = "rules/" + size + "/" + fileName;
+            string fullName = fileName;
             if (File.Exists(baseDir + fullName))
             {
                 int i = 1;
@@ -1148,7 +1328,7 @@ namespace OneWayLabyrinth
             T("Save: " + fullName);
             File.Copy(baseDir + "newRule.svg", baseDir + fullName);
             ResetRule_Click(null, null);
-            LoadDir();
+            //LoadDir();
         }
 
         private bool ValidateCountAreaFields()
@@ -1381,7 +1561,7 @@ namespace OneWayLabyrinth
         // ----- Generate code -----
 
 
-        private void LoadDir()
+        /*private void LoadDir()
         {
             MainGrid.Children.RemoveRange(0, childIndex);
             childIndex = 0;
@@ -1933,13 +2113,13 @@ namespace OneWayLabyrinth
             codeStr = "\t\t\t\t" + codeStr.Replace("\n", "\n\t\t\t\t") + "\n\n";
 
             return codeStr;
-        }
+        }*/
 
 
         // ----- Metadata settings -----
 
         
-        private void RotateClockwise_Click(object sender, RoutedEventArgs e)
+        /*private void RotateClockwise_Click(object sender, RoutedEventArgs e)
         {
             if (RotateClockwise.IsChecked == null || (bool)RotateClockwise.IsChecked)
             {
@@ -1955,10 +2135,10 @@ namespace OneWayLabyrinth
                 RotateClockwise.IsChecked = false;
             }
             SaveMeta();
-        }
+        }*/
 
-        private void CircleDirectionLeft_Click(object sender, RoutedEventArgs e)
-        {
+        /*private void CircleDirectionLeft_Click(object sender, RoutedEventArgs e)
+        {*/
             /*if (!(arrowStart is null) && !(arrowEnd is null))
             {
                 int pos = newRule.IndexOf("<!-- " + arrowStart[0] + " " + arrowStart[1] + " " + arrowEnd[0] + " " + arrowEnd[1] + " 15 -->");
@@ -1966,18 +2146,18 @@ namespace OneWayLabyrinth
                 newRule = newRule.Substring(0, pos) + "<!-- " + arrowEnd[0] + " " + arrowEnd[1] + " " + arrowStart[0] + " " + arrowStart[1] + " 15 -->\n\t<path d=\"" + DrawArrow(arrowEnd[0], arrowEnd[1], arrowStart[0], arrowStart[1]) + "\" fill=\"white\" fill-opacity=\"0\" stroke=\"black\" stroke-width=\"0.05\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />\n</svg>";
             }*/
 
-            File.WriteAllText(baseDir + svgName, newRule);
+            /*File.WriteAllText(baseDir + svgName, newRule);
             Canvas.InvalidateVisual();
             SaveMeta();
-        }
+        }*/
 
-        private void SaveMeta()
+        /*private void SaveMeta()
         {
             if (newRule == null) return;
             int pos = newRule.IndexOf("<svg");
             newRule = "<!--|" + RotateClockwise.IsChecked + "|" + RotateCounterClockwise.IsChecked + "|-->\n" + newRule.Substring(pos);
             File.WriteAllText(baseDir + svgName, newRule);
-        }
+        }*/
 
 
         // ----- Log and helper functions -----

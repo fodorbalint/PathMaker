@@ -6,7 +6,7 @@
         xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
         xmlns:local="clr-namespace:OneWayLabyrinth"
         mc:Ignorable="d"
-        Title="Rules" Height="851" Width="780" Left="725" Top="0" >
+        Title="Rules" Height="851" Width="780" Left="725" Top="0" PreviewKeyDown="Window_PreviewKeyDown" >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -28,17 +28,18 @@
 
                 <Grid x:Name="NewRuleGrid" Grid.Row="0" Margin="10,31,20,0" Visibility="Collapsed">
                     <TextBlock Margin="0,0,0,0" Text="Name:" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                    <TextBlock Margin="0,40,0,0" Text="Applies to size:" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                    <TextBlock Text="Area size:" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,61,0,0" />
-                    <TextBlock Margin="90,61,0,0" Text="by" VerticalAlignment="Top" HorizontalAlignment="Left" />
-
                     <TextBox x:Name="RuleName" HorizontalAlignment="Left" Margin="41,0,0,0" TextWrapping="NoWrap" Text="Rule 1" VerticalAlignment="Top" Width="200"/>
-                    <CheckBox x:Name="RotateClockwise" Content="Rotate clockwise" Click="RotateClockwise_Click" HorizontalAlignment="Left" Margin="0,21,0,0" VerticalAlignment="Top"/>
-                    <CheckBox x:Name="RotateCounterClockwise" Content="Rotate counter-clockwise" Click="RotateCounterClockwise_Click" HorizontalAlignment="Left" Margin="120,21,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="AppliedSize" HorizontalAlignment="Left" Margin="84,40,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="AppliedSize_KeyDown" />
-                    <TextBox x:Name="XSize" HorizontalAlignment="Left" Margin="55,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
-                    <TextBox x:Name="YSize" HorizontalAlignment="Left" Margin="108,62,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
-                    <Grid x:Name="RuleGrid" Grid.Column="0" Margin="0,83,0,0" MouseDown="RuleGrid_MouseDown" MouseMove="RuleGrid_MouseMove" MouseUp="RuleGrid_MouseUp" MouseLeave="RuleGrid_MouseLeave" VerticalAlignment="Top" HorizontalAlignment="Left">
+                    <!--<CheckBox x:Name="RotateClockwise" Content="Rotate clockwise" Click="RotateClockwise_Click" HorizontalAlignment="Left" Margin="0,21,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name="RotateCounterClockwise" Content="Rotate counter-clockwise" Click="RotateCounterClockwise_Click" HorizontalAlignment="Left" Margin="120,21,0,0" VerticalAlignment="Top"/>-->
+                    <!--<TextBlock Margin="0,21,0,0" Text="Applies to size:" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                    <TextBox x:Name="AppliedSize" HorizontalAlignment="Left" Margin="84,21,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="AppliedSize_KeyDown" />-->
+                    
+                    <TextBlock Text="Area size:" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,22,0,0" />
+                    <TextBox x:Name="XSize" HorizontalAlignment="Left" Margin="55,22,0,0" TextWrapping="NoWrap" Text="Rule 1" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown" />
+                    <TextBlock Margin="90,22,0,0" Text="by" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                    <TextBox x:Name="YSize" HorizontalAlignment="Left" Margin="108,22,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="30" KeyDown="XYSize_KeyDown"/>
+                    
+                    <Grid x:Name="RuleGrid" Grid.Column="0" Margin="0,44,0,0" MouseDown="RuleGrid_MouseDown" MouseMove="RuleGrid_MouseMove" MouseUp="RuleGrid_MouseUp" MouseLeave="RuleGrid_MouseLeave" VerticalAlignment="Top" HorizontalAlignment="Left">
                         <skia:SKElement x:Name="Canvas" Panel.ZIndex="0" IgnorePixelScaling="True" PaintSurface="SKElement_PaintSurface" Tag="newRule" Margin="0,100,0,10" HorizontalAlignment="Left" VerticalAlignment="Top" />                        
                     </Grid>
                 </Grid>
@@ -46,20 +47,15 @@
         </ScrollViewer>
 
         <TextBlock Grid.Column="1" TextWrapping="Wrap" Padding="5,5,5,5">                
-                Review and create relative rules here (where the x or y position is not determined) for the main line. 
+                You can create rule representations using the following fields.
                 Drag and drop the fields:<LineBreak />
                 - live end<LineBreak />
-                - empty field<LineBreak />
+                - white border field<LineBreak />
+                - black border field<LineBreak />
                 - taken field<LineBreak />
-                - taken or border fields, arrows indicate direction<LineBreak />
-                - future start field<LineBreak />
-                - future end field<LineBreak />
-                - a field that is not the end corner<LineBreak />
+                - directional taken field<LineBreak />
+                - future line, press the arrows after placing the start point<LineBreak />
                 - forbidden field<LineBreak />
-                - count area field start, end and border fields for pair (green) and impair (yellow) areas; red areas are impair too, and have an imbalance in the pair and impair fields.<LineBreak />
-                <LineBreak />
-                The rules are automatically mirrored, so you only have to create it on one side, but you choose to include them rotated clockwise or counter-clockwise too.<LineBreak />
-                A file named PathRules.cs is generated, which you have to move into the directory of the source files and rebuild the program with Visual Studio.
                 <LineBreak />
                 <LineBreak />
                 To delete a rule, delete the file in the file system.
