@@ -191,7 +191,7 @@ namespace OneWayLabyrinth
             content = singleGrid.Replace("<!---->", takenDownField);
             if (!File.Exists(baseDir + "takenDownField.svg")) File.WriteAllText(baseDir + "takenDownField.svg", content);
 
-            futureLineField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"#dddddd\" fill-opacity=\"1\" />\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"white\" stroke-width=\"0.1\" stroke-linecap=\"round\" />\n\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
+            futureLineField = "<path d=\"M 0 0 h 1 v 1 h -1 z\" fill=\"white\" fill-opacity=\"0\" />\n" + "\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"white\" stroke-width=\"0.1\" stroke-linecap=\"round\" />\n\t<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" />";
             futureLineField1 = "<!--4--><path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"white\" stroke-width=\"0.1\" stroke-linecap=\"round\" />\n" + "<path d=\"M 0.3 0.5 h 0.4 M 0.5 0.3 v 0.4\" fill=\"white\" fill-opacity=\"0\" stroke=\"blue\" stroke-width=\"0.05\" stroke-linecap=\"round\" /><!--5-->";
             content = singleGrid.Replace("<!---->", futureLineField);
             if (!File.Exists(baseDir + "futureLineField.svg")) File.WriteAllText(baseDir + "futureLineField.svg", content);
@@ -429,50 +429,7 @@ namespace OneWayLabyrinth
             SaveRule.Visibility = Visibility.Collapsed;
             ResetRule.Visibility = Visibility.Collapsed;
             Cancel.Visibility = Visibility.Collapsed;
-        }
-
-        private void CopyConsole_Click(object sender, RoutedEventArgs e)
-        {
-            string file1 = File.ReadAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Path.cs");
-            string file2 = File.ReadAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Console app\\Program.cs");
-
-            int pos1 = 0;
-            int pos2 = 0;
-            int pos3 = 0;
-            int pos4 = 0;
-
-            List<int> sectionTabs = new() { 3, 2 };
-            int counter = 0;
-            while (pos1 != -1)
-            {
-                pos1 = file1.IndexOf("// ----- copy start -----", pos2);
-
-                if (pos1 != -1)
-                {
-                    pos2 = file1.IndexOf("// ----- copy end -----", pos1);
-
-                    pos3 = file2.IndexOf("// ----- copy start -----", pos4);
-                    pos4 = file2.IndexOf("// ----- copy end -----", pos3);
-
-                    string spaces = "";
-                    for (int i = 0; i < sectionTabs[counter]; i++)
-                    {
-                        spaces += "    ";
-                    }
-                    string section = file1.Substring(pos1, pos2 - pos1).Replace("\n" + spaces, "\n");
-                    file2 = file2.Substring(0, pos3) + section + file2.Substring(pos4);
-                }
-                counter++;
-            }
-
-            file2 = file2.Replace("    T(\"", "    // T(\"");
-            file2 = file2.Replace("window.", "");
-            //file2 = Regex.Replace(file2, @"/\*.*?\*/", "");
-
-            File.WriteAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Console app\\Program.cs", file2);
-
-            T("File copied.");
-        }
+        }       
 
 
         // ----- Rule creation process -----

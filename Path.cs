@@ -436,8 +436,8 @@ namespace OneWayLabyrinth
                                 CheckStraightSmall(); // #3 close obstacle is at the start and end of the area, inside. 4 distance only.
                                 T("CheckLeftRightAreaUpBigExtended " + ShowForbidden());
                                 CheckLeftRightAreaUpBigExtended(); // #4 when entering at the first white field, we have to step down to the first black and then left to enter as in 0624
-                                T("CheckStraightBig " + ShowForbidden());
-                                CheckStraightBig(); // #7 close obstacle is at the start and end of the area, outside. 4 distance only.                                
+                                //T("CheckStraightBig " + ShowForbidden());
+                                //CheckStraightBig(); // #7 close obstacle is at the start and end of the area, outside. 4 distance only.                                
                                 
                                 T("Forbidden: " + ShowForbidden());
 
@@ -2089,13 +2089,18 @@ namespace OneWayLabyrinth
         }
 
         void CheckStairAtStart()
+
+        // StairAtStart 3 1 / 3 2 / 4 1 / 4 2
+
         // 3 distance on top:
-        // 0725_5: mid across (up), mid across (down)
-        // 0726_1: mid across, across
-        // 0726_2: area, mid across
-        // double obstacle outside 3 stair 1/2
+        // 0725_5: mid across down, mid across up
+        // 0726_1: across, mid across
+        // 0726_2: mid across, area
 
-
+        // 4 distance on top:
+        // 0626_1: mid across down, mid across up, no stair
+        // 0729_3: across, mid across
+        // 0730: across down, mid across up
         {
             for (int i = 0; i < 2; i++)
             {
@@ -2105,6 +2110,8 @@ namespace OneWayLabyrinth
                 {
                     if (j != 1 && j != 2)
                     {
+                        int topDist = 4;
+
                         int dist = size; // vertical distance
                         int quarter = quarters[i][j];
                         foreach (int[] corner in closedCorners[quarter])
@@ -2119,27 +2126,62 @@ namespace OneWayLabyrinth
                             }
                         }
 
+                        // if a corner was found for a 3-distance on top stair in a rotation, a 4-distance top cannot co-exist.
+                        if (dist == size)
+                        {
+                            int nextQuarter;
+                            List<int[]>[] corners;
+
+                            if (i == 0)
+                            {
+                                nextQuarter = quarter == 3 ? 0 : quarter + 1;
+                                corners = openCWCorners;
+                            }
+                            else
+                            {
+                                nextQuarter = quarter == 0 ? 3 : quarter - 1;
+                                corners = openCCWCorners;
+                            }
+
+                            foreach (int[] corner in corners[nextQuarter])
+                            {
+                                if (j == 0 && corner[0] == 0 && corner[1] == 5)
+                                {
+                                    if (corner[1] < dist) dist = corner[1];
+                                }
+                                else if (j == 3 && corner[0] == 5 && corner[1] == 0)
+                                {
+                                    if (corner[0] < dist) dist = corner[0];
+                                }
+                            }
+                        }
+                        else
+                        {
+                            topDist = 3;
+                        }
+
                         if (dist < size)
                         {
-                            T("CheckStairAtStart distance " + (dist - 1), "side " + i, "rotation " + j);
+                            T("CheckStairAtStart distance " + (dist - 1), "side " + i, "rotation " + j,"topDist " + topDist);
 
                             bool distanceEmpty = true;
                             for (int k = 1; k <= dist - 1; k++)
                             {
-                                if (k <= 3)
+                                if (k <= topDist)
                                 {
                                     if (InTakenRel(-1, k)) distanceEmpty = false;
                                 }
                                 else
                                 {
-                                    if (InTakenRel(k - 4, k)) distanceEmpty = false;
+                                    if (InTakenRel(k - (topDist + 1), k)) distanceEmpty = false;
                                 }
                             }
 
                             if (distanceEmpty)
                             {
-                                int i1 = InTakenIndexRel(dist - 4, dist);
-                                int i2 = InTakenIndexRel(dist - 3, dist);
+                                int i1, i2;
+                                i1 = InTakenIndexRel(dist - (topDist + 1), dist);
+                                i2 = InTakenIndexRel(dist - topDist, dist);
 
                                 if (i2 > i1)
                                 {
@@ -2148,10 +2190,10 @@ namespace OneWayLabyrinth
 
                                     for (int k = ex - 1; k >= 2; k--)
                                     {
-                                        if (k >= 3)
+                                        if (k >= topDist)
                                         {
-                                            borderFields.Add(new int[] { k - 3, k });
-                                            borderFields.Add(new int[] { k - 4, k });
+                                            borderFields.Add(new int[] { k - topDist, k });
+                                            borderFields.Add(new int[] { k - (topDist + 1), k });
                                         }
                                         else
                                         {
@@ -2161,12 +2203,16 @@ namespace OneWayLabyrinth
 
                                     ResetExamAreas();
 
-                                    if (CountAreaRel(-1, 1, ex - 4, ex, borderFields, circleDirectionLeft, 2, true))
+                                    if (CountAreaRel(-1, 1, ex - (topDist + 1), ex, borderFields, circleDirectionLeft, 2, true))
                                     {
                                         int black = (int)info[1];
                                         int white = (int)info[2];
 
-                                        if (black == white + ex - 2)
+                                        // 0725_5: mid across down, mid across up
+                                        // 0726_1: across, mid across
+                                        // 0726_2: mid across, area
+                                        T(black + ex - 3);
+                                        if (topDist == 3 && black == white + ex - 2)
                                         {
                                             // Add future fields in order to be able to draw the second area
                                             for (int k = ex; k >= 3; k--)
@@ -2183,12 +2229,12 @@ namespace OneWayLabyrinth
 
                                                 AddExamAreas();
 
-                                                T("CheckStairAtStart: cannot step straight");
+                                                T("CheckStairAtStart 3: cannot step straight");
                                                 AddForbidden(0, 1);
 
                                                 if (j == 0)
                                                 {
-                                                    T("CheckStairAtStart: cannot step left");
+                                                    T("CheckStairAtStart 3: cannot step left");
                                                     AddForbidden(1, 0);
                                                 }
                                             }
@@ -2197,6 +2243,25 @@ namespace OneWayLabyrinth
                                                 for (int k = ex; k >= 3; k--)
                                                 {
                                                     path.RemoveAt(path.Count - 1);
+                                                }
+                                            }
+                                        }
+                                        // 0626_1: mid across down, mid across up, no stair
+                                        // 0729_3: across, mid across
+                                        // 0730: across down, mid across up
+                                        else if (topDist == 4 && white == black + ex- 3)
+                                        {
+                                            if (CheckNearFieldSmallRel1(-1, 1, 1, 1, false) && CheckNearFieldSmallRel1(-1, 3, 0, 2, true))
+                                            {
+                                                AddExamAreas();
+
+                                                T("CheckStairAtStart 4: cannot step right");
+                                                AddForbidden(-1, 0);
+
+                                                if (j == 3)
+                                                {
+                                                    T("CheckStairAtStart 4: cannot step down");
+                                                    AddForbidden(0, -1);
                                                 }
                                             }
                                         }
@@ -2226,13 +2291,19 @@ namespace OneWayLabyrinth
         }
 
         void CheckStairAtEndConvex()
-        // 
+
         // Enter later, 0B area:
-        // 0718, reverse stair 1/2, 0720_2, 0727
+        // StairAtEndConvex 3 1 / 3 2 later
+        // 0718: across down, mid across up
+        // 18677343, 59434452: mid across x 2, no stair
+        // 0720_2: mid across x 2
+        // 0709: mid across down, C-shape up, no stair
+        // 0727: mid across down, C-shape up
         // 0731: 3 obstacles
 
         // Enter now, 1B -> xB area:
-        // 0516_2
+        // StairAtEndConvex 3 1 / 3 2 now nostair
+        // 0516_2: across up, mid across down
 
         // Corner for convex and concave area can both exist at the same time (0831), so they need two separate functions
         {
@@ -2365,9 +2436,11 @@ namespace OneWayLabyrinth
                                         int black = (int)info[1];
                                         int white = (int)info[2];
 
-                                        // 0718: across close, mid across far
+                                        // 0718: across down, mid across up
+                                        // 18677343, 59434452: mid across x 2, no stair
                                         // 0720_2: mid across x 2
-                                        // 0727: mid across close, C-shape far
+                                        // 0709: mid across down, C-shape up, no stair
+                                        // 0727: mid across down, C-shape up
                                         // 0731: 3 obstacles
                                         if (black == white && CheckNearFieldSmallRel(hori - 1, vert + 1, 0, 0, true) && (CheckNearFieldSmallRel1(hori - 3, vert + 1, 1, 0, false) || (CheckNearFieldSmallRel(hori - 4, vert + 2, 1, 0, true) && CheckNearFieldSmallRel0(hori - 4, vert + 2, 0, 0, true))))
                                         {
@@ -2420,8 +2493,13 @@ namespace OneWayLabyrinth
         }
 
         void CheckStairAtEndConvexStraight3()
-        // Straight: 0905
-        // AreaUp: 665575
+
+        // Straight:
+        // 0905 mid across
+        // 0916 across
+
+        // AreaUp:
+        // 665575 mid across
         {   
             for (int i = 0; i < 2; i++)
             {
@@ -2491,14 +2569,16 @@ namespace OneWayLabyrinth
                                     }
                                 }
 
-                                if (CountAreaRel(1, 1, hori - 1, vert, borderFields, circleDirectionLeft, 2, true))
+                                T("CheckStairAtEndConvexStraight3 hori " + hori, "vert " + vert, "side " + i, "rotation " + j);
+
+                                if (!InCornerRel(hori - 1, vert) && CountAreaRel(1, 1, hori - 1, vert, borderFields, circleDirectionLeft, 2, true))
                                 {
                                     int black = (int)info[1];
                                     int white = (int)info[2];
 
                                     if (black - white == vert)
                                     {
-                                        if (CheckNearFieldSmallRel0(hori - 2, vert, 1, 0, true))
+                                        if (CheckNearFieldSmallRel1(hori - 2, vert, 1, 0, true))
                                         {
                                             AddForbidden(1, 0);
                                             T("CheckStairAtEndConvexStraight3 start obstacle: Cannot step left" );
@@ -3928,7 +4008,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckStraightBig() // 18677343, 59434452, 0626_1, (0516_2 -> CheckStairAtEndConvex)
+        void CheckStraightBig() // 18677343 -> CheckStairAtEndConvex, 59434452 -> CheckStairAtEndConvex, 0626_1 -> StairAtStart 4, 0516_2 -> CheckStairAtEndConvex
         {
             for (int i = 0; i < 2; i++)
             {
@@ -3972,7 +4052,7 @@ namespace OneWayLabyrinth
                                     int black = (int)info[1];
                                     int white = (int)info[2];
 
-                                    // 18677343, 59434452: mid across x 2
+                                    /*// 18677343, 59434452: mid across x 2
                                     // 0709: mid across down, C-shape up 
                                     if (white == black)
                                     {
@@ -3984,7 +4064,7 @@ namespace OneWayLabyrinth
 
                                             AddExamAreas();
                                         }
-                                    }
+                                    }*/
                                     // 0516_2
                                     /*else if (black == white + 1)
                                     {
@@ -3999,7 +4079,7 @@ namespace OneWayLabyrinth
                                     }*/
                                 }
                             }
-                            // 0626_1: mid across x 2
+                            /*// 0626_1: mid across x 2
                             // 0729_3: mid across down, across up
                             // 0730: across down, mid across up
                             else if (ex == 4)
@@ -4021,7 +4101,7 @@ namespace OneWayLabyrinth
                                         }
                                     }
                                 }
-                            }
+                            }*/
                         }
                     }
 
@@ -4529,7 +4609,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckDoubleStair()
+        void CheckDoubleStair() // 0706_1
         {
             for (int i = 0; i < 2; i++)
             {
@@ -4538,7 +4618,6 @@ namespace OneWayLabyrinth
                     int dist = size;
                     int quarter = quarters[i][j];
                     int nearQuarter;
-
                     List<int[]>[] corners;
 
                     if (i == 0)

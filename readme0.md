@@ -2267,10 +2267,17 @@ And the pattern can be extended along a stair:
 
 <img align="top" src="References/2024_0725_5.svg" width="11" />
 
-<img align="top" src="References/double obstacle outside 3 stair 1.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/double obstacle outside 3 stair 2.svg" width="5" />
+<img align="top" src="References/StairAtStart 3 1.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/StairAtStart 3 2.svg" width="5" />
 
 The area is 2B. If we enter now, we have to exit at a black field and then fill the remaining to as corners.
 
+<!---->
+
+Similarly:
+
+<img align="top" src="References/StairAtStart 4 1.svg" width="5" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/StairAtStart 4 2.svg" width="5" />
+
+In the left representation, we enter at the first left field. On the right, we entered at the first black and exit there. In either case, if the area is 2W, we cannot enter later.
 <!---->
 
 <b>5. Start obstacle outside</b>
@@ -2302,6 +2309,14 @@ But we don't have to define this area separately. The x and y distance obstacle 
 It can be proved that the corner at (3,3) position does not do anything, so it is not a double obstacle outside case. The rule still holds if we move that obstacle.
 
 <img align="top" src="References/2024_0727_1_1.svg" width="9" />
+
+<!---->
+
+In the next example, the area is xB where x is the height of the stair representation.
+
+<img align="top" src="References/2024_0905.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/StairAtEndConvexStraight 3 now.svg" width="6" />
+
+If we enter now, the corner blacks will have to be filled separately, so we must exit the first line at the last black field. This will conflict with the mid across obstacle.
 
 <!---->
 
@@ -2489,7 +2504,7 @@ In the program, we apply sequence after discovering a start area like this. We m
 
 The line in this case has to make a stair as shown on page 179-181, but now we are entering from the end.
 
-<img align="top" src="References/reverse stair 1.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/reverse stair 2.svg" width="6" />
+<img align="top" src="References/StairAtEndConvex 3 1 later.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/StairAtEndConvex 3 2 later.svg" width="6" />
 
 Having a W = B area, we either need to enter or exit at the white field. It is an extension of the double obstacle outside rule (page 172-173).
 
@@ -2685,10 +2700,13 @@ StairAtEndConcave6 with other than 2 x mid across obstacles
 
 <b>To do:</b>
 
-Solve all sequence cases with a pattern -> StraightBig needs to be incorporated into StairAtEnd
+Solve all sequence cases with a pattern
+StairAtStart: are there 5 and 6-distance top stairs?
 
 <!---->
 
+Page 180: rewrite corner 5 1 extended stair 2.svg for stair at end convext straight.
+0516_2 is both StairAtEndConvex and StairAtStart (representation: StairAtEndConvex 3 1 now nostair.svg and StairAtEndConvex 3 2 now nostair.svg)
 Make pattern set representation: 0625 can be extended vertically, holding a fixed 2 horizontal distance, or in a stair at the far end, so that vert = hori + 2. The two can also be combined. The same can happen with 0625_1, which is just one vertical distance shorter. (Stair extension: 0712)
 
 <!--

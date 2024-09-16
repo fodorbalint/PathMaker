@@ -72,9 +72,10 @@
             </TextBlock>
             <Label x:Name="CoordinateLabel" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" BorderThickness="1" BorderBrush="Black" Background="White" Visibility="Hidden" IsHitTestVisible="False" ClipToBounds="False" />
             <Label x:Name="MessageLine" Content="" HorizontalAlignment="Left" Margin="20,108,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
-            <Button x:Name="OKButton" Background="LightPink" Content="OK" HorizontalAlignment="Left" Margin="371,112,0,0" VerticalAlignment="Top" Width="50" Click="OK_Click" Height="21" Visibility="Hidden"/>
-            <Button Content="Rule editor" HorizontalAlignment="Left" Margin="593,107,0,0" VerticalAlignment="Top" Width="70" Click="Rules_Click" Height="21"  Focusable="False"/>
-            <Button Content="Settings" HorizontalAlignment="Left" Margin="510,107,0,0" VerticalAlignment="Top" Width="70" Click="OpenSettings_Click" Height="21"  Focusable="False" />
+            <Button x:Name="OKButton" Content="OK" Background="LightPink" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,112,299,0" Width="50" Height="21" Visibility="Hidden" Click="OK_Click" />
+            <Button Content="Settings" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,112,216,0" Width="70" Height="21" Focusable="False" Click="OpenSettings_Click" />
+            <Button Content="Rule editor" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,112,133,0" Width="70" Height="21" Focusable="False" Click="Rules_Click"  />
+            <Button Content="Copy to console" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,112,20,0" Width="100" Height="21" Focusable="False" Click="CopyConsole_Click" />
 
             <Grid x:Name="SettingsGrid" Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80FFFFFF" Visibility="Hidden" >
                 <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">

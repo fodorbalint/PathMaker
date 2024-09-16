@@ -4636,7 +4636,10 @@ namespace OneWayLabyrinth
                 }
 				//Keyboard.ClearFocus(); removes the focus from the textbox, but the window becomes unresponsive. Calling MWindow.Focus(); will put the focus on the textbox again.
 			}
-
+            else if (e.Key == Key.Escape && settingsOpen)
+            {
+                CloseSettings_Click(null, null);
+            }
 			else if (e.Key == Key.Space)
 			{
 				StartStop_Click(new object(), new RoutedEventArgs());
@@ -4646,6 +4649,21 @@ namespace OneWayLabyrinth
 				Save_Click(new object(), new RoutedEventArgs());
 				return;
 			}
+            else if (e.Key == Key.E && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) && !settingsOpen)
+            {
+                OpenSettings_Click(null, null);
+                return;
+            }
+            else if (e.Key == Key.R && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                Rules_Click(null, null);
+                return;
+            }
+            else if (e.Key == Key.C && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                CopyConsole_Click(null, null);
+                return;
+            }
             else if (e.Key == Key.D && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 ExtractDifference();
@@ -4765,22 +4783,66 @@ namespace OneWayLabyrinth
             CoordinateLabel.Visibility = Visibility.Hidden;
         }
 
-        private void Rules_Click(object sender, RoutedEventArgs e)
-        {
-            Rules rules = new Rules();
-            rules.Show();
-        }
-
         private void OpenSettings_Click(object sender, RoutedEventArgs e)
         {
-			SettingsGrid.Visibility = Visibility.Visible;
-			settingsOpen = true;
+            SettingsGrid.Visibility = Visibility.Visible;
+            settingsOpen = true;
         }
 
         private void CloseSettings_Click(object sender, RoutedEventArgs e)
         {
             SettingsGrid.Visibility = Visibility.Hidden;
             settingsOpen = false;
+        }
+
+        private void Rules_Click(object sender, RoutedEventArgs e)
+        {
+            Rules rules = new Rules();
+            rules.Show();
+        }
+
+        private void CopyConsole_Click(object sender, RoutedEventArgs e)
+        {
+            string file1 = File.ReadAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Path.cs");
+            string file2 = File.ReadAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Console app\\Program.cs");
+
+            int pos1 = 0;
+            int pos2 = 0;
+            int pos3 = 0;
+            int pos4 = 0;
+
+            List<int> sectionTabs = new() { 3, 2 };
+            int counter = 0;
+            while (pos1 != -1)
+            {
+                pos1 = file1.IndexOf("// ----- copy start -----", pos2);
+
+                if (pos1 != -1)
+                {
+                    pos2 = file1.IndexOf("// ----- copy end -----", pos1);
+
+                    pos3 = file2.IndexOf("// ----- copy start -----", pos4);
+                    pos4 = file2.IndexOf("// ----- copy end -----", pos3);
+
+                    string spaces = "";
+                    for (int i = 0; i < sectionTabs[counter]; i++)
+                    {
+                        spaces += "    ";
+                    }
+                    string section = file1.Substring(pos1, pos2 - pos1).Replace("\n" + spaces, "\n");
+                    file2 = file2.Substring(0, pos3) + section + file2.Substring(pos4);
+                }
+                counter++;
+            }
+
+            file2 = file2.Replace("    T(\"", "    // T(\"");
+            file2 = file2.Replace("window.", "");
+            //file2 = Regex.Replace(file2, @"/\*.*?\*/", "");
+
+            File.WriteAllText(baseDir.Replace("bin\\Debug\\net6.0-windows\\", "") + "Console app\\Program.cs", file2);
+
+            T("File copied.");
+            MessageBox.Show("File copied.");
         }
 
 
