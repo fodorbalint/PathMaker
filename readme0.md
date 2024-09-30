@@ -2700,11 +2700,12 @@ StairAtEndConcave6 with other than 2 x mid across obstacles
 
 <b>To do:</b>
 
-Solve all sequence cases with a pattern
-StairAtStart: are there 5 and 6-distance top stairs?
+Solve all sequence cases with a pattern (0516_4 added to Double Stair, 0516 is reduced to a close obstacle checking upon exit from the first area, 0516_6-8 became SideStair)
 
 <!---->
 
+StairAtStart: are there 5 and 6-distance top stairs?
+Hypothesis: A wrong rule that unnecessarily disables a field does not only limit the number of walkthroughs but will result in a stuck case.
 Page 180: rewrite corner 5 1 extended stair 2.svg for stair at end convext straight.
 0516_2 is both StairAtEndConvex and StairAtStart (representation: StairAtEndConvex 3 1 now nostair.svg and StairAtEndConvex 3 2 now nostair.svg)
 Make pattern set representation: 0625 can be extended vertically, holding a fixed 2 horizontal distance, or in a stair at the far end, so that vert = hori + 2. The two can also be combined. The same can happen with 0625_1, which is just one vertical distance shorter. (Stair extension: 0712)
