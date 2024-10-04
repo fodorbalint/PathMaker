@@ -154,7 +154,7 @@ namespace OneWayLabyrinth
         public bool calculateFuture = false; // does not allow a future line body or end to be a possibility. Stepped on future lines are followed through without checking possibilities on the way.
         Stopwatch watch;
         public static ILogger<MainWindow> logger;
-        public string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        public string baseDir = AppDomain.CurrentDomain.BaseDirectory;        
 
         // ----- Initialize -----
 
@@ -235,10 +235,8 @@ namespace OneWayLabyrinth
 
             SetActiveRules();
 			
-			exits = new List<int[]>();
-			exitIndex = new List<int>();
-			taken = new Path(this, size, new List<int[]>(), null, true);
-			future = new Path(this, size, new List<int[]>(), null, false);
+			/*exits = new List<int[]>();
+			exitIndex = new List<int>();*/
 
 			ReadDir();
 
@@ -260,20 +258,9 @@ namespace OneWayLabyrinth
 			}
             DrawGrid();
 
-            if (taken != null && possibleDirections.Count == taken.path.Count) //null checking is only needed for removing warning
-			{
-                if (!lineFinished)
-                {
-                    NextStepPossibilities();
-                }
-				else
-				{
-                    possibleDirections.Add(new int[] { });
-                }
-            }
-			else if (taken != null && possibleDirections.Count != taken.path.Count + 1)
-			{
-                M("Error in file", 0);
+			if (taken != null && possibleDirections.Count != taken.path.Count + 1) // null checking is only needed for removing warning
+            {
+                M("Error in file.", 0);
                 return;
 			}
             DrawPath(true);
@@ -467,7 +454,7 @@ namespace OneWayLabyrinth
         }
 
         private void LoadFromFile()
-        {
+        {            
             string content = File.ReadAllText(baseDir + loadFile);
             string[] loadPath;
             bool circleDirectionLeft = true;
@@ -505,18 +492,64 @@ namespace OneWayLabyrinth
             //}
 
             taken = new Path(this, size, new List<int[]>(), null, true);
-            possibleDirections = new List<int[]>();
             InitializeFuture();
 
             //taken.circleDirectionLeft = circleDirectionLeft;
 
             if (content.IndexOf("-") != -1) // normal mode, with possibilities
             {
+                // each unit contains the possible directions and then the field stepped on.
+                possibleDirections = new List<int[]> { new int[] { 1 }, new int[] { 0, 1 } };
+                taken.suppressLogs = true;
+
                 foreach (string coords in loadPath)
                 {
                     string[] sections = coords.Split("-");
                     int[] possibles = Array.ConvertAll(sections[0].Split(","), s => int.Parse(s));
-                    possibleDirections.Add(possibles);
+
+                    if (!(taken.x == 1 && taken.y == 1)) // check saved directions against new calculated directions
+                    {
+                        List<int[]> takenPossible = new();
+                        foreach (int direction in possibles)
+                        {
+                            takenPossible.Add(new int[] { taken.x + directions[direction][0], taken.y + directions[direction][1] });
+                        }
+
+                        taken.areaLines = new();
+                        taken.areaLineTypes = new();
+                        taken.areaLineDirections = new();
+                        taken.areaPairFields = new();
+                        taken.areaLineSecondary = new();
+
+                        NextStepPossibilities();                        
+
+                        if (taken.possible.Count != takenPossible.Count)
+                        {
+                            // replace possible absolute coordinates with values from file
+                            ReplaceLastPossible(takenPossible);
+
+                            M("Number of possibles do not match at step " + taken.path.Count + ".", 0);
+                            break;
+                        }
+                        else
+                        {
+                            bool toBreak = false;
+                            for (int i = 0; i < taken.possible.Count; i++)
+                            {
+                                if (!(taken.possible[i][0] == takenPossible[i][0] && taken.possible[i][1] == takenPossible[i][1]))
+                                {
+                                    ReplaceLastPossible(takenPossible);
+
+                                    M("Wrong possible movements at step " + taken.path.Count + ".", 0);
+                                    toBreak = true;
+                                    break;
+                                }
+                            }
+
+                            if (toBreak) break;
+                        }
+                    }
+
                     if (sections.Length == 2)
                     {
                         int[] field = Array.ConvertAll(sections[1].Split(","), s => int.Parse(s));
@@ -526,14 +559,23 @@ namespace OneWayLabyrinth
                         taken.x = x;
                         taken.y = y;
 
-                        if (calculateFuture) CheckFutureLine(x, y);
+                        if (calculateFuture) CheckFutureLine(x, y);                     
                     }
                 }
+
+                taken.areaLines = new();
+                taken.areaLineTypes = new();
+                taken.areaLineDirections = new();
+                taken.areaPairFields = new();
+                taken.areaLineSecondary = new();
+
+                taken.suppressLogs = false;                
             }
             else // only coordinates
             {
                 int startX = 0;
                 int startY = 1;
+                possibleDirections = new();
 
                 foreach (string coords in loadPath)
                 {
@@ -549,8 +591,7 @@ namespace OneWayLabyrinth
                     startY = y;
 
                     if (calculateFuture) CheckFutureLine(x, y);
-                }
-                possibleDirections.Add(new int[] { });
+                }                
             }
 
             T("Loading " + loadFile + ", taken count " + taken.path.Count + ", possibledir count " + possibleDirections.Count);
@@ -562,17 +603,8 @@ namespace OneWayLabyrinth
                 int[] prevField = taken.path[taken.path.Count - 2];
                 int prevX = prevField[0];
                 int prevY = prevField[1];
-                for (int i = 0; i < 4; i++)
-                {
-                    //last movement: down, right, up, left
-                    int dx = directions[i][0];
-                    int dy = directions[i][1];
 
-                    if (taken.x - prevX == dx && taken.y - prevY == dy)
-                    {
-                        lastDirection = i;
-                    }
-                }
+                lastDirection = FindDirection(taken.x - prevX, taken.y - prevY);
             }
             else lastDirection = 0;
 
@@ -590,21 +622,37 @@ namespace OneWayLabyrinth
             CurrentCoords.Content = taken.x + " " + taken.y;
             PossibleCoords.Text = "";
 
-            if (taken.x == size && taken.y == size)
+            if (possibleDirections.Count == taken.path.Count)
             {
-                lineFinished = true;
-            }
-            else
-            {
-                lineFinished = false;
-
-                taken.possible = new List<int[]>();
-                foreach (int direction in possibleDirections[possibleDirections.Count - 1])
+                if (taken.x == size && taken.y == size)
                 {
-                    PossibleCoords.Text += taken.x + directions[direction][0] + " " + (taken.y + directions[direction][1]) + "\n";
-                    taken.possible.Add(new int[] { taken.x + directions[direction][0], taken.y + directions[direction][1] });
+                    lineFinished = true;
+                    possibleDirections.Add(new int[] { });
+                }
+                else
+                {
+                    lineFinished = false;
+                    NextStepPossibilities();
                 }
             }
+        }
+
+        private void ReplaceLastPossible(List<int[]> takenPossible)
+        {
+            // replace possible absolute coordinates with values from file
+            taken.possible = takenPossible;
+
+            List<int> possibleFields = new List<int>();
+
+            foreach (int[] field in taken.possible)
+            {
+                int fx = field[0];
+                int fy = field[1];
+
+                possibleFields.Add(FindDirection(fx - taken.x, fy - taken.y));
+            }
+            // replace last element of possible relative coordinate list
+            possibleDirections[possibleDirections.Count - 1] = possibleFields.ToArray();
         }
 
         private void InitializeList()
@@ -773,18 +821,7 @@ namespace OneWayLabyrinth
 
             DrawGrid();
 
-            if (possibleDirections.Count == taken.path.Count)
-            {
-                if (!lineFinished)
-                {
-                    NextStepPossibilities();
-                }
-                else
-                {
-                    possibleDirections.Add(new int[] { });
-                }
-            }
-            else if (possibleDirections.Count != taken.path.Count + 1)
+            if (possibleDirections.Count != taken.path.Count + 1)
             {
                 M("Error in file", 0);
                 return;
@@ -2834,18 +2871,7 @@ namespace OneWayLabyrinth
                     T("NextStepPossibilities InFuture fx " + fx + " fy " + fy + " count: " + future.path.Count);
                     if (!isTaskRunning) PossibleCoords.Text += fx + " " + fy + "\n";
                     newPossible.Add(field);
-
-                    for (int i = 0; i < 4; i++)
-                    {
-                        //last movement: down, right, up, left
-                        int dx = directions[i][0];
-                        int dy = directions[i][1];
-
-                        if (fx - taken.x == dx && fy - taken.y == dy)
-                        {
-                            possibleFields.Add(i);
-                        }
-                    }
+                    possibleFields.Add(FindDirection(fx - taken.x, fy - taken.y));
                 }
                 else
                 {
@@ -2856,18 +2882,7 @@ namespace OneWayLabyrinth
 
                     if (!isTaskRunning) PossibleCoords.Text += fx + " " + fy + "\n";
                     newPossible.Add(field);
-
-                    for (int i = 0; i < 4; i++)
-                    {
-                        //last movement: down, right, up, left
-                        int dx = directions[i][0];
-                        int dy = directions[i][1];
-
-                        if (fx - taken.x == dx && fy - taken.y == dy)
-                        {
-                            possibleFields.Add(i);
-                        }
-                    }
+                    possibleFields.Add(FindDirection(fx - taken.x, fy - taken.y));
 
                     /*int futureFieldIndex = future.InTakenIndex(fx, fy);
 
@@ -3526,6 +3541,7 @@ namespace OneWayLabyrinth
         {
             for (int i = 0; i < 4; i++)
             {
+                //down, right, up, left
                 if (directions[i][0] == xDiff && directions[i][1] == yDiff)
                 {
                     return i;

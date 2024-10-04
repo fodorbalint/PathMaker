@@ -119,6 +119,7 @@ namespace OneWayLabyrinth
         // quarters examined at left and right side for CW rotation
         int[][] quarters = new int[][] { new int[] { 0, 1, 2, 3 }, new int[] { 1, 0, 3, 2 } };
         List<int[]> quarterMultipliers = new List<int[]>() { new int[] { 1, 1 }, new int[] { -1, 1 }, new int[] { -1, -1 }, new int[] { 1, -1 } };
+        public bool suppressLogs = false; // used when loading from file
 
         public Path(MainWindow window, int size, List<int[]> path, List<int[]>? path2, bool isMain)
         {
@@ -457,6 +458,8 @@ namespace OneWayLabyrinth
                                 CheckDoubleStair();
                                 T("CheckSideStair " + ShowForbidden());
                                 CheckSideStair();
+                                T("CheckSideStairStraight " + ShowForbidden());
+                                CheckSideStairStraight();
                                 T("CheckRemoteStair " + ShowForbidden());
                                 CheckRemoteStair();
 
@@ -4732,7 +4735,9 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckSideStair() // 0516_6, 0516_7, 0516_8
+        void CheckSideStair()
+        // Start at -1 vertical. 0516_6, 0516_7, 0516_8
+        // Start at 0 vertical. 1001
         {
             for (int i = 0; i < 2; i++)
             {
@@ -4769,6 +4774,85 @@ namespace OneWayLabyrinth
                                     T("CheckSideStair at " + hori + " " + vert + ": Cannot step left");
                                     AddForbidden(1, 0);
                                 }
+                            }
+                        }
+                    }
+
+                    // rotate CW
+                    int s0 = sx;
+                    int s1 = sy;
+                    sx = -lx;
+                    sy = -ly;
+                    lx = s0;
+                    ly = s1;
+                }
+                sx = thisSx;
+                sy = thisSy;
+                lx = -thisLx;
+                ly = -thisLy;
+            }
+            sx = thisSx;
+            sy = thisSy;
+            lx = thisLx;
+            ly = thisLy;
+        }
+
+        void CheckSideStairStraight()
+        // Start at 0 vertical. 1001
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                bool circleDirectionLeft = (i == 0) ? true : false;
+
+                for (int j = 0; j < 3; j++)
+                {
+                    int hori = 1;
+                    int vert = 0;
+
+                    while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                    {
+                        hori++;
+                    }
+
+                    if (hori == 3)
+                    {
+                        T("SideStairStraight", hori, i, j);
+                        int i1 = InTakenIndexRel(hori, vert);
+                        int i2 = InTakenIndexRel(hori, vert - 1);
+
+                        if (i2 != -1 && i2 > i1)
+                        {
+                            bool stepFound = true;
+                            int counter = 0;
+                            while (stepFound)
+                            {
+                                hori++;
+                                vert++;
+                                counter++;
+
+                                path.Add(new int[] { x + (hori - 3) * lx + (vert - 1) * sx, y + (hori - 3) * ly + (vert - 1) * sy });
+
+                                if (!((InTakenRel(hori, vert) || InBorderRelExact(hori, vert)) && !InTakenRel(hori - 1, vert)))
+                                {
+                                    stepFound = false;
+                                }
+                                else if (CheckCorner1(hori - 2, vert, 1, 0, circleDirectionLeft, true))
+                                {
+                                    T("CheckSideStairStraight at " + hori + " " + vert + ": Cannot step left");
+
+                                    for (int m = 1; m <= counter; m++)
+                                    {
+                                        path.RemoveAt(path.Count - 1);
+                                    }
+                                    counter = 0;
+                                    AddForbidden(1, 0);
+                                    break;
+                                }
+                            }
+
+                            for (int m = 1; m <= counter; m++)
+                            {
+                                path.RemoveAt(path.Count - 1);
                             }
                         }
                     }
@@ -5807,7 +5891,7 @@ namespace OneWayLabyrinth
 
                                         if (!(whiteDiff <= laterWCount && whiteDiff >= -laterBCount))
                                         {
-                                            T("Corner2: Cannot enter later");
+                                            T("Corner1: Cannot enter later");
                                             path.RemoveAt(path.Count - 1);
                                             return true;
                                         }
@@ -9913,7 +9997,7 @@ namespace OneWayLabyrinth
             int x = this.x + left * lx + straight * sx;
             int y = this.y + left * ly + straight * sy;
 
-            //T("InTakenRel " + x + " " + y);
+            // T("InTakenRel " + x + " " + y);
             return InTaken(x, y);
         }
 
@@ -10203,18 +10287,21 @@ namespace OneWayLabyrinth
 
         void T(params object[] o)
 		{
-            string result = "";
-            if (o.Length > 0)
+            if (!suppressLogs)
             {
-                result += o[0];
-            }
+                string result = "";
+                if (o.Length > 0)
+                {
+                    result += o[0];
+                }
 
-            for (int i = 1; i < o.Length; i++)
-            {
-                result += ", " + o[i];
+                for (int i = 1; i < o.Length; i++)
+                {
+                    result += ", " + o[i];
+                }
+                Trace.WriteLine(result);
+                MainWindow.logger.LogDebug("----------------------------- " + result);
             }
-            Trace.WriteLine(result);
-            MainWindow.logger.LogDebug("----------------------------- " + result);
         }
 
         string ShowForbidden()
