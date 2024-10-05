@@ -2698,11 +2698,17 @@ Stair extensions: flat top far away (0725_6) where the end obstacle is far away.
 StraightSmall 2 and 3 with stair leg, like StairAtEndConcave5 and 6.
 StairAtEndConcave6 with other than 2 x mid across obstacles 
 
+<!---->
+
 <b>To do:</b>
 
-Solve all sequence cases with a pattern (0516_4 added to Double Stair, 0516 is reduced to a close obstacle checking upon exit from the first area, 0516_6-8 became SideStair)
-
-<!---->
+Solve all sequence cases with a pattern:
+0516_4/0516_5 added to Double Stair / Sequence2 
+0516/0516_1 became Sequence2
+0516_6/0516_7/0516_8 became SideStair -> It should be incorporated into Sequence2
+Sequence case 4 can be incorporated into Sequence2 (0723). Start obstacle is a stair instead of a straight far obstacle.
+Further examples of Sequence2: 1001, 1005
+Modify Sequence2: In case of stepping down, the sequence will run on the right side (0516 is valid, error case 1 is not)
 
 StairAtStart: are there 5 and 6-distance top stairs?
 Hypothesis: A wrong rule that unnecessarily disables a field does not only limit the number of walkthroughs but will result in a stuck case.
