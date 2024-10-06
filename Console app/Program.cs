@@ -5311,7 +5311,7 @@ void CheckNearStair() // 0726, 0713, nearStair 1/2/3
     ly = thisLy;
 }
 
-void CheckDoubleStair() // 0706_1
+void CheckDoubleStair() // 0706_1, Also Sequence2: 0516_4, 0516_5
 {
     for (int i = 0; i < 2; i++)
     {
@@ -5545,6 +5545,7 @@ void CheckSequence2() // Start at 3,0. Any combination of stairs and 2-distance 
 // 1005: mid across
 // 0516, 0516_1: one step across
 // 0516_4, 0516_5: multiple step across
+// 1006. Across obstacle encountered on the left. It appears at the end of the sequence, does not take part in adding a step to it.
 // (0723 starts with next step C-shape)
 {
     for (int i = 0; i < 2; i++)
@@ -5569,185 +5570,213 @@ void CheckSequence2() // Start at 3,0. Any combination of stairs and 2-distance 
                 // T("CheckSequence2 side", i, "rotation", j);
 
                 if (i2 != -1 && i2 > i1)
-                {
-                    bool stepFound = true;
-                    bool farStraightFound = true;
-
-                    List<int[]> rotations = new List<int[]> { new int[] { 1, 1 }, new int[] { -1, 1 }, new int[] { -1, -1 }, new int[] { 1, -1 } };
-                    int rotationIndex = 0;
-                    // Extensions by rotation:
-                    // 1, 1
-                    // -1, 1
-                    // -1, -1
-                    // 1, -1
-
-                    // Add left field
-                    path.Add(new int[] { x + lx, y + ly });
-                    int counter = 1;
-
-                    // start at hori 3, vert 0
-                    while (stepFound || farStraightFound)
+                {                            
+                    if (CountAreaRel(1, 0, 2, 0, null, circleDirectionLeft, 2, true))
                     {
-                        stepFound = false;
-                        farStraightFound = false;
+                        int black = (int)info[1];
+                        int white = (int)info[2];
 
-                        // new imaginary step
-                        hori += rotations[rotationIndex][0]; // 4
-                        vert += rotations[rotationIndex][1]; // 1
-
-                        // 4, 1 should be taken. 3, 1 should be free
-                        // OR
-                        // 3, 3 should be taken. 3, 2 and 3, 1 should be free
-                        // both stair and far straight can be true at the same time, but far straight sets the new direction
-
-                        int hx = 0;
-                        int hy = 0;
-                        int vx = 0;
-                        int vy = 0;
-                        switch (rotationIndex)
+                        // the area needs to be B = W in order to exit at 2, 0 after entry left or down
+                        if (black == white)
                         {
-                            case 0:
-                                hx = 1;
-                                hy = 0;
-                                vx = 0;
-                                vy = 1;
-                                break;
-                            case 1:
-                                hx = 0;
-                                hy = 1;
-                                vx = -1;
-                                vy = 0;
-                                break;
-                            case 2:
-                                hx = -1;
-                                hy = 0;
-                                vx = 0;
-                                vy = -1;
-                                break;
-                            case 3:
-                                hx = 0;
-                                hy = -1;
-                                vx = 1;
-                                vy = 0;
-                                break;
-                        }
+                            // T("area counted, black = white");
 
-                        if (InTakenRel(hori - hx + 2 * vx, vert - hy + 2 * vy) && !InTakenRel(hori - hx + vx, vert - hy + vy) && !InTakenRel(hori - hx, vert - hy))
-                        {
-                            i1 = InTakenIndexRel(hori - hx + 2 * vx, vert - hy + 2 * vy);
-                            i2 = InTakenIndexRel(hori + 2 * vx, vert + 2 * vy);
+                            bool stepFound = true;
+                            bool farStraightFound = true;                                   
+                            List<int[]> rotations = new List<int[]> { new int[] { 1, 1 }, new int[] { -1, 1 }, new int[] { -1, -1 }, new int[] { 1, -1 } };
+                            int rotationIndex = 0;
+                            // Extensions by rotation:
+                            // 1, 1
+                            // -1, 1
+                            // -1, -1
+                            // 1, -1
 
-                            if (i2 != -1 && i2 > i1)
+                            // Add left field
+                            path.Add(new int[] { x + lx, y + ly });
+                            int counter = 1;
+
+                            // start at hori 3, vert 0
+                            while (stepFound || farStraightFound)
                             {
-                                farStraightFound = true;            
-                            }
-                        }
+                                stepFound = false;
+                                farStraightFound = false;
+                                bool acrossFound = false; // 1006. Across obstacle encountered on the left. It appears at the end of the sequence, does not take part in adding a step to it.
 
-                        if (!farStraightFound && InTakenRel(hori, vert) && !InTakenRel(hori - hx, vert - hy))
-                        {
-                            stepFound = true;
-                        }
+                                // new imaginary step
+                                hori += rotations[rotationIndex][0]; // 4
+                                vert += rotations[rotationIndex][1]; // 1
 
-                        // T("hori", hori, "vert", vert, "straightFound", farStraightFound, "stepFound", stepFound);
+                                // 4, 1 should be taken. 3, 1 should be free
+                                // OR
+                                // 3, 3 should be taken. 3, 2 and 3, 1 should be free
+                                // both stair and far straight can be true at the same time, but far straight sets the new direction
 
-                        if (farStraightFound || stepFound)
-                        {
-                            switch (rotationIndex)
-                            {
-                                case 0:
-                                    // Add 2, 1
-                                    path.Add(new int[] { x + (hori - 2) * lx + vert * sx, y + (hori - 2) * ly + vert * sy });
-                                    break;
-                                case 1:
-                                    path.Add(new int[] { x + hori * lx + (vert - 2) * sx, y + hori * ly + (vert - 2) * sy });
-                                    break;
-                                case 2:
-                                    path.Add(new int[] { x + (hori + 2) * lx + vert * sx, y + (hori + 2) * ly + vert * sy });
-                                    break;
-                                case 3:
-                                    path.Add(new int[] { x + hori * lx + (vert + 2) * sx, y + hori * ly + (vert + 2) * sy });
-                                    break;
-                            }
-                            counter++;
-
-
-                            int nearFieldRotation = 0;
-                            switch (rotationIndex)
-                            {
-                                case 0:
-                                    nearFieldRotation = 0;
-                                    break;
-                                case 1:
-                                    nearFieldRotation = 1;
-                                    break;
-                                case 2:
-                                    nearFieldRotation = 3;
-                                    break;
-                                case 3:
-                                    nearFieldRotation = 1;
-                                    break;
-                            }
-
-                            // T("Added", path[path.Count - 1][0], path[path.Count - 1][1], " at", counter);
-
-                            // T("Checking relX", hori - 2 * hx, "relY", vert - 2 * hy);
-                            path.RemoveAt(path.Count - 1);
-                            counter--;
-
-                            ResetExamAreas();
-
-                            if (CheckCorner1(hori - 2 * hx, vert - 2 * hy, 1, nearFieldRotation, circleDirectionLeft, true))
-                            {
-                                AddExamAreas(true);
-
-                                for (int m = 1; m <= counter; m++)
+                                int hx = 0;
+                                int hy = 0;
+                                int vx = 0;
+                                int vy = 0;
+                                switch (rotationIndex)
                                 {
+                                    case 0:
+                                        hx = 1;
+                                        hy = 0;
+                                        vx = 0;
+                                        vy = 1;
+                                        break;
+                                    case 1:
+                                        hx = 0;
+                                        hy = 1;
+                                        vx = -1;
+                                        vy = 0;
+                                        break;
+                                    case 2:
+                                        hx = -1;
+                                        hy = 0;
+                                        vx = 0;
+                                        vy = -1;
+                                        break;
+                                    case 3:
+                                        hx = 0;
+                                        hy = -1;
+                                        vx = 1;
+                                        vy = 0;
+                                        break;
+                                }
+
+                                if (InTakenRel(hori - hx + 2 * vx, vert - hy + 2 * vy) && !InTakenRel(hori - hx + vx, vert - hy + vy) && !InTakenRel(hori - hx, vert - hy))
+                                {
+                                    i1 = InTakenIndexRel(hori - hx + 2 * vx, vert - hy + 2 * vy);
+                                    i2 = InTakenIndexRel(hori + 2 * vx, vert + 2 * vy);
+
+                                    if (i2 != -1 && i2 > i1)
+                                    {
+                                        farStraightFound = true;
+                                    }
+                                }
+
+                                if (!farStraightFound && InTakenRel(hori, vert) && !InTakenRel(hori - hx, vert - hy))
+                                {
+                                    stepFound = true;
+                                }
+
+                                if (InTakenRel(hori + 2 * vx, vert + 2 * vy) && !InTakenRel(hori + vx, vert + vy))
+                                {
+                                    i1 = InTakenIndexRel(hori + 2 * vx, vert + 2 * vy);
+                                    i2 = InTakenIndexRel(hori + hx + 2 * vx, vert + hy + 2 * vy);
+
+                                    if (i2 != -1 && i2 > i1)
+                                    {
+                                        acrossFound = true;
+                                    }
+                                }
+
+                                // T("hori", hori, "vert", vert, "straightFound", farStraightFound, "stepFound", stepFound, "acrossFound", acrossFound);
+
+                                if (farStraightFound || stepFound || acrossFound)
+                                {
+                                    switch (rotationIndex)
+                                    {
+                                        case 0:
+                                            // Add 2, 1
+                                            path.Add(new int[] { x + (hori - 2) * lx + vert * sx, y + (hori - 2) * ly + vert * sy });
+                                            break;
+                                        case 1:
+                                            path.Add(new int[] { x + hori * lx + (vert - 2) * sx, y + hori * ly + (vert - 2) * sy });
+                                            break;
+                                        case 2:
+                                            path.Add(new int[] { x + (hori + 2) * lx + vert * sx, y + (hori + 2) * ly + vert * sy });
+                                            break;
+                                        case 3:
+                                            path.Add(new int[] { x + hori * lx + (vert + 2) * sx, y + hori * ly + (vert + 2) * sy });
+                                            break;
+                                    }
+                                    counter++;
+
+
+                                    int nearFieldRotation = 0;
+                                    switch (rotationIndex)
+                                    {
+                                        case 0:
+                                            nearFieldRotation = 0;
+                                            break;
+                                        case 1:
+                                            nearFieldRotation = 1;
+                                            break;
+                                        case 2:
+                                            nearFieldRotation = 3;
+                                            break;
+                                        case 3:
+                                            nearFieldRotation = 1;
+                                            break;
+                                    }
+
+                                    // T("Added", path[path.Count - 1][0], path[path.Count - 1][1], " at", counter);
+
+                                    // T("Checking relX", hori - 2 * hx, "relY", vert - 2 * hy);
                                     path.RemoveAt(path.Count - 1);
+                                    counter--;
+
+                                    ResetExamAreas();
+
+                                    if (CheckCorner1(hori - 2 * hx, vert - 2 * hy, 1, nearFieldRotation, circleDirectionLeft, true))
+                                    {
+                                        AddExamAreas(true);
+
+                                        for (int m = 1; m <= counter; m++)
+                                        {
+                                            path.RemoveAt(path.Count - 1);
+                                        }
+                                        counter = 0;
+
+                                        // T("CheckSequence2 at relative " + (hori - 2 * hx) + " " + (vert - 2 * hy) + ": Cannot step left");
+                                        AddForbidden(1, 0);
+
+                                        if (j == 1)
+                                        {
+                                            // T("CheckSequence2 at relative " + (hori - 2 * hx) + " " + (vert - 2 * hy) + ": Cannot step down");
+                                            AddForbidden(0, -1);
+                                        }
+                                        break;
+                                    }
                                 }
-                                counter = 0;
 
-                                // T("CheckSequence2 at relative " + (hori - 2 * hx) + " " + (vert - 2 * hy) + ": Cannot step left");
-                                AddForbidden(1, 0);
-
-                                if (j == 1)
+                                if (farStraightFound)
                                 {
-                                    // T("CheckSequence2 at relative " + (hori - 2 * hx) + " " + (vert - 2 * hy) + ": Cannot step down");
-                                    AddForbidden(0, -1);
+                                    switch (rotationIndex)
+                                    {
+                                        case 0:
+                                            hori = hori - 1;
+                                            vert = vert + 2;
+                                            break;
+                                        case 1:
+                                            hori = hori - 2;
+                                            vert = vert - 1;
+                                            break;
+                                        case 2:
+                                            hori = hori + 1;
+                                            vert = vert - 2;
+                                            break;
+                                        case 3:
+                                            hori = hori + 2;
+                                            vert = vert + 1;
+                                            break;
+                                    }
+                                    rotationIndex = rotationIndex < 3 ? rotationIndex + 1 : 0;
                                 }
-                                break;
-                            }
-                        }
 
-                        if (farStraightFound)
-                        {
-                            switch (rotationIndex)
+                                // T("New rotationIndex", rotationIndex, "hori", hori, "vert", vert);
+                            }
+
+                            for (int m = 1; m <= counter; m++)
                             {
-                                case 0:
-                                    hori = hori - 1;
-                                    vert = vert + 2;
-                                    break;
-                                case 1:
-                                    hori = hori - 2;
-                                    vert = vert - 1;
-                                    break;
-                                case 2:
-                                    hori = hori + 1;
-                                    vert = vert - 2;
-                                    break;
-                                case 3:
-                                    hori = hori + 2;
-                                    vert = vert + 1;
-                                    break;
+                                path.RemoveAt(path.Count - 1);
                             }
-                            rotationIndex = rotationIndex < 3 ? rotationIndex + 1 : 0;
                         }
+                        // if the area is 1W, after stepping down we exit at 1, 0 and sequence may exist on the right side.
+                        else if (white == black + 1)
+                        {
 
-                        // T("New rotationIndex", rotationIndex, "hori", hori, "vert", vert);
-                    }
-
-                    for (int m = 1; m <= counter; m++)
-                    {
-                        path.RemoveAt(path.Count - 1);
+                        }
                     }
                 }
             }
