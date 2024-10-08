@@ -3138,16 +3138,19 @@ void CheckStairAtEndConvex()
                                     }
                                 }
                                 // 0516_2: across up, mid across down
-                                else if (black == white + vert + 1 && CheckNearFieldSmallRel1(hori - 2, vert + 1, 0, 0, true) && CheckNearFieldSmallRel0(hori - 2, vert + 1, 1, 0, true))
+                                else if (black == white + vert + 1)
                                 {
-                                    AddExamAreas();
-                                    // T("CheckStairAtEndConvex 1B at " + hori + " " + vert + ": Cannot step left");
-                                    AddForbidden(1, 0);
-
-                                    if (j == 1)
+                                    if (CheckNearFieldSmallRel1(hori - 2, vert + 1, 0, 0, true) && CheckNearFieldSmallRel0(hori - 2, vert + 1, 1, 0, true))
                                     {
-                                        // T("CheckStairAtEndConvex 1B at " + hori + " " + vert + ": Cannot step down");
-                                        AddForbidden(0, -1);
+                                        AddExamAreas();
+                                        // T("CheckStairAtEndConvex 1B at " + hori + " " + vert + ": Cannot step left");
+                                        AddForbidden(1, 0);
+
+                                        if (j == 1)
+                                        {
+                                            // T("CheckStairAtEndConvex 1B at " + hori + " " + vert + ": Cannot step down");
+                                            AddForbidden(0, -1);
+                                        }
                                     }
                                 }
                             }
@@ -3179,10 +3182,13 @@ void CheckStairAtEndConvexStraight3()
 
 // Straight:
 // 0905 mid across
+// 1008 corner
 
 // AreaUp:
 // 0916 across
 // 665575 mid across
+
+// Stair addition: 1006_1
 {
     for (int i = 0; i < 2; i++)
     {
@@ -3272,11 +3278,25 @@ void CheckStairAtEndConvexStraight3()
                             {
                                 int black = (int)info[1];
                                 int white = (int)info[2];
-
+                                
                                 if (black - white == vert)
                                 {
-                                    if (CheckNearFieldSmallRel1(hori - 2, vert, 1, 0, true))
+                                    int counter = 0;
+                                    for (int k = 0; k < vert; k++)
                                     {
+                                        // corners of the stair will be filled later
+                                        path.Add(new int[] { x + (k + 1) * lx + k * sx, y + (k + 1) * ly + k * sy });
+                                        counter++;
+                                    }
+
+                                    if (CheckCorner1(hori - 2, vert, 1, 0, circleDirectionLeft, true))
+                                    {
+                                        for (int k = 0; k < counter; k++)
+                                        {
+                                            path.RemoveAt(path.Count - 1);
+                                        }
+                                        counter = 0;
+
                                         AddExamAreas();
                                         // T("CheckStairAtEndConvexStraight3 start obstacle: Cannot step left");
                                         AddForbidden(1, 0);
@@ -3287,6 +3307,74 @@ void CheckStairAtEndConvexStraight3()
                                             AddForbidden(0, -1);
                                         }
                                     }
+                                    else // 1006_1: stair on left after exiting area
+                                    {   
+                                        int h = hori - 1;
+                                        int v = vert + 1;
+                                        if (InTakenRel(h, v + 1) && !InTakenRel(h, v))
+                                        {
+                                            bool stairFound = true;
+
+                                            path.Add(new int[] { x + (vert + 1) * lx + vert * sx, y + (vert + 1) * ly + vert * sy });
+                                            counter++;
+
+                                            while(stairFound)
+                                            {
+                                                h--;
+                                                v++;
+
+                                                if (!(InTakenRel(h, v + 1) && !InTakenRel(h, v)))
+                                                {
+                                                    stairFound = false;
+                                                }
+                                                // Add field to taken for countarea, except at the first stair step
+                                                else if (v != vert + 2)
+                                                {
+                                                    path.Add(new int[] { x + (h + 1) * lx + (v- 2) * sx, y + (h + 1) * ly + (v - 2) * sy });
+                                                    counter++;
+                                                }
+
+                                                if (stairFound)
+                                                {
+                                                    ResetExamAreas();
+
+                                                    if (CheckCorner1(h, v - 1, 1, 1, circleDirectionLeft, true))
+                                                    {
+                                                        for (int k = 0; k < counter; k++)
+                                                        {
+                                                            path.RemoveAt(path.Count - 1);
+                                                        }
+                                                        counter = 0;
+
+                                                        AddExamAreas();
+                                                        // T("CheckStairAtEndConvexStraight3 Stair: Cannot step left");
+                                                        AddForbidden(1, 0);
+                                                        if (j == 1) // big area
+                                                        {
+                                                            // T("CheckStairAtEndConvexStraight3 Stair: Cannot step down");
+                                                            AddForbidden(0, -1);
+                                                        }
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            h++;
+                                            v--;
+
+                                            for(int k = 0; k < counter; k++)
+                                            {
+                                                path.RemoveAt(path.Count - 1);
+                                            }
+                                            counter = 0;
+                                        }
+                                    }
+
+                                    for (int k = 0; k < counter; k++)
+                                    {
+                                        path.RemoveAt(path.Count - 1);
+                                    }
+                                    counter = 0;
                                 }
                             }
                         }                                

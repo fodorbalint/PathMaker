@@ -528,7 +528,9 @@ namespace OneWayLabyrinth
                             // replace possible absolute coordinates with values from file
                             ReplaceLastPossible(takenPossible);
 
+                            T("Number of possibles do not match at step " + taken.path.Count + ".");
                             M("Number of possibles do not match at step " + taken.path.Count + ".", 0);
+
                             break;
                         }
                         else
@@ -540,6 +542,7 @@ namespace OneWayLabyrinth
                                 {
                                     ReplaceLastPossible(takenPossible);
 
+                                    T("Wrong possible movements at step " + taken.path.Count + ".");
                                     M("Wrong possible movements at step " + taken.path.Count + ".", 0);
                                     toBreak = true;
                                     break;

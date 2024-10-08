@@ -2702,17 +2702,35 @@ StairAtEndConcave6 with other than 2 x mid across obstacles
 
 <b>To do:</b>
 
-Solve all sequence cases with a pattern:
+Main task:
+
+Solve all sequence cases with a pattern.
+
+Finished, needs documentation:
+
 0516_4/0516_5 added to Double Stair / Sequence2 
 0516/0516_1 became Sequence2
-0516_6/0516_7/0516_8 became SideStair -> It should be incorporated into Sequence2
+Further examples of Sequence2:
+1001 (From SideStairStraight, second obstacle is an area)
+1005 (going around, second obstacle is mid across),
+1006 (at last step, it is across on left side)
+1006_1: StairAtEndConvex 3 Stair
+1008: StairAtEndConvex, start obstacle is an area instead of close mid across
+
+Ongoing:
+
+0516_6/0516_7/0516_8 became SideStair -> It should be incorporated into Sequence2. New start area needs to be defined.
+Modify Sequence2: In case of stepping down, the sequence will run on the right side (1008_1 is an impair area. 0516 was a pair area.)
 Sequence case 4 can be incorporated into Sequence2 (0723). Start obstacle is a stair instead of a straight far obstacle.
-Further examples of Sequence2: 1001, 1005
-Modify Sequence2: In case of stepping down, the sequence will run on the right side (0516 is valid, error case 1 is not)
+Other right-side sequences to handle: 0722, 0811
+
+<!---->
+
+Other tasks:
 
 StairAtStart: are there 5 and 6-distance top stairs?
 Hypothesis: A wrong rule that unnecessarily disables a field does not only limit the number of walkthroughs but will result in a stuck case.
-Page 180: rewrite corner 5 1 extended stair 2.svg for stair at end convext straight.
+Page 180: rewrite corner 5 1 extended stair 2.svg for stair at end convex straight.
 0516_2 is both StairAtEndConvex and StairAtStart (representation: StairAtEndConvex 3 1 now nostair.svg and StairAtEndConvex 3 2 now nostair.svg)
 Make pattern set representation: 0625 can be extended vertically, holding a fixed 2 horizontal distance, or in a stair at the far end, so that vert = hori + 2. The two can also be combined. The same can happen with 0625_1, which is just one vertical distance shorter. (Stair extension: 0712)
 

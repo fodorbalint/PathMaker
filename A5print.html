@@ -2175,17 +2175,32 @@ StraightSmall 2 and 3 with stair leg, like StairAtEndConcave5 and 6.<br />
 StairAtEndConcave6 with other than 2 x mid across obstacles</div><div class="num">216</div></td></tr>
 <tr><td><div class="border"></div><div><b>To do:</b><br />
 <br />
-Solve all sequence cases with a pattern:<br />
+Main task:<br />
+<br />
+Solve all sequence cases with a pattern.<br />
+<br />
+Finished, needs documentation:<br />
+<br />
 0516_4/0516_5 added to Double Stair / Sequence2 <br />
 0516/0516_1 became Sequence2<br />
-0516_6/0516_7/0516_8 became SideStair -> It should be incorporated into Sequence2<br />
+Further examples of Sequence2:<br />
+1001 (From SideStairStraight, second obstacle is an area)<br />
+1005 (going around, second obstacle is mid across),<br />
+1006 (at last step, it is across on left side)<br />
+1006_1: StairAtEndConvex 3 Stair<br />
+1008: StairAtEndConvex, start obstacle is an area instead of close mid across<br />
+<br />
+Ongoing:<br />
+<br />
+0516_6/0516_7/0516_8 became SideStair -> It should be incorporated into Sequence2. New start area needs to be defined.<br />
+Modify Sequence2: In case of stepping down, the sequence will run on the right side (1008_1 is an impair area. 0516 was a pair area.)<br />
 Sequence case 4 can be incorporated into Sequence2 (0723). Start obstacle is a stair instead of a straight far obstacle.<br />
-Further examples of Sequence2: 1001, 1005<br />
-Modify Sequence2: In case of stepping down, the sequence will run on the right side (0516 is valid, error case 1 is not)<br />
+Other right-side sequences to handle: 0722, 0811</div><div class="num">217</div></td>
+<td><div class="border"></div><div>Other tasks:<br />
 <br />
 StairAtStart: are there 5 and 6-distance top stairs?<br />
 Hypothesis: A wrong rule that unnecessarily disables a field does not only limit the number of walkthroughs but will result in a stuck case.<br />
-Page 180: rewrite corner 5 1 extended stair 2.svg for stair at end convext straight.<br />
+Page 180: rewrite corner 5 1 extended stair 2.svg for stair at end convex straight.<br />
 0516_2 is both StairAtEndConvex and StairAtStart (representation: StairAtEndConvex 3 1 now nostair.svg and StairAtEndConvex 3 2 now nostair.svg)<br />
 Make pattern set representation: 0625 can be extended vertically, holding a fixed 2 horizontal distance, or in a stair at the far end, so that vert = hori + 2. The two can also be combined. The same can happen with 0625_1, which is just one vertical distance shorter. (Stair extension: 0712)<br />
 <br />
@@ -2263,7 +2278,6 @@ Big area:<br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
 <img align="top" src="References/side straight big 3.svg" width="23.809523809524%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 4.svg" width="28.571428571429%" /><br />
 <img src="References/spacer.svg" height="19.047619047619px" /><br />
-<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">217</div></td>
-<td class="right"><div class="border"></div></td></tr>
+<img align="top" src="References/side straight big 5.svg" width="33.333333333333%" /><img src="References/spacer.svg" width="4.7619047619048%" /><img align="top" src="References/side straight big 6.svg" width="38.095238095238%" />--></div><div class="num">218</div></td></tr>
  
 </table>
