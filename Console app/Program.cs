@@ -659,6 +659,8 @@ void NextStepPossibilities2()
                     CheckStairArea();
                     // T("CheckStairAtStart " + ShowForbidden());
                     CheckStairAtStart();
+                    // T("CheckStairAtStartEqual " + ShowForbidden());
+                    CheckStairAtStartEqual();
                     // T("CheckStairAtEndConvex " + ShowForbidden());
                     CheckStairAtEndConvex(); // 0718, reverse stair 1/2, 0720_2, 0731: 3 obstacles 
                     // T("CheckStairAtEndConvexStraight3 " + ShowForbidden());
@@ -2791,7 +2793,7 @@ void CheckStairAtStart()
 
         for (int j = 0; j < 4; j++)
         {
-            if (j != 1 && j != 2)
+            if (j != 1 && j != 2) // rotate to small area
             {
                 int topDist = 4;
 
@@ -2894,7 +2896,7 @@ void CheckStairAtStart()
                                 // 0725_5: mid across down, mid across up
                                 // 0726_1: across, mid across
                                 // 0726_2: mid across, area
-                                T(black + ex - 3);
+
                                 if (topDist == 3 && black == white + ex - 2)
                                 {
                                     // Add future fields in order to be able to draw the second area
@@ -2973,6 +2975,139 @@ void CheckStairAtStart()
     ly = thisLy;
 }
 
+void CheckStairAtStartEqual()
+{
+    // B = W area, corner obstacle at return stair
+    // 1012_1
+    // Find case where first obstacle is a corner relative to the area
+
+    for (int i = 0; i < 2; i++)
+    {
+        bool circleDirectionLeft = (i == 0) ? true : false;
+
+        for (int j = 0; j < 4; j++)
+        {
+            if (j != 1 && j != 2) // rotate to small area
+            {
+                int dist = size; // vertical distance
+                int quarter = quarters[i][j];
+                foreach (int[] corner in closedCorners[quarter])
+                {
+                    if (j == 0 && corner[1] == corner[0] + 4)
+                    {
+                        if (corner[1] < dist) dist = corner[1];
+                    }
+                    else if (j == 3 && corner[0] == corner[1] + 4)
+                    {
+                        if (corner[0] < dist) dist = corner[0];
+                    }
+                }
+
+                if (dist < size)
+                {
+                    // T("CheckStairAtStartEqual distance " + (dist - 1), "side " + i, "rotation " + j);
+
+                    bool distanceEmpty = true;
+                    for (int k = 1; k <= dist - 1; k++)
+                    {
+                        if (k <= 3)
+                        {
+                            if (InTakenRel(0, k)) distanceEmpty = false;
+                        }
+                        else
+                        {
+                            if (InTakenRel(k - 3, k)) distanceEmpty = false;
+                        }
+                    }
+
+                    if (distanceEmpty)
+                    {
+                        int i1, i2;
+                        i1 = InTakenIndexRel(dist - 4, dist);
+                        i2 = InTakenIndexRel(dist - 3, dist);
+
+                        if (i2 > i1)
+                        {
+                            List<int[]> borderFields = new();
+                            int ex = dist - 1;
+
+                            for (int k = ex - 1; k >= 2; k--)
+                            {
+                                if (k >= 3)
+                                {
+                                    borderFields.Add(new int[] { k - 2, k });
+                                    borderFields.Add(new int[] { k - 3, k });
+                                }
+                                else
+                                {
+                                    borderFields.Add(new int[] { 0, k });
+                                }
+                            }
+
+                            ResetExamAreas();
+
+                            if (CountAreaRel(0, 1, ex - 3, ex, borderFields, circleDirectionLeft, 2, true))
+                            {
+                                int black = (int)info[1];
+                                int white = (int)info[2];
+
+                                if (black == white)
+                                {
+                                    int counter = 0;
+
+                                    for (int k = ex - 1; k >= 3; k--)
+                                    {
+                                        path.Add(new int[] { x + (k - 2) * lx + (k + 1) * sx, y + (k - 2) * ly + (k + 1) * sy });
+                                        counter++;
+
+                                        if (CheckCorner1(k - 3, k, 0, 2, circleDirectionLeft, true))
+                                        {
+                                            for (k = 0; k < counter; k++)
+                                            {
+                                                path.RemoveAt(path.Count - 1);
+                                            }
+                                            counter = 0;
+
+                                            AddExamAreas();
+
+                                            // T("CheckStairAtStartEqual: Cannot step up");
+                                            AddForbidden(0, 1);
+
+                                            break;
+                                        }
+                                    }
+
+                                    for (int k = 0; k < counter; k++)
+                                    {
+                                        path.RemoveAt(path.Count - 1);
+                                    }
+                                    counter = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // rotate CW
+            int s0 = sx;
+            int s1 = sy;
+            sx = -lx;
+            sy = -ly;
+            lx = s0;
+            ly = s1;
+        }
+        sx = thisSx;
+        sy = thisSy;
+        lx = -thisLx;
+        ly = -thisLy;
+    }
+    sx = thisSx;
+    sy = thisSy;
+    lx = thisLx;
+    ly = thisLy;
+}
+
 void CheckStairAtEndConvex()
 
 // Enter later, 0B area:
@@ -2987,6 +3122,7 @@ void CheckStairAtEndConvex()
 // Enter now, 1B -> xB area:
 // StairAtEndConvex 3 1 / 3 2 now nostair
 // 0516_2: across up, mid across down
+// 1012: mid across up, across down
 
 // Corner for convex and concave area can both exist at the same time (0831), so they need two separate functions
 {
@@ -3138,9 +3274,10 @@ void CheckStairAtEndConvex()
                                     }
                                 }
                                 // 0516_2: across up, mid across down
+                                // 1012: mid across up, across down
                                 else if (black == white + vert + 1)
                                 {
-                                    if (CheckNearFieldSmallRel1(hori - 2, vert + 1, 0, 0, true) && CheckNearFieldSmallRel0(hori - 2, vert + 1, 1, 0, true))
+                                    if (CheckNearFieldSmallRel1(hori - 2, vert + 1, 0, 0, true) && CheckNearFieldSmallRel1(hori - 2, vert + 1, 1, 0, true))
                                     {
                                         AddExamAreas();
                                         // T("CheckStairAtEndConvex 1B at " + hori + " " + vert + ": Cannot step left");
@@ -4263,7 +4400,7 @@ void CheckStartObstacleInside()
 // When we enter the area, we need to step up. There is a close obstacle the other way inside the area.
 // 0619, 0818: straight
 // 0618, 0717_1, 0717_2: area up
-// 0817: corner
+// 0811, 0817: corner
 // Example needed for corner (y - x) % 4 = 2 (0619 extension)
 {
     for (int i = 0; i < 2; i++)
@@ -5845,8 +5982,6 @@ void CheckSequence2()
                                 // T("Added", path[path.Count - 1][0], path[path.Count - 1][1], "at", counter);
 
                                 // T("Checking relX", hori - 2 * hx, "relY", vert - 2 * hy);
-                                path.RemoveAt(path.Count - 1);
-                                counter--;
 
                                 ResetExamAreas();
 

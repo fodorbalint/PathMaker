@@ -2717,14 +2717,17 @@ Further examples of Sequence2:
 1006_1: StairAtEndConvex 3 Stair
 1008: StairAtEndConvex, start obstacle is an area instead of close mid across
 0516_6/0516_7/0516_8 became SideStair -> Incorporated into Sequence2 (Start obstacle is -1 vertical).
+0811 became StartObstacleInside
+1012_1: StairAtStartEqual
 
 Ongoing:
 
 Modify Sequence2: In case of stepping down, the sequence will run on the right side (1008_1 is an impair area. 0516 was a pair area.)
 Sequence case 4 can be incorporated into Sequence2 (0723). Start obstacle is a stair instead of a straight far obstacle.
-Other right-side sequences to handle: 0722, 0811
 
 <!---->
+
+Right-side sequence not yet solved with stair pattern: 0722
 
 Other tasks:
 
