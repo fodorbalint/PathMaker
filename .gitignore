@@ -4,6 +4,7 @@
 
 .vs/
 obj/
+folkaet/
 
 /bin/Debug/net6.0-windows/completedPaths.txt
 /bin/Debug/net6.0-windows/log_stats.txt

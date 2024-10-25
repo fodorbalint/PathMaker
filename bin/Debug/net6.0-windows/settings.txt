@@ -1,4 +1,4 @@
-size: 13
+size: 11
 loadFromFile: True
 saveOnCompletion: True
 continueOnCompletion: True
@@ -9,5 +9,3 @@ makeStats: True
 activeRules: False
 checkerArea: True
 checkerBoard: False
-ruleXSize: 6
-ruleYSize: 7
