@@ -3319,7 +3319,8 @@ void CheckStairAtEndConvexStraight3()
 
 // Straight:
 // 0905 mid across
-// 1008 corner
+// 0706 (also Sequence2), 1008 corner
+
 
 // AreaUp:
 // 0916 across
@@ -5415,7 +5416,7 @@ void CheckSequence()
 
     // Fifth case, 0724_1: Step right next step C-shape. There is an obstacle 2 distance to the right to start with.
 
-    for (int i = 0; i < 2; i++)
+    /*for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < 2; j++)
         {
@@ -5487,6 +5488,7 @@ void CheckSequence()
     sy = thisSy;
     lx = thisLx;
     ly = thisLy;
+    */
 
     // Sixth case: 0727_5, implemented in UpExtended
 }
@@ -5781,6 +5783,8 @@ void CheckSequence2()
 // Start at 3,-1
 // 0516_6, 0516_7, 0516_8: across, 3 rotations
 
+// Start at 3, 1
+// 0722, 1014
 
 // Start at stair: 0723
 {
@@ -5807,7 +5811,7 @@ void CheckSequence2()
                     hori++;
                 }
 
-                if (hori == 3)
+                if (hori == 3 && !InTakenRel(hori, vert + 1))
                 {
                     i1 = InTakenIndexRel(hori, vert);
                     i2 = InTakenIndexRel(hori, vert - 1);
@@ -5818,6 +5822,29 @@ void CheckSequence2()
                         startObstacleValid = true;
                     }
                 }
+
+                /*f (!startObstacleValid)
+                {
+                    hori = 1;
+                    vert = 1;
+
+                    while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                    {
+                        hori++;
+                    }
+
+                    if (hori == 3 && !InTakenRel(hori, vert + 1))
+                    {
+                        i1 = InTakenIndexRel(hori, vert);
+                        i2 = InTakenIndexRel(hori, vert - 1);
+
+                        if (i2 != -1 && i2 > i1)
+                        {
+                            // T("CheckSequence2 1, side", i, "rotation", j);
+                            startObstacleValid = true;
+                        }
+                    }
+                }*/
             }
 
             if (!startObstacleValid && j < 3)
@@ -5830,7 +5857,7 @@ void CheckSequence2()
                     hori++;
                 }
 
-                if (hori == 3)
+                if (hori == 3 && !InTakenRel(hori, vert + 1))
                 {
                     i1 = InTakenIndexRel(hori, vert);
                     i2 = InTakenIndexRel(hori, vert - 1);
@@ -5872,11 +5899,6 @@ void CheckSequence2()
                         // T("area counted, black = white");
                         sequenceValid = true;
                     }
-                    // if the area is 1W, after stepping down we exit at 1, 0 and sequence may exist on the right side. 1008_1
-                    else if (white == black + 1)
-                    {
-
-                    }
                 }
                 else if (stairStart)
                 {
@@ -5900,6 +5922,12 @@ void CheckSequence2()
                     {
                         // Add left fields
                         path.Add(new int[] { x + lx, y + ly });
+
+                        /*if (vert == 1)
+                        {
+                            path.Add(new int[] { x + 2 * lx + sx, y + 2 * ly + sy});
+                            counter++;
+                        }*/
                     }
                     else
                     {
@@ -5909,7 +5937,7 @@ void CheckSequence2()
                         counter++;
                     }
                     
-                    // T("Added start", path[path.Count - 1][0], path[path.Count - 1][1], "at", counter);
+                    // T("Added start", path[path.Count - 1][0], path[path.Count - 1][1], "at", counter, "hori "  + hori, "vert " + vert);
 
                     // start at hori 3, vert 0
                     while (stepFound || farStraightFound)
@@ -5917,6 +5945,7 @@ void CheckSequence2()
                         stepFound = false;
                         farStraightFound = false;
                         bool acrossFound = false; // 1006. Across obstacle encountered on the left. It appears at the end of the sequence, does not take part in adding a step to it.
+                        // 0704, 1014
 
                         // new imaginary step
                         hori += rotations[rotationIndex][0]; // 4
@@ -5986,7 +6015,27 @@ void CheckSequence2()
                             }
                         }
 
-                        // T("hori", hori, "vert", vert, "straightFound", farStraightFound, "stepFound", stepFound, "acrossFound", acrossFound);
+                        ResetExamAreas();
+
+                        // 0704, 1014, double area at first step. For subsequent steps, rotation has to be changed from 0 to its actual value.
+
+                        if (CheckCorner1(hori - 2 * hx, vert - 2 * hy, 0, 0, circleDirectionLeft, true) && CheckNearFieldSmallRel0(hori - 2 * hx, vert - 2 * hy, 1, 0, true))
+                        {
+                            AddExamAreas(true);
+
+                            for (int m = 1; m <= counter; m++)
+                            {
+                                path.RemoveAt(path.Count - 1);
+                            }
+                            counter = 0;
+
+                            // T("CheckSequence2 at relative " + (hori - 2 * hx) + " " + (vert - 2 * hy) + ": Cannot step left");
+                            AddForbidden(1, 0);
+
+                            break;
+                        }
+
+                         // T("hori", hori, "vert", vert, "straightFound", farStraightFound, "stepFound", stepFound, "acrossFound", acrossFound);
 
                         if (farStraightFound || stepFound || acrossFound)
                         {

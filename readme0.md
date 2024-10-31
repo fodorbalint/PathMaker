@@ -2720,13 +2720,15 @@ Further examples of Sequence2:
 0811 became StartObstacleInside
 1012_1: StairAtStartEqual
 Sequence case 4 can be incorporated into Sequence2 (0723). Start obstacle is a stair instead of a straight far obstacle.
+0706 added to StairAtEndConvexStraight3
+Sequence2 extended: Area on left side, close obstacle on right (0704, 1014)
 
 <!---->
 
 Ongoing:
 
-Right-side sequence not yet solved with stair pattern: 0722, 1014
-Look into Sequence case 5
+0722: nested 3 x 3 areas. If we start the sequence at the outer area (1 left, 2 straight), there will be a valid sequence.
+Look into Sequence case 5 (0724_1) and 6 (0727_5)
 
 Other tasks:
 
