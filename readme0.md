@@ -2725,9 +2725,11 @@ Sequence2 extended: Area on left side, close obstacle on right (0704, 1014)
 
 <!---->
 
+0722 is solved by the specific 3x3Stair function, no sequence applied.
+For one case that does not fit into the system, it is okay to treat it separately. If more, similar cases are found in the future, they can be grouped.
+
 Ongoing:
 
-0722: nested 3 x 3 areas. If we start the sequence at the outer area (1 left, 2 straight), there will be a valid sequence.
 Look into Sequence case 5 (0724_1) and 6 (0727_5)
 
 Other tasks:

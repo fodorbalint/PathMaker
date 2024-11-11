@@ -703,6 +703,8 @@ void NextStepPossibilities2()
                     //CheckSideStair();
                     // T("CheckSideStairStraight " + ShowForbidden());
                     // CheckSideStairStraight(); -> Sequence 2
+                    // T("Check3x3Stair " + ShowForbidden());
+                    Check3x3Stair();
                     // T("CheckSequence2 " + ShowForbidden());
                     CheckSequence2();
                     // T("CheckRemoteStair " + ShowForbidden());
@@ -6146,6 +6148,56 @@ void CheckSequence2()
                 }
             }
             
+            // rotate CW
+            int s0 = sx;
+            int s1 = sy;
+            sx = -lx;
+            sy = -ly;
+            lx = s0;
+            ly = s1;
+        }
+        sx = thisSx;
+        sy = thisSy;
+        lx = -thisLx;
+        ly = -thisLy;
+    }
+    sx = thisSx;
+    sy = thisSy;
+    lx = thisLx;
+    ly = thisLy;
+}
+
+void Check3x3Stair() // 0722 / 3x3Stair. It is not a nested 3x3 area sequence. 1111 shows, even if we step down, there will be two-way choice later.
+{
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            if (InTakenRel(3,0) && InTakenRel(5, 1) && InTakenRel(1, 3) && InTakenRel(2, 4) && InTakenRel(3, 5) &&
+                !InTakenRel(2, 0) && !InTakenRel(3, 1) && !InTakenRel(4, 1) && !InTakenRel(5, 2) && !InTakenRel(1, 2) && !InTakenRel(2, 3) && !InTakenRel(3, 4))
+            {
+                int i1 = InTakenIndexRel(3, 0);
+                int i2 = InTakenIndexRel(3, -1);
+
+                if (i2 > i1)
+                {
+                    i1 = InTakenIndexRel(5, 1);
+                    i2 = InTakenIndexRel(5, 0);
+
+                    if (i2 > i1)
+                    {
+                        i1 = InTakenIndexRel(1, 3);
+                        i2 = InTakenIndexRel(0, 3);
+
+                        if (i2 > i1)
+                        {
+                            // T("Check3x3Stair at side " + i + " rotation " + j);
+                            AddForbidden(1, 0);
+                        }
+                    }
+                }                          
+            }
+
             // rotate CW
             int s0 = sx;
             int s1 = sy;
