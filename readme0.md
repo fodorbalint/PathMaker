@@ -2428,6 +2428,20 @@ For now, we apply the mid across obstacle to the last step, and the across to th
 
 <!---->
 
+<b>7. Sequence extensions</b>
+
+<img align="top" src="References/2024_0706_1.svg" width="11" />
+
+It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.
+
+<!---->
+
+<img align="top" src="References/2024_0713.svg" width="11" />
+
+Third case (page 146). In this, when we exit the 2&nbsp;x&nbsp;4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.
+
+<!---->
+
 <img align="top" src="References/2024_0704.svg" width="11" />
 
 Second case (page 145). Until now, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. 
@@ -2495,6 +2509,10 @@ It is also obvious that it has two rotations.
 This can be considered as the fifth start area of sequence, but what in reality happens here is that we start with an 5&nbsp;x&nbsp;3 area which is 1B, and in order to fill it after entering at white, we have to exit at the farthest black and then fill the corner black separately.
 But when we exit for the first time, a stair shape will force the line on a course that leads to a C-shape on the left and a close across obstacle on the right. The corner black will therefore not be filled.
 In the program, we apply sequence after discovering a start area like this. We may consider extending the rule for a larger horizontal distance, adding +1B value for every 4 extension, but it is not safe to do so, because then the area can be filled even if we do not exit at the farthest black for the first time.
+
+<!---->
+
+
 
 <!---->
 
@@ -2727,10 +2745,11 @@ Sequence2 extended: Area on left side, close obstacle on right (0704, 1014)
 
 0722 is solved by the specific 3x3Stair function, no sequence applied.
 For one case that does not fit into the system, it is okay to treat it separately. If more, similar cases are found in the future, they can be grouped.
+0727_5 is added to Sequence2, but we need to think about a general UpExtended start area where distance to the obstacle % 4 = 3.
 
 Ongoing:
 
-Look into Sequence case 5 (0724_1) and 6 (0727_5)
+Look into Sequence case 5 (0724_1)
 
 Other tasks:
 
