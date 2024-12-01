@@ -5119,6 +5119,9 @@ namespace OneWayLabyrinth
         // 0724: up across, down mid across
         // 0725_2: up area, down mid across
         // 0727_2: up mid across, down across
+
+        // Start at 4, 0: 1115 (area is straight)
+
         {
             for (int i = 0; i < 2; i++)
             {
@@ -5190,6 +5193,30 @@ namespace OneWayLabyrinth
                                 vertLow = true;
                             }
                         }
+
+                        if (!startObstacleValid)
+                        {
+                            hori = 1;
+                            vert = 0;
+
+                            while (!InTakenRel(hori, vert) && !InBorderRel(hori, vert))
+                            {
+                                hori++;
+                            }
+
+                            if (hori == 4 && !InTakenRel(hori, vert + 1))
+                            {
+                                i1 = InTakenIndexRel(hori, vert);
+                                i2 = InTakenIndexRel(hori, vert - 1);
+
+                                if (i2 != -1 && i2 > i1)
+                                {
+                                    T("CheckSequence2 0 4, side", i, "rotation", j);
+                                    startObstacleValid = true;
+                                    vertLow = true;
+                                }
+                            }
+                        }
                     }
 
                     // stair start, 0723
@@ -5211,7 +5238,7 @@ namespace OneWayLabyrinth
 
                         if (!stairStart)
                         {
-                            if (hori == 4 && vert == -1) // 0727_5
+                            if (hori == 4 && (vert == -1 || vert == 0)) // 0727_5
                             {
                                 List<int[]> borderFields = new();
                                 borderFields.Add(new int[] { 2, 0 });
@@ -5265,7 +5292,7 @@ namespace OneWayLabyrinth
                             int counter = 1;
                             if (!stairStart)
                             {
-                                if (hori == 4 && vert == -1) // 0727_5
+                                if (hori == 4 && (vert == -1 || vert == 0)) // 0727_5
                                 {
                                     path.Add(new int[] { x + lx, y + ly });
                                     path.Add(new int[] { x + 3 * lx, y + 3 * ly });

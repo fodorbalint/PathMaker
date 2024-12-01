@@ -2746,6 +2746,7 @@ Sequence2 extended: Area on left side, close obstacle on right (0704, 1014)
 0722 is solved by the specific 3x3Stair function, no sequence applied.
 For one case that does not fit into the system, it is okay to treat it separately. If more, similar cases are found in the future, they can be grouped.
 0727_5 is added to Sequence2, but we need to think about a general UpExtended start area where distance to the obstacle % 4 = 3.
+1115 is solved by Sequence2 with a start obstacle at 4, 0.
 
 Ongoing:
 
@@ -2757,6 +2758,9 @@ StairAtStart: are there 5 and 6-distance top stairs?
 Hypothesis: A wrong rule that unnecessarily disables a field does not only limit the number of walkthroughs but will result in a stuck case.
 Page 180: rewrite corner 5 1 extended stair 2.svg for stair at end convex straight.
 0516_2 is both StairAtEndConvex and StairAtStart (representation: StairAtEndConvex 3 1 now nostair.svg and StairAtEndConvex 3 2 now nostair.svg)
+
+<!---->
+
 Make pattern set representation: 0625 can be extended vertically, holding a fixed 2 horizontal distance, or in a stair at the far end, so that vert = hori + 2. The two can also be combined. The same can happen with 0625_1, which is just one vertical distance shorter. (Stair extension: 0712)
 
 <!--
