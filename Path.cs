@@ -415,8 +415,8 @@ namespace OneWayLabyrinth
                                 T("CheckLeftRightAreaUpExtended " + ShowForbidden());
                                 CheckLeftRightAreaUpExtended(); // #1 close obstacle is at the end of the area, outside.
                                 T("CheckStairArea " + ShowForbidden());
-                                CheckStairArea();
-                                T("CheckStairAtStart " + ShowForbidden());
+                                /*CheckStairArea();
+                                T("CheckStairAtStart " + ShowForbidden());*/
                                 CheckStairAtStart();
                                 T("CheckStairAtStartEqual " + ShowForbidden());
                                 CheckStairAtStartEqual();
@@ -456,8 +456,8 @@ namespace OneWayLabyrinth
                                 CheckSequence();
                                 T("CheckNearStair " + ShowForbidden());
                                 CheckNearStair();
-                                T("CheckDoubleStair " + ShowForbidden());
-                                CheckDoubleStair();
+                                //T("CheckDoubleStair " + ShowForbidden());
+                                //CheckDoubleStair();
                                 //T("CheckSideStair " + ShowForbidden());
                                 //CheckSideStair();
                                 // T("CheckSideStairStraight " + ShowForbidden());
@@ -2023,6 +2023,7 @@ namespace OneWayLabyrinth
         }
 
         void CheckStairArea()
+        // Solved by Sequence2
         // 0630: Stair on one side, and one of the steps creates an area where we can only enter now.
         // 0720: Double close obstacle at the exit point
         // Also solved by sequence case 4, but this is redundant.
@@ -2653,7 +2654,7 @@ namespace OneWayLabyrinth
         // 0916 across
         // 665575 mid across
 
-        // Stair addition: 1006_1
+        // Stair addition: 0706_1, 1006_1
         {
             for (int i = 0; i < 2; i++)
             {
@@ -2772,7 +2773,7 @@ namespace OneWayLabyrinth
                                                     AddForbidden(0, -1);
                                                 }
                                             }
-                                            else // 1006_1: stair on left after exiting area
+                                            else // 0706_1, 1006_1: stair on left after exiting area
                                             {   
                                                 int h = hori - 1;
                                                 int v = vert + 1;
@@ -4868,7 +4869,7 @@ namespace OneWayLabyrinth
             ly = thisLy;
         }
 
-        void CheckDoubleStair() // 0706_1, Also Sequence2: 0516_4, 0516_5
+        void CheckDoubleStair() // 0706_1 -> StairAtEndConvex Stair, Also Sequence2: 0516_4, 0516_5
         {
             for (int i = 0; i < 2; i++)
             {
@@ -5111,9 +5112,9 @@ namespace OneWayLabyrinth
         // 0516_6, 0516_7, 0516_8: across, 3 rotations
 
         // Double area at first step:
-        // 0722, 1014
+        // 1014
 
-        // Start at stair: 0723
+        // Start at stair: 0630, 0720, 0723
 
         // Start at 4,-1: 0727_5 (Start area is UpExtended, distance to the first obstacle % 4 = 3)
         // 0724: up across, down mid across

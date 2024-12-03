@@ -2399,19 +2399,19 @@ Again, the distance can be increased, the area is now 2B:
 
 <!---->
 
-<b>7. Stair patterns</b>
+<b>7. Stair at end convex + stair sequence</b>
 
 <img align="top" src="References/2024_0706_1.svg" width="11" />
 
 It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.
-But let's phase out sequences and solve them in a different way that gives a recognizable pattern.
 
-<img align="top" src="References/double stair.svg" width="6" />
+<img align="top" src="References/StairAtEndConvex 3 Stair 1.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/StairAtEndConvex 3 Stair 2.svg" width="7" />
 
-Next to the remote stair, a similar path will go the opposite way. This creates two across obstacles with the live end and the taken field down left. If we step up, the blue fields can neither be filled before or after walking through the stair.
-I will call this Double Stair.
+Notice the start area has a convex borderline, and it forms a 3-long flat top and a stair-shaped leg in the generalized rule. On the left, the area is 1B, and on the right it is 2B. When we step to the left to enter a white field, we have to exit at the farthest black field. The corner blacks have to be filled individually.
 
 <!---->
+
+<b>8. Stair + 2 obstacles</b>
 
 <img align="top" src="References/2024_0726.svg" width="11" />
 
@@ -2419,42 +2419,42 @@ In this case, the line would continue on the right after exiting the area until 
 
 <img align="top" src="References/nearStair 1.svg" width="6" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/nearStair 2.svg" width="6" />
 
-On the right a theoretical extension is shown.
+On the right, a theoretical extension is shown. The blue fields cannot be filled.
 For now, we apply the mid across obstacle to the last step, and the across to the last before one, but there might come other combinations, like in the next case:
 
 <!---->
 
 <img align="top" src="References/2024_0713.svg" width="11" /><img src="References/spacer.svg" width="1" /><img align="top" src="References/nearStair 3.svg" width="6" />
 
-<!---->
-
-<b>7. Sequence extensions</b>
-
-<img align="top" src="References/2024_0706_1.svg" width="11" />
-
-It is the first case of sequence (page 142) where multiple steps have to be applied, just like we did at the second and third case.
+These cases were previously solved by applying a sequence on the right side after exiting an area on the left. This should, and can be avoided if we simplify the algorithm. 
 
 <!---->
 
-<img align="top" src="References/2024_0713.svg" width="11" />
+<b>9. 3 x 3 Stair</b>
 
-Third case (page 146). In this, when we exit the 2&nbsp;x&nbsp;4 area, the stair on the right side will eventually conflict with a corner up left. So far, we only applied the sequence on the left side (if the start area is on the left), but here, we need to start it on the right.
+This is another case where the sequence would be applied on the opposite of the normal side.
+
+<img align="top" src="References/2024_0722.svg" width="11" />
+
+Instead, we solve it with a specific pattern.
+
+<img align="top" src="References/3x3Stair.svg" width="6" />
+
+If one case that does not fit into the system, it is okay to treat it separately. If more, similar cases are found in the future, they can be grouped. Compare this with the previous cases.
 
 <!---->
+
+<b>10. Sequence extensions</b>
 
 <img align="top" src="References/2024_0704.svg" width="11" />
 
-Second case (page 145). Until now, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. 
+Second case of sequence (page 145). Until now, we only checked for C-shapes and close obstacles on the left side when we exit an area, and now we need to add corner discovery to find an obstacle at any x and y distance that creates an area we have to enter now. 
+
+<!---->
 
 In the next one, the area is on the right side.
 
 <img align="top" src="References/2024_0706.svg" width="11" />
-
-<!---->
-
-And here, the sequence has to be applied on the opposite side of what we are used to.
-
-<img align="top" src="References/2024_0722.svg" width="11" />
 
 A new start area might occur in the form of a next step C-shape. In this, there is a regular stair pattern that leads to an area on the right side.
 
@@ -2468,7 +2468,7 @@ There can also be two close obstacles in the end:
 
 And here is an example where the sequence is not only a stair but changes direction twice.
 
-<img align="top" src="References/2024_0723_1.svg" width="11" />
+<img align="top" src="References/2024_0723.svg" width="11" />
 
 <!---->
 
@@ -2732,7 +2732,6 @@ Further examples of Sequence2:
 1001 (From SideStairStraight, second obstacle is an area)
 1005 (going around, second obstacle is mid across),
 1006 (at last step, it is across on left side)
-1006_1: StairAtEndConvex 3 Stair
 1008: StairAtEndConvex, start obstacle is an area instead of close mid across
 0516_6/0516_7/0516_8 became SideStair -> Incorporated into Sequence2 (Start obstacle is -1 vertical).
 0811 became StartObstacleInside
@@ -2743,10 +2742,10 @@ Sequence2 extended: Area on left side, close obstacle on right (0704, 1014)
 
 <!---->
 
-0722 is solved by the specific 3x3Stair function, no sequence applied.
-For one case that does not fit into the system, it is okay to treat it separately. If more, similar cases are found in the future, they can be grouped.
 0727_5 is added to Sequence2, but we need to think about a general UpExtended start area where distance to the obstacle % 4 = 3.
 1115 is solved by Sequence2 with a start obstacle at 4, 0.
+
+CheckStairAtEndConvexStraight3 Stair is a sequence as well. (0706_1, 1006_1)
 
 Ongoing:
 
